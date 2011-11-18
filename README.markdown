@@ -47,5 +47,12 @@ To run foreman
 
 To view resque web application
 
-    > http://127.0.0.1:45678/overview
+    > firefox http://127.0.0.1:45678/overview
+
+
+##use latest application
+
+    > bundle install
+    > bundle exec rake app:dev:reload
+    > foreman start
 

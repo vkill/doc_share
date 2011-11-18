@@ -19,3 +19,7 @@
 //= require bootstrap-popover
 //= require bootstrap-scrollspy
 //= require bootstrap-tabs
+
+//= require i18n
+//= require i18n/translations
+

@@ -78,5 +78,9 @@ gem "inherited_resources", "~> 1.3.0"
 gem "high_voltage", "~> 1.0.1"
 gem "anjlab-bootstrap-rails", "~> 1.4.0.8", :require => "bootstrap-rails"
 
+
 gem "mail_view", "~> 1.0.2", :group => [:development]
+gem "i18n-js", "~> 2.1.2"
+gem "stringex", "~> 1.3.0"
+gem "immortal", "~> 1.0.5"
 
