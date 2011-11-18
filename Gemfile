@@ -77,3 +77,6 @@ gem "validates_email_format_of", "~> 1.5.3"
 gem "inherited_resources", "~> 1.3.0"
 gem "high_voltage", "~> 1.0.1"
 gem "anjlab-bootstrap-rails", "~> 1.4.0.8", :require => "bootstrap-rails"
+
+gem "mail_view", "~> 1.0.2", :group => [:development]
+

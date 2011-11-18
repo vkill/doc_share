@@ -11,4 +11,12 @@ class UserMailer < ActionMailer::Base
 
     mail to: "to@example.org"
   end
+
+  class Preview < MailView
+    def reset_password_email
+      ::UserMailer.reset_password_email
+    end
+  end
+
 end
+
