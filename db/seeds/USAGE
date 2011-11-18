@@ -1,0 +1,6 @@
+
+Generate seed with model, if you use machinist,
+e.g.
+
+  # user.rb
+  10.times { User.make! }

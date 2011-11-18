@@ -1,0 +1,16 @@
+
+common: &common
+  address: smtp.qq.com
+  port: 25
+  authentication: plain
+  user_name: 137518792
+  password: hyp123
+
+development:
+  <<: *common
+
+test:
+  <<: *common
+
+production:
+  <<: *common

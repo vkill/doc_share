@@ -1,0 +1,2 @@
+
+defined validator class inherit ActiveModel::EachValidator
