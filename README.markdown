@@ -50,8 +50,9 @@ To view resque web application
     > firefox http://127.0.0.1:45678/overview
 
 
-##use latest application
+##Use latest application
 
+    > git pull
     > bundle install
     > bundle exec rake app:dev:reload
     > foreman start
