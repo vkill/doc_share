@@ -1,0 +1,14 @@
+--- 
+en: 
+  active_record: 
+    models: 
+      setting_user_notification: SettingUserNotification
+    attributes: 
+      setting_user_notification: 
+        id: Id
+        user_id: User
+        user_followed: User followed
+        code_watched: Code watched
+        code_forked: Code forked
+        created_at: Created at
+        updated_at: Updated at

@@ -1,0 +1,14 @@
+--- 
+zh-CN: 
+  active_record: 
+    models: 
+      comment: Comment
+    attributes: 
+      comment: 
+        id: Id
+        commentable_id: Commentable
+        commentable_type: Commentable type
+        user_id: User
+        content: Content
+        created_at: Created at
+        updated_at: Updated at

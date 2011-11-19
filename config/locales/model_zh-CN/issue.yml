@@ -1,0 +1,22 @@
+--- 
+zh-CN: 
+  active_record: 
+    models: 
+      issue: Issue
+    attributes: 
+      issue: 
+        id: Id
+        user_id: User
+        repository_id: Repository
+        title: Title
+        content: Content
+        state: State
+        number_with_repo: Number with repo
+        created_at: Created at
+        updated_at: Updated at
+        comments_count: Comments count
+        enums: 
+          state: 
+            pending: Pending
+            processing: Processing
+            processed: Processed

@@ -1,0 +1,13 @@
+--- 
+en: 
+  active_record: 
+    models: 
+      role: Role
+    attributes: 
+      role: 
+        id: Id
+        name: Name
+        code: Code
+        describtion: Describtion
+        created_at: Created at
+        updated_at: Updated at

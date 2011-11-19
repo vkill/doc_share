@@ -1,0 +1,14 @@
+--- 
+zh-CN: 
+  active_record: 
+    models: 
+      target_follower: TargetFollower
+    attributes: 
+      target_follower: 
+        id: Id
+        follower_id: Follower
+        follower_type: Follower type
+        target_id: Target
+        target_type: Target type
+        created_at: Created at
+        updated_at: Updated at

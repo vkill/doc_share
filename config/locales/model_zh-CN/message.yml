@@ -1,0 +1,19 @@
+--- 
+zh-CN: 
+  active_record: 
+    models: 
+      message: Message
+    attributes: 
+      message: 
+        id: Id
+        sender_id: Sender
+        recerver_id: Recerver
+        category: Category
+        content: Content
+        is_readed: Is readed
+        created_at: Created at
+        updated_at: Updated at
+        enums: 
+          category: 
+            a: A
+            b: B

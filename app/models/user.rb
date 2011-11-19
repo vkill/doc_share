@@ -1,5 +1,16 @@
 class User < ActiveRecord::Base
+
   authenticates_with_sorcery!
+
+  has_and_belongs_to_many :roles, :join_table => :roles_users, :uniq => true
+  has_many :sent_messages, :foreign_key => :sender_id, :class_name => "Message"
+  has_many :received_messages, :foreign_key => :receiver_id, :class_name => "Message"
+  has_many :repositories
+  has_many :issues
+  has_many :comments, :as => :commentable
+
+
+
 end
 # == Schema Information
 #
@@ -22,5 +33,19 @@ end
 #  last_activity_at                :datetime
 #  failed_logins_count             :integer         default(0)
 #  lock_expires_at                 :datetime
+#  is_super_admin                  :boolean         default(FALSE)
+#  name                            :string(255)
+#  gender                          :string(255)
+#  site                            :string(255)
+#  company                         :string(255)
+#  location                        :string(255)
+#  state                           :string(255)
+#  repositories_count              :integer         default(0)
+#  issues_count                    :integer         default(0)
+#  comments_count                  :integer         default(0)
+#  messages_count                  :integer         default(0)
+#  followers_count                 :integer         default(0)
+#  watching_repositories_count     :integer         default(0)
+#  following_users_count           :integer         default(0)
 #
 

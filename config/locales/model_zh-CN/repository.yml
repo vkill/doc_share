@@ -1,0 +1,20 @@
+--- 
+zh-CN: 
+  active_record: 
+    models: 
+      repository: Repository
+    attributes: 
+      repository: 
+        id: Id
+        user_id: User
+        category_id: Category
+        ancestry: Ancestry
+        deleted: Deleted
+        name: Name
+        describtion: Describtion
+        visibility: Visibility
+        features: Features
+        created_at: Created at
+        updated_at: Updated at
+        watchers_count: Watchers count
+        issues_count: Issues count

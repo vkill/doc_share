@@ -5,7 +5,7 @@ gem 'rails', '3.1.1'
 # Bundle edge Rails instead:
 # gem 'rails',     :git => 'git://github.com/rails/rails.git'
 
-gem 'pg'
+gem 'pg', "~> 0.12.0pre258"
 
 
 # Gems used only for assets and not required
@@ -66,7 +66,7 @@ gem "haml-rails", "~> 0.3.4"
 gem "simple_form", "~> 1.5.2"
 gem "nested_form", "~> 0.1.1"
 gem "kaminari", "~> 0.12.4"
-gem "i18n_generators", "~> 1.1.0", :group => [:development]
+gem "i18n_attributes", "~> 0.1.0", :group => [:development]
 gem "seed_upgrade", "~> 0.1.0", :group => [:development]
 gem "client_side_validations", "~> 3.1.3"
 gem "carrierwave", "~> 0.5.8"

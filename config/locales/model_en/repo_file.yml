@@ -1,0 +1,9 @@
+--- 
+en: 
+  active_record: 
+    models: 
+      repo_file: Repo file
+    attributes: 
+      repo_file: 
+        repository: Repository
+        file: File

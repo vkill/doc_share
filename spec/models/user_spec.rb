@@ -24,5 +24,19 @@ end
 #  last_activity_at                :datetime
 #  failed_logins_count             :integer         default(0)
 #  lock_expires_at                 :datetime
+#  is_super_admin                  :boolean         default(FALSE)
+#  name                            :string(255)
+#  gender                          :string(255)
+#  site                            :string(255)
+#  company                         :string(255)
+#  location                        :string(255)
+#  state                           :string(255)
+#  repositories_count              :integer         default(0)
+#  issues_count                    :integer         default(0)
+#  comments_count                  :integer         default(0)
+#  messages_count                  :integer         default(0)
+#  followers_count                 :integer         default(0)
+#  watching_repositories_count     :integer         default(0)
+#  following_users_count           :integer         default(0)
 #
 
