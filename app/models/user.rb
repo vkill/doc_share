@@ -9,7 +9,7 @@ class User < ActiveRecord::Base
   has_many :issues
   has_many :comments, :as => :commentable
 
-
+  validates :password, :confirmation => true
 
 end
 # == Schema Information

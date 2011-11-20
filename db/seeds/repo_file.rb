@@ -1,4 +1,4 @@
 
 10.times do
-  Repo file.make!
+  RepoFile.make!
 end

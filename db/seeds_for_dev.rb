@@ -1,8 +1,16 @@
 # encoding: utf-8
-require 'database_cleaner'
-DatabaseCleaner.strategy = :truncation
-DatabaseCleaner.clean
 
+begin
+  require 'database_cleaner'
+rescue LoadError
+  ActiveRecord::Base.send :include, VkillGemsMethods::ActiveRecord::Base
+  ActiveRecord::Base.models do |model|
+    model.delete_all
+  end
+else
+  DatabaseCleaner.strategy = :truncation
+  DatabaseCleaner.clean
+end
 
 begin
   require Rails.root.join('spec', 'support', 'blueprints')

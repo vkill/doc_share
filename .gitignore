@@ -12,3 +12,7 @@ config/settings/*.local.yml
 config/environments/*.local.yml
 
 Gemfile.lock
+
+log/*.log.*
+public/uploads/
+

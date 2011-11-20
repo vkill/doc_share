@@ -49,8 +49,14 @@ To view resque web application
 
     > firefox http://127.0.0.1:45678/overview
 
+To run test
+
+    > guard
+
 
 ##Use latest application
+
+Enter the app directory, and run
 
     > git pull
     > bundle install

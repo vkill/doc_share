@@ -1,4 +1,4 @@
 
 10.times do
-  Setting user notification.make!
+  SettingUserNotification.make!
 end

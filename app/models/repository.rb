@@ -3,6 +3,7 @@ class Repository < ActiveRecord::Base
   belongs_to :user
   belongs_to :category
   has_many :repo_files
+  has_many :comments, :as => :commentable
 
 end
 

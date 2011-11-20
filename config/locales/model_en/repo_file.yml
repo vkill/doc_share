@@ -2,8 +2,11 @@
 en: 
   active_record: 
     models: 
-      repo_file: Repo file
+      repo_file: RepoFile
     attributes: 
       repo_file: 
-        repository: Repository
+        id: Id
+        repository_id: Repository
         file: File
+        created_at: Created at
+        updated_at: Updated at

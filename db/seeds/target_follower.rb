@@ -1,4 +1,4 @@
 
 10.times do
-  Target follower.make!
+  TargetFollower.make!
 end

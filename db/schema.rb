@@ -80,6 +80,7 @@ ActiveRecord::Schema.define(:version => 20111119144503) do
     t.datetime "updated_at"
     t.integer  "watchers_count", :default => 0
     t.integer  "issues_count",   :default => 0
+    t.integer  "comments_count", :default => 0
   end
 
   add_index "repositories", ["category_id"], :name => "index_repositories_on_category_id"

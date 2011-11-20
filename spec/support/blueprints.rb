@@ -1,5 +1,5 @@
 require 'machinist/active_record'
-
+include Rake::DSL
 # Add your blueprints here.
 #
 # e.g.
@@ -9,19 +9,32 @@ require 'machinist/active_record'
 #   end
 
 User.blueprint do
-  # Attributes here
+  username              { "user_#{sn}" }
+  email                 { Faker::Internet.email(object.username) }
+  password              { "123456" }
+  password_confirmation { object.password }
+  is_super_admin        { false }
+  name                  { Faker::NameCN.name }
+  site                  { Faker::Internet.http_url }
+  company               { Faker::LoremCN.word }
+  location              { Faker::Address.city }
 end
 
 Role.blueprint do
-  # Attributes here
+  name        { "name_#{sn}" }
+  code        { "code_#{sn}" }
+  describtion { Faker::LoremCN.word }
 end
 
 Category.blueprint do
-  # Attributes here
+  name        { "name_#{sn}" }
+  code        { "code_#{sn}" }
 end
 
 Comment.blueprint do
-  # Attributes here
+  user            { User.make! }
+  commentable     { Repository.make! }
+  content         { Faker::Lorem.words }
 end
 
 TargetFollower.blueprint do
@@ -29,21 +42,33 @@ TargetFollower.blueprint do
 end
 
 Repository.blueprint do
-  # Attributes here
+  user        { User.make! }
+  category    { Category.make! }
+  name        { "repo_#{sn}" }
+  describtion { Faker::Lorem.paragraph }
+  visibility  {  }
 end
 
 Issue.blueprint do
-  # Attributes here
+  user        { User.make! }
+  repository  { Repository.make! }
+  title       { Faker::Lorem.sentence }
+  content     { Faker::Lorem.words }
 end
 
 Message.blueprint do
-  # Attributes here
+  sender { User.make! }
+  receiver { User.make! }
+  content     { Faker::Lorem.paragraph }
+  is_readed   { false }
 end
 
 SettingUserNotification.blueprint do
-  # Attributes here
+  user  { User.make! }
 end
 
 RepoFile.blueprint do
-  # Attributes here
+  repository  { Repository.make! }
+  file        { File.open(Rails.root.join("config.ru").to_s) }
 end
+
