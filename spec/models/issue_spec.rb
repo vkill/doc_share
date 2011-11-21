@@ -1,7 +1,20 @@
 require 'spec_helper'
 
 describe Issue do
-  pending "add some examples to (or delete) #{__FILE__}"
+
+  context "valid_attribute" do
+    it { should have_valid(:user).when( User.make! ) }
+    it { should have_valid(:repository).when( Repository.make! ) }
+    it { should have_valid(:comments).when( [Comment.make!] ) }
+
+    it { should have_valid(:title).when('test_123' * 2 ) }
+    it { should_not have_valid(:title).when('s'*5, 's'*31, nil) }
+    it { should have_valid(:content).when('test_123' ) }
+    it { should_not have_valid(:content).when('s'*5, 's'*2001, nil) }
+    it { should have_valid(:state).when('open', 'closed' ) }
+    it { should_not have_valid(:state).when('test') }
+  end
+
 end
 # == Schema Information
 #

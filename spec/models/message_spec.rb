@@ -1,7 +1,17 @@
 require 'spec_helper'
 
 describe Message do
-  pending "add some examples to (or delete) #{__FILE__}"
+
+  context "valid_attribute" do
+    it { should have_valid(:sender).when( User.make! ) }
+    it { should have_valid(:receiver).when( User.make! ) }
+
+    it { should have_valid(:content).when('test_123' ) }
+    it { should_not have_valid(:content).when('s'*5, 's'*2001, nil) }
+    it { should have_valid(:category).when('system_notification', 'member_mailbox' ) }
+    it { should_not have_valid(:category).when('test', nil) }
+  end
+
 end
 # == Schema Information
 #

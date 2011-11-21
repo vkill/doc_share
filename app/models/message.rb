@@ -3,6 +3,12 @@ class Message < ActiveRecord::Base
   belongs_to :sender,   :class_name => 'User', :foreign_key => 'sender_id'
   belongs_to :receiver, :class_name => 'User', :foreign_key => 'receiver_id'
 
+  validates :content, :presence => true,
+                      :length => { :within => 6..2000 }
+  symbolize :category, :in => [:system_notification, :member_mailbox],
+                    :scopes => true, :i18n => true,
+                    :methods => true, :default => :member_mailbox
+
 end
 
 # == Schema Information

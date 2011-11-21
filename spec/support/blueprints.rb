@@ -1,5 +1,5 @@
 require 'machinist/active_record'
-include Rake::DSL
+
 # Add your blueprints here.
 #
 # e.g.
@@ -20,10 +20,14 @@ User.blueprint do
   location              { Faker::Address.city }
 end
 
+User.blueprint(:admin) do
+  is_super_admin { true }
+end
+
 Role.blueprint do
   name        { "name_#{sn}" }
   code        { "code_#{sn}" }
-  describtion { Faker::LoremCN.word }
+  describtion { Faker::LoremCN.paragraph }
 end
 
 Category.blueprint do
@@ -34,7 +38,7 @@ end
 Comment.blueprint do
   user            { User.make! }
   commentable     { Repository.make! }
-  content         { Faker::Lorem.words }
+  content         { Faker::Lorem.paragraph }
 end
 
 TargetFollower.blueprint do
@@ -52,8 +56,8 @@ end
 Issue.blueprint do
   user        { User.make! }
   repository  { Repository.make! }
-  title       { Faker::Lorem.sentence }
-  content     { Faker::Lorem.words }
+  title       { "title_#{sn}" }
+  content     { Faker::Lorem.paragraph }
 end
 
 Message.blueprint do

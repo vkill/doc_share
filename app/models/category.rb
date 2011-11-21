@@ -2,6 +2,8 @@ class Category < ActiveRecord::Base
 
   has_many :repositories
 
+  validates :name, :code, :presence => true, :uniqueness => true
+
 end
 
 # == Schema Information

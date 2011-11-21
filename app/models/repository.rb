@@ -3,7 +3,19 @@ class Repository < ActiveRecord::Base
   belongs_to :user
   belongs_to :category
   has_many :repo_files
+  has_many :issues
   has_many :comments, :as => :commentable
+
+  has_many :follower_followed, :as => :follower
+  with_options :through => :follower_followed, :source => :follower do |target|
+    target.has_many :watchers, :source_type => 'User'
+  end
+
+  validates :name, :presence => true,
+                      :length => { :within => 6..30 }
+  symbolize :visibility, :in => [:public, :private],
+                    :scopes => true, :i18n => true,
+                    :methods => true, :default => :public
 
 end
 

@@ -1,7 +1,18 @@
 require 'spec_helper'
 
 describe Comment do
-  pending "add some examples to (or delete) #{__FILE__}"
+
+  context "valid_attribute" do
+    it { should have_valid(:user).when( User.make! ) }
+
+    it { should have_valid(:content).when('test_123' ) }
+    it { should_not have_valid(:content).when('s'*5, 's'*2001, nil) }
+  end
+
+  context "associations" do
+    it { subject.association(:commentable).should be_a(ActiveRecord::Associations::BelongsToPolymorphicAssociation) }
+  end
+
 end
 # == Schema Information
 #

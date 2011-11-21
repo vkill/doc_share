@@ -1,7 +1,28 @@
 require 'spec_helper'
 
 describe Repository do
-  pending "add some examples to (or delete) #{__FILE__}"
+
+  context "valid_attribute" do
+    it { should have_valid(:user).when( User.make! ) }
+    it { should have_valid(:category).when( Category.make! ) }
+    it { should have_valid(:repo_files).when( [RepoFile.make!] ) }
+    it { should have_valid(:issues).when( [Issue.make!] ) }
+    it { should have_valid(:comments).when( [Comment.make!] ) }
+
+    it { should have_valid(:watchers).when( [User.make!] ) }
+
+
+    it { should have_valid(:name).when('test_123' * 2 ) }
+    it { should_not have_valid(:name).when('s'*5, 's'*31, nil) }
+    it { should have_valid(:visibility).when('public', 'private' ) }
+    it { should_not have_valid(:visibility).when('test') }
+  end
+
+  context "associations" do
+    it { subject.association(:follower_followed).should be_a(ActiveRecord::Associations::HasManyAssociation) }
+    it { subject.association(:watchers).should be_a(ActiveRecord::Associations::HasManyThroughAssociation) }
+  end
+
 end
 # == Schema Information
 #

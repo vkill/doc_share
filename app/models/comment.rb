@@ -3,6 +3,9 @@ class Comment < ActiveRecord::Base
   belongs_to :commentable, :polymorphic => true
   belongs_to :user
 
+  validates :content, :presence => true,
+                      :length => { :within => 6..2000 }
+
 end
 
 # == Schema Information

@@ -1,7 +1,13 @@
 require 'spec_helper'
 
 describe RepoFile do
-  pending "add some examples to (or delete) #{__FILE__}"
+
+  context "valid_attribute" do
+    it { should have_valid(:repository).when( Repository.make! ) }
+
+    it { should_not have_valid(:file).when(nil) }
+  end
+
 end
 # == Schema Information
 #

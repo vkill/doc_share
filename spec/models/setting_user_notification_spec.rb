@@ -1,7 +1,11 @@
 require 'spec_helper'
 
 describe SettingUserNotification do
-  pending "add some examples to (or delete) #{__FILE__}"
+
+  context "valid_attribute" do
+    it { should have_valid(:user).when( User.make! ) }
+  end
+
 end
 # == Schema Information
 #

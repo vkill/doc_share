@@ -1,5 +1,7 @@
 class SettingUserNotification < ActiveRecord::Base
+
   belongs_to :user
+
 end
 # == Schema Information
 #

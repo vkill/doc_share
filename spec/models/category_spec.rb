@@ -1,7 +1,20 @@
 require 'spec_helper'
 
 describe Category do
-  pending "add some examples to (or delete) #{__FILE__}"
+
+  context "valid_attribute" do
+
+    before { Category.create(:name => 'test', :code => 'test') }
+
+    it { should have_valid(:repositories).when([ Repository.make! ]) }
+
+    it { should have_valid(:name).when('test_123') }
+    it { should_not have_valid(:name).when(nil, 'test') }
+    it { should have_valid(:code).when('test_123') }
+    it { should_not have_valid(:code).when(nil, 'test') }
+
+  end
+
 end
 # == Schema Information
 #

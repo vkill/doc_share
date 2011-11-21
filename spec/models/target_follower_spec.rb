@@ -1,7 +1,15 @@
 require 'spec_helper'
 
 describe TargetFollower do
-  pending "add some examples to (or delete) #{__FILE__}"
+
+  context "valid_attribute" do
+    it { should have_valid(:user).when( User.make! ) }
+  end
+
+  context "associations" do
+    it { subject.association(:follower).should be_a(ActiveRecord::Associations::BelongsToPolymorphicAssociation) }
+    it { subject.association(:target).should be_a(ActiveRecord::Associations::BelongsToPolymorphicAssociation) }
+  end
 end
 # == Schema Information
 #

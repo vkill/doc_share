@@ -25,7 +25,7 @@ ActiveRecord::Schema.define(:version => 20111119144503) do
     t.integer  "commentable_id"
     t.string   "commentable_type"
     t.integer  "user_id"
-    t.string   "content"
+    t.text     "content"
     t.datetime "created_at"
     t.datetime "updated_at"
   end
@@ -50,7 +50,7 @@ ActiveRecord::Schema.define(:version => 20111119144503) do
 
   create_table "messages", :force => true do |t|
     t.integer  "sender_id"
-    t.integer  "recerver_id"
+    t.integer  "receiver_id"
     t.string   "category"
     t.text     "content"
     t.boolean  "is_readed",   :default => false
@@ -71,16 +71,17 @@ ActiveRecord::Schema.define(:version => 20111119144503) do
     t.integer  "user_id"
     t.integer  "category_id"
     t.string   "ancestry"
-    t.boolean  "deleted",        :default => false
+    t.boolean  "deleted",          :default => false
     t.string   "name"
     t.text     "describtion"
     t.string   "visibility"
     t.string   "features"
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.integer  "watchers_count", :default => 0
-    t.integer  "issues_count",   :default => 0
-    t.integer  "comments_count", :default => 0
+    t.integer  "watchers_count",   :default => 0
+    t.integer  "repo_files_count", :default => 0
+    t.integer  "issues_count",     :default => 0
+    t.integer  "comments_count",   :default => 0
   end
 
   add_index "repositories", ["category_id"], :name => "index_repositories_on_category_id"

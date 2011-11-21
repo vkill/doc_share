@@ -4,6 +4,13 @@ class Issue < ActiveRecord::Base
   belongs_to :repository
   has_many :comments, :as => :commentable
 
+  validates :title, :presence => true,
+                      :length => { :within => 6..30 }
+  validates :content, :presence => true,
+                      :length => { :within => 6..2000 }
+  symbolize :state, :in => [:open, :closed],
+                    :scopes => true, :i18n => true,
+                    :methods => true, :default => :open
 end
 
 # == Schema Information

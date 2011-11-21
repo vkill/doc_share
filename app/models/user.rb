@@ -3,13 +3,50 @@ class User < ActiveRecord::Base
   authenticates_with_sorcery!
 
   has_and_belongs_to_many :roles, :join_table => :roles_users, :uniq => true
-  has_many :sent_messages, :foreign_key => :sender_id, :class_name => "Message"
-  has_many :received_messages, :foreign_key => :receiver_id, :class_name => "Message"
   has_many :repositories
   has_many :issues
   has_many :comments, :as => :commentable
+  has_many :sent_messages, :foreign_key => :sender_id, :class_name => "Message"
+  has_many :received_messages, :foreign_key => :receiver_id, :class_name => "Message"
+  has_one :setting_user_notification
 
-  validates :password, :confirmation => true
+  has_many :target_followed, :as => :target
+  with_options :through => :target_followed, :source => :target do |follower|
+    follower.has_many :following_users, :source_type => 'User'
+    follower.has_many :watching_repositories, :source_type => 'Repository'
+  end
+
+  has_many :follower_followed, :as => :follower
+  with_options :through => :follower_followed, :source => :follower do |target|
+    target.has_many :followers, :source_type => 'User'
+  end
+
+
+  validates :username, :presence => true,
+                        :length => { :within => 6..30 },
+                        :uniqueness => true,
+                        :format => { :with => /^[A-Za-z0-9_]+$/ }
+  validates :email, :email_format => {:message => 'is not looking good'}
+  validates :password, :confirmation => true,
+                      :length => { :within => 6..30 }
+  symbolize :gender, :in => [:male, :female],
+                    :scopes => true, :i18n => true,
+                    :methods => true, :allow_blank => true
+  validates :name, :presence => true,
+                    :length => { :within => 2..30 }
+  validates_url :site
+
+
+  class << self
+    def current=(user)
+      Thread.current[:user] = user
+    end
+
+    def current
+      Thread.current[:user]
+    end
+  end
+
 
 end
 # == Schema Information

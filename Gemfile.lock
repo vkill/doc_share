@@ -299,6 +299,9 @@ GEM
     uglifier (1.1.0)
       execjs (>= 0.3.0)
       multi_json (>= 1.0.2)
+    url_validator (0.0.6)
+      addressable
+      rails
     uuid (2.3.4)
       macaddr (~> 1.0)
     valid_attribute (1.2.0)
@@ -368,6 +371,7 @@ DEPENDENCIES
   thin (~> 1.3.1)
   timecop (~> 0.3.5)
   uglifier (>= 1.0.3)
+  url_validator (~> 0.0.6)
   valid_attribute (~> 1.2.0)
   validates_email_format_of (~> 1.5.3)
   yajl-ruby (~> 1.1.0)
