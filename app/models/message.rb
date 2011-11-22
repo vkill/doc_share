@@ -1,7 +1,9 @@
 class Message < ActiveRecord::Base
 
-  belongs_to :sender,   :class_name => 'User', :foreign_key => 'sender_id'
-  belongs_to :receiver, :class_name => 'User', :foreign_key => 'receiver_id'
+  belongs_to :sender, :class_name => 'User', :foreign_key => 'sender_id',
+                      :counter_cache => :sent_messages_count
+  belongs_to :receiver, :class_name => 'User', :foreign_key => 'receiver_id',
+                        :counter_cache => :received_messages_count
 
   validates :content, :presence => true,
                       :length => { :within => 6..2000 }
@@ -17,7 +19,7 @@ end
 #
 #  id          :integer         not null, primary key
 #  sender_id   :integer
-#  recerver_id :integer
+#  receiver_id :integer
 #  category    :string(255)
 #  content     :text
 #  is_readed   :boolean         default(FALSE)

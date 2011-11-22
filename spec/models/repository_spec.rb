@@ -9,8 +9,6 @@ describe Repository do
     it { should have_valid(:issues).when( [Issue.make!] ) }
     it { should have_valid(:comments).when( [Comment.make!] ) }
 
-    it { should have_valid(:watchers).when( [User.make!] ) }
-
 
     it { should have_valid(:name).when('test_123' * 2 ) }
     it { should_not have_valid(:name).when('s'*5, 's'*31, nil) }
@@ -28,18 +26,20 @@ end
 #
 # Table name: repositories
 #
-#  id             :integer         not null, primary key
-#  user_id        :integer
-#  category_id    :integer
-#  ancestry       :string(255)
-#  deleted        :boolean         default(FALSE)
-#  name           :string(255)
-#  describtion    :text
-#  visibility     :string(255)
-#  features       :string(255)
-#  created_at     :datetime
-#  updated_at     :datetime
-#  watchers_count :integer         default(0)
-#  issues_count   :integer         default(0)
+#  id               :integer         not null, primary key
+#  user_id          :integer
+#  category_id      :integer
+#  ancestry         :string(255)
+#  deleted          :boolean         default(FALSE)
+#  name             :string(255)
+#  describtion      :text
+#  visibility       :string(255)
+#  features         :string(255)
+#  created_at       :datetime
+#  updated_at       :datetime
+#  watchers_count   :integer         default(0)
+#  repo_files_count :integer         default(0)
+#  issues_count     :integer         default(0)
+#  comments_count   :integer         default(0)
 #
 

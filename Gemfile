@@ -66,22 +66,23 @@ gem "haml-rails", "~> 0.3.4"
 gem "simple_form", "~> 1.5.2"
 gem "nested_form", "~> 0.1.1"
 gem "kaminari", "~> 0.12.4"
-gem "i18n_attributes", "~> 0.1.1.1"
-gem "seed_upgrade", "~> 0.1.1.1"
+gem "i18n_attributes", "~> 0.1.1.1", :group => [:development]
+gem "seed_upgrade", "~> 0.1.1.1", :group => [:development]
 gem "client_side_validations", "~> 3.1.3"
 gem "carrierwave", "~> 0.5.8"
 gem "symbolize", "~> 4.0.4", :require => "symbolize/active_record"
 gem "ancestry", "~> 1.2.4"
 gem "by_star", "~> 1.0.1"
-gem "validates_email_format_of", "~> 1.5.3"
 gem "inherited_resources", "~> 1.3.0"
 gem "high_voltage", "~> 1.0.1"
 gem "anjlab-bootstrap-rails", "~> 1.4.0.8", :require => "bootstrap-rails"
 
 
-gem "mail_view", "~> 1.0.2"
+gem "mail_view", "~> 1.0.2", :group => [:development]
 gem "i18n-js", "~> 2.1.2"
 gem "stringex", "~> 1.3.0"
 gem "immortal", "~> 1.0.5"
-gem "url_validator", "~> 0.0.6"
+
+gem 'valid_email', "~> 0.0.1"
+gem "url_validator", "~> 0.0.3"
 

@@ -22,7 +22,7 @@ end
 #  commentable_id   :integer
 #  commentable_type :string(255)
 #  user_id          :integer
-#  content          :string(255)
+#  content          :text
 #  created_at       :datetime
 #  updated_at       :datetime
 #

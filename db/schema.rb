@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20111119144503) do
+ActiveRecord::Schema.define(:version => 20111122065535) do
 
   create_table "categories", :force => true do |t|
     t.string   "ancestry"
@@ -19,6 +19,7 @@ ActiveRecord::Schema.define(:version => 20111119144503) do
     t.string   "code"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.integer  "repositories_count"
   end
 
   create_table "comments", :force => true do |t|
@@ -153,7 +154,8 @@ ActiveRecord::Schema.define(:version => 20111119144503) do
     t.integer  "repositories_count",              :default => 0
     t.integer  "issues_count",                    :default => 0
     t.integer  "comments_count",                  :default => 0
-    t.integer  "messages_count",                  :default => 0
+    t.integer  "sent_messages_count",             :default => 0
+    t.integer  "received_messages_count",         :default => 0
     t.integer  "followers_count",                 :default => 0
     t.integer  "watching_repositories_count",     :default => 0
     t.integer  "following_users_count",           :default => 0

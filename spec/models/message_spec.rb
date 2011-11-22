@@ -9,7 +9,7 @@ describe Message do
     it { should have_valid(:content).when('test_123' ) }
     it { should_not have_valid(:content).when('s'*5, 's'*2001, nil) }
     it { should have_valid(:category).when('system_notification', 'member_mailbox' ) }
-    it { should_not have_valid(:category).when('test', nil) }
+    it { should_not have_valid(:category).when('test') }
   end
 
 end
@@ -19,7 +19,7 @@ end
 #
 #  id          :integer         not null, primary key
 #  sender_id   :integer
-#  recerver_id :integer
+#  receiver_id :integer
 #  category    :string(255)
 #  content     :text
 #  is_readed   :boolean         default(FALSE)

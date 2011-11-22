@@ -1,7 +1,7 @@
 class Comment < ActiveRecord::Base
 
-  belongs_to :commentable, :polymorphic => true
-  belongs_to :user
+  belongs_to :commentable, :polymorphic => true, :counter_cache => true
+  belongs_to :user, :counter_cache => true
 
   validates :content, :presence => true,
                       :length => { :within => 6..2000 }
@@ -16,7 +16,7 @@ end
 #  commentable_id   :integer
 #  commentable_type :string(255)
 #  user_id          :integer
-#  content          :string(255)
+#  content          :text
 #  created_at       :datetime
 #  updated_at       :datetime
 #

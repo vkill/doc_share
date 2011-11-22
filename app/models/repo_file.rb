@@ -1,6 +1,6 @@
 class RepoFile < ActiveRecord::Base
 
-  belongs_to :repository
+  belongs_to :repository, :counter_cache => true
 
   mount_uploader :file, FileUploader
 
