@@ -2,6 +2,7 @@ class CreateActivities < ActiveRecord::Migration
   def change
     create_table :activities do |t|
       t.references :user
+      t.string :user_name
       t.string :action
       t.references :target, :polymorphic => {}
 

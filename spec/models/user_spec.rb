@@ -43,10 +43,10 @@ describe User do
       user_a = User.make!
       user_b = User.make!
 
-      user_a.follow(user_b)
+      user_a.follow_user(user_b)
       user_a.following_users.find(user_b).id.should eq(user_b.id)
       user_b.followers.find(user_a).id.should eq(user_a.id)
-      user_a.unfollow(user_b)
+      user_a.unfollow_user(user_b)
       lambda { user_a.following_users.find(user_b) }.should raise_error(ActiveRecord::RecordNotFound)
       lambda { user_b.followers.find(user_a) }.should raise_error(ActiveRecord::RecordNotFound)
     end
@@ -62,7 +62,7 @@ describe User do
       user_c.followers.count.should == 0
       user_c.followers_count.should == 0
 
-      user_a.follow(user_b)
+      user_a.follow_user(user_b)
       user_a.following_users.count.should == 1
       user_a.following_users_count.should == 1
       user_b.followers.count.should == 1
@@ -70,7 +70,7 @@ describe User do
       user_c.followers.count.should == 0
       user_c.followers_count.should == 0
 
-      user_a.follow(user_c)
+      user_a.follow_user(user_c)
       user_a.following_users.count.should == 2
       user_a.following_users_count.should == 2
       user_b.followers.count.should == 1
@@ -78,7 +78,7 @@ describe User do
       user_c.followers.count.should == 1
       user_c.followers_count.should == 1
 
-      user_a.unfollow(user_b)
+      user_a.unfollow_user(user_b)
       user_a.following_users.count.should == 1
       user_a.following_users_count.should == 1
       user_b.followers.count.should == 0
@@ -86,7 +86,7 @@ describe User do
       user_c.followers.count.should == 1
       user_c.followers_count.should == 1
 
-      user_a.unfollow(user_c)
+      user_a.unfollow_user(user_c)
       user_a.following_users.count.should == 0
       user_a.following_users_count.should == 0
       user_b.followers.count.should == 0
@@ -102,10 +102,10 @@ describe User do
       user = User.make!
       repository = Repository.make!
 
-      user.watch(repository)
+      user.watch_repository(repository)
       user.watching_repositories.find(repository).id.should eq(repository.id)
       repository.watchers.find(user).id.should eq(user.id)
-      user.unwatch(repository)
+      user.unwatch_repository(repository)
       lambda { user.watching_repositories.find(repository) }.should raise_error(ActiveRecord::RecordNotFound)
       lambda { repository.watchers.find(user) }.should raise_error(ActiveRecord::RecordNotFound)
     end
@@ -118,13 +118,13 @@ describe User do
       repository.watchers.count.should == 0
       repository.watchers_count.should == 0
 
-      user.watch(repository)
+      user.watch_repository(repository)
       user.watching_repositories.count.should == 1
       user.watching_repositories_count.should == 1
       repository.watchers.count.should == 1
       repository.watchers_count.should == 1
 
-      user.unwatch(repository)
+      user.unwatch_repository(repository)
       user.watching_repositories.count.should == 0
       user.watching_repositories_count.should == 0
       repository.watchers.count.should == 0
@@ -157,15 +157,15 @@ describe User do
       user.has_any_role?(:guess).should_not be_true
     end
     it "should has following_user?" do
-      user.follow(admin_user)
+      user.follow_user(admin_user)
       user.following_user?(admin_user).should be_true
-      user.unfollow(admin_user)
+      user.unfollow_user(admin_user)
       user.following_user?(admin_user).should_not be_true
     end
     it "should has watching_repository?" do
-      user.watch(repository)
+      user.watch_repository(repository)
       user.watching_repository?(repository).should be_true
-      user.unwatch(repository)
+      user.unwatch_repository(repository)
       user.watching_repository?(repository).should_not be_true
     end
   end

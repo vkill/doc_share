@@ -78,5 +78,10 @@ end
 
 
 Activity.blueprint do
-  # Attributes here
+  user        { User.make }
+  user_name   { object.user.username }
+  action      { 'add_repo' }
+  target_id   { Repository.make! }
+  target_type { 'Repository' }
 end
+

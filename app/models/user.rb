@@ -66,28 +66,28 @@ class User < ActiveRecord::Base
     !self.roles.where(:code => roles).blank?
   end
 
-  def follow(user)
+  def follow_user(user)
     follow_target(user)
     increment_following_users_count
     user.send :increment_followers_count
     self.reload && user.reload
   end
 
-  def unfollow(user)
+  def unfollow_user(user)
     unfollow_target(user)
     decrement_following_users_count
     user.send :decrement_followers_count
     self.reload && user.reload
   end
 
-  def watch(repository)
+  def watch_repository(repository)
     follow_target(repository)
     increment_watching_repositories_count
     repository.send :increment_watchers_count
     self.reload && repository.reload
   end
 
-  def unwatch(repository)
+  def unwatch_repository(repository)
     unfollow_target(repository)
     decrement_watching_repositories_count
     repository.send :decrement_watchers_count
@@ -111,28 +111,28 @@ class User < ActiveRecord::Base
 
     ##########
     def increment_following_users_count
-      User.increment_counter(:following_users_count, self.id)
+      ::User.increment_counter(:following_users_count, self.id)
     end
 
     def decrement_following_users_count
-      User.decrement_counter(:following_users_count, self.id)
+      ::User.decrement_counter(:following_users_count, self.id)
     end
 
     def increment_followers_count
-      User.increment_counter(:followers_count, self.id)
+      ::User.increment_counter(:followers_count, self.id)
     end
 
     def decrement_followers_count
-      User.decrement_counter(:followers_count, self.id)
+      ::User.decrement_counter(:followers_count, self.id)
     end
 
     ##########
     def increment_watching_repositories_count
-      User.increment_counter(:watching_repositories_count, self.id)
+      ::User.increment_counter(:watching_repositories_count, self.id)
     end
 
     def decrement_watching_repositories_count
-      User.decrement_counter(:watching_repositories_count, self.id)
+      ::User.decrement_counter(:watching_repositories_count, self.id)
     end
 
 

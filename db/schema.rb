@@ -15,6 +15,7 @@ ActiveRecord::Schema.define(:version => 20111122140336) do
 
   create_table "activities", :force => true do |t|
     t.integer  "user_id"
+    t.string   "user_name"
     t.string   "action"
     t.integer  "target_id"
     t.string   "target_type"
