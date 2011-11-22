@@ -76,3 +76,7 @@ RepoFile.blueprint do
   repo_file   { File.open(Rails.root.join("config.ru").to_s) }
 end
 
+
+Activity.blueprint do
+  # Attributes here
+end

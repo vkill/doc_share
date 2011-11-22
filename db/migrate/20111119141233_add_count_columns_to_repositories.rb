@@ -4,6 +4,7 @@ class AddCountColumnsToRepositories < ActiveRecord::Migration
     add_column :repositories, :repo_files_count, :integer, :default => 0
     add_column :repositories, :issues_count, :integer, :default => 0
     add_column :repositories, :comments_count, :integer, :default => 0
+    add_column :repositories, :forks_count, :integer, :default => 0
   end
 end
 

@@ -15,12 +15,12 @@ class User < ActiveRecord::Base
   has_one :setting_user_notification
 
   has_many :target_followed, :as => :follower, :class_name => 'TargetFollower'
-  with_options :through => :target_followed, :source => :target do |target|
+  with_options :through => :target_followed, :source => :target, :readonly => true do |target|
     target.has_many :following_users, :source_type => 'User'
     target.has_many :watching_repositories, :source_type => 'Repository'
   end
 
-  has_many :follower_followed, :as => :target, :class_name => 'TargetFollower'
+  has_many :follower_followed, :as => :target, :class_name => 'TargetFollower', :readonly => true
   with_options :through => :follower_followed, :source => :follower do |follower|
     follower.has_many :followers, :source_type => 'User'
   end

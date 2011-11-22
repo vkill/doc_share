@@ -21,6 +21,28 @@ describe Repository do
     it { subject.association(:watchers).should be_a(ActiveRecord::Associations::HasManyThroughAssociation) }
   end
 
+  context "fork by user" do
+    it "should fork by user, and forked repository.root eq root repository" do
+      repository = Repository.make!
+      user = User.make!
+
+      new_repository = repository.fork_by(user)
+
+      new_repository.parent.id.should eq(repository.id)
+    end
+
+    it "repository.root forks_count should +1" do
+      user = User.make!
+      repository_a = Repository.make!
+
+      repository_b = repository_a.fork_by(user)
+      repository_a.reload.forks_count.should == 1
+      repository_c = repository_b.fork_by(user)
+      repository_a.reload.forks_count.should == 2
+
+    end
+  end
+
 end
 # == Schema Information
 #

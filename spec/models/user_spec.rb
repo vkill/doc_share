@@ -38,32 +38,6 @@ describe User do
     it { subject.association(:followers).should be_a(ActiveRecord::Associations::HasManyThroughAssociation) }
   end
 
-  context "functions" do
-    let(:user)  { User.make! }
-    let(:admin_user)  { User.make!(:admin) }
-
-    it "current_user should save to Thread" do
-      User.current = user
-      Thread.current[:user].should eq(user)
-      User.current.should eq(user)
-    end
-    it "should has super_admin?" do
-      user.super_admin?.should be_false
-      admin_user.super_admin?.should be_true
-    end
-    it "should has has_role?" do
-      user.roles << Role.make!(:code => 'admin')
-      user.has_role?(:admin).should be_true
-      user.has_role?(:guess).should_not be_true
-    end
-    it "should has has_any_role?" do
-      user.roles << Role.make!(:code => 'test')
-      user.has_any_role?(:test, :guess).should be_true
-      user.has_any_role?(:guess).should_not be_true
-    end
-
-  end
-
   context "user follow user" do
     it "should follow and unfollow user" do
       user_a = User.make!
@@ -155,6 +129,44 @@ describe User do
       user.watching_repositories_count.should == 0
       repository.watchers.count.should == 0
       repository.watchers_count.should == 0
+    end
+  end
+
+  context "functions" do
+    let(:user)  { User.make! }
+    let(:admin_user)  { User.make!(:admin) }
+    let(:repository)  { Repository.make! }
+
+    it "current_user should save to Thread" do
+      User.current = user
+      Thread.current[:user].should eq(user)
+      User.current.should eq(user)
+    end
+    it "should has super_admin?" do
+      user.super_admin?.should be_false
+      admin_user.super_admin?.should be_true
+    end
+    it "should has has_role?" do
+      user.roles << Role.make!(:code => 'admin')
+      user.has_role?(:admin).should be_true
+      user.has_role?(:guess).should_not be_true
+    end
+    it "should has has_any_role?" do
+      user.roles << Role.make!(:code => 'test')
+      user.has_any_role?(:test, :guess).should be_true
+      user.has_any_role?(:guess).should_not be_true
+    end
+    it "should has following_user?" do
+      user.follow(admin_user)
+      user.following_user?(admin_user).should be_true
+      user.unfollow(admin_user)
+      user.following_user?(admin_user).should_not be_true
+    end
+    it "should has watching_repository?" do
+      user.watch(repository)
+      user.watching_repository?(repository).should be_true
+      user.unwatch(repository)
+      user.watching_repository?(repository).should_not be_true
     end
   end
 end

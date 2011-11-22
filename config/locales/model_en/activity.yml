@@ -1,0 +1,10 @@
+--- 
+en: 
+  active_record: 
+    models: 
+      activity: Activity
+    attributes: 
+      activity: 
+        user: User
+        action: Action
+        target: Target

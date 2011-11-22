@@ -1,12 +1,14 @@
 class Repository < ActiveRecord::Base
 
+  has_ancestry
+
   belongs_to :user, :counter_cache => true
   belongs_to :category, :counter_cache => true
   has_many :repo_files
   has_many :issues
   has_many :comments, :as => :commentable
 
-  has_many :follower_followed, :as => :target, :class_name => 'TargetFollower'
+  has_many :follower_followed, :as => :target, :class_name => 'TargetFollower', :readonly => true
   with_options :through => :follower_followed, :source => :follower do |follower|
     follower.has_many :watchers, :source_type => 'User'
   end
@@ -17,6 +19,17 @@ class Repository < ActiveRecord::Base
                     :scopes => true, :i18n => true,
                     :methods => true, :default => :public
 
+  def fork_by(user)
+    new_repository = user.repositories.create(
+      :category => category,
+      :parent_id => id,
+      :name => name,
+      :describtion => describtion
+    )
+    self.root.send :increment_forks_count
+    self.reload && self.root.reload
+    new_repository
+  end
 
   private
 
@@ -28,6 +41,15 @@ class Repository < ActiveRecord::Base
 
     def decrement_watchers_count
       Repository.decrement_counter(:watchers_count, self.id)
+    end
+
+    ##########
+    def increment_forks_count
+      Repository.increment_counter(:forks_count, self.id)
+    end
+
+    def decrement_forks_count
+      Repository.decrement_counter(:forks_count, self.id)
     end
 end
 

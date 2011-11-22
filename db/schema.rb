@@ -11,7 +11,19 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20111122065535) do
+ActiveRecord::Schema.define(:version => 20111122140336) do
+
+  create_table "activities", :force => true do |t|
+    t.integer  "user_id"
+    t.string   "action"
+    t.integer  "target_id"
+    t.string   "target_type"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "activities", ["target_id"], :name => "index_activities_on_target_id"
+  add_index "activities", ["user_id"], :name => "index_activities_on_user_id"
 
   create_table "categories", :force => true do |t|
     t.string   "ancestry"
@@ -83,6 +95,7 @@ ActiveRecord::Schema.define(:version => 20111122065535) do
     t.integer  "repo_files_count", :default => 0
     t.integer  "issues_count",     :default => 0
     t.integer  "comments_count",   :default => 0
+    t.integer  "forks_count",      :default => 0
   end
 
   add_index "repositories", ["category_id"], :name => "index_repositories_on_category_id"
