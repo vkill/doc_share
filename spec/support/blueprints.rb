@@ -73,6 +73,6 @@ end
 
 RepoFile.blueprint do
   repository  { Repository.make! }
-  file        { File.open(Rails.root.join("config.ru").to_s) }
+  repo_file   { File.open(Rails.root.join("config.ru").to_s) }
 end
 

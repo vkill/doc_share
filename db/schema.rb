@@ -61,7 +61,7 @@ ActiveRecord::Schema.define(:version => 20111122065535) do
 
   create_table "repo_files", :force => true do |t|
     t.integer  "repository_id"
-    t.string   "file"
+    t.string   "repo_file"
     t.datetime "created_at"
     t.datetime "updated_at"
   end

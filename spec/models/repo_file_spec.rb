@@ -5,7 +5,8 @@ describe RepoFile do
   context "valid_attribute" do
     it { should have_valid(:repository).when( Repository.make! ) }
 
-#    it { should_not have_valid(:file).when(nil) }
+    it { should have_valid(:repo_file).when( File.open(__FILE__)) }
+    it { should_not have_valid(:repo_file).when(nil) }
   end
 
 end
