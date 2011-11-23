@@ -1,0 +1,10 @@
+%h2 Sign up
+= simple_form_for(@user, :url => users_path, :html => { :method => :post }) do |f|
+  = f.error_notification
+  .inputs
+    = f.input :email, :required => true, :autofocus => true
+    = f.input :password, :required => true
+    = f.input :password_confirmation, :required => true
+  .actions
+    = f.button :submit, "Sign up"
+

@@ -158,6 +158,9 @@ ActiveRecord::Schema.define(:version => 20111122140336) do
     t.datetime "last_activity_at"
     t.integer  "failed_logins_count",             :default => 0
     t.datetime "lock_expires_at"
+    t.string   "activation_state"
+    t.string   "activation_token"
+    t.datetime "activation_token_expires_at"
     t.boolean  "is_super_admin",                  :default => false
     t.string   "name"
     t.string   "gender"
@@ -175,6 +178,7 @@ ActiveRecord::Schema.define(:version => 20111122140336) do
     t.integer  "following_users_count",           :default => 0
   end
 
+  add_index "users", ["activation_token"], :name => "index_users_on_activation_token"
   add_index "users", ["last_logout_at", "last_activity_at"], :name => "index_users_on_last_logout_at_and_last_activity_at"
   add_index "users", ["remember_me_token"], :name => "index_users_on_remember_me_token"
   add_index "users", ["reset_password_token"], :name => "index_users_on_reset_password_token"

@@ -42,7 +42,8 @@ Comment.blueprint do
 end
 
 TargetFollower.blueprint do
-  # Attributes here
+  follower  { User.make! }
+  target    { Repository.make! }
 end
 
 Repository.blueprint do
@@ -81,39 +82,32 @@ Activity.blueprint do
   user        { User.make! }
   user_name   { object.user.username }
   action      { 'created_repository' }
-  target_id   { Repository.make! }
-  target_type { 'Repository' }
+  target      { Repository.make! }
 end
 Activity.blueprint(:created_repository) do
 end
 Activity.blueprint(:destroyed_repository) do
   action      { 'destroyed_repository' }
-  target_id   { Repository.make! }
-  target_type { 'Repository' }
+  target      { Repository.make! }
 end
 Activity.blueprint(:followed_user) do
   action      { 'followed_user' }
-  target_id   { User.make! }
-  target_type { 'User' }
+  target      { User.make! }
 end
 Activity.blueprint(:unfollowed_user) do
   action      { 'unfollowed_user' }
-  target_id   { User.make! }
-  target_type { 'User' }
+  target      { User.make! }
 end
 Activity.blueprint(:watched_repository) do
   action      { 'watched_repository' }
-  target_id   { Repository.make! }
-  target_type { 'Repository' }
+  target      { Repository.make! }
 end
 Activity.blueprint(:unwatched_repository) do
   action      { 'unwatched_repository' }
-  target_id   { Repository.make! }
-  target_type { 'Repository' }
+  target      { Repository.make! }
 end
 Activity.blueprint(:forked_repository) do
   action      { 'forked_repository' }
-  target_id   { Repository.make! }
-  target_type { 'Repository' }
+  target      { Repository.make! }
 end
 

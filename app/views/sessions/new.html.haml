@@ -1,0 +1,9 @@
+%h2 Sign in
+= simple_form_for(@user, :url => sessions_path, :html => { :method => :post }) do |f|
+  .inputs
+    = f.input :email, :required => false, :autofocus => true
+    = f.input :password, :required => false
+    = f.input :remember_me, :as => :boolean
+  .actions
+    = f.button :submit, "Sign in"
+

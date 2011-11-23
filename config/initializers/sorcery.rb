@@ -2,7 +2,8 @@
 # The default is nothing which will include only core features (password encryption, login/logout).
 # Available submodules are: :user_activation, :http_basic_auth, :remember_me,
 # :reset_password, :session_timeout, :brute_force_protection, :activity_logging, :external
-Rails.application.config.sorcery.submodules = [:remember_me, :reset_password, :activity_logging, :brute_force_protection]
+Rails.application.config.sorcery.submodules = [:remember_me, :reset_password, :activity_logging,
+                                               :brute_force_protection, :user_activation]
 
 # Here you can configure each submodule's features.
 Rails.application.config.sorcery.configure do |config|
@@ -86,7 +87,7 @@ Rails.application.config.sorcery.configure do |config|
                                                                                       # until an encrypted one is
                                                                                       # generated.
 
-    # user.downcase_username_before_authenticating = false                            # downcase the username before 
+    # user.downcase_username_before_authenticating = false                            # downcase the username before
                                                                                       # trying to authenticate, default
                                                                                       # is false
 
@@ -139,6 +140,7 @@ Rails.application.config.sorcery.configure do |config|
                                                                                       # never expires.
 
     # user.user_activation_mailer = nil                                               # your mailer class. Required.
+    user.user_activation_mailer = UserMailer
 
     # user.activation_needed_email_method_name = :activation_needed_email             # activation needed email method
                                                                                       # on your mailer class.
@@ -161,9 +163,9 @@ Rails.application.config.sorcery.configure do |config|
                                                                                                 # used for hammering
                                                                                                 # protection.
 
-    # user.reset_password_mailer = 
+    # user.reset_password_mailer = nil                                                          # mailer class. Needed.
     user.reset_password_mailer = UserMailer
-nil                                                          # mailer class. Needed.
+
 
     # user.reset_password_email_method_name = :reset_password_email                             # reset password email
                                                                                                 # method on your mailer
@@ -220,3 +222,4 @@ nil                                                          # mailer class. Nee
   config.user_class = "User"                                       # define which model authenticates
                                                                                       # with sorcery.
 end
+
