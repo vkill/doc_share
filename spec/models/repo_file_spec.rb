@@ -16,7 +16,7 @@ end
 #
 #  id            :integer         not null, primary key
 #  repository_id :integer
-#  file          :string(255)
+#  repo_file     :string(255)
 #  created_at    :datetime
 #  updated_at    :datetime
 #

@@ -72,5 +72,6 @@ end
 #  repo_files_count :integer         default(0)
 #  issues_count     :integer         default(0)
 #  comments_count   :integer         default(0)
+#  forks_count      :integer         default(0)
 #
 

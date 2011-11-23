@@ -78,9 +78,41 @@ end
 
 
 Activity.blueprint do
-  user        { User.make }
+  user        { User.make! }
   user_name   { object.user.username }
-  action      { 'add_repo' }
+  action      { 'created_repository' }
+  target_id   { Repository.make! }
+  target_type { 'Repository' }
+end
+Activity.blueprint(:created_repository) do
+end
+Activity.blueprint(:destroyed_repository) do
+  action      { 'destroyed_repository' }
+  target_id   { Repository.make! }
+  target_type { 'Repository' }
+end
+Activity.blueprint(:followed_user) do
+  action      { 'followed_user' }
+  target_id   { User.make! }
+  target_type { 'User' }
+end
+Activity.blueprint(:unfollowed_user) do
+  action      { 'unfollowed_user' }
+  target_id   { User.make! }
+  target_type { 'User' }
+end
+Activity.blueprint(:watched_repository) do
+  action      { 'watched_repository' }
+  target_id   { Repository.make! }
+  target_type { 'Repository' }
+end
+Activity.blueprint(:unwatched_repository) do
+  action      { 'unwatched_repository' }
+  target_id   { Repository.make! }
+  target_type { 'Repository' }
+end
+Activity.blueprint(:forked_repository) do
+  action      { 'forked_repository' }
   target_id   { Repository.make! }
   target_type { 'Repository' }
 end

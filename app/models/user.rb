@@ -10,8 +10,6 @@ class User < ActiveRecord::Base
 
   has_many :repositories
 
-
-
   has_one :setting_user_notification
 
   has_many :target_followed, :as => :follower, :class_name => 'TargetFollower'
@@ -64,6 +62,14 @@ class User < ActiveRecord::Base
   def has_any_role?(*roles)
     return true if roles.map{|x| x.to_s == 'admin'}.index(true)
     !self.roles.where(:code => roles).blank?
+  end
+
+  def following_user?(user)
+    !self.following_users.where(:id => user.id).blank?
+  end
+
+  def watching_repository?(repository)
+    !self.watching_repositories.where(:id => repository.id).blank?
   end
 
   def follow_user(user)

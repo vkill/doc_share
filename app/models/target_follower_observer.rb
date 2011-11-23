@@ -1,26 +1,28 @@
 class TargetFollowerObserver < ActiveRecord::Observer
 
   observe :target_follower
+  attr_accessor :record, :action
 
   def after_create(record)
-    action = case record.target_type.to_s
-      when "User" then :watch_repository
-      when "Repository" then :follow_user
+    self.record = record
+    self.action = case record.target_type.to_s
+      when "User" then :followed_user
+      when "Repository" then :watched_repository
     end
-    log(record, action)
+    log
   end
 
   def after_destroy(record)
-    record = record
-    action = case record.target_type.to_s
-      when "User" then :unwatch_repository
-      when "Repository" then :unfollow_user
+    self.record = record
+    self.action = case record.target_type.to_s
+      when "User" then :unfollowed_user
+      when "Repository" then :unwatched_repository
     end
-    log(record, action)
+    log
   end
 
   private
-    def log(record, action)
+    def log
       Activity.log!(
         {:user => record.follower, :activity_target => record.target, :action => action}
       )
