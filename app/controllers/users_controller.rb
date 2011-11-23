@@ -1,20 +1,12 @@
 class UsersController < ApplicationController
-  def new
-  end
+  inherit_resources
+  actions :all, :except => [:index]
 
   def create
-  end
-
-  def edit
-  end
-
-  def update
-  end
-
-  def show
-  end
-
-  def destroy
+    create! do |success, failure|
+      success.html { redirect_to resource_url, :notice => t(:signup_successful) }
+      failure.html { render :new }
+    end
   end
 
   def activate
@@ -25,6 +17,11 @@ class UsersController < ApplicationController
       not_authenticated
     end
   end
+
+  protected
+    def begin_of_association_chain
+      current_user
+    end
 
 end
 

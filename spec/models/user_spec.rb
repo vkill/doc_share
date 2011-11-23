@@ -191,6 +191,9 @@ end
 #  last_activity_at                :datetime
 #  failed_logins_count             :integer         default(0)
 #  lock_expires_at                 :datetime
+#  activation_state                :string(255)
+#  activation_token                :string(255)
+#  activation_token_expires_at     :datetime
 #  is_super_admin                  :boolean         default(FALSE)
 #  name                            :string(255)
 #  gender                          :string(255)

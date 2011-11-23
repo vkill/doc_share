@@ -81,6 +81,7 @@ Rails.application.config.sorcery.configure do |config|
     # user.username_attribute_names = [:username]                                     # specify username
                                                                                       # attributes, for example:
                                                                                       # [:username, :email].
+    user.username_attribute_names = [:username, :email]
 
     # user.password_attribute_name = :password                                        # change *virtual* password
                                                                                       # attribute, the one which is used
@@ -93,7 +94,7 @@ Rails.application.config.sorcery.configure do |config|
 
     # user.email_attribute_name = :email                                              # change default email attribute.
 
-    # user.crypted_password_attribute_name =  :crypted_password                       # change default crypted_password
+    # user.crypted_password_attribute_name =  :crypted_password                      # change default crypted_password
                                                                                       # attribute.
 
     # user.salt_join_token = ""                                                       # what pattern to use to join the
@@ -115,7 +116,6 @@ Rails.application.config.sorcery.configure do |config|
 
     # user.custom_encryption_provider = nil                                           # use an external encryption
                                                                                       # class.
-
     # user.encryption_algorithm = :bcrypt                                             # encryption algorithm name. See
                                                                                       # 'encryption_algorithm=' for
                                                                                       # available options.

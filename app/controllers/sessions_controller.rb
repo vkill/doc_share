@@ -5,12 +5,16 @@ class SessionsController < ApplicationController
 
   def create
     respond_to do |format|
-      if @user = login(params[:user][:email],params[:user][:password],params[:user][:remember])
-        format.html { redirect_back_or_to(:users, :notice => 'Login successfull.') }
-        format.xml { render :xml => @user, :status => :created, :location => @user }
+      if @user = login(params[:user][:email],params[:user][:password],params[:user][:remember_me])
+        format.html {
+          redirect_back_or_to(:users, :notice => 'Login successfull.')
+        }
       else
-        format.html { flash.now[:alert] = "Login failed."; render :action => "new" }
-        format.xml { render :xml => @user.errors, :status => :unprocessable_entity }
+        format.html {
+          flash.now[:alert] = "Login failed."
+          @user = User.new(params[:user])
+          render :action => "new"
+        }
       end
     end
   end

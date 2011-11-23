@@ -2,6 +2,7 @@
 = simple_form_for(@user, :url => users_path, :html => { :method => :post }) do |f|
   = f.error_notification
   .inputs
+    = f.input :username, :required => true, :autofocus => true
     = f.input :email, :required => true, :autofocus => true
     = f.input :password, :required => true
     = f.input :password_confirmation, :required => true

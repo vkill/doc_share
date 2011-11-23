@@ -25,20 +25,18 @@ class UserMailer < ActionMailer::Base
 
   class Preview < MailView
 
-    require Rails.root.join('spec', 'support', 'blueprints')
-
     def reset_password_email
-      user = User.make(:email => '122755990@qq.com')
+      user = User.new(:email => '122755990@qq.com', :reset_password_token => 'test')
       ::UserMailer.reset_password_email(user)
     end
 
     def activation_needed_email
-      user = User.make(:email => '122755990@qq.com')
+      user = User.new(:email => '122755990@qq.com', :activation_token => 'test')
       ::UserMailer.activation_needed_email(user)
     end
 
     def activation_success_email
-      user = User.make(:email => '122755990@qq.com')
+      user = User.new(:email => '122755990@qq.com')
       ::UserMailer.activation_success_email(user)
     end
 
