@@ -62,7 +62,7 @@ gem "resque-scheduler", "~> 1.9.9"
 gem "resque_mailer", "~> 2.0.2"
 gem "rails_config", "~> 0.2.5"
 gem "haml-rails", "~> 0.3.4"
-gem "simple_form", "~> 1.5.2"
+gem "simple_form", :git => 'git://github.com/plataformatec/simple_form.git' #"~> 1.5.2"
 gem "nested_form", "~> 0.1.1"
 gem "kaminari", "~> 0.12.4"
 gem "i18n_attributes", "~> 0.1.1.1", :group => [:development]

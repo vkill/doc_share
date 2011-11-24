@@ -1,5 +1,5 @@
 
-10.times do
+2.times do
   Activity.make!
   Activity.make!(:created_repository)
   Activity.make!(:destroyed_repository)

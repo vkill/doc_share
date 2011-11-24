@@ -64,6 +64,7 @@ end
 Message.blueprint do
   sender { User.make! }
   receiver { User.make! }
+  subject     { "subject_#{sn}" }
   content     { Faker::Lorem.paragraph }
   is_readed   { false }
 end

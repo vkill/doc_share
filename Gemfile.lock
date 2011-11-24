@@ -1,3 +1,11 @@
+GIT
+  remote: git://github.com/plataformatec/simple_form.git
+  revision: fce17e353dac5320c6994279b2f35a912580681d
+  specs:
+    simple_form (2.0.0.dev)
+      actionpack (~> 3.0)
+      activemodel (~> 3.0)
+
 GEM
   remote: http://rubygems.org/
   specs:
@@ -260,9 +268,6 @@ GEM
       json_pure
       rubyzip
     sexp_processor (3.0.8)
-    simple_form (1.5.2)
-      actionpack (~> 3.0)
-      activemodel (~> 3.0)
     sinatra (1.3.1)
       rack (~> 1.3, >= 1.3.4)
       rack-protection (~> 1.1, >= 1.1.2)
@@ -365,7 +370,7 @@ DEPENDENCIES
   rspec-rails (~> 2.7)
   sass-rails (~> 3.1.4)
   seed_upgrade (~> 0.1.1.1)
-  simple_form (~> 1.5.2)
+  simple_form!
   sorcery (~> 0.7.5)
   stringex (~> 1.3.0)
   symbolize (~> 4.0.4)

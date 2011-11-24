@@ -66,8 +66,11 @@ ActiveRecord::Schema.define(:version => 20111122140336) do
     t.integer  "sender_id"
     t.integer  "receiver_id"
     t.string   "category"
+    t.string   "subject"
     t.text     "content"
     t.boolean  "is_readed",   :default => false
+    t.integer  "target_id"
+    t.string   "target_type"
     t.datetime "created_at"
     t.datetime "updated_at"
   end
@@ -142,7 +145,7 @@ ActiveRecord::Schema.define(:version => 20111122140336) do
   add_index "target_followers", ["target_id"], :name => "index_target_followers_on_target_id"
 
   create_table "users", :force => true do |t|
-    t.string   "username",                                           :null => false
+    t.string   "username",                                             :null => false
     t.string   "email"
     t.string   "crypted_password"
     t.string   "salt"
@@ -156,26 +159,28 @@ ActiveRecord::Schema.define(:version => 20111122140336) do
     t.datetime "last_login_at"
     t.datetime "last_logout_at"
     t.datetime "last_activity_at"
-    t.integer  "failed_logins_count",             :default => 0
+    t.integer  "failed_logins_count",               :default => 0
     t.datetime "lock_expires_at"
     t.string   "activation_state"
     t.string   "activation_token"
     t.datetime "activation_token_expires_at"
-    t.boolean  "is_super_admin",                  :default => false
+    t.boolean  "is_super_admin",                    :default => false
     t.string   "name"
     t.string   "gender"
     t.string   "site"
     t.string   "company"
     t.string   "location"
     t.string   "state"
-    t.integer  "repositories_count",              :default => 0
-    t.integer  "issues_count",                    :default => 0
-    t.integer  "comments_count",                  :default => 0
-    t.integer  "sent_messages_count",             :default => 0
-    t.integer  "received_messages_count",         :default => 0
-    t.integer  "followers_count",                 :default => 0
-    t.integer  "watching_repositories_count",     :default => 0
-    t.integer  "following_users_count",           :default => 0
+    t.integer  "repositories_count",                :default => 0
+    t.integer  "issues_count",                      :default => 0
+    t.integer  "comments_count",                    :default => 0
+    t.integer  "sent_messages_count",               :default => 0
+    t.integer  "received_messages_count",           :default => 0
+    t.integer  "followers_count",                   :default => 0
+    t.integer  "watching_repositories_count",       :default => 0
+    t.integer  "following_users_count",             :default => 0
+    t.integer  "unread_system_nofitications_count", :default => 0
+    t.integer  "unread_member_mailboxs_count",      :default => 0
   end
 
   add_index "users", ["activation_token"], :name => "index_users_on_activation_token"

@@ -1,0 +1,37 @@
+.topbar-wrapper{:style => "z-index: 5;"}
+  .topbar{"data-dropdown" => "dropdown"}
+    .topbar-inner
+      .container
+        %h3
+          %a{:href => "#"} #{ Settings.project.name }
+        %ul.nav.secondary-nav
+          %form.pull-left{:action => ""}
+            %input{:placeholder => "Search", :type => "text"}
+
+          - if logged_in?
+            %li
+              %a{:href => "#"} #{ t("web.topbar.dashboard") }
+            %li
+              - if current_user.unread_system_nofitications_count > 0
+                = link_to t("web.topbar.inbox") + " " + current_user.unread_system_nofitications_count.to_s,
+                          [:notifications, :messages]
+              - elsif current_user.unread_member_mailboxs_count > 0
+                = link_to t("web.topbar.inbox") + " " + current_user.unread_member_mailboxs_count.to_s,
+                          [:messages]
+              - else
+                = link_to t("web.topbar.inbox") + " " + 0.to_s,
+                          [:messages]
+            %li
+              = link_to t("web.topbar.account_settings"), ""
+            %li
+              = link_to t("web.topbar.sign_out"), signout_path
+          - else
+            %li
+              = link_to t("web.topbar.sign_up"), signup_path
+            %li
+              = link_to t("web.topbar.forget_password"), new_reset_password_path
+            %li
+              = link_to t("web.topbar.sign_in"), signin_path
+
+%h1 .
+

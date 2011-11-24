@@ -11,6 +11,17 @@ class Message < ActiveRecord::Base
                     :scopes => true, :i18n => true,
                     :methods => true, :default => :member_mailbox
 
+  scope :unread, where(:is_readed => false)
+
+  def readed?
+    !!is_readed?
+  end
+
+  def read!
+    self.is_readed = true
+    self.save
+  end
+
 end
 
 # == Schema Information
@@ -21,8 +32,11 @@ end
 #  sender_id   :integer
 #  receiver_id :integer
 #  category    :string(255)
+#  subject     :string(255)
 #  content     :text
 #  is_readed   :boolean         default(FALSE)
+#  target_id   :integer
+#  target_type :string(255)
 #  created_at  :datetime
 #  updated_at  :datetime
 #

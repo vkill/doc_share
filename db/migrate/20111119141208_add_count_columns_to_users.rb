@@ -8,6 +8,9 @@ class AddCountColumnsToUsers < ActiveRecord::Migration
     add_column :users, :followers_count, :integer, :default => 0
     add_column :users, :watching_repositories_count, :integer, :default => 0
     add_column :users, :following_users_count, :integer, :default => 0
+
+    add_column :users, :unread_system_nofitications_count, :integer, :default => 0
+    add_column :users, :unread_member_mailboxs_count, :integer, :default => 0
   end
 end
 

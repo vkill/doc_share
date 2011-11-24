@@ -1,6 +1,6 @@
 
 resque_scheduler_test_work:
-  cron: "10 * * * * *"
+  cron: "30 * * * * *"
   queue: resque_scheduler
   class: ResqueSchedulerTestWork
   args:

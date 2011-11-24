@@ -1,0 +1,9 @@
+project:
+  name: doc share
+
+web:
+  head:
+    meta:
+      keywords: doc share
+    title: doc share
+

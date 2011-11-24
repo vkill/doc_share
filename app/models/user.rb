@@ -29,7 +29,7 @@ class User < ActiveRecord::Base
 
 
   validates :username, :presence => true,
-                        :length => { :within => 6..30 },
+                        :length => { :within => 4..30 },
                         :uniqueness => true,
                         :format => { :with => /^[A-Za-z0-9_]+$/ }
   validates :email, :presence => true,
@@ -105,6 +105,10 @@ class User < ActiveRecord::Base
     self.reload && repository.reload
   end
 
+  def unread_any_messages_count
+    unread_system_nofitications_count + unread_member_mailboxs_count
+  end
+
   private
     def follow_target(target)
       self.target_followed.create(
@@ -146,46 +150,66 @@ class User < ActiveRecord::Base
       ::User.decrement_counter(:watching_repositories_count, self.id)
     end
 
+    ##########
+    def increment_unread_system_notifications_count
+      ::User.increment_counter(:unread_system_notifications_count, self.id)
+    end
+
+    def decrement_unread_system_notifications_count
+      ::User.decrement_counter(:unread_system_notifications_count, self.id)
+    end
+
+    ##########
+    def increment_unread_member_mailboxs_count
+      ::User.increment_counter(:unread_member_mailboxs_count, self.id)
+    end
+
+    def decrement_unread_member_mailboxs_count
+      ::User.decrement_counter(:unread_member_mailboxs_count, self.id)
+    end
+
 
 end
 # == Schema Information
 #
 # Table name: users
 #
-#  id                              :integer         not null, primary key
-#  username                        :string(255)     not null
-#  email                           :string(255)
-#  crypted_password                :string(255)
-#  salt                            :string(255)
-#  created_at                      :datetime
-#  updated_at                      :datetime
-#  remember_me_token               :string(255)
-#  remember_me_token_expires_at    :datetime
-#  reset_password_token            :string(255)
-#  reset_password_token_expires_at :datetime
-#  reset_password_email_sent_at    :datetime
-#  last_login_at                   :datetime
-#  last_logout_at                  :datetime
-#  last_activity_at                :datetime
-#  failed_logins_count             :integer         default(0)
-#  lock_expires_at                 :datetime
-#  activation_state                :string(255)
-#  activation_token                :string(255)
-#  activation_token_expires_at     :datetime
-#  is_super_admin                  :boolean         default(FALSE)
-#  name                            :string(255)
-#  gender                          :string(255)
-#  site                            :string(255)
-#  company                         :string(255)
-#  location                        :string(255)
-#  state                           :string(255)
-#  repositories_count              :integer         default(0)
-#  issues_count                    :integer         default(0)
-#  comments_count                  :integer         default(0)
-#  sent_messages_count             :integer         default(0)
-#  received_messages_count         :integer         default(0)
-#  followers_count                 :integer         default(0)
-#  watching_repositories_count     :integer         default(0)
-#  following_users_count           :integer         default(0)
+#  id                                :integer         not null, primary key
+#  username                          :string(255)     not null
+#  email                             :string(255)
+#  crypted_password                  :string(255)
+#  salt                              :string(255)
+#  created_at                        :datetime
+#  updated_at                        :datetime
+#  remember_me_token                 :string(255)
+#  remember_me_token_expires_at      :datetime
+#  reset_password_token              :string(255)
+#  reset_password_token_expires_at   :datetime
+#  reset_password_email_sent_at      :datetime
+#  last_login_at                     :datetime
+#  last_logout_at                    :datetime
+#  last_activity_at                  :datetime
+#  failed_logins_count               :integer         default(0)
+#  lock_expires_at                   :datetime
+#  activation_state                  :string(255)
+#  activation_token                  :string(255)
+#  activation_token_expires_at       :datetime
+#  is_super_admin                    :boolean         default(FALSE)
+#  name                              :string(255)
+#  gender                            :string(255)
+#  site                              :string(255)
+#  company                           :string(255)
+#  location                          :string(255)
+#  state                             :string(255)
+#  repositories_count                :integer         default(0)
+#  issues_count                      :integer         default(0)
+#  comments_count                    :integer         default(0)
+#  sent_messages_count               :integer         default(0)
+#  received_messages_count           :integer         default(0)
+#  followers_count                   :integer         default(0)
+#  watching_repositories_count       :integer         default(0)
+#  following_users_count             :integer         default(0)
+#  unread_system_nofitications_count :integer         default(0)
+#  unread_member_mailboxs_count      :integer         default(0)
 #
 

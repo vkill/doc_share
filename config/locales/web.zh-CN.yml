@@ -1,0 +1,12 @@
+---
+zh-CN:
+  web:
+    topbar:
+      sign_out: sign out
+      sign_in: sign in
+      sign_up: sign up
+      dashboard: dashboard
+      inbox: inbox
+      account_settings: account settings
+      forget_password: forget password
+

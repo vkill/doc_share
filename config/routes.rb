@@ -1,5 +1,6 @@
 DocShare::Application.routes.draw do
 
+
   root :to => 'home#index'
 
   get "home/index"
@@ -17,6 +18,15 @@ DocShare::Application.routes.draw do
   end
   resources :sessions, :only => [:new, :create, :destroy]
   resources :reset_passwords, :only => [:new, :create, :edit, :update]
+
+  resources :messages, :only => [:index, :new, :create] do
+    collection do
+      get :sent
+      get :notifications
+    end
+  end
+
+
 
 
   if Rails.env.development?

@@ -1,0 +1,7 @@
+/type: warning error success info
+- flash.each do |type, message|
+  .alert-message{:class => type, "data-alert" => :alert}
+    %a.close{:href => "#"} ×
+    %p
+      = message
+
