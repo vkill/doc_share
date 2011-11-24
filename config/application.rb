@@ -82,9 +82,11 @@ module DocShare
     config.logger = Logger.new(config.paths["log"].first, 'weekly')
 
     #
+    config.action_mailer.raise_delivery_errors = true
+    config.action_mailer.perform_deliveries = true
     config.action_mailer.delivery_method = :smtp
-    config.action_mailer.smtp_settings = YAML.load_file(%Q`#{config.root}/config/smtp_settings.yml`)[Rails.env]
-
+    config.action_mailer.smtp_settings =
+        Hash[ YAML.load_file(%Q`#{config.root}/config/smtp_settings.yml`)[Rails.env].map {|k,v| [k.to_sym, v]} ]
 
     # Enable the asset pipeline
     config.assets.enabled = true
