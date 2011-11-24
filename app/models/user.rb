@@ -2,8 +2,8 @@ class User < ActiveRecord::Base
 
   authenticates_with_sorcery!
 
-  attr_accessor :remember_me
-  attr_accessible :username, :email, :password, :password_confirmation, :remember_me,
+  attr_accessor :login ,:remember_me
+  attr_accessible :username, :email, :password, :password_confirmation, :login, :remember_me,
                   :name, :site, :company, :location
 
   has_and_belongs_to_many :roles, :join_table => :roles_users, :uniq => true
@@ -35,7 +35,8 @@ class User < ActiveRecord::Base
   validates :email, :presence => true,
                     :email => true
   validates :password, :confirmation => true,
-                      :length => { :within => 6..30 }
+                      :length => { :within => 6..30 },
+                      :on => :create
   symbolize :gender, :in => [:male, :female],
                     :scopes => true, :i18n => true,
                     :methods => true, :allow_blank => true

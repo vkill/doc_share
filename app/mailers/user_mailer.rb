@@ -4,7 +4,7 @@ class UserMailer < ActionMailer::Base
 
   def reset_password_email(user)
     @user = user
-    @url = "http://0.0.0.0:3000/password_resets/#{user.reset_password_token}/edit"
+    @url = "http://0.0.0.0:3000/reset_passwords/#{user.reset_password_token}/edit"
     mail(:to => user.email,
          :subject => "Your password reset request")
   end
@@ -27,12 +27,14 @@ class UserMailer < ActionMailer::Base
     class Preview < MailView
 
       def reset_password_email
-        user = User.new(:email => '122755990@qq.com', :reset_password_token => 'test')
+        user = User.new(:email => '122755990@qq.com')
+        user.reset_password_token = 'test'
         ::UserMailer.reset_password_email(user)
       end
 
       def activation_needed_email
-        user = User.new(:email => '122755990@qq.com', :activation_token => 'test')
+        user = User.new(:email => '122755990@qq.com')
+        user.activation_token = 'test'
         ::UserMailer.activation_needed_email(user)
       end
 

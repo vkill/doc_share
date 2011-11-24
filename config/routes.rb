@@ -8,14 +8,15 @@ DocShare::Application.routes.draw do
   get "signin" => "sessions#new", :as => "signin"
   get "signout" => "sessions#destroy", :as => "signout"
 
-  resources :users do
+  resources :users, :except => [:index] do
     member do
       get :activate
+      get :password_edit
+      put :password_update
     end
   end
-  resources :sessions
-  resources :passwords
-  resources :reset_passwords
+  resources :sessions, :only => [:new, :create, :destroy]
+  resources :reset_passwords, :only => [:new, :create, :edit, :update]
 
 
   if Rails.env.development?
