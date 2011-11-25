@@ -1,5 +1,7 @@
 class Issue < ActiveRecord::Base
 
+  attr_accessible :user_id, :title, :content
+
   belongs_to :user, :counter_cache => true
   belongs_to :repository, :counter_cache => true
   has_many :comments, :as => :commentable

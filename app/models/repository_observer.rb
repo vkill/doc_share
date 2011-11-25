@@ -4,7 +4,7 @@ class RepositoryObserver < ActiveRecord::Observer
 
   def after_create(record)
     #count
-    if record.parent_id?
+    if record.parent
       Repository.increment_counter(:forks_count, record.root.id)
     end
     #log

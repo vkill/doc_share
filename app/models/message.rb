@@ -3,6 +3,9 @@ class Message < ActiveRecord::Base
   has_ancestry
   paginates_per 10
 
+  alias_attribute :user_id, :sender_id
+  attr_accessible :user_id, :receiver_id, :subject, :content
+
   belongs_to :sender, :class_name => 'User', :foreign_key => 'sender_id',
                       :counter_cache => :sent_messages_count
   belongs_to :receiver, :class_name => 'User', :foreign_key => 'receiver_id',

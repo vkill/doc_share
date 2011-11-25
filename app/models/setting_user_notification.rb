@@ -1,5 +1,7 @@
 class SettingUserNotification < ActiveRecord::Base
 
+  attr_accessible :user_followed, :code_watched, :code_forked
+
   belongs_to :user
 
   delegate :email, :username, :to => :user

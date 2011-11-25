@@ -2,6 +2,8 @@ class Repository < ActiveRecord::Base
 
   has_ancestry
 
+  attr_accessible :user_id, :category_id, :name, :describtion, :visibility, :parent_id
+
   belongs_to :user, :counter_cache => true
   belongs_to :category, :counter_cache => true
   has_many :repo_files
@@ -23,7 +25,7 @@ class Repository < ActiveRecord::Base
 
   def fork_by!(user)
     new_repository = user.repositories.create(
-      :category => category,
+      :category_id => category_id,
       :parent_id => id,
       :name => name,
       :describtion => describtion
