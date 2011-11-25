@@ -10,6 +10,14 @@ describe Message do
     it { should_not have_valid(:content).when('s'*5, 's'*2001, nil) }
     it { should have_valid(:category).when('system_notification', 'member_mailbox' ) }
     it { should_not have_valid(:category).when('test') }
+
+    it { should have_valid(:subject).when('test_123' ) }
+    it { should_not have_valid(:subject).when('s'*3, 's'*31, nil) }
+
+    context "reply" do
+      before { subject.parent = Message.make! }
+      it { should have_valid(:subject).when(nil) }
+    end
   end
 
   context "associations" do
@@ -18,6 +26,12 @@ describe Message do
 
   context "define scopes" do
     it { Activity.unread.new.is_readed.should be_false }
+  end
+
+  context "validates" do
+    it "when create a new message, should validate subject" do
+
+    end
   end
 
   context "functions" do
@@ -47,6 +61,7 @@ end
 #  category    :string(255)
 #  subject     :string(255)
 #  content     :text
+#  ancestry    :string(255)
 #  is_readed   :boolean         default(FALSE)
 #  target_id   :integer
 #  target_type :string(255)

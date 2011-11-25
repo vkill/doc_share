@@ -24,6 +24,9 @@ DocShare::Application.routes.draw do
       get :sent
       get :notifications
     end
+    member do
+      put :reply
+    end
   end
 
 

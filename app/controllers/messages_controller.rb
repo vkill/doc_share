@@ -46,6 +46,17 @@ class MessagesController < ApplicationController
     end
   end
 
+  def reply
+    @message = Message.find(params[:id])
+    respond_to do |format|
+      if @message.reply!(params[:new_message][:content])
+        format.html { redirect_to([:sent, :messages], :notice => 'is replied!') }
+      else
+        format.html { render :action => "new" }
+      end
+    end
+  end
+
   def index
     @messages = current_user.received_messages.member_mailbox.page(params[:page])
   end

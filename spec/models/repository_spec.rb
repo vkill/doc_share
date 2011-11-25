@@ -26,7 +26,7 @@ describe Repository do
       repository = Repository.make!
       user = User.make!
 
-      new_repository = repository.fork_by(user)
+      new_repository = repository.fork_by!(user)
 
       new_repository.parent.id.should eq(repository.id)
     end
@@ -35,9 +35,9 @@ describe Repository do
       user = User.make!
       repository_a = Repository.make!
 
-      repository_b = repository_a.fork_by(user)
+      repository_b = repository_a.fork_by!(user)
       repository_a.reload.forks_count.should == 1
-      repository_c = repository_b.fork_by(user)
+      repository_c = repository_b.fork_by!(user)
       repository_a.reload.forks_count.should == 2
 
     end

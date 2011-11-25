@@ -19,7 +19,7 @@ class Repository < ActiveRecord::Base
                     :scopes => true, :i18n => true,
                     :methods => true, :default => :public
 
-  def fork_by(user)
+  def fork_by!(user)
     new_repository = user.repositories.create(
       :category => category,
       :parent_id => id,

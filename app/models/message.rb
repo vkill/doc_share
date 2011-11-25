@@ -1,5 +1,6 @@
 class Message < ActiveRecord::Base
 
+  has_ancestry
   paginates_per 10
 
   belongs_to :sender, :class_name => 'User', :foreign_key => 'sender_id',
@@ -12,6 +13,9 @@ class Message < ActiveRecord::Base
   symbolize :category, :in => [:system_notification, :member_mailbox],
                     :scopes => true, :i18n => true,
                     :methods => true, :default => :member_mailbox
+  validates :subject, :presence => true,
+                      :length => { :within => 4..30 },
+                      :if => Proc.new { |record| record.ancestry? }
 
   scope :unread, where(:is_readed => false)
 
@@ -22,6 +26,15 @@ class Message < ActiveRecord::Base
   def read!
     self.is_readed = true
     self.save
+  end
+
+  def reply!(content)
+    new_message = Message.create(
+      :parent_id => id,
+      :content => content
+    )
+    self.reload
+    new_message
   end
 
 end
@@ -36,6 +49,7 @@ end
 #  category    :string(255)
 #  subject     :string(255)
 #  content     :text
+#  ancestry    :string(255)
 #  is_readed   :boolean         default(FALSE)
 #  target_id   :integer
 #  target_type :string(255)
