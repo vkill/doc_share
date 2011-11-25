@@ -7,6 +7,8 @@ class Message < ActiveRecord::Base
                       :counter_cache => :sent_messages_count
   belongs_to :receiver, :class_name => 'User', :foreign_key => 'receiver_id',
                         :counter_cache => :received_messages_count
+  belongs_to :target, :polymorphic => true
+
 
   validates :content, :presence => true,
                       :length => { :within => 6..2000 }
@@ -15,7 +17,7 @@ class Message < ActiveRecord::Base
                     :methods => true, :default => :member_mailbox
   validates :subject, :presence => true,
                       :length => { :within => 4..30 },
-                      :if => Proc.new { |record| record.ancestry? }
+                      :unless => Proc.new { |record| record.ancestry? }
 
   scope :unread, where(:is_readed => false)
 

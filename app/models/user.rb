@@ -79,34 +79,22 @@ class User < ActiveRecord::Base
 
   def follow_user(user)
     follow_target(user)
-    increment_following_users_count
-    user.send :increment_followers_count
-    self.reload && user.reload
   end
 
   def unfollow_user(user)
     unfollow_target(user)
-    decrement_following_users_count
-    user.send :decrement_followers_count
-    self.reload && user.reload
   end
 
   def watch_repository(repository)
     follow_target(repository)
-    increment_watching_repositories_count
-    repository.send :increment_watchers_count
-    self.reload && repository.reload
   end
 
   def unwatch_repository(repository)
     unfollow_target(repository)
-    decrement_watching_repositories_count
-    repository.send :decrement_watchers_count
-    self.reload && repository.reload
   end
 
   def unread_any_messages_count
-    unread_system_nofitications_count + unread_member_mailboxs_count
+    unread_system_notifications_count + unread_member_mailboxs_count
   end
 
   private
@@ -123,51 +111,6 @@ class User < ActiveRecord::Base
         :target_type => target.class.model_name
       ).first.try(:destroy) && self.reload && target.reload unless target == self || target.nil?
     end
-
-    ##########
-    def increment_following_users_count
-      ::User.increment_counter(:following_users_count, self.id)
-    end
-
-    def decrement_following_users_count
-      ::User.decrement_counter(:following_users_count, self.id)
-    end
-
-    def increment_followers_count
-      ::User.increment_counter(:followers_count, self.id)
-    end
-
-    def decrement_followers_count
-      ::User.decrement_counter(:followers_count, self.id)
-    end
-
-    ##########
-    def increment_watching_repositories_count
-      ::User.increment_counter(:watching_repositories_count, self.id)
-    end
-
-    def decrement_watching_repositories_count
-      ::User.decrement_counter(:watching_repositories_count, self.id)
-    end
-
-    ##########
-    def increment_unread_system_notifications_count
-      ::User.increment_counter(:unread_system_notifications_count, self.id)
-    end
-
-    def decrement_unread_system_notifications_count
-      ::User.decrement_counter(:unread_system_notifications_count, self.id)
-    end
-
-    ##########
-    def increment_unread_member_mailboxs_count
-      ::User.increment_counter(:unread_member_mailboxs_count, self.id)
-    end
-
-    def decrement_unread_member_mailboxs_count
-      ::User.decrement_counter(:unread_member_mailboxs_count, self.id)
-    end
-
 
 end
 # == Schema Information
@@ -209,7 +152,7 @@ end
 #  followers_count                   :integer         default(0)
 #  watching_repositories_count       :integer         default(0)
 #  following_users_count             :integer         default(0)
-#  unread_system_nofitications_count :integer         default(0)
+#  unread_system_notifications_count :integer         default(0)
 #  unread_member_mailboxs_count      :integer         default(0)
 #
 

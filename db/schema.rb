@@ -180,7 +180,7 @@ ActiveRecord::Schema.define(:version => 20111122140336) do
     t.integer  "followers_count",                   :default => 0
     t.integer  "watching_repositories_count",       :default => 0
     t.integer  "following_users_count",             :default => 0
-    t.integer  "unread_system_nofitications_count", :default => 0
+    t.integer  "unread_system_notifications_count", :default => 0
     t.integer  "unread_member_mailboxs_count",      :default => 0
   end
 

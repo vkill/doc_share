@@ -3,21 +3,23 @@ class MessageObserver < ActiveRecord::Observer
   observe :message
 
   def after_create(record)
+    #count
     case record.category.to_sym
     when :system_notification
-      record.receiver.send :increment_unread_system_notifications_count
+      User.increment_counter(:unread_system_notifications_count, record.receiver_id)
     when :member_mailbox
-      record.receiver.send :increment_unread_member_mailboxs_count
+      User.increment_counter(:unread_member_mailboxs_count, record.receiver_id)
     end
   end
 
   def after_update(record)
+    #count
     if record.is_readed?
       case record.category.to_sym
       when :system_notification
-        record.receiver.send :decrement_unread_system_notifications_count
+        User.decrement_counter(:unread_system_notifications_count, record.receiver_id)
       when :member_mailbox
-        record.receiver.send :decrement_unread_member_mailboxs_count
+        User.decrement_counter(:unread_member_mailboxs_count, record.receiver_id)
       end
     end
   end

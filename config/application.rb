@@ -65,6 +65,7 @@ module DocShare
 
     config.generators do |g|
       g.test_framework  :rspec, :fixture => true, :views => false
+      g.integration_tool :rspec, :fixture => true, :views => false
     end
 
     config.autoload_paths += %W(

@@ -15,7 +15,7 @@ describe RepositoryObserver do
       user = User.make!
       repository = Repository.make!
 
-      new_repository = repository.fork_by(user)
+      new_repository = repository.fork_by!(user)
       Activity.forked_repository.where(:target_id => new_repository, :target_type => 'Repository').blank?.should be_false
     end
   end

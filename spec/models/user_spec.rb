@@ -50,51 +50,7 @@ describe User do
       lambda { user_a.following_users.find(user_b) }.should raise_error(ActiveRecord::RecordNotFound)
       lambda { user_b.followers.find(user_a) }.should raise_error(ActiveRecord::RecordNotFound)
     end
-    it "should count the number of followed user" do
-      user_a = User.make!
-      user_b = User.make!
-      user_c = User.make!
 
-      user_a.following_users.count.should == 0
-      user_a.following_users_count.should == 0
-      user_b.followers.count.should == 0
-      user_b.followers_count.should == 0
-      user_c.followers.count.should == 0
-      user_c.followers_count.should == 0
-
-      user_a.follow_user(user_b)
-      user_a.following_users.count.should == 1
-      user_a.following_users_count.should == 1
-      user_b.followers.count.should == 1
-      user_b.followers_count.should == 1
-      user_c.followers.count.should == 0
-      user_c.followers_count.should == 0
-
-      user_a.follow_user(user_c)
-      user_a.following_users.count.should == 2
-      user_a.following_users_count.should == 2
-      user_b.followers.count.should == 1
-      user_b.followers_count.should == 1
-      user_c.followers.count.should == 1
-      user_c.followers_count.should == 1
-
-      user_a.unfollow_user(user_b)
-      user_a.following_users.count.should == 1
-      user_a.following_users_count.should == 1
-      user_b.followers.count.should == 0
-      user_b.followers_count.should == 0
-      user_c.followers.count.should == 1
-      user_c.followers_count.should == 1
-
-      user_a.unfollow_user(user_c)
-      user_a.following_users.count.should == 0
-      user_a.following_users_count.should == 0
-      user_b.followers.count.should == 0
-      user_b.followers_count.should == 0
-      user_c.followers.count.should == 0
-      user_c.followers_count.should == 0
-
-    end
   end
 
   context "user watch repository" do
@@ -109,27 +65,7 @@ describe User do
       lambda { user.watching_repositories.find(repository) }.should raise_error(ActiveRecord::RecordNotFound)
       lambda { repository.watchers.find(user) }.should raise_error(ActiveRecord::RecordNotFound)
     end
-    it "should count the number of watched repository" do
-      user = User.make!
-      repository = Repository.make!
 
-      user.watching_repositories.count.should == 0
-      user.watching_repositories_count.should == 0
-      repository.watchers.count.should == 0
-      repository.watchers_count.should == 0
-
-      user.watch_repository(repository)
-      user.watching_repositories.count.should == 1
-      user.watching_repositories_count.should == 1
-      repository.watchers.count.should == 1
-      repository.watchers_count.should == 1
-
-      user.unwatch_repository(repository)
-      user.watching_repositories.count.should == 0
-      user.watching_repositories_count.should == 0
-      repository.watchers.count.should == 0
-      repository.watchers_count.should == 0
-    end
   end
 
   context "functions" do
@@ -170,7 +106,8 @@ describe User do
     end
     it "should has unread_any_messages_count" do
       user.unread_any_messages_count.should eq(0)
-      Message.make(:receive => user)
+      Message.make(:receiver => user)
+      user.reload
       user.unread_any_messages_count.should eq(1)
     end
   end
@@ -214,7 +151,7 @@ end
 #  followers_count                   :integer         default(0)
 #  watching_repositories_count       :integer         default(0)
 #  following_users_count             :integer         default(0)
-#  unread_system_nofitications_count :integer         default(0)
+#  unread_system_notifications_count :integer         default(0)
 #  unread_member_mailboxs_count      :integer         default(0)
 #
 

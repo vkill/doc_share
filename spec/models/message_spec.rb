@@ -25,7 +25,7 @@ describe Message do
   end
 
   context "define scopes" do
-    it { Activity.unread.new.is_readed.should be_false }
+    it { Message.unread.new.is_readed.should be_false }
   end
 
   context "validates" do
@@ -44,7 +44,7 @@ describe Message do
     end
     it "should has reply!" do
       message = Message.make!
-      new_message = message.reply!(content)
+      new_message = message.reply!("content" * 30)
       new_message.parent.id.should eq(message.id)
     end
   end
