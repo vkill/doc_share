@@ -11,6 +11,10 @@ class Issue < ActiveRecord::Base
   symbolize :state, :in => [:open, :closed],
                     :scopes => true, :i18n => true,
                     :methods => true, :default => :open
+
+
+  delegate :email, :username, :to => :user
+
 end
 
 # == Schema Information

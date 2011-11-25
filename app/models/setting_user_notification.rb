@@ -2,6 +2,8 @@ class SettingUserNotification < ActiveRecord::Base
 
   belongs_to :user
 
+  delegate :email, :username, :to => :user
+
 end
 # == Schema Information
 #

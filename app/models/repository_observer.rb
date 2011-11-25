@@ -1,22 +1,25 @@
 class RepositoryObserver < ActiveRecord::Observer
 
   observe :repository
-  attr_accessor :record, :action
 
   def after_create(record)
-    self.record = record
-    self.action = record.root == record ? :created_repository : :forked_repository
-    log
+    #count
+    if record.parent_id?
+      Repository.increment_counter(:forks_count, record.root.id)
+    end
+    #log
+    action = record.root == record ? :created_repository : :forked_repository
+    log(record, action)
   end
 
   def after_destroy(record)
-    self.record = record
-    self.action = :destroyed_repository
-    log
+    #log
+    action = :destroyed_repository
+    log(record, action)
   end
 
   private
-    def log
+    def log(record, action)
       Activity.log!(
         {:user => record.user, :activity_target => record, :action => action}
       )

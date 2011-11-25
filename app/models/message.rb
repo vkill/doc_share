@@ -21,6 +21,8 @@ class Message < ActiveRecord::Base
 
   scope :unread, where(:is_readed => false)
 
+  delegate :email, :username, :to => :user
+
   def readed?
     !!is_readed?
   end

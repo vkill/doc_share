@@ -10,6 +10,10 @@ class Activity < ActiveRecord::Base
                     :scopes => true, :i18n => true,
                     :methods => true
 
+
+  delegate :email, :username, :to => :user
+
+
   def self.log!(attrs)
     self.create!(
       :user_id      => attrs[:user].id,
