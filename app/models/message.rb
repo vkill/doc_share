@@ -38,11 +38,10 @@ class Message < ActiveRecord::Base
   def reply!(content)
     new_message = Message.create(
       :receiver => sender,
-      :parent_id => id,
       :content => content
     )
-    self.reload
-    new_message
+    new_message.parent_id = id
+    new_message.save
   end
 
 end
