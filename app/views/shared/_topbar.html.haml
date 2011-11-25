@@ -3,14 +3,14 @@
     .topbar-inner
       .container
         %h3
-          %a{:href => "#"} #{ Settings.project.name }
+          = link_to Settings.project.name, root_path
         %ul.nav.secondary-nav
           %form.pull-left{:action => ""}
             %input{:placeholder => "Search", :type => "text"}
 
           - if logged_in?
             %li
-              %a{:href => "#"} #{ t("web.topbar.dashboard") }
+              = link_to t("web.topbar.dashboard"), dashboard_path
             %li
               - if current_user.unread_system_notifications_count > 0
                 = link_to t("web.topbar.inbox") + "(" + current_user.unread_system_notifications_count.to_s + ")",
@@ -22,7 +22,9 @@
                 = link_to t("web.topbar.inbox") + "(" + 0.to_s + ")",
                           [:messages]
             %li
-              = link_to t("web.topbar.account_settings"), ""
+              = link_to t("web.topbar.account_settings"), account_root_path
+            %li
+              = link_to current_user.username, account_root_path
             %li
               = link_to t("web.topbar.sign_out"), signout_path
           - else

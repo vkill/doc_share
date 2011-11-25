@@ -17,5 +17,6 @@ zh-CN:
   delete: 删除
   confirm: 确定执行此操作?
   delete_confirm: 确定要执行删除操作吗?
+  back_to: 返回
   select_options: 请选择一个选项
 

@@ -13,5 +13,4 @@ zh-CN:
     messages:
       reply:
         notice: '%{resource_name}回复成功.'
-        alert: '%{resource_name}回复失败.'
 

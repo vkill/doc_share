@@ -80,7 +80,7 @@ class UsersController < ApplicationController
       when 'new', 'create', 'activate'
         'sign'
       else
-        'application'
+        'account'
       end
     end
 
