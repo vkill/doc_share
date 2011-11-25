@@ -2,7 +2,7 @@ class Repository < ActiveRecord::Base
 
   has_ancestry
 
-  attr_accessible :user_id, :category_id, :name, :describtion, :visibility
+  attr_accessible :user_id, :category_id, :name, :describtion, :visibility, :parent
 
   belongs_to :user, :counter_cache => true
   belongs_to :category, :counter_cache => true
@@ -27,10 +27,10 @@ class Repository < ActiveRecord::Base
     new_repository = user.repositories.create(
       :category_id => category_id,
       :name => name,
-      :describtion => describtion
+      :describtion => describtion,
+      :parent => self
     )
-    new_repository.parent_id = id
-    new_repository.save
+    new_repository
   end
 
   private

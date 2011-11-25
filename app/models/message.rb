@@ -4,7 +4,7 @@ class Message < ActiveRecord::Base
   paginates_per 10
 
   alias_attribute :user_id, :sender_id
-  attr_accessible :user_id, :receiver_id, :subject, :content
+  attr_accessible :user_id, :receiver_id, :subject, :content, :parent
 
   belongs_to :sender, :class_name => 'User', :foreign_key => 'sender_id',
                       :counter_cache => :sent_messages_count
@@ -37,11 +37,11 @@ class Message < ActiveRecord::Base
 
   def reply!(content)
     new_message = Message.create(
-      :receiver => sender,
-      :content => content
+      :receiver_id => sender_id,
+      :content => content,
+      :parent => self
     )
-    new_message.parent_id = id
-    new_message.save
+    new_message
   end
 
 end
