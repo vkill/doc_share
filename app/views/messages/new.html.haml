@@ -1,2 +1,17 @@
-%h1 Messages#new
-%p Find me in app/views/messages/new.html.haml
+%h2 New message
+= simple_form_for(@message, :url => messages_path, :html => { :method => :post }, :wrapper => :inline) do |f|
+  - if f.error_notification
+    .alert-message.warning.fade.in(data-alert="alert")
+      %a(class="close" href="#") ×
+      %p
+        = f.error_notification
+
+  = field_set_tag "" do
+    = f.input :receiver, :input_html => { :class => "span8" }
+    = f.input :subject, :input_html => { :class => "span8" }
+    = f.input :content, :input_html => { :class => "span8" }
+
+  .actions
+    = f.button :submit, :class => 'primary'
+    = button_tag 'Cancel', :type => :reset, :class => "btn"
+

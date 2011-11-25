@@ -1,5 +1,6 @@
 class UsersController < ApplicationController
   before_filter :require_login, :except => [:new, :create, :activate]
+  layout :set_layout
 
   def new
     @user = User.new
@@ -72,6 +73,16 @@ class UsersController < ApplicationController
       render :action => "password_edit"
     end
   end
+
+  private
+    def set_layout
+      case params[:action]
+      when 'new', 'create', 'activate'
+        'sign'
+      else
+        'application'
+      end
+    end
 
 end
 

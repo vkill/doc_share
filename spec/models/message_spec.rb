@@ -28,6 +28,11 @@ describe Message do
       subject.read!
       subject.readed?.should be_true
     end
+    it "should has reply!" do
+      message = Message.make!
+      new_message = message.reply!(content)
+      new_message.parent.id.should eq(message.id)
+    end
   end
 
 

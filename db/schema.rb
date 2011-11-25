@@ -68,6 +68,7 @@ ActiveRecord::Schema.define(:version => 20111122140336) do
     t.string   "category"
     t.string   "subject"
     t.text     "content"
+    t.string   "ancestry"
     t.boolean  "is_readed",   :default => false
     t.integer  "target_id"
     t.string   "target_type"

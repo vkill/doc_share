@@ -1,8 +1,19 @@
 %h2 Forgot your password?
-= simple_form_for(@user, :url => reset_passwords_path, :html => { :method => :post }) do |f|
-  = f.error_notification
-  .inputs
-    = f.input :email, :required => true
+= simple_form_for(@user, :url => reset_passwords_path, :html => { :method => :post }, :wrapper => :inline) do |f|
+  - if f.error_notification
+    .alert-message.warning.fade.in(data-alert="alert")
+      %a(class="close" href="#") ×
+      %p
+        = f.error_notification
+
+  = field_set_tag "" do
+    = f.input :email, :required => true, :autofocus => true, :input_html => { :class => "span4" }
+
   .actions
-    = f.button :submit, "Send me reset password instructions"
+    = f.button :submit, "Send me reset password instructions", :class => 'primary'
+    = button_tag 'Cancel', :type => :reset, :class => "btn"
+    %p.pull-right
+      = link_to t("web.topbar.sign_in"), signin_path
+      /= link_to t("web.topbar.forget_password"), new_reset_password_path
+      = link_to t("web.topbar.sign_up"), signup_path
 

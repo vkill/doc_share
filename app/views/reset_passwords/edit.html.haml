@@ -1,11 +1,18 @@
 %h2 Change your password
-= simple_form_for(@user, :url => reset_password_path(@user), :html => { :method => :put }) do |f|
-  = f.error_notification
-  = f.input :reset_password_token, :as => :hidden
-  = f.full_error :reset_password_token
-  .inputs
-    = f.input :password, :label => "New password", :required => true
-    = f.input :password_confirmation, :label => "Confirm your new password", :required => true
+= simple_form_for(@user, :url => reset_password_path(@user), :html => { :method => :put }, :wrapper => :inline) do |f|
+  - if f.error_notification
+    .alert-message.warning.fade.in(data-alert="alert")
+      %a(class="close" href="#") ×
+      %p
+        = f.error_notification
+
+  = field_set_tag "" do
+    = f.input :reset_password_token, :as => :hidden
+    = f.input :email, :required => true, :autofocus => true, :input_html => { :class => "span4" }
+    = f.input :password, :required => true, :input_html => { :class => "span4" }
+    = f.input :password_confirmation, :required => true, :input_html => { :class => "span4" }
+
   .actions
-    = f.button :submit, "Change my password"
+    = f.button :submit, "Change my password", :class => 'primary'
+    = button_tag 'Cancel', :type => :reset, :class => "btn"
 

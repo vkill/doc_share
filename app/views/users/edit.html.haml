@@ -1,13 +1,20 @@
-%h2 Edit your
-= simple_form_for(@user, :url => user_path(@user), :html => { :method => :put }) do |f|
-  = f.error_notification
-  .inputs
-    = f.input :email
-    = f.input :username, :required => true, :autofocus => true
-    = f.input :name
-    = f.input :site
-    = f.input :company
-    = f.input :location
+%h2 Edit your profile
+= simple_form_for(@user, :url => user_path(@user), :html => { :method => :post }, :wrapper => :inline) do |f|
+  - if f.error_notification
+    .alert-message.warning.fade.in(data-alert="alert")
+      %a(class="close" href="#") ×
+      %p
+        = f.error_notification
+
+  = field_set_tag "" do
+    = f.input :email, :input_html => { :class => "span4" }
+    = f.input :username, :required => true, :autofocus => true, :input_html => { :class => "span4" }
+    = f.input :name, :input_html => { :class => "span4" }
+    = f.input :site, :input_html => { :class => "span4" }
+    = f.input :company, :input_html => { :class => "span4" }
+    = f.input :location, :input_html => { :class => "span4" }
+
   .actions
-    = f.button :submit, "Update"
+    = f.button :submit, "Update", :class => 'primary'
+    = button_tag 'Cancel', :type => :reset, :class => "btn"
 

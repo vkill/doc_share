@@ -9,7 +9,6 @@
     %title #{Settings.web.head.title}
 
     = stylesheet_link_tag    "application"
-    = javascript_include_tag "application"
 
   %body
     = render "shared/topbar"
@@ -21,4 +20,5 @@
         = yield
 
     = render "shared/footer"
+    = javascript_include_tag "application"
 

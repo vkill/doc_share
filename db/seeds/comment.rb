@@ -1,4 +1,5 @@
 
-10.times do
+2.times do
   Comment.make!
 end
+

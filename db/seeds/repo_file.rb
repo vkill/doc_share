@@ -1,4 +1,5 @@
 
-10.times do
+1.times do
   RepoFile.make!
 end
+

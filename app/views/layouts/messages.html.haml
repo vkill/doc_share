@@ -15,7 +15,23 @@
 
     .container
       .row
-        .span10.offset3
+        .span4
+          .page-header
+            %h2
+              = link_to "new_message", [:new, :message]
+          .row
+            %ul.unstyled
+              %li
+                %h3
+                  = link_to "sent_messages", [:sent, :messages]
+              %li
+                %h3
+                  = link_to "received_messages", [:messages]
+              %li
+                %h3
+                  = link_to "notifications", [:notifications, :messages]
+
+        .span12
           = render "shared/flash", :flash => flash
           = yield
 

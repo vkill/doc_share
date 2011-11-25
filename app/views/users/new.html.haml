@@ -1,11 +1,22 @@
 %h2 Sign up
-= simple_form_for(@user, :url => users_path, :html => { :method => :post }) do |f|
-  = f.error_notification
-  .inputs
-    = f.input :username, :required => true, :autofocus => true
-    = f.input :email, :required => true, :autofocus => true
-    = f.input :password, :required => true
-    = f.input :password_confirmation, :required => true
+= simple_form_for(@user, :url => users_path, :html => { :method => :post }, :wrapper => :inline) do |f|
+  - if f.error_notification
+    .alert-message.warning.fade.in(data-alert="alert")
+      %a(class="close" href="#") ×
+      %p
+        = f.error_notification
+
+  = field_set_tag "" do
+    = f.input :username, :required => true, :autofocus => true, :input_html => { :class => "span4" }
+    = f.input :email, :required => true, :autofocus => true, :input_html => { :class => "span4" }
+    = f.input :password, :required => true, :input_html => { :class => "span4" }
+    = f.input :password_confirmation, :required => true, :input_html => { :class => "span4" }
+
   .actions
-    = f.button :submit, "Sign up"
+    = f.button :submit, "Sign in", :class => 'primary'
+    = button_tag 'Cancel', :type => :reset, :class => "btn"
+    %p.pull-right
+      = link_to t("web.topbar.sign_in"), signin_path
+      = link_to t("web.topbar.forget_password"), new_reset_password_path
+      /= link_to t("web.topbar.sign_up"), signup_path
 

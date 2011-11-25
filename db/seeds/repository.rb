@@ -1,4 +1,5 @@
 
-10.times do
+3.times do
   Repository.make!
 end
+

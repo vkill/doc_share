@@ -1,5 +1,7 @@
 class Message < ActiveRecord::Base
 
+  paginates_per 10
+
   belongs_to :sender, :class_name => 'User', :foreign_key => 'sender_id',
                       :counter_cache => :sent_messages_count
   belongs_to :receiver, :class_name => 'User', :foreign_key => 'receiver_id',

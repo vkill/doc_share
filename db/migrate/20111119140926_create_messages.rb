@@ -6,6 +6,7 @@ class CreateMessages < ActiveRecord::Migration
       t.string :category
       t.string :subject
       t.text :content
+      t.string :ancestry
       t.boolean :is_readed,   :default => false
       t.references :target, :polymorphic => {}
 

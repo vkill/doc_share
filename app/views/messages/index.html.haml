@@ -1,2 +1,23 @@
-%h1 Messages#index
-%p Find me in app/views/messages/index.html.haml
+.page-header
+  - if action_name == "index"
+    %h2 received_messages
+  - elsif action_name ==  "sent"
+    %h2 sent_messages
+  - elsif action_name ==  "notifications"
+    %h2 notifications
+
+.row
+  .span10.offset1
+    - @messages.each do |message|
+      .page-header
+        %p.pull-right
+          = link_to t("web.page.reply"), [message]
+          = link_to t(:delete), [message], :method => :delete, :confirm => t(:delete_confirm)
+        %p
+          = message.subject
+        %p
+          = message.content
+
+.pagination
+  = render 'paginator'
+
