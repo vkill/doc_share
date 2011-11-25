@@ -12,10 +12,10 @@ zh-CN:
     page:
       reply: 回复
 
-  select_options: 请选择一个选项
   show: 查看
   edit: 编辑
   delete: 删除
   confirm: 确定执行此操作?
   delete_confirm: 确定要执行删除操作吗?
+  select_options: 请选择一个选项
 

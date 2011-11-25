@@ -12,8 +12,8 @@
             %li
               %a{:href => "#"} #{ t("web.topbar.dashboard") }
             %li
-              - if current_user.unread_system_nofitications_count > 0
-                = link_to t("web.topbar.inbox") + "(" + current_user.unread_system_nofitications_count.to_s + ")",
+              - if current_user.unread_system_notifications_count > 0
+                = link_to t("web.topbar.inbox") + "(" + current_user.unread_system_notifications_count.to_s + ")",
                           [:notifications, :messages]
               - elsif current_user.unread_member_mailboxs_count > 0
                 = link_to t("web.topbar.inbox") + "(" + current_user.unread_member_mailboxs_count.to_s + ")",

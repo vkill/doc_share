@@ -1,15 +1,16 @@
-en:
+---
+zh-CN:
   simple_form:
-    "yes": 'Yes'
-    "no": 'No'
+    "yes": '是'
+    "no": '否'
     required:
-      text: 'required'
+      text: '必填'
       mark: '*'
       # You can uncomment the line below if you need to overwrite the whole required html.
       # When using html, text and mark won't be used.
       # html: '<abbr title="required">*</abbr>'
     error_notification:
-      default_message: "Some errors were found, please take a look:"
+      default_message: "一些错误被发现，请看:"
     # Labels and hints examples
     # labels:
     #   password: 'Password'

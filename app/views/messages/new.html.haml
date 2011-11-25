@@ -7,9 +7,9 @@
         = f.error_notification
 
   = field_set_tag "" do
-    = f.input :receiver, :input_html => { :class => "span8" }
-    = f.input :subject, :input_html => { :class => "span8" }
-    = f.input :content, :input_html => { :class => "span8" }
+    = f.input :receiver_id, :input_html => { :class => "span5" }
+    = f.input :subject, :input_html => { :class => "span5" }
+    = f.input :content, :input_html => { :class => "span5", :rows => 5 }
 
   .actions
     = f.button :submit, :class => 'primary'

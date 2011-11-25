@@ -32,6 +32,7 @@ class Message < ActiveRecord::Base
 
   def reply!(content)
     new_message = Message.create(
+      :receiver => sender,
       :parent_id => id,
       :content => content
     )

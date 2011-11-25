@@ -46,6 +46,7 @@ describe Message do
       message = Message.make!
       new_message = message.reply!("content" * 30)
       new_message.parent.id.should eq(message.id)
+      new_message.receiver.id.should eq(message.sender.id)
     end
   end
 

@@ -2,73 +2,53 @@ class MessagesController < ApplicationController
 
   before_filter :require_login
   layout 'messages'
+  respond_to :html
+  respond_to :js, :only => [:destroy]
 
   def new
     @message = Message.new
-    respond_to do |format|
-      format.html
-    end
+    respond_with @message
   end
 
   def create
     @message = Message.new(params[:message])
-    respond_to do |format|
-      if @message.save
-        format.html { redirect_to([:sent, :messages], :notice => 'message is created!') }
-      else
-        format.html { render :action => "new" }
-      end
-    end
+    @message.save
+    respond_with @message, :location => [:sent, :messages]
   end
 
   def show
     @message = Message.find(params[:id])
     @message.read!
     @new_message = Message.new
-    respond_to do |format|
-      format.html
-    end
+    respond_with @message
   end
 
   def destroy
-    @message = Message.find(params[:id])
-    respond_to do |format|
-      if @message.sender == current_user or @message.receiver == current_user
-        @message.destroy
-        @status = :succeed
-        format.html { redirect_to([:messages]) }
-        format.js
-      else
-        @status = :failed
-        format.html { redirect_to([:messages]) }
-        format.js
-      end
-    end
+    @message = current_user.received_messages.find(params[:id])
+    @message.destroy
+    respond_with @message
   end
 
   def reply
-    @message = Message.find(params[:id])
-    respond_to do |format|
-      if @message.reply!(params[:new_message][:content])
-        format.html { redirect_to([:sent, :messages], :notice => 'is replied!') }
-      else
-        format.html { render :action => "new" }
-      end
-    end
+    @message = current_user.received_messages.member_mailbox.find(params[:id])
+    @new_message = @message.reply!(params[:new_message][:content])
+    respond_with @new_message, :location => [:messages], :action => "show"
   end
 
   def index
     @messages = current_user.received_messages.member_mailbox.page(params[:page])
+    @can_reply = true
+    respond_with @messages
   end
 
   def sent
     @messages = current_user.sent_messages.page(params[:page])
-    render :index
+    respond_with @messages, :template => "messages/index"
   end
 
   def notifications
     @messages = current_user.received_messages.system_notification.page(params[:page])
-    render :index
+    respond_with @messages, :template => "messages/index"
   end
 
 end

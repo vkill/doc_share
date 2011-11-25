@@ -35,22 +35,23 @@ gem "capistrano", "~> 2.9.0", :require => false, :group => [:development]
 gem "jquery-rails"
 gem "yajl-ruby", "~> 1.1.0", :require => "yajl"
 gem "nokogiri", "~> 1.5.0"
-gem "rspec-rails", "~> 2.7", :group => [:development, :test]
-gem "rr", "~> 1.0.4", :group => [:development, :test]
-gem "capybara", "~> 1.1.2", :group => [:development, :test]
+gem "rspec-rails", "~> 2.7", :group => [:test]
+gem "rr", "~> 1.0.4", :group => [:test]
+gem "capybara", "~> 1.1.2", :group => [:test]
 gem "machinist", ">= 2.0.0.beta2", :group => [:development, :test]
 gem "database_cleaner", "~> 0.7.0", :group => [:development, :test]
-gem "guard-rspec", "~> 0.5.4", :group => [:development, :test]
-gem "guard-spork", "~> 0.3.1", :group => [:development, :test]
+gem "guard-rspec", "~> 0.5.4", :group => [:test]
+gem "guard-spork", "~> 0.3.1", :group => [:test]
 gem "ffaker", "~> 1.10.1", :group => [:development, :test]
 gem "timecop", "~> 0.3.5", :group => [:development, :test]
-gem "valid_attribute", "~> 1.2.0", :group => [:development, :test]
+gem "valid_attribute", "~> 1.2.0", :group => [:test]
 gem "annotate", "~> 2.4.1.beta1", :require => false, :group => [:development]
 gem "rails-erd", "~> 0.4.5", :group => [:development]
 gem "thin", "~> 1.3.1", :require => false, :group => [:development]
 gem "pry", "~> 0.9.7.4", :group => [:development]
+gem "pry-padrino", "~> 0.1.2", :group => [:development]
 gem "foreman", "~> 0.26.1", :group => [:development]
-gem "rails-footnotes", ">= 3.7.5.rc4", :group => :development
+#gem "rails-footnotes", ">= 3.7.5.rc4", :group => [:development]
 gem "rails-i18n", "~> 0.1.10"
 gem "exception_notification", "~> 2.5.2"
 gem "sorcery", "~> 0.7.5"
@@ -62,7 +63,7 @@ gem "resque-scheduler", "~> 1.9.9"
 gem "resque_mailer", "~> 2.0.2"
 gem "rails_config", "~> 0.2.5"
 gem "haml-rails", "~> 0.3.4"
-gem "simple_form", :git => 'git://github.com/plataformatec/simple_form.git' #"~> 1.5.2"
+gem "simple_form", :git => 'git://github.com/plataformatec/simple_form.git'
 gem "nested_form", "~> 0.1.1"
 gem "kaminari", "~> 0.12.4"
 gem "i18n_attributes", "~> 0.1.1.1", :group => [:development]
@@ -84,4 +85,6 @@ gem "immortal", "~> 1.0.5"
 
 gem 'valid_email', "~> 0.0.1"
 gem "url_validator", "~> 0.0.3"
+
+gem "responders", "~> 0.6.4"
 

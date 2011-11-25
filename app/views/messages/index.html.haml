@@ -7,16 +7,19 @@
     %h2 notifications
 
 .row
-  .span10.offset1
-    - @messages.each do |message|
-      .page-header
+  - @messages.each do |message|
+    .page-header
+      .row
         %p.pull-right
-          = link_to t("web.page.reply"), [message]
+          - if @can_reply
+            = link_to t("web.page.reply"), [message]
           = link_to t(:delete), [message], :method => :delete, :confirm => t(:delete_confirm)
-        %p
-          = message.subject
-        %p
-          = message.content
+      .row
+        .offset1
+          %p
+            = message.subject
+          %p
+            = message.content
 
 .pagination
   = render 'paginator'
