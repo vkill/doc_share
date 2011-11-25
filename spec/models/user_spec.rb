@@ -106,7 +106,7 @@ describe User do
     end
     it "should has unread_any_messages_count" do
       user.unread_any_messages_count.should eq(0)
-      Message.make(:receiver => user)
+      Message.make!(:receiver => user)
       user.reload
       user.unread_any_messages_count.should eq(1)
     end
