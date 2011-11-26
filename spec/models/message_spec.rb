@@ -26,6 +26,12 @@ describe Message do
 
   context "define scopes" do
     it { Message.unread.new.is_readed.should be_false }
+    it "user send and receive messages query use by_user" do
+      user = User.make!
+      Message.make!(:sender => user)
+      Message.make!(:receiver => user)
+      Message.by_user(user).count.should eq(2)
+    end
   end
 
   context "validates" do

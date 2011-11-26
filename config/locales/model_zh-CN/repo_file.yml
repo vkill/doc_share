@@ -1,9 +1,12 @@
 --- 
 zh-CN: 
-  active_record: 
+  activerecord: 
     models: 
-      repo_file: Repo file
+      repo_file: RepoFile
     attributes: 
       repo_file: 
-        repository: Repository
-        file: File
+        id: Id
+        repository_id: Repository
+        repo_file: Repo file
+        created_at: Created at
+        updated_at: Updated at

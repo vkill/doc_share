@@ -1,12 +1,12 @@
 --- 
 en: 
-  active_record: 
+  activerecord: 
     models: 
       repo_file: RepoFile
     attributes: 
       repo_file: 
         id: Id
         repository_id: Repository
-        file: File
+        repo_file: Repo file
         created_at: Created at
         updated_at: Updated at

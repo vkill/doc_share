@@ -17,20 +17,20 @@ class MessagesController < ApplicationController
   end
 
   def show
-    @message = Message.find(params[:id])
+    @message = Message.by_user(current_user).find(params[:id])
     @message.read!
     @new_message = Message.new
     respond_with @message
   end
 
   def destroy
-    @message = current_user.received_messages.find(params[:id])
+    @message = Message.by_user(current_user).find(params[:id])
     @message.destroy
     respond_with @message
   end
 
   def reply
-    @message = current_user.received_messages.member_mailbox.find(params[:id])
+    @message = Message.received_by_user(current_user).member_mailbox.find(params[:id])
     @new_message = @message.reply!(params[:new_message][:content])
     respond_with @new_message, :location => [:messages], :action => "show"
   end

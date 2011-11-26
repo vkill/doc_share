@@ -66,11 +66,13 @@ gem "haml-rails", "~> 0.3.4"
 gem "simple_form", :git => 'git://github.com/plataformatec/simple_form.git'
 gem "nested_form", "~> 0.1.1"
 gem "kaminari", "~> 0.12.4"
-gem "i18n_attributes", "~> 0.1.1.1", :group => [:development]
-gem "seed_upgrade", "~> 0.1.1.1", :group => [:development]
+
+gem "i18n_attributes", "~> 0.1.3", :group => [:development]
+gem "seed_upgrade", "~> 0.1.2", :group => [:development]
+gem "attribute_enums", "~> 0.1.0"
+
 gem "client_side_validations", "~> 3.1.3"
 gem "carrierwave", "~> 0.5.8"
-gem "symbolize", "~> 4.0.4", :require => "symbolize/active_record"
 gem "ancestry", "~> 1.2.4"
 gem "by_star", "~> 1.0.1"
 gem "inherited_resources", "~> 1.3.0"
@@ -87,4 +89,5 @@ gem 'valid_email', "~> 0.0.1"
 gem "url_validator", "~> 0.0.3"
 
 gem "responders", "~> 0.6.4"
+gem "squeel", '~> 0.9.3'
 

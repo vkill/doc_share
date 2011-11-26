@@ -1,6 +1,6 @@
 --- 
 zh-CN: 
-  active_record: 
+  activerecord: 
     models: 
       user: User
     attributes: 
@@ -22,6 +22,9 @@ zh-CN:
         last_activity_at: Last activity at
         failed_logins_count: Failed logins count
         lock_expires_at: Lock expires at
+        activation_state: Activation state
+        activation_token: Activation token
+        activation_token_expires_at: Activation token expires at
         is_super_admin: Is super admin
         name: Name
         gender: Gender
@@ -32,10 +35,13 @@ zh-CN:
         repositories_count: Repositories count
         issues_count: Issues count
         comments_count: Comments count
-        messages_count: Messages count
+        sent_messages_count: Sent messages count
+        received_messages_count: Received messages count
         followers_count: Followers count
         watching_repositories_count: Watching repositories count
         following_users_count: Following users count
+        unread_system_notifications_count: Unread system notifications count
+        unread_member_mailboxs_count: Unread member mailboxs count
         enums: 
           gender: 
             male: Male

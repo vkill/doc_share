@@ -1,6 +1,6 @@
 --- 
 en: 
-  active_record: 
+  activerecord: 
     models: 
       repository: Repository
     attributes: 
@@ -17,4 +17,7 @@ en:
         created_at: Created at
         updated_at: Updated at
         watchers_count: Watchers count
+        repo_files_count: Repo files count
         issues_count: Issues count
+        comments_count: Comments count
+        forks_count: Forks count

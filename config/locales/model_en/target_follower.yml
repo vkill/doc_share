@@ -1,6 +1,6 @@
 --- 
 en: 
-  active_record: 
+  activerecord: 
     models: 
       target_follower: TargetFollower
     attributes: 

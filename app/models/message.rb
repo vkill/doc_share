@@ -4,7 +4,7 @@ class Message < ActiveRecord::Base
   paginates_per 10
 
   alias_attribute :user_id, :sender_id
-  attr_accessible :user_id, :receiver_id, :subject, :content, :parent
+  attr_accessible :user_id, :receiver_id, :subject, :content, :parent, :sender, :receiver
 
   belongs_to :sender, :class_name => 'User', :foreign_key => 'sender_id',
                       :counter_cache => :sent_messages_count
@@ -15,14 +15,13 @@ class Message < ActiveRecord::Base
 
   validates :content, :presence => true,
                       :length => { :within => 6..2000 }
-  symbolize :category, :in => [:system_notification, :member_mailbox],
-                    :scopes => true, :i18n => true,
-                    :methods => true, :default => :member_mailbox
+  attribute_enums :category, :in => [:system_notification, :member_mailbox], :default => :member_mailbox
   validates :subject, :presence => true,
                       :length => { :within => 4..30 },
                       :unless => Proc.new { |record| record.ancestry? }
 
   scope :unread, where(:is_readed => false)
+  scope :by_user, lambda {|user| where{(sender_id == user.id) | (receiver_id == user.id)} }
 
   delegate :email, :username, :to => :user
 

@@ -3,12 +3,10 @@ class Activity < ActiveRecord::Base
   belongs_to :user
   belongs_to :target, :polymorphic => true
 
-  symbolize :action, :in => [:created_repository, :destroyed_repository,
+  attribute_enums :action, :in => [:created_repository, :destroyed_repository,
                               :followed_user, :unfollowed_user, :watched_repository, :unwatched_repository,
                               :forked_repository,
-                              ],
-                    :scopes => true, :i18n => true,
-                    :methods => true
+                              ]
 
 
   delegate :email, :username, :to => :user

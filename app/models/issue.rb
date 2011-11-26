@@ -10,9 +10,7 @@ class Issue < ActiveRecord::Base
                       :length => { :within => 6..30 }
   validates :content, :presence => true,
                       :length => { :within => 6..2000 }
-  symbolize :state, :in => [:open, :closed],
-                    :scopes => true, :i18n => true,
-                    :methods => true, :default => :open
+  attribute_enums :state, :in => [:open, :closed], :default => :open
 
 
   delegate :email, :username, :to => :user

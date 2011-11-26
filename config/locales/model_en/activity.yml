@@ -1,10 +1,15 @@
 --- 
 en: 
-  active_record: 
+  activerecord: 
     models: 
       activity: Activity
     attributes: 
       activity: 
-        user: User
+        id: Id
+        user_id: User
+        user_name: User name
         action: Action
-        target: Target
+        target_id: Target
+        target_type: Target type
+        created_at: Created at
+        updated_at: Updated at

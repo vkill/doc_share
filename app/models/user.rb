@@ -37,9 +37,7 @@ class User < ActiveRecord::Base
   validates :password, :confirmation => true,
                       :length => { :within => 6..30 },
                       :on => :create
-  symbolize :gender, :in => [:male, :female],
-                    :scopes => true, :i18n => true,
-                    :methods => true, :allow_blank => true
+  attribute_enums :gender, :in => [:male, :female], :allow_blank => true
   validates :name, :length => { :within => 2..30 },
                     :if => Proc.new { |record| record.name? }
   validates_url :site, :if => Proc.new { |record| record.site? }

@@ -1,6 +1,6 @@
 --- 
 zh-CN: 
-  active_record: 
+  activerecord: 
     models: 
       comment: Comment
     attributes: 

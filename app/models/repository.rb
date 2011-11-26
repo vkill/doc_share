@@ -17,9 +17,7 @@ class Repository < ActiveRecord::Base
 
   validates :name, :presence => true,
                       :length => { :within => 6..30 }
-  symbolize :visibility, :in => [:public, :private],
-                    :scopes => true, :i18n => true,
-                    :methods => true, :default => :public
+  attribute_enums :visibility, :in => [:public, :private], :default => :public
 
   delegate :email, :username, :to => :user
 

@@ -1,6 +1,6 @@
 --- 
 zh-CN: 
-  active_record: 
+  activerecord: 
     models: 
       issue: Issue
     attributes: 
