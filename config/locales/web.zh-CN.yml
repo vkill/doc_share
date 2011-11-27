@@ -2,12 +2,14 @@
 zh-CN:
   web:
     topbar:
-      sign_out: sign out
-      sign_in: sign in
-      sign_up: sign up
-      dashboard: dashboard
-      inbox: inbox
-      forget_password: forget password
+      sign_in: 登入
+      sign_up: 注册
+      forget_password: 忘记密码?
+      sign_out: 登出
+      dashboard: 控制面板
+      inbox: 收件箱
+      profile_center: 个人中心
+      account_page: 账户首页
     page:
       reply: 回复
 

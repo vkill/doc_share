@@ -3,14 +3,31 @@ zh-CN:
   flash:
     actions:
       create:
-        notice: '%{resource_name}创建成功.'
+        success: '%{resource_name}创建成功.'
       update:
-        notice: '%{resource_name}更新成功.'
+        success: '%{resource_name}更新成功.'
       destroy:
-        notice: '%{resource_name}删除成功.'
-        alert: '%{resource_name}删除失败.'
+        success: '%{resource_name}删除成功.'
+        error: '%{resource_name}删除失败.'
 
     messages:
       reply:
-        notice: '%{resource_name}回复成功.'
+        success: '%{resource_name}回复成功.'
+
+    sessions:
+      create:
+        success: '登入成功.'
+        error: '登入失败.'
+      destroy:
+        success: '登出成功.'
+
+    users:
+      create:
+        success: '注册成功,请查看您的电子邮件按操作激活账户.'
+      update:
+        success: '个人资料更新成功.'
+      activate:
+        success: '账户已激活，请登录.'
+      password_update:
+        success: '密码更新成功，请重新登录.'
 

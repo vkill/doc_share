@@ -10,7 +10,7 @@ DocShare::Application.routes.draw do
       put :password_update
     end
   end
-  resources :sessions, :only => [:new, :create, :destroy]
+  resources :sessions, :only => [:new, :create]
   resources :reset_passwords, :only => [:new, :create, :edit, :update]
   get "signup" => "users#new", :as => "signup"
   get "signin" => "sessions#new", :as => "signin"

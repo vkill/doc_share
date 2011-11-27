@@ -1,2 +1,2 @@
-#Responders::FlashResponder.flash_keys = [ :success, :failure ]
+Responders::FlashResponder.flash_keys = [ :success, :error ]
 

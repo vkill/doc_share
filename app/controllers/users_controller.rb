@@ -4,26 +4,19 @@ class UsersController < ApplicationController
 
   def new
     @user = User.new
-    respond_to do |format|
-      format.html
-    end
+    respond_with @user
   end
 
   def create
     @user = User.new(params[:user])
-    respond_to do |format|
-      if @user.save
-        format.html { redirect_to([:new, :session], :notice => 'Registration successfull. Check your email for activation instructions.') }
-      else
-        format.html { render :action => "new" }
-      end
-    end
+    @user.save
+    respond_with @user, :location => [:new, :session]
   end
 
   def activate
     if @user = User.load_from_activation_token(params[:id])
       @user.activate!
-      redirect_to([:new, :session], :notice => 'User was successfully activated.')
+      redirect_to [:new, :session], :flash => { :success => t("flash.users.activate.success") }
     else
       not_authenticated
     end
@@ -31,44 +24,37 @@ class UsersController < ApplicationController
 
   def show
     @user = current_user
-    respond_to do |format|
-      format.html
-    end
+    respond_with @user
   end
 
   def edit
     @user = current_user
+    respond_with @user
   end
 
   def update
     @user = current_user
-    respond_to do |format|
-      if @user.update_attributes(params[:user])
-        format.html { redirect_to(@user, :notice => 'User was successfully updated.') }
-      else
-        format.html { render :action => "edit" }
-      end
-    end
+    @user.update_attributes(params[:user])
+    respond_with @user, :location => current_user
   end
 
   def destroy
     @user = current_user
     @user.destroy
-    respond_to do |format|
-      format.html { redirect_to(root_path) }
-    end
+    respond_with @user, :location => root_path
   end
 
   def password_edit
     @user = current_user
+    respond_with @user
   end
 
   def password_update
     @user = current_user
-
     @user.password_confirmation = params[:user][:password_confirmation]
     if !User.authenticate(@user.username, params[:user][:current_password]).nil? and @user.change_password!(params[:user][:password])
-      redirect_to([:new, :session], :notice => 'Password was successfully updated.')
+      logout
+      redirect_to [:new, :session], :flash => { :success => t("flash.users.password_update.success") }
     else
       render :action => "password_edit"
     end

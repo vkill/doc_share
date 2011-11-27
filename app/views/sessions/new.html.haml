@@ -1,10 +1,5 @@
 %h2 Sign in
 = simple_form_for(@user, :url => sessions_path, :html => { :method => :post }, :wrapper => :inline) do |f|
-  - if f.error_notification
-    .alert-message.warning.fade.in(data-alert="alert")
-      %a(class="close" href="#") ×
-      %p
-        = f.error_notification
 
   = field_set_tag "" do
     = f.input :login, :required => true, :autofocus => true, :input_html => { :class => "span4" }
