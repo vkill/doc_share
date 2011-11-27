@@ -53,6 +53,10 @@ To run test
 
     > guard
 
+Use this user signin and test
+    login: vkill  or  vkill.net@gmail.com
+    password: 123456
+
 
 ##Use latest application
 

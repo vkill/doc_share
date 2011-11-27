@@ -111,6 +111,7 @@ describe User do
       user.unread_any_messages_count.should eq(1)
     end
   end
+
 end
 # == Schema Information
 #

@@ -10,7 +10,7 @@ zh-CN:
       # When using html, text and mark won't be used.
       # html: '<abbr title="required">*</abbr>'
     error_notification:
-      default_message: "一些错误被发现，请看:"
+      default_message: "发生错误，保存失败！"
     # Labels and hints examples
     # labels:
     #   password: 'Password'

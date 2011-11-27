@@ -1,2 +1,52 @@
-%h1 Account::Main#index
-%p Find me in app/views/account/main/index.html.haml
+.span10
+  - @new_activities.each do |activity|
+    %br
+    .page-header
+      = activity.username
+      = activity.action
+
+.span6
+  .row
+    .offset1
+      = link_to "new repository", [:new, :repository], :class => "btn large primary disabled"
+
+  %br
+  .page-header
+    %h1
+      = "your repositories"
+    %table.condensed-table
+      %tbody
+        - @your_repositories.each do |repository|
+          %tr
+            %td
+              %p.pull-right
+                %span watchers
+                %span.label.notice
+                  = repository.watchers_count
+                &nbsp
+                %span forks
+                %span.label.notice
+                  = repository.forks_count
+              %p
+                = repository.name
+
+  %br
+  .page-header
+    %h1
+      = "watching repositories"
+    %table.condensed-table
+      %tbody
+        - @watching_repositories.each do |repository|
+          %tr
+            %td
+              %p.pull-right
+                %span watchers
+                %span.label.notice
+                  = repository.watchers_count
+                &nbsp
+                %span forks
+                %span.label.notice
+                  = repository.forks_count
+              %p
+                = repository.name
+

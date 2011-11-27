@@ -1,6 +1,6 @@
 class Comment < ActiveRecord::Base
 
-  attr_accessible :user_id, :content, :commentable_id, :commentable_type
+  attr_accessible :user_id, :content, :user, :commentable
 
   belongs_to :commentable, :polymorphic => true, :counter_cache => true
   belongs_to :user, :counter_cache => true
@@ -9,6 +9,8 @@ class Comment < ActiveRecord::Base
                       :length => { :within => 6..2000 }
 
   delegate :email, :username, :to => :user
+
+  default_scope order('created_at DESC')
 
 end
 

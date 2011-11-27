@@ -1,7 +1,6 @@
 class MessagesController < ApplicationController
 
   before_filter :require_login
-  layout 'messages'
   respond_to :html
   respond_to :js, :only => [:destroy]
 

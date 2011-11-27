@@ -1,5 +1,5 @@
 
-20.times do
+2.times do
   User.make!
 end
 

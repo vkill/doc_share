@@ -2,7 +2,7 @@ class Repository < ActiveRecord::Base
 
   has_ancestry
 
-  attr_accessible :user_id, :category_id, :name, :describtion, :visibility, :parent
+  attr_accessible :user_id, :category_id, :name, :describtion, :visibility, :parent, :user
 
   belongs_to :user, :counter_cache => true
   belongs_to :category, :counter_cache => true
@@ -20,6 +20,8 @@ class Repository < ActiveRecord::Base
   attribute_enums :visibility, :in => [:public, :private], :default => :public
 
   delegate :email, :username, :to => :user
+
+  default_scope order('created_at DESC')
 
   def fork_by!(user)
     new_repository = user.repositories.create(

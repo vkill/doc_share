@@ -1,6 +1,6 @@
 class Issue < ActiveRecord::Base
 
-  attr_accessible :user_id, :title, :content
+  attr_accessible :user_id, :title, :content, :user, :repository
 
   belongs_to :user, :counter_cache => true
   belongs_to :repository, :counter_cache => true
@@ -14,6 +14,8 @@ class Issue < ActiveRecord::Base
 
 
   delegate :email, :username, :to => :user
+
+  default_scope order('created_at DESC')
 
 end
 

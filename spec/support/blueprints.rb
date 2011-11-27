@@ -51,7 +51,6 @@ Repository.blueprint do
   category    { Category.make! }
   name        { "repo_#{sn}" }
   describtion { Faker::Lorem.paragraph }
-  visibility  {  }
 end
 
 Issue.blueprint do
@@ -66,7 +65,6 @@ Message.blueprint do
   receiver { User.make! }
   subject     { "subject_#{sn}" }
   content     { Faker::Lorem.paragraph }
-  is_readed   { false }
 end
 
 SettingUserNotification.blueprint do

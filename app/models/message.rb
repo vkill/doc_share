@@ -4,7 +4,7 @@ class Message < ActiveRecord::Base
   paginates_per 10
 
   alias_attribute :user_id, :sender_id
-  attr_accessible :user_id, :receiver_id, :subject, :content, :parent, :sender, :receiver
+  attr_accessible :user_id, :receiver_id, :subject, :content, :parent, :sender, :receiver, :user
 
   belongs_to :sender, :class_name => 'User', :foreign_key => 'sender_id',
                       :counter_cache => :sent_messages_count
@@ -13,9 +13,10 @@ class Message < ActiveRecord::Base
   belongs_to :target, :polymorphic => true
 
 
+  attribute_enums :category, :in => [:system_notification, :member_mailbox], :default => :member_mailbox
+  attribute_enums :is_readed, :booleans => true
   validates :content, :presence => true,
                       :length => { :within => 6..2000 }
-  attribute_enums :category, :in => [:system_notification, :member_mailbox], :default => :member_mailbox
   validates :subject, :presence => true,
                       :length => { :within => 4..30 },
                       :unless => Proc.new { |record| record.ancestry? }
@@ -24,6 +25,7 @@ class Message < ActiveRecord::Base
   scope :by_user, lambda {|user| where{(sender_id == user.id) | (receiver_id == user.id)} }
 
   delegate :email, :username, :to => :user
+  default_scope order('created_at DESC')
 
   def readed?
     !!is_readed?

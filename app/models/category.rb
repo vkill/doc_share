@@ -6,6 +6,8 @@ class Category < ActiveRecord::Base
 
   validates :name, :code, :presence => true, :uniqueness => true
 
+  default_scope order('created_at DESC')
+
 end
 
 # == Schema Information

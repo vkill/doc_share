@@ -1,11 +1,14 @@
 class RepoFile < ActiveRecord::Base
 
+  attr_accessible :repository
+
   belongs_to :repository, :counter_cache => true
 
   mount_uploader :repo_file, FileUploader
 
   validates :repo_file, :presence => true
 
+  default_scope order('created_at DESC')
 
 end
 

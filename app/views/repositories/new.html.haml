@@ -1,0 +1,17 @@
+%h2 New repository
+= simple_form_for(@repository, :url => repositories_path, :html => { :method => :post }, :wrapper => :inline) do |f|
+  - if f.error_notification
+    .alert-message.warning.fade.in(data-alert="alert")
+      %a(class="close" href="#") ×
+      %p
+        = f.error_notification
+
+  = field_set_tag "" do
+    = f.input :name, :input_html => { :class => "span8" }
+    = f.input :describtion, :input_html => { :class => "span8", :rows => 2 }
+    = f.input :visibility, :as => :radio
+
+  .actions
+    = f.button :submit, :class => 'primary'
+    = button_tag 'Cancel', :type => :reset, :class => "btn"
+

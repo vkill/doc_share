@@ -3,9 +3,6 @@ DocShare::Application.routes.draw do
   root :to => 'home#index'
 
 
-  get "signup" => "users#new", :as => "signup"
-  get "signin" => "sessions#new", :as => "signin"
-  get "signout" => "sessions#destroy", :as => "signout"
   resources :users, :except => [:index] do
     member do
       get :activate
@@ -15,6 +12,12 @@ DocShare::Application.routes.draw do
   end
   resources :sessions, :only => [:new, :create, :destroy]
   resources :reset_passwords, :only => [:new, :create, :edit, :update]
+  get "signup" => "users#new", :as => "signup"
+  get "signin" => "sessions#new", :as => "signin"
+  get "signout" => "sessions#destroy", :as => "signout"
+  get "account" => "users#show", :as => :profile
+  get "account/edit" => "users#edit", :as => :edit_profile
+  get "account/password/edit" => "users#password_edit", :as => :edit_password
 
 
   resources :messages, :only => [:index, :new, :create, :show, :destroy] do
@@ -26,16 +29,13 @@ DocShare::Application.routes.draw do
       put :reply
     end
   end
+  resources :repositories, :only => [:new, :create, :index]
 
 
   namespace :account do
     root :to => "main#index"
   end
-
-
-  match "dashboard" => "dashboard/index", :as => :dashboard
-  get "dashboard/index"
-
+  get "dashboard" => "account/main#index", :as => :dashboard
 
 
   if Rails.env.development?

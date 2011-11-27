@@ -7,7 +7,6 @@ zh-CN:
       sign_up: sign up
       dashboard: dashboard
       inbox: inbox
-      account_settings: account settings
       forget_password: forget password
     page:
       reply: 回复
