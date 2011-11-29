@@ -3,10 +3,9 @@ class MessagesController < ApplicationController
   before_filter :require_login
   main_nav_highlight :messages
   sec_nav_highlight :new, :only => [:new, :create]
-  sec_nav_highlight :show, :only => [:show, :reply]
   sec_nav_highlight :received, :only => [:index]
-  sec_nav_highlight :sent, :only => [:index]
-  sec_nav_highlight :notifications, :only => [:index]
+  sec_nav_highlight :sent, :only => [:sent]
+  sec_nav_highlight :notifications, :only => [:notifications]
 
   respond_to :html
   respond_to :js, :only => [:destroy]

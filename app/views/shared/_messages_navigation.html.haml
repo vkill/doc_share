@@ -1,15 +1,26 @@
 .page-header
-  %h2
-    = link_to "new_message", [:new, :message]
+  %br
+  %br
+
 .row
-  %ul.unstyled
-    %li
-      %h3
+  %ul.pills
+    %li{:class => @sec_nav == :new ? :active : nil}
+      %h4
+        = link_to "new_message", [:new, :message]
+    .row
+
+    %li{:class => @sec_nav == :sent ? :active : nil}
+      %h4
         = link_to "sent_messages", [:sent, :messages]
-    %li
-      %h3
+    .row
+
+    %li{:class => @sec_nav == :received ? :active : nil}
+      %h4
         = link_to "received_messages", [:messages]
-    %li
-      %h3
+    .row
+
+    %li{:class => @sec_nav == :notifications ? :active : nil}
+      %h4
         = link_to "notifications", [:notifications, :messages]
+    .row
 

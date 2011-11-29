@@ -1,7 +1,21 @@
+.page-header
+  %br
+  %br
+
 .row
-  %ul.unstyled
-    %li
-      = link_to "edit_profile", edit_profile_path
-    %li
-      = link_to "edit_password", edit_password_path
+  %ul.pills
+    %li{:class => @sec_nav == :show_profile ? :active : nil}
+      %h4
+        = link_to "profile", profile_path
+    .row
+
+    %li{:class => @sec_nav == :edit_profile ? :active : nil}
+      %h4
+        = link_to "edit_profile", edit_profile_path
+
+    .row
+    %li{:class => @sec_nav == :edit_password ? :active : nil}
+      %h4
+        = link_to "edit_password", edit_password_path
+    .row
 

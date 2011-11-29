@@ -1,4 +1,5 @@
-%h2 Edit your profile
+.page-header
+  %h2 Edit your profile
 = simple_form_for(@user, :url => user_path(@user), :html => { :method => :put }, :wrapper => :inline) do |f|
   - if f.error_notification
     .alert-message.warning.fade.in(data-alert="alert")

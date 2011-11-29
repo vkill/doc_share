@@ -1,5 +1,9 @@
 DocShare::Application.routes.draw do
 
+  get "main/dashboard"
+
+  get "main/notifications_center"
+
   root :to => 'home#index'
 
 
@@ -33,9 +37,11 @@ DocShare::Application.routes.draw do
 
 
   namespace :account do
-    root :to => "main#index"
+    root :to => "main#dashboard"
+    get "dashboard" => "main#dashboard"
+    get "notifications_center" => "main#notifications_center", :as => :notifications_center
   end
-  get "dashboard" => "account/main#index", :as => :dashboard
+  get "dashboard" => "account/main#dashboard", :as => :dashboard
 
 
   if Rails.env.development?
