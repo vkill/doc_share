@@ -28,7 +28,7 @@
                 %span.label.notice
                   = repository.forks_count
               %p
-                = repository.name
+                = link_to repository.name, user_repository_path(repository.username, repository.name)
 
   %br
   .page-header
@@ -48,5 +48,5 @@
                 %span.label.notice
                   = repository.forks_count
               %p
-                = repository.name
+                = link_to repository.name, user_repository_path(repository.username, repository.name)
 

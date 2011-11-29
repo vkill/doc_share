@@ -70,6 +70,7 @@ module DocShare
 
     config.autoload_paths += %W(
       #{config.root}/lib
+      #{config.root}/app/models/common
       )
 
     #

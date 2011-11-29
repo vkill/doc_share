@@ -44,6 +44,15 @@ DocShare::Application.routes.draw do
   get "dashboard" => "account/main#dashboard", :as => :dashboard
 
 
+  scope ":user" do
+    scope ":repository" do
+      root :to => "repositories#show", :as => :user_repository
+      get "tree" => "repositories#show"
+      resources :issues
+    end
+  end
+
+
   if Rails.env.development?
     mount UserMailer::Preview => 'user_mailer_view'
   end

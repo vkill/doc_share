@@ -1,5 +1,10 @@
 class User < ActiveRecord::Base
 
+  include Paramable
+
+  extend FriendlyId
+  friendly_id :username
+
   authenticates_with_sorcery!
 
   attr_accessor :login ,:remember_me

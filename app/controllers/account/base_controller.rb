@@ -1,6 +1,6 @@
 class Account::BaseController < ApplicationController
 
-  layout 'account'
+  layout 'admin'
 
   before_filter :require_login
   before_filter :set_current_user
