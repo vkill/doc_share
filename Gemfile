@@ -69,13 +69,13 @@ gem "kaminari", "~> 0.12.4"
 
 gem "i18n_attributes", "~> 0.1.3", :group => [:development]
 gem "seed_upgrade", "~> 0.1.2", :group => [:development]
-gem "attribute_enums", "~> 0.1.0"
+gem "attribute_enums", "~> 0.1.1"
 
 gem "client_side_validations", "~> 3.1.3"
 gem "carrierwave", "~> 0.5.8"
 gem "ancestry", "~> 1.2.4"
 gem "by_star", "~> 1.0.1"
-gem "inherited_resources", "~> 1.3.0"
+#gem "inherited_resources", "~> 1.3.0"
 gem "high_voltage", "~> 1.0.1"
 gem "anjlab-bootstrap-rails", "~> 1.4.0.8", :require => "bootstrap-rails"
 

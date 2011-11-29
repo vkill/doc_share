@@ -1,6 +1,12 @@
 class UsersController < ApplicationController
-  before_filter :require_login, :except => [:new, :create, :activate]
+
   layout :set_layout
+
+  before_filter :require_login, :except => [:new, :create, :activate]
+  main_nav_highlight :profile, :except => [:new, :create, :activate]
+  sec_nav_highlight :show, :only => [:show]
+  sec_nav_highlight :edit, :only => [:edit]
+  sec_nav_highlight :password_edit, :only => [:password_edit]
 
   def new
     @user = User.new

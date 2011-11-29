@@ -1,7 +1,8 @@
 class SessionsController < ApplicationController
 
-  before_filter :require_login, :only => [:destroy]
   layout 'sign'
+
+  before_filter :require_login, :only => [:destroy]
 
   def new
     @user = User.new

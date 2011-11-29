@@ -1,10 +1,10 @@
 %ul.tabs(data-tabs="tabs")
-  %li.active
+  %li{:class => @main_nav == :dashboard ? :active : nil}
     = link_to "Home", dashboard_path
-  %li
+  %li{:class => @main_nav == :profile ? :active : nil}
     = link_to "Profile", profile_path
-  %li
+  %li{:class => @main_nav == :messages ? :active : nil}
     = link_to "Messages", [:messages]
-  %li
+  %li{:class => @main_nav == :notification_center ? :active : nil}
     = link_to "Notification Center", "#"
 

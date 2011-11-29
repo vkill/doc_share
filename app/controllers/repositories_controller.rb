@@ -1,7 +1,5 @@
 class RepositoriesController < ApplicationController
 
-  respond_to :html
-
   def index
     @repositories = Repository.page(params[:page])
     respond_with @repositories
