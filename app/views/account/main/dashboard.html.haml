@@ -1,52 +1,38 @@
-.span10
+.span9
   - @new_activities.each do |activity|
     %br
     .page-header
       = activity.username
       = activity.action
 
-.span6
+.span6.offset1
   .row
-    .offset1
+    .span5.offset1
       = link_to "new repository", [:new, :repository], :class => "btn large primary disabled"
 
   %br
   .page-header
     %h1
       = "your repositories"
-    %table.condensed-table
-      %tbody
-        - @your_repositories.each do |repository|
-          %tr
-            %td
-              %p.pull-right
-                %span watchers
-                %span.label.notice
-                  = repository.watchers_count
-                &nbsp
-                %span forks
-                %span.label.notice
-                  = repository.forks_count
-              %p
-                = link_to repository.name, user_repository_path(repository.username, repository.name)
+  .row
+    - @repositories.each do |repository|
+      .page-header
+        .row
+          .span3
+            = render "partials/repository_link", :repository => repository
+          .span2
+            = render "partials/repository_count_link", :repository => repository
 
   %br
   .page-header
     %h1
       = "watching repositories"
-    %table.condensed-table
-      %tbody
-        - @watching_repositories.each do |repository|
-          %tr
-            %td
-              %p.pull-right
-                %span watchers
-                %span.label.notice
-                  = repository.watchers_count
-                &nbsp
-                %span forks
-                %span.label.notice
-                  = repository.forks_count
-              %p
-                = link_to repository.name, user_repository_path(repository.username, repository.name)
+  .row
+    - @watching_repositories.each do |repository|
+      .page-header
+        .row
+          .span3
+            = render "partials/repository_link", :repository => repository
+          .span2
+            = render "partials/repository_count_link", :repository => repository
 

@@ -42,6 +42,8 @@ DocShare::Application.routes.draw do
     get "notifications_center" => "main#notifications_center", :as => :notifications_center
   end
   get "dashboard" => "account/main#dashboard", :as => :dashboard
+  get "account/repositories" => "repositories#private_repositories", :as => :user_private_repositories
+
 
 
   scope ":user" do
@@ -53,7 +55,7 @@ DocShare::Application.routes.draw do
 
     match "reverse_follow" => "users#reverse_follow", :as => :user_reverse_follow, :via => :put
 
-    get "repositories" => "users#repositories", :as => :user_repositories
+    get "repositories" => "repositories#public_repositories", :as => :user_public_repositories
 
 
     scope ":repository" do

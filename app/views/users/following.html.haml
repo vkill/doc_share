@@ -1,0 +1,19 @@
+= render "head", :user => @user
+
+.row
+  .span9
+    - @following_users.each do |following_user|
+      .page-header
+        .row
+          %p.pull-right
+            = render "partials/user_reverse_follow", :user => following_user
+          %p
+            = link_to following_user.username, user_page_path(following_user.username)
+
+  .span5.offset2
+    - @watching_repositories.each do |watching_repository|
+      .page-header
+        .row
+          %p
+            = render "partials/repository_link", :repository => watching_repository
+

@@ -1,0 +1,12 @@
+.row
+  .span12
+    = render "partials/repository_link", :repository => repository
+  .span2
+    = render "partials/repository_reverse_watch", :repository => repository
+    = render "partials/repository_fork", :repository => repository
+  .span2
+    = render "partials/repository_count_link", :repository => repository
+
+%br
+.page-header
+

@@ -1,0 +1,13 @@
+/ repository
+
+- if logged_in?
+  - unless repository.username == current_user.username
+    = link_to t("web.page.fork_repository"),
+                user_repository_fork_path(repository.username, repository.name),
+                :method => :put
+
+- else
+  = link_to t("web.page.fork_repository"),
+            user_repository_fork_path(repository.username, repository.name),
+            :method => :put
+

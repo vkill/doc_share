@@ -2,6 +2,9 @@ class UsersController < ApplicationController
 
   layout :set_layout
 
+  respond_to :html, :except => [:reverse_follow]
+  respond_to :js, :only => [:reverse_follow]
+
   before_filter :require_login, :only => [:show, :edit, :update, :destroy, :password_edit, :password_update,
                                           :reverse_follow ]
   main_nav_highlight :profile, :only => [:show, :edit, :update, :destroy, :password_edit, :password_update]
@@ -71,28 +74,32 @@ class UsersController < ApplicationController
   #########################################
   def user_page
     @user = User.find(params[:user])
+    respond_with @user
   end
 
   def following
     @user = User.find(params[:user])
     @following_users = @user.following_users
     @watching_repositories = @user.watching_repositories
+    respond_with @user
   end
 
   def followers
     @user = User.find(params[:user])
     @followers = @user.followers
+    respond_with @user
   end
 
   def reverse_follow
-    @target_user = User.find(:user)
+    @target_user = User.find(params[:user])
     @user = current_user
-    @user.follow_user(@target_user)
-  end
-
-  def repositories
-    @user = User.find(params[:user])
-    @repositories = @user.repositories
+    if @user.following_user? @target_user
+      @user.unfollow_user(@target_user)
+    else
+      @user.follow_user(@target_user)
+      @follow = true
+    end
+    respond_with @target_user
   end
 
 
@@ -101,8 +108,10 @@ class UsersController < ApplicationController
       case params[:action]
       when 'new', 'create', 'activate'
         'sign'
-      else
+      when 'show', 'edit', 'update', 'destroy', 'password_edit', 'password_update'
         'users'
+      else
+        'application'
       end
     end
 

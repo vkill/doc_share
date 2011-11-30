@@ -12,6 +12,7 @@ class MessagesController < ApplicationController
 
   def new
     @message = Message.new
+    @message.receiver = User.find(params[:receiver]) if params[:receiver]
     respond_with @message
   end
 

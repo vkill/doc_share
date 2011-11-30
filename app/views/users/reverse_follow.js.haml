@@ -1,0 +1,7 @@
+- if @follow
+  = raw %Q`$("[data-user-reverse-follow-#{@target_user.id}]").html(I18n.t("web.page.unfollow_user"))`
+- else
+  = raw %Q`$("[data-user-reverse-follow-#{@target_user.id}]").html(I18n.t("web.page.follow_user"))`
+
+= raw %Q`$("[data-user-followers-count-#{@target_user.id}]").html("#{@target_user.followers_count}")`
+

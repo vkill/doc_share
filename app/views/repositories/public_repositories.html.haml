@@ -1,0 +1,15 @@
+
+
+.row
+  - @repositories.each do |repository|
+    .page-header
+      .row
+        %p.pull-right
+          = render "partials/repository_count_link", :repository => repository
+        %p
+          = render "partials/repository_link", :repository => repository
+
+
+  .pagination
+    = render 'partials/pagination', :resources => @repositories
+

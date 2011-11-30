@@ -11,10 +11,10 @@
           .row
             = repository.describtion
         .span2
-          = render "partials/repository_count", :repository => repository
+          = render "partials/repository_count_link", :repository => repository
         .span2
-          = render "partials/reverse_watch_repository", :repository => repository
+          = render "partials/repository_reverse_watch", :repository => repository
 
-.pagination
-  = render 'paginator'
+  .pagination
+    = render 'partials/pagination', :resources => @repositories
 

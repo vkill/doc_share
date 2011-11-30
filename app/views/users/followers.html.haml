@@ -1,0 +1,11 @@
+= render "head", :user => @user
+
+.row
+  - @followers.each do |follower|
+    .page-header
+      .row
+        %p.pull-right
+          = render "partials/user_reverse_follow", :user => follower
+        %p
+          = link_to follower.username, user_page_path(follower.username)
+

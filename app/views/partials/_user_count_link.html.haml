@@ -1,0 +1,22 @@
+/user
+
+- if logged_in?
+  - if user == current_user
+    = link_to user.repositories_count,
+              user_private_repositories_path,
+              :class => "btn large disabled",
+              :title => t("web.page.user_private_repositories"),
+              "data-user-private-repositories-count-#{user.id}" => true
+
+= link_to user.repositories_count,
+          user_public_repositories_path(user.username),
+          :class => "btn large disabled",
+          :title => t("web.page.user_public_repositories"),
+          "data-user-public-repositories-count-#{user.id}" => true
+
+= link_to user.followers_count,
+          user_followers_path(user.username),
+          :class => "btn large disabled",
+          :title => t("web.page.user_followers"),
+          "data-user-followers-count-#{user.id}" => true
+

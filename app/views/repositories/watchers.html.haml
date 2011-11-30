@@ -1,0 +1,15 @@
+= render "head", :repository => @repository
+
+.row
+  - @watchers.each do |watcher|
+    .page-header
+      .row
+        %p.pull-right
+          = render "partials/user_reverse_follow", :user => watcher
+        %p
+          = link_to watcher.username, user_page_path(watcher.username)
+
+
+  .pagination
+    = render 'partials/pagination', :resources => @watchers
+
