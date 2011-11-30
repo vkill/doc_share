@@ -42,11 +42,3 @@ zh-CN:
         following_users_count: Following users count
         unread_system_notifications_count: Unread system notifications count
         unread_member_mailboxs_count: Unread member mailboxs count
-        enums: 
-          gender: 
-            male: Male
-            female: Female
-          state: 
-            pending: Pending
-            processing: Processing
-            processed: Processed

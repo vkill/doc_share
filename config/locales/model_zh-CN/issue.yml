@@ -15,8 +15,3 @@ zh-CN:
         created_at: Created at
         updated_at: Updated at
         comments_count: Comments count
-        enums: 
-          state: 
-            pending: Pending
-            processing: Processing
-            processed: Processed

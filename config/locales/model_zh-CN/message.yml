@@ -1,10 +1,10 @@
----
-zh-CN:
-  activerecord:
-    models:
+--- 
+zh-CN: 
+  activerecord: 
+    models: 
       message: Message
-    attributes:
-      message:
+    attributes: 
+      message: 
         id: Id
         sender_id: Sender
         receiver_id: Receiver
@@ -17,8 +17,3 @@ zh-CN:
         target_type: Target type
         created_at: Created at
         updated_at: Updated at
-        enums:
-          category:
-            a: A
-            b: B
-
