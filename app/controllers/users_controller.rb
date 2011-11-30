@@ -74,6 +74,7 @@ class UsersController < ApplicationController
   #########################################
   def user_page
     @user = User.find(params[:user])
+    @new_activities = @user.activities.limit 30
     respond_with @user
   end
 

@@ -2,8 +2,7 @@
   - @new_activities.each do |activity|
     %br
     .page-header
-      = activity.username
-      = activity.action
+      = render "partials/activity_display", :activity => activity
 
 .span6.offset1
   .row

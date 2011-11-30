@@ -31,6 +31,9 @@ zh-CN:
       send_message: 发消息
       reply: 回复
 
+    activity:
+      at: 在%{ago}前
+
 
   show: 查看
   edit: 编辑

@@ -1,10 +1,10 @@
---- 
-zh-CN: 
-  activerecord: 
-    models: 
+---
+zh-CN:
+  activerecord:
+    models:
       activity: Activity
-    attributes: 
-      activity: 
+    attributes:
+      activity:
         id: Id
         user_id: User
         user_name: User name
@@ -13,3 +13,14 @@ zh-CN:
         target_type: Target type
         created_at: Created at
         updated_at: Updated at
+
+        enums:
+          action:
+            created_repository: 创建了项目
+            destroyed_repository: 删除了项目
+            followed_user: 关注了用户
+            unfollowed_user: 取消关注了用户
+            watched_repository: 关注了项目
+            unwatched_repository: 取消关注了项目
+            forked_repository: 拷贝了项目
+

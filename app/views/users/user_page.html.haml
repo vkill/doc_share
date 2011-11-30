@@ -25,4 +25,12 @@
           = link_to t("view_all"), user_following_path(@user.username)
 
 %br
+.page-header
+  .row
+    .span9
+    .span7
+      - @new_activities.each do |activity|
+        %br
+        .page-header
+          = render "partials/activity_display", :activity => activity
 

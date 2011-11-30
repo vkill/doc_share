@@ -10,7 +10,7 @@ describe User do
     it { should have_valid(:sent_messages).when( [Message.make!] ) }
     it { should have_valid(:received_messages).when( [Message.make!] ) }
     it { should have_valid(:setting_user_notification).when( SettingUserNotification.make! ) }
-
+    it { should have_valid(:activities).when( [Activity.make!] ) }
 
     it { should have_valid(:username).when('test_123' ) }
     it { should_not have_valid(:username).when('s'*3, 's'*31, 'test_+', nil) }

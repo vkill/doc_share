@@ -19,6 +19,8 @@ class User < ActiveRecord::Base
 
   has_many :repositories
 
+  has_many :activities
+
   has_one :setting_user_notification
 
   has_many :target_followed, :as => :follower, :class_name => 'TargetFollower'
