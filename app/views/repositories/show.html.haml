@@ -1,2 +1,9 @@
 %h2 Show repository
+.row
+  .span12
+    = render "partials/repository_link", :repository => @repository
+  .span2
+    = render "partials/reverse_watch_repository", :repository => @repository
+  .span2
+    = render "partials/repository_count", :repository => @repository
 

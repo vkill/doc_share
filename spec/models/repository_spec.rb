@@ -22,24 +22,27 @@ describe Repository do
   end
 
   context "fork by user" do
-    it "should fork by user, and forked repository.root eq root repository" do
-      repository = Repository.make!
+    before {
       user = User.make!
+      repository_a = Repository.make!
+    }
+    it "should fork by user, and forked repository.root eq root repository" do
+      new_repository = repository_a.fork_by!(user)
 
-      new_repository = repository.fork_by!(user)
-
-      new_repository.parent.id.should eq(repository.id)
+      new_repository.parent.id.should eq(repository_a.id)
     end
 
     it "repository.root forks_count should +1" do
-      user = User.make!
-      repository_a = Repository.make!
-
       repository_b = repository_a.fork_by!(user)
       repository_a.reload.forks_count.should == 1
       repository_c = repository_b.fork_by!(user)
       repository_a.reload.forks_count.should == 2
+    end
 
+    it "has forks method" do
+      new_repository = repository_a.fork_by!(user)
+      repository_a.forks.should eq([repository_a])
+      repository_a.forks.size.should == 1
     end
   end
 

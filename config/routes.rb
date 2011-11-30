@@ -45,8 +45,28 @@ DocShare::Application.routes.draw do
 
 
   scope ":user" do
+    root :to => "users#user_page", :as => :user_page
+
+    get "following" => "users#following", :as => :user_following  #following users and watching repositories
+
+    get "followers" => "users#followers", :as => :user_followers
+
+    match "reverse_follow" => "users#reverse_follow", :as => :user_reverse_follow, :via => :put
+
+    get "repositories" => "users#repositories", :as => :user_repositories
+
+
     scope ":repository" do
       root :to => "repositories#show", :as => :user_repository
+
+      get "watchers" => "repositories#watchers", :as => :user_repository_watchers
+
+      match "reverse_watch" => "repositories#reverse_watch", :as => :user_repository_reverse_watch, :via => :put
+
+      get "forks" => "repositories#forks", :as => :user_repository_forks
+
+      match "fork" => "repositories#fork", :as => :user_repository_fork, :via => :put
+
       get "tree" => "repositories#show"
       resources :issues
     end

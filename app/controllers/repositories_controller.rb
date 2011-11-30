@@ -1,7 +1,9 @@
 class RepositoriesController < ApplicationController
 
-  before_filter :require_login, :only => [:new, :create]
+  before_filter :require_login, :only => [:new, :create, :reverse_watch, :fork]
   before_filter :set_current_user, :only => [:create]
+
+  respond_to :js, :only => [:reverse_watch]
 
   def index
     @repositories = Repository.page(params[:page])
@@ -21,6 +23,27 @@ class RepositoriesController < ApplicationController
 
   def show
     @repository = User.find(params[:user]).repositories.find(params[:repository])
+  end
+
+  def watchers
+    @repository = User.find(params[:user]).repositories.find(params[:repository])
+    @watchers = @repository.watchers
+  end
+
+  def reverse_watch
+    @target_repository = User.find(params[:user]).repositories.find(params[:repository])
+    @user = current_user
+    @user.watch_repository(@target_repository)
+  end
+
+  def forks
+    @repository = User.find(params[:user]).repositories.find(params[:repository])
+    @forks = @repository.forks
+  end
+
+  def fork
+    @repository = User.find(params[:user]).repositories.find(params[:repository])
+    @user = current_user
   end
 
 end

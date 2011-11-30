@@ -9,9 +9,24 @@ zh-CN:
       dashboard: 控制面板
       inbox: 收件箱
       profile_center: 个人中心
-      account_page: 账户首页
+      user_page: 账户首页
+      repositories: 资源
     page:
+      follow_user: 关注
+      unfollow_user: 取消关注
+      user_followers: 被关注数
+
+      watch_repository: 关注
+      unwatch_repository: 取消关注
+      repository_watchers: 被关注数
+
+      fork_repository: 拷贝
+      repository_forks: 被拷贝数
+
+      send_email: 发邮件
+      send_message: 发消息
       reply: 回复
+
 
   show: 查看
   edit: 编辑

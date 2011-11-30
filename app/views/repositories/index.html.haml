@@ -3,21 +3,17 @@
   - @repositories.each do |repository|
     .page-header
       .row
-        .span8
+        .span12
           %p
           .row
-            = repository.name
+            = render "partials/repository_link", :repository => repository
           %p
           .row
             = repository.describtion
         .span2
-          = link_to repository.watchers_count, "#", :class => "btn large disabled", :title => "watchers"
-          = link_to repository.forks_count, "#", :class => "btn large disabled", :title => "forks"
-        .span1
-          - if current_user.watching_repository?(repository)
-            = link_to "unwatch", "#"
-          - else
-            = link_to "watch", "#"
+          = render "partials/repository_count", :repository => repository
+        .span2
+          = render "partials/reverse_watch_repository", :repository => repository
 
 .pagination
   = render 'paginator'

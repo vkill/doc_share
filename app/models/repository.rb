@@ -38,6 +38,9 @@ class Repository < ActiveRecord::Base
     new_repository
   end
 
+  def forks
+  end
+
   private
 
 end

@@ -2,8 +2,9 @@ class UsersController < ApplicationController
 
   layout :set_layout
 
-  before_filter :require_login, :except => [:new, :create, :activate]
-  main_nav_highlight :profile, :except => [:new, :create, :activate]
+  before_filter :require_login, :only => [:show, :edit, :update, :destroy, :password_edit, :password_update,
+                                          :reverse_follow ]
+  main_nav_highlight :profile, :only => [:show, :edit, :update, :destroy, :password_edit, :password_update]
   sec_nav_highlight :show_profile, :only => [:show]
   sec_nav_highlight :edit_profile, :only => [:edit]
   sec_nav_highlight :edit_password, :only => [:password_edit]
@@ -65,6 +66,35 @@ class UsersController < ApplicationController
       render :action => "password_edit"
     end
   end
+
+
+  #########################################
+  def user_page
+    @user = User.find(params[:user])
+  end
+
+  def following
+    @user = User.find(params[:user])
+    @following_users = @user.following_users
+    @watching_repositories = @user.watching_repositories
+  end
+
+  def followers
+    @user = User.find(params[:user])
+    @followers = @user.followers
+  end
+
+  def reverse_follow
+    @target_user = User.find(:user)
+    @user = current_user
+    @user.follow_user(@target_user)
+  end
+
+  def repositories
+    @user = User.find(params[:user])
+    @repositories = @user.repositories
+  end
+
 
   private
     def set_layout
