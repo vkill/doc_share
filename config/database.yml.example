@@ -1,25 +1,41 @@
-
-common: &common
-  adapter: postgresql
-  encoding: unicode
-  pool: 5
-  username: postgres
-  password: postgres
-
+##postgresql
 #common: &common
-#  adapter: sqlite3
+#  adapter: postgresql
+#  encoding: unicode
 #  pool: 5
-#  timeout: 5000
+#  username: postgres
+#  password: postgres
+
+#development:
+#  <<: *common
+#  database: doc_share_development
+
+#test:
+#  <<: *common
+#  database: doc_share_test
+
+#production:
+#  <<: *common
+#  database: doc_share_production
+
+
+
+
+#sqlite3
+common: &common
+  adapter: sqlite3
+  pool: 5
+  timeout: 5000
 
 development:
   <<: *common
-  database: doc_share_development
+  database: db/development.sqlite3
 
 test:
   <<: *common
-  database: doc_share_test
+  database: db/test.sqlite3
 
 production:
   <<: *common
-  database: doc_share_production
+  database: db/production.sqlite3
 
