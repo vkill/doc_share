@@ -6,18 +6,18 @@ zh-CN:
     attributes:
       repository:
         id: id
-        user_id: user_id
-        category_id: category_id
+        user_id: 用户id
+        category_id: 类别id
         ancestry: 祖先
         deleted: 删除
         name: 名字
         describtion: 说明
         visibility: 能见度
         features: 特征
-        created_at: created_at
-        updated_at: updated_at
-        watchers_count: watchers_count
-        repo_files_count: repo_files_count
-        issues_count: issues_count
-        comments_count: comments_count
-        forks_count: forks_count
+        created_at: 创建在
+        updated_at: 及时更新,
+        watchers_count: 观察者数
+        repo_files_count: 回购档案的计数
+        issues_count: 问题数
+        comments_count: 评论数
+        forks_count: 叉数

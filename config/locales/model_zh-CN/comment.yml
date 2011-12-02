@@ -6,9 +6,9 @@ zh-CN:
     attributes:
       comment:
         id: id
-        commentable_id: commentable_id
-        commentable_type: commentable_type
-        user_id: user_id
+        commentable_id: commentable id
+        commentable_type: commentable类型
+        user_id: 用户id
         content: 内容
-        created_at: created_at
-        updated_at: updated_at
+        created_at: 创建在
+        updated_at: 及时更新,

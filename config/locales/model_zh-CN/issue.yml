@@ -6,12 +6,12 @@ zh-CN:
     attributes:
       issue:
         id: id
-        user_id: user_id
-        repository_id: repository_id
+        user_id: 用户id
+        repository_id: 库id
         title: 标题
         content: 内容
         state: 状态
-        number_with_repo: number_with_repo
-        created_at: created_at
-        updated_at: updated_at
-        comments_count: comments_count
+        number_with_repo: 数字和回购
+        created_at: 创建在
+        updated_at: 及时更新,
+        comments_count: 评论数

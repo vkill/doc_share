@@ -9,6 +9,6 @@ zh-CN:
         ancestry: 祖先
         name: 名字
         code: 代码
-        created_at: created_at
-        updated_at: updated_at
-        repositories_count: repositories_count
+        created_at: 创建在
+        updated_at: 及时更新,
+        repositories_count: 库数

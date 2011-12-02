@@ -6,10 +6,10 @@ zh-CN:
     attributes:
       activity:
         id: id
-        user_id: user_id
-        user_name: user_name
+        user_id: 用户id
+        user_name: 用户名
         action: 行动
-        target_id: target_id
-        target_type: target_type
-        created_at: created_at
-        updated_at: updated_at
+        target_id: 目标id
+        target_type: 目标类型
+        created_at: 创建在
+        updated_at: 及时更新,

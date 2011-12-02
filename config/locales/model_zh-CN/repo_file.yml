@@ -6,7 +6,7 @@ zh-CN:
     attributes:
       repo_file:
         id: id
-        repository_id: repository_id
-        repo_file: repo_file
-        created_at: created_at
-        updated_at: updated_at
+        repository_id: 库id
+        repo_file: 回购文件
+        created_at: 创建在
+        updated_at: 及时更新,

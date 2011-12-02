@@ -6,9 +6,9 @@ zh-CN:
     attributes:
       target_follower:
         id: id
-        follower_id: follower_id
-        follower_type: follower_type
-        target_id: target_id
-        target_type: target_type
-        created_at: created_at
-        updated_at: updated_at
+        follower_id: 从动件id
+        follower_type: 追随者类型
+        target_id: 目标id
+        target_type: 目标类型
+        created_at: 创建在
+        updated_at: 及时更新,

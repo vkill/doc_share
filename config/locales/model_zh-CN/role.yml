@@ -9,5 +9,5 @@ zh-CN:
         name: 名字
         code: 代码
         describtion: 说明
-        created_at: created_at
-        updated_at: updated_at
+        created_at: 创建在
+        updated_at: 及时更新,

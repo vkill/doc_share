@@ -6,14 +6,14 @@ zh-CN:
     attributes:
       message:
         id: id
-        sender_id: sender_id
-        receiver_id: receiver_id
+        sender_id: 发送者身份
+        receiver_id: 接收机id
         category: 范畴
         subject: 主体
         content: 内容
         ancestry: 祖先
-        is_readed: is_readed
-        target_id: target_id
-        target_type: target_type
-        created_at: created_at
-        updated_at: updated_at
+        is_readed: 是读到哪儿了
+        target_id: 目标id
+        target_type: 目标类型
+        created_at: 创建在
+        updated_at: 及时更新,
