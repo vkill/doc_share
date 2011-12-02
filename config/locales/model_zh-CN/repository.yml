@@ -1,19 +1,19 @@
---- 
-zh-CN: 
-  activerecord: 
-    models: 
-      repository: "\xE5\xBA\x93"
-    attributes: 
-      repository: 
+---
+zh-CN:
+  activerecord:
+    models:
+      repository: 库
+    attributes:
+      repository:
         id: id
         user_id: user_id
         category_id: category_id
-        ancestry: "\xE7\xA5\x96\xE5\x85\x88"
-        deleted: "\xE5\x88\xA0\xE9\x99\xA4"
-        name: "\xE5\x90\x8D\xE5\xAD\x97"
-        describtion: "\xE8\xAF\xB4\xE6\x98\x8E"
-        visibility: "\xE8\x83\xBD\xE8\xA7\x81\xE5\xBA\xA6"
-        features: "\xE7\x89\xB9\xE5\xBE\x81"
+        ancestry: 祖先
+        deleted: 删除
+        name: 名字
+        describtion: 说明
+        visibility: 能见度
+        features: 特征
         created_at: created_at
         updated_at: updated_at
         watchers_count: watchers_count

@@ -19,7 +19,7 @@ class RepositoriesController < ApplicationController
   def create
     @repository = Repository.new(params[:repository])
     @repository.save
-    respond_with @repository, :location => user_repository_path(current_user.username, @repository.name)
+    respond_with @repository, :location => user_repository_path(current_user.username, @repository.name.blank? ? "x" : @repository.name)
   end
 
   def show

@@ -1,10 +1,10 @@
---- 
-zh-CN: 
-  activerecord: 
-    models: 
+---
+zh-CN:
+  activerecord:
+    models:
       repo_file: RepoFile
-    attributes: 
-      repo_file: 
+    attributes:
+      repo_file:
         id: id
         repository_id: repository_id
         repo_file: repo_file

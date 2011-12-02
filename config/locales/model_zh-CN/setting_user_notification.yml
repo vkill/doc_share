@@ -1,10 +1,10 @@
---- 
-zh-CN: 
-  activerecord: 
-    models: 
+---
+zh-CN:
+  activerecord:
+    models:
       setting_user_notification: SettingUserNotification
-    attributes: 
-      setting_user_notification: 
+    attributes:
+      setting_user_notification:
         id: id
         user_id: user_id
         user_followed: user_followed

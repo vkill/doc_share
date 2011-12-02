@@ -1,14 +1,14 @@
---- 
-zh-CN: 
-  activerecord: 
-    models: 
-      activity: "\xE6\xB4\xBB\xE5\x8A\xA8"
-    attributes: 
-      activity: 
+---
+zh-CN:
+  activerecord:
+    models:
+      activity: 活动
+    attributes:
+      activity:
         id: id
         user_id: user_id
         user_name: user_name
-        action: "\xE8\xA1\x8C\xE5\x8A\xA8"
+        action: 行动
         target_id: target_id
         target_type: target_type
         created_at: created_at

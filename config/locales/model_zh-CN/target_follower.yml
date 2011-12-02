@@ -1,10 +1,10 @@
---- 
-zh-CN: 
-  activerecord: 
-    models: 
+---
+zh-CN:
+  activerecord:
+    models:
       target_follower: TargetFollower
-    attributes: 
-      target_follower: 
+    attributes:
+      target_follower:
         id: id
         follower_id: follower_id
         follower_type: follower_type

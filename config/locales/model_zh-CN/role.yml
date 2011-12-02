@@ -1,13 +1,13 @@
---- 
-zh-CN: 
-  activerecord: 
-    models: 
-      role: "\xE4\xBD\x9C\xE7\x94\xA8"
-    attributes: 
-      role: 
+---
+zh-CN:
+  activerecord:
+    models:
+      role: 作用
+    attributes:
+      role:
         id: id
-        name: "\xE5\x90\x8D\xE5\xAD\x97"
-        code: "\xE4\xBB\xA3\xE7\xA0\x81"
-        describtion: "\xE8\xAF\xB4\xE6\x98\x8E"
+        name: 名字
+        code: 代码
+        describtion: 说明
         created_at: created_at
         updated_at: updated_at

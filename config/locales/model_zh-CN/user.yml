@@ -1,15 +1,15 @@
---- 
-zh-CN: 
-  activerecord: 
-    models: 
-      user: "\xE7\x94\xA8\xE6\x88\xB7"
-    attributes: 
-      user: 
+---
+zh-CN:
+  activerecord:
+    models:
+      user: 用户
+    attributes:
+      user:
         id: id
-        username: "\xE7\x94\xA8\xE6\x88\xB7\xE5\x90\x8D"
-        email: "\xE7\x94\xB5\xE5\xAD\x90\xE9\x82\xAE\xE4\xBB\xB6"
+        username: 用户名
+        email: 电子邮件
         crypted_password: crypted_password
-        salt: "\xE7\x9B\x90"
+        salt: 盐
         created_at: created_at
         updated_at: updated_at
         remember_me_token: remember_me_token
@@ -26,12 +26,12 @@ zh-CN:
         activation_token: activation_token
         activation_token_expires_at: activation_token_expires_at
         is_super_admin: is_super_admin
-        name: "\xE5\x90\x8D\xE5\xAD\x97"
-        gender: "\xE6\x80\xA7\xE5\x88\xAB"
-        site: "\xE7\xBD\x91\xE7\xAB\x99"
-        company: "\xE5\x85\xAC\xE5\x8F\xB8"
-        location: "\xE4\xBD\x8D\xE7\xBD\xAE"
-        state: "\xE7\x8A\xB6\xE6\x80\x81"
+        name: 名字
+        gender: 性别
+        site: 网站
+        company: 公司
+        location: 位置
+        state: 状态
         repositories_count: repositories_count
         issues_count: issues_count
         comments_count: comments_count

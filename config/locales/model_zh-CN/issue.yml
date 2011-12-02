@@ -1,16 +1,16 @@
---- 
-zh-CN: 
-  activerecord: 
-    models: 
-      issue: "\xE9\x97\xAE\xE9\xA2\x98"
-    attributes: 
-      issue: 
+---
+zh-CN:
+  activerecord:
+    models:
+      issue: 问题
+    attributes:
+      issue:
         id: id
         user_id: user_id
         repository_id: repository_id
-        title: "\xE6\xA0\x87\xE9\xA2\x98"
-        content: "\xE5\x86\x85\xE5\xAE\xB9"
-        state: "\xE7\x8A\xB6\xE6\x80\x81"
+        title: 标题
+        content: 内容
+        state: 状态
         number_with_repo: number_with_repo
         created_at: created_at
         updated_at: updated_at

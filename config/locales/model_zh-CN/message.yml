@@ -1,17 +1,17 @@
---- 
-zh-CN: 
-  activerecord: 
-    models: 
-      message: "\xE4\xBF\xA1\xE6\x81\xAF"
-    attributes: 
-      message: 
+---
+zh-CN:
+  activerecord:
+    models:
+      message: 信息
+    attributes:
+      message:
         id: id
         sender_id: sender_id
         receiver_id: receiver_id
-        category: "\xE8\x8C\x83\xE7\x95\xB4"
-        subject: "\xE4\xB8\xBB\xE4\xBD\x93"
-        content: "\xE5\x86\x85\xE5\xAE\xB9"
-        ancestry: "\xE7\xA5\x96\xE5\x85\x88"
+        category: 范畴
+        subject: 主体
+        content: 内容
+        ancestry: 祖先
         is_readed: is_readed
         target_id: target_id
         target_type: target_type

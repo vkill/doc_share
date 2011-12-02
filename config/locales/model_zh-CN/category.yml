@@ -1,14 +1,14 @@
---- 
-zh-CN: 
-  activerecord: 
-    models: 
-      category: "\xE8\x8C\x83\xE7\x95\xB4"
-    attributes: 
-      category: 
+---
+zh-CN:
+  activerecord:
+    models:
+      category: 范畴
+    attributes:
+      category:
         id: id
-        ancestry: "\xE7\xA5\x96\xE5\x85\x88"
-        name: "\xE5\x90\x8D\xE5\xAD\x97"
-        code: "\xE4\xBB\xA3\xE7\xA0\x81"
+        ancestry: 祖先
+        name: 名字
+        code: 代码
         created_at: created_at
         updated_at: updated_at
         repositories_count: repositories_count

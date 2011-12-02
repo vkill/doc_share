@@ -1,14 +1,14 @@
---- 
-zh-CN: 
-  activerecord: 
-    models: 
-      comment: "\xE8\xAF\x84\xE8\xAE\xBA"
-    attributes: 
-      comment: 
+---
+zh-CN:
+  activerecord:
+    models:
+      comment: 评论
+    attributes:
+      comment:
         id: id
         commentable_id: commentable_id
         commentable_type: commentable_type
         user_id: user_id
-        content: "\xE5\x86\x85\xE5\xAE\xB9"
+        content: 内容
         created_at: created_at
         updated_at: updated_at
