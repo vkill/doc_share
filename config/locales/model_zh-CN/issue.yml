@@ -2,16 +2,16 @@
 zh-CN: 
   activerecord: 
     models: 
-      issue: Issue
+      issue: "\xE9\x97\xAE\xE9\xA2\x98"
     attributes: 
       issue: 
-        id: Id
-        user_id: User
-        repository_id: Repository
-        title: Title
-        content: Content
-        state: State
-        number_with_repo: Number with repo
-        created_at: Created at
-        updated_at: Updated at
-        comments_count: Comments count
+        id: id
+        user_id: user_id
+        repository_id: repository_id
+        title: "\xE6\xA0\x87\xE9\xA2\x98"
+        content: "\xE5\x86\x85\xE5\xAE\xB9"
+        state: "\xE7\x8A\xB6\xE6\x80\x81"
+        number_with_repo: number_with_repo
+        created_at: created_at
+        updated_at: updated_at
+        comments_count: comments_count

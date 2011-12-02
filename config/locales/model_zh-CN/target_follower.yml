@@ -5,10 +5,10 @@ zh-CN:
       target_follower: TargetFollower
     attributes: 
       target_follower: 
-        id: Id
-        follower_id: Follower
-        follower_type: Follower type
-        target_id: Target
-        target_type: Target type
-        created_at: Created at
-        updated_at: Updated at
+        id: id
+        follower_id: follower_id
+        follower_type: follower_type
+        target_id: target_id
+        target_type: target_type
+        created_at: created_at
+        updated_at: updated_at

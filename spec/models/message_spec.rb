@@ -21,7 +21,7 @@ describe Message do
   end
 
   context "associations" do
-    it { subject.association(:target).should be_a(ActiveRecord::Associations::BelongsToPolymorphicAssociation) }
+    it { subject.association(:target).should be_instance_of(ActiveRecord::Associations::BelongsToPolymorphicAssociation) }
   end
 
   context "define scopes" do

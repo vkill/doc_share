@@ -2,22 +2,22 @@
 zh-CN: 
   activerecord: 
     models: 
-      repository: Repository
+      repository: "\xE5\xBA\x93"
     attributes: 
       repository: 
-        id: Id
-        user_id: User
-        category_id: Category
-        ancestry: Ancestry
-        deleted: Deleted
-        name: Name
-        describtion: Describtion
-        visibility: Visibility
-        features: Features
-        created_at: Created at
-        updated_at: Updated at
-        watchers_count: Watchers count
-        repo_files_count: Repo files count
-        issues_count: Issues count
-        comments_count: Comments count
-        forks_count: Forks count
+        id: id
+        user_id: user_id
+        category_id: category_id
+        ancestry: "\xE7\xA5\x96\xE5\x85\x88"
+        deleted: "\xE5\x88\xA0\xE9\x99\xA4"
+        name: "\xE5\x90\x8D\xE5\xAD\x97"
+        describtion: "\xE8\xAF\xB4\xE6\x98\x8E"
+        visibility: "\xE8\x83\xBD\xE8\xA7\x81\xE5\xBA\xA6"
+        features: "\xE7\x89\xB9\xE5\xBE\x81"
+        created_at: created_at
+        updated_at: updated_at
+        watchers_count: watchers_count
+        repo_files_count: repo_files_count
+        issues_count: issues_count
+        comments_count: comments_count
+        forks_count: forks_count

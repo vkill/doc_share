@@ -68,7 +68,8 @@ gem "simple_form", :git => 'git://github.com/plataformatec/simple_form.git'
 gem "nested_form", "~> 0.1.1"
 gem "kaminari", "~> 0.12.4"
 
-gem "i18n_attributes", "~> 0.1.4", :group => [:development]
+gem "youdao_fanyi", "~> 0.1.1", :group => [:development]
+gem "i18n_attributes", "~> 0.1.6", :group => [:development]
 gem "seed_upgrade", "~> 0.1.2", :group => [:development]
 gem "attribute_enums", "~> 0.1.3"
 

@@ -1,0 +1,10 @@
+# key,keyfrom please see http://fanyi.youdao.com/fanyiapi?path=data-mode
+
+youdao_fanyi_api_keys:
+  - keyfrom: blog-vkill-net
+    key: 2022446265
+  - keyfrom: vkill-blog
+    key: 971285755
+  - keyfrom: www-vkill-net
+    key: 853638034
+

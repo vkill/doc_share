@@ -2,18 +2,18 @@
 zh-CN: 
   activerecord: 
     models: 
-      message: Message
+      message: "\xE4\xBF\xA1\xE6\x81\xAF"
     attributes: 
       message: 
-        id: Id
-        sender_id: Sender
-        receiver_id: Receiver
-        category: Category
-        subject: Subject
-        content: Content
-        ancestry: Ancestry
-        is_readed: Is readed
-        target_id: Target
-        target_type: Target type
-        created_at: Created at
-        updated_at: Updated at
+        id: id
+        sender_id: sender_id
+        receiver_id: receiver_id
+        category: "\xE8\x8C\x83\xE7\x95\xB4"
+        subject: "\xE4\xB8\xBB\xE4\xBD\x93"
+        content: "\xE5\x86\x85\xE5\xAE\xB9"
+        ancestry: "\xE7\xA5\x96\xE5\x85\x88"
+        is_readed: is_readed
+        target_id: target_id
+        target_type: target_type
+        created_at: created_at
+        updated_at: updated_at

@@ -2,13 +2,13 @@
 zh-CN: 
   activerecord: 
     models: 
-      comment: Comment
+      comment: "\xE8\xAF\x84\xE8\xAE\xBA"
     attributes: 
       comment: 
-        id: Id
-        commentable_id: Commentable
-        commentable_type: Commentable type
-        user_id: User
-        content: Content
-        created_at: Created at
-        updated_at: Updated at
+        id: id
+        commentable_id: commentable_id
+        commentable_type: commentable_type
+        user_id: user_id
+        content: "\xE5\x86\x85\xE5\xAE\xB9"
+        created_at: created_at
+        updated_at: updated_at

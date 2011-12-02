@@ -5,10 +5,10 @@ zh-CN:
       setting_user_notification: SettingUserNotification
     attributes: 
       setting_user_notification: 
-        id: Id
-        user_id: User
-        user_followed: User followed
-        code_watched: Code watched
-        code_forked: Code forked
-        created_at: Created at
-        updated_at: Updated at
+        id: id
+        user_id: user_id
+        user_followed: user_followed
+        code_watched: code_watched
+        code_forked: code_forked
+        created_at: created_at
+        updated_at: updated_at
