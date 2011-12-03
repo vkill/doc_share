@@ -54,10 +54,10 @@ module DocShare
 
     config.cache_store = :redis_store, "redis://#{ YAML.load_file(%Q`#{config.root}/config/resque.yml`)[Rails.env] }"
 
-    config.middleware.use ExceptionNotifier,
-                    :email_prefix => "[Whatever] ",
-                    :sender_address => %{"137518792" <137518792@qq.com>},
-                    :exception_recipients => %w{122755990@qq.com}
+#    config.middleware.use ExceptionNotifier,
+#                    :email_prefix => "[Whatever] ",
+#                    :sender_address => %{"137518792" <137518792@qq.com>},
+#                    :exception_recipients => %w{122755990@qq.com}
 
     config.generators do |g|
       g.fixture_replacement :machinist
