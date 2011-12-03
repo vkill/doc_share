@@ -39,6 +39,7 @@ class Repository < ActiveRecord::Base
   end
 
   def forks
+    self.descendants
   end
 
   private

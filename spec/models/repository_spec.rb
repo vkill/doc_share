@@ -22,10 +22,9 @@ describe Repository do
   end
 
   context "fork by user" do
-    before {
-      user = User.make!
-      repository_a = Repository.make!
-    }
+    let(:user) { User.make! }
+    let(:repository_a) { Repository.make! }
+
     it "should fork by user, and forked repository.root eq root repository" do
       new_repository = repository_a.fork_by!(user)
 
@@ -41,7 +40,7 @@ describe Repository do
 
     it "has forks method" do
       new_repository = repository_a.fork_by!(user)
-      repository_a.forks.should eq([repository_a])
+      repository_a.forks.should eq([new_repository])
       repository_a.forks.size.should == 1
     end
   end
