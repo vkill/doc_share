@@ -47,7 +47,8 @@ class User < ActiveRecord::Base
   attribute_enums :gender, :in => [:male, :female], :allow_blank => true
   validates :name, :length => { :within => 2..30 },
                     :if => Proc.new { |record| record.name? }
-  validates_url :site, :if => Proc.new { |record| record.site? }
+  validates :site, :url => true,
+                  :if => Proc.new { |record| record.site? }
 
 
   default_scope order('created_at DESC')

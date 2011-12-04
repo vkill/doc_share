@@ -22,6 +22,7 @@ class Repository < ActiveRecord::Base
 
   validates :name, :presence => true,
                       :length => { :within => 6..30 }
+  validates_uniqueness_of :name, :scope => :user_id
   attribute_enums :visibility, :in => [:public, :private], :default => :public
 
   delegate :email, :username, :to => :user
@@ -29,17 +30,25 @@ class Repository < ActiveRecord::Base
   default_scope order('created_at DESC')
 
   def fork_by!(user)
-    new_repository = user.repositories.create(
-      :category_id => category_id,
-      :name => name,
-      :describtion => describtion,
-      :parent => self
-    )
-    new_repository
+    if forked_by_user?(user)
+      forks.where(:user_id => user.id).first
+    else
+      new_repository = user.repositories.create!(
+        :category_id => category_id,
+        :name => name,
+        :describtion => describtion,
+        :parent => self
+      )
+      new_repository
+    end
   end
 
   def forks
     self.descendants
+  end
+
+  def forked_by_user?(user)
+    !forks.where(:user_id => user.id).blank?
   end
 
   private

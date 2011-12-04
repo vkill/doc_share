@@ -14,6 +14,16 @@ describe Repository do
     it { should_not have_valid(:name).when('s'*5, 's'*31, nil) }
     it { should have_valid(:visibility).when('public', 'private' ) }
     it { should_not have_valid(:visibility).when('test') }
+
+  end
+
+  context "validates" do
+    it "uniq name on one user_id" do
+      user = User.make!
+      Repository.make!(:name => "abc" * 5, :user => user)
+      lambda { Repository.make!(:name => "abc" * 5, :user => user) }.should raise_error()
+      lambda { Repository.make!(:name => "def" * 5, :user => user) }.should_not raise_error()
+    end
   end
 
   context "associations" do
@@ -23,22 +33,35 @@ describe Repository do
 
   context "fork by user" do
     let(:user) { User.make! }
-    let(:repository_a) { Repository.make! }
+
+    it "has forked_by_user?" do
+      repository_a = Repository.make!
+      new_repository = repository_a.fork_by!(user)
+      repository_a.forked_by_user?(user).should be_true
+    end
+
+    it "if forked, return forked repository" do
+      repository_a = Repository.make!
+      new_repository = repository_a.fork_by!(user)
+      repository_a.fork_by!(user).should == new_repository
+    end
 
     it "should fork by user, and forked repository.root eq root repository" do
+      repository_a = Repository.make!
       new_repository = repository_a.fork_by!(user)
-
       new_repository.parent.id.should eq(repository_a.id)
     end
 
     it "repository.root forks_count should +1" do
+      repository_a = Repository.make!
       repository_b = repository_a.fork_by!(user)
       repository_a.reload.forks_count.should == 1
-      repository_c = repository_b.fork_by!(user)
+      repository_c = repository_b.fork_by!(User.make!)
       repository_a.reload.forks_count.should == 2
     end
 
     it "has forks method" do
+      repository_a = Repository.make!
       new_repository = repository_a.fork_by!(user)
       repository_a.forks.should eq([new_repository])
       repository_a.forks.size.should == 1

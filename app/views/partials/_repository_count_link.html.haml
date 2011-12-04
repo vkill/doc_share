@@ -4,12 +4,12 @@
           user_repository_watchers_path(repository.username, repository.name),
           :class => "btn large disabled",
           :title => t("web.page.repository_watchers"),
-          "data-repository-watchers-count-#{repository.id}" => true
+          :data => { "repository-watchers-count-#{repository.id}" => true }
 
 
 = link_to repository.forks_count,
           user_repository_forks_path(repository.username, repository.name),
           :class => "btn large disabled",
           :title => t("web.page.repository_forks"),
-          "data-repository-forks-count-#{repository.id}" => true
+          :data => { "repository-forks-count-#{repository.id}" => true }
 

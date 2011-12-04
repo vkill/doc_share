@@ -87,8 +87,7 @@ gem "i18n-js", "~> 2.1.2"
 gem "stringex", "~> 1.3.0"
 gem "immortal", "~> 1.0.5"
 
-gem 'valid_email', "~> 0.0.1"
-gem "url_validator", "~> 0.0.3"
+gem "activevalidators", "~> 1.8.0"
 
 gem "responders", "~> 0.6.4"
 gem "squeel", '~> 0.9.3'
