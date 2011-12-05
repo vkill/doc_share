@@ -11,9 +11,17 @@ Doc Discover and Share
 
 * Redis should be installed and running
 
+* Cornd should be installed and running
+
 * ImageMagick should be installed
 
-* RVM should be installed and execute `rvm install 1.9.3` or `rvm install 1.9.2`
+* Git should be installed
+
+* RVM should be installed and execute `rvm install 1.9.3`
+
+* sshd
+
+* sudo
 
 
 ##Make application run on your local
