@@ -51,6 +51,7 @@ Repository.blueprint do
   category    { Category.make! }
   name        { "repo_#{sn}" }
   describtion { Faker::Lorem.paragraph }
+  visibility  { :public }
 end
 
 Issue.blueprint do

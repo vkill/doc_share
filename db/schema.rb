@@ -173,6 +173,8 @@ ActiveRecord::Schema.define(:version => 20111122140336) do
     t.string   "location"
     t.string   "state"
     t.integer  "repositories_count",                :default => 0
+    t.integer  "public_repositories_count",         :default => 0
+    t.integer  "private_repositories_count",        :default => 0
     t.integer  "issues_count",                      :default => 0
     t.integer  "comments_count",                    :default => 0
     t.integer  "sent_messages_count",               :default => 0
