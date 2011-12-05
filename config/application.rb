@@ -99,4 +99,5 @@ module DocShare
   end
 end
 ActiveSupport::XmlMini.backend = 'Nokogiri'
+#ActiveSupport::JSON.backend = 'Yajl'
 

@@ -94,6 +94,7 @@ ActiveRecord::Schema.define(:version => 20111122140336) do
     t.text     "describtion"
     t.string   "visibility"
     t.string   "features"
+    t.string   "git_repo_path"
     t.datetime "created_at"
     t.datetime "updated_at"
     t.integer  "watchers_count",   :default => 0

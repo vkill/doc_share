@@ -93,3 +93,6 @@ gem "responders", "~> 0.6.4"
 gem "squeel", '~> 0.9.3'
 gem "friendly_id", "~> 4.0.0.beta14"
 
+#
+gem "grit", "~> 2.4.1"
+

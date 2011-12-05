@@ -9,7 +9,7 @@ class CreateRepositories < ActiveRecord::Migration
       t.text :describtion
       t.string :visibility
       t.string :features
-      t.string :repo_path
+      t.string :git_repo_path
 
       t.timestamps
     end
