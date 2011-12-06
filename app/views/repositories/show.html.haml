@@ -1,6 +1,13 @@
 = render "head", :repository => @repository
 
 .row
-  .span14.offset2
-    = @repository.describtion
+  .span12.offset1
+    .page-header
+      = @repository.describtion
+    .page-header
+      - r = Grit::Repo.new @repository.git_repo_path
+      = r.tree.contents
+      = binding.pry
+  .span1
+    = link_to "add_repo_file", [:add_repo_file, @repository]
 

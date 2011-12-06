@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe RepoFileObserver do
-  it "add file to git repo" do
+  it "add/delete commit with git repo" do
     repository = Repository.make!
     repo_file = repository.repo_files.create!(:repo_file => File.open(Rails.root.join("config.ru").to_s))
     repo = Grit::Repo.new repo_file.git_repo_path

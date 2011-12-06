@@ -9,7 +9,7 @@
   = field_set_tag "" do
     = f.input :name, :input_html => { :class => "span8" }
     = f.input :describtion, :input_html => { :class => "span8", :rows => 2 }
-    = f.input :visibility, :as => :radio
+    = f.input :visibility, :as => :radio, :collection => Repository.get_visibility_values.map {|x| [x[1], x[0]]}
 
   .actions
     = f.button :submit, :class => 'primary'
