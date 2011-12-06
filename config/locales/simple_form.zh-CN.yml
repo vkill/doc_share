@@ -23,3 +23,7 @@ zh-CN:
     #   username: 'User name to sign in.'
     #   password: 'No special characters, please.'
 
+    hints:
+      user:
+        username: "唯一"
+

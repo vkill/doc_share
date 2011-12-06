@@ -7,11 +7,13 @@ class Repository < ActiveRecord::Base
 
   has_ancestry
 
-  attr_accessible :user_id, :category_id, :name, :describtion, :visibility, :parent, :user
+  attr_accessible :user_id, :category_id, :name, :describtion, :visibility, :parent, :user, :repo_files_attributes
 
   belongs_to :user, :counter_cache => true
   belongs_to :category, :counter_cache => true
   has_many :repo_files
+  accepts_nested_attributes_for :repo_files, :allow_destroy => true,
+                                              :reject_if => Proc.new { |repo_file| repo_file['repo_file'].blank? }
   has_many :issues
   has_many :comments, :as => :commentable
 
@@ -68,6 +70,7 @@ end
 #  describtion      :text
 #  visibility       :string(255)
 #  features         :string(255)
+#  git_repo_path    :string(255)
 #  created_at       :datetime
 #  updated_at       :datetime
 #  watchers_count   :integer         default(0)

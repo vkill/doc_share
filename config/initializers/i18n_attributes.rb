@@ -1,6 +1,6 @@
 #encoding: utf-8
 
-if Rails.env.development?
+if Rails.env.development? and defined?(I18nAttributes)
   I18nAttributes.configure do |config|
     # more see https://github.com/svenfuchs/rails-i18n
     config.locales = [:"zh-CN"]

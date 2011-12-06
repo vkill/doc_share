@@ -18,12 +18,23 @@ SimpleForm.setup do |config|
   config.wrappers :stacked, :class => "clearfix", :error_class => :error do |b|
     b.use :placeholder
     b.use :label
-    b.use :hint,  :tag => :span, :class => :'help-block'
     b.use :tag => 'div', :class => 'input' do |input|
       input.use :input
-      input.use :error, :tag => :span, :class => :'help-inline'
+      input.use :hint,  :tag => :span, :class => :'help-block'
+      input.use :error, :tag => :span, :class => :'help-block'
     end
   end
+
+  config.wrappers :custom, :class => "clearfix", :error_class => :error do |b|
+    b.use :placeholder
+    b.use :label
+    b.use :tag => 'div', :class => 'input' do |input|
+      input.use :input
+      input.use :hint,  :tag => :span, :class => :'help-block'
+      input.use :error, :tag => :span, :class => :'help-block'
+    end
+  end
+
 
   config.wrappers :prepend, :class => "clearfix", :error_class => :error do |b|
     b.use :placeholder

@@ -1,0 +1,27 @@
+.page-header
+  %h2 Add Repo File
+= simple_nested_form_for(@repository, :url => repository_path(@repository), :wrapper => :inline, :validate => false) do |f|
+  - if f.error_notification
+    .alert-message.warning.fade.in(data-alert="alert")
+      %a(class="close" href="#") ×
+      %p
+        = f.error_notification
+
+  = f.simple_fields_for :repo_files do |f_repo_file|
+    = f_repo_file.label :repo_file
+    = f_repo_file.input :repo_file , :wrapper => :prepend, :label => false do
+      - unless f_repo_file.object.repo_file.blank?
+        = f_repo_file.object.repo_file
+      - else
+        = f_repo_file.input_field :repo_file, :as => :file
+      .span2
+        = f_repo_file.link_to_remove t("remove")
+
+  = f.link_to_add t("add"), :repo_files
+
+  .actions
+    = f.button :submit, "Add", :class => 'primary'
+    = button_tag 'Cancel', :type => :reset, :class => "btn"
+    %p.pull-right
+      = link_to t("back_to"), ""
+

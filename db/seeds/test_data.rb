@@ -1,13 +1,13 @@
 hyp = User.make!(:email => '122755990@qq.com', :username => 'hyphyp',
                   :password => 123456, :password_confirmation => 123456)
-hyp.activate!
+hyp.activate! if Rails.application.config.sorcery.submodules.include?(:user_activation)
 hyp.save
 
 
 vkill = User.make!(:email => 'vkill.net@gmail.com', :username => 'vkill',
                   :password => 123456, :password_confirmation => 123456)
 vkill.is_super_admin = true
-vkill.activate!
+vkill.activate! if Rails.application.config.sorcery.submodules.include?(:user_activation)
 vkill.save
 
 

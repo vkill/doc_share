@@ -33,7 +33,11 @@ DocShare::Application.routes.draw do
       put :reply
     end
   end
-  resources :repositories, :only => [:new, :create, :index]
+  resources :repositories, :only => [:index, :new, :create, :edit, :update] do
+    member do
+      get :add_repo_file
+    end
+  end
 
 
   namespace :account do

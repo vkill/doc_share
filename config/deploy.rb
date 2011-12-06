@@ -8,9 +8,6 @@ set :rvm_type, :user
 set :bundle_roles, [:app]
 require "bundler/capistrano"
 
-default_run_options[:pty]   = true # must be set for the password prompt from git to work
-ssh_options[:forward_agent] = true # use local keys instead of the ones on the server
-
 set :application, "doc_share"
 
 set :repository, "git@github.com:vkill/doc_share.git"

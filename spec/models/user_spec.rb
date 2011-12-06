@@ -145,6 +145,8 @@ end
 #  location                          :string(255)
 #  state                             :string(255)
 #  repositories_count                :integer         default(0)
+#  public_repositories_count         :integer         default(0)
+#  private_repositories_count        :integer         default(0)
 #  issues_count                      :integer         default(0)
 #  comments_count                    :integer         default(0)
 #  sent_messages_count               :integer         default(0)

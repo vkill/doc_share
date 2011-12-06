@@ -3,7 +3,8 @@ class RepositoriesController < ApplicationController
   respond_to :html, :except => [:reverse_watch]
   respond_to :js, :only => [:reverse_watch]
 
-  before_filter :require_login, :only => [:new, :create, :reverse_watch, :fork, :private_repositories]
+  before_filter :require_login, :only => [:new, :create, :reverse_watch, :fork, :private_repositories,
+                                          :edit, :update]
   before_filter :set_current_user, :only => [:create]
 
   def index
@@ -13,13 +14,27 @@ class RepositoriesController < ApplicationController
 
   def new
     @repository = Repository.new
-    respond_with @repository
   end
 
   def create
     @repository = Repository.new(params[:repository])
     @repository.save
     respond_with @repository, :location => user_repository_path(current_user.username, @repository.name.blank? ? "x" : @repository.name)
+  end
+
+  def edit
+    @repository = current_user.repositories.find(params[:id])
+  end
+
+  def update
+    @repository = current_user.repositories.find(params[:id])
+    @repository.update_attributes(params[:repository])
+    respond_with @repositories, :location => user_repository_path(current_user.username, @repository.name.blank? ? "x" : @repository.name)
+  end
+
+  def add_repo_file
+    @repository = current_user.repositories.find(params[:id])
+    @repository.repo_files.build if @repository.repo_files.blank?
   end
 
   def show

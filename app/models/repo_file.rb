@@ -1,6 +1,6 @@
 class RepoFile < ActiveRecord::Base
 
-  attr_accessible :repository
+  attr_accessible :repository, :repo_file
 
   belongs_to :repository, :counter_cache => true
 
@@ -10,6 +10,14 @@ class RepoFile < ActiveRecord::Base
 
   default_scope order('created_at DESC')
 
+  delegate :git_repo_path, :to => :repository
+
+  validate :repo_file_uniqueness_with_repository
+
+  private
+    def repo_file_uniqueness_with_repository
+      errors.add :repo_file, :taken if RepoFile.where(:repository_id => self.repository_id).where(:repo_file => self.repo_file.filename).exists?
+    end
 end
 
 # == Schema Information

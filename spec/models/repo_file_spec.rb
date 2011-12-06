@@ -9,6 +9,15 @@ describe RepoFile do
     it { should_not have_valid(:repo_file).when(nil) }
   end
 
+  context "validates" do
+    it "uniq repo_file on one repository_id" do
+      repository = Repository.make!
+      RepoFile.make!(:repository => repository, :repo_file => File.open(Rails.root.join("config.ru").to_s))
+      lambda { RepoFile.make!(:repository => repository, :repo_file => File.open(Rails.root.join("config.ru").to_s)) }.should raise_error()
+      lambda { RepoFile.make!(:repository => repository, :repo_file => File.open(Rails.root.join("Gemfile").to_s)) }.should_not raise_error()
+    end
+  end
+
 end
 # == Schema Information
 #

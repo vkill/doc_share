@@ -6,6 +6,12 @@ GIT
       actionpack (~> 3.0)
       activemodel (~> 3.0)
 
+GIT
+  remote: git://github.com/ryanb/nested_form.git
+  revision: 57f32788f1952bcd633057b4b56b69b51df17610
+  specs:
+    nested_form (0.1.1)
+
 GEM
   remote: http://rubygems.org/
   specs:
@@ -60,12 +66,6 @@ GEM
       activerecord (>= 2.0.0)
       chronic
     cancan (1.6.7)
-    capistrano (2.9.0)
-      highline
-      net-scp (>= 1.0.0)
-      net-sftp (>= 2.0.0)
-      net-ssh (>= 2.0.14)
-      net-ssh-gateway (>= 1.1.0)
     capybara (1.1.2)
       mime-types (>= 1.16)
       nokogiri (>= 1.3.3)
@@ -78,7 +78,6 @@ GEM
     childprocess (0.2.3)
       ffi (~> 1.0.6)
     chronic (0.6.6)
-    client_side_validations (3.1.3)
     coderay (0.9.8)
     coffee-rails (3.1.1)
       coffee-script (>= 2.2.0)
@@ -125,18 +124,10 @@ GEM
       haml (~> 3.0)
       railties (~> 3.0)
     high_voltage (1.0.1)
-    highline (1.6.8)
     hike (1.2.1)
-    httparty (0.8.1)
-      multi_json
-      multi_xml
     i18n (0.6.0)
     i18n-js (2.1.2)
       i18n
-    i18n_attributes (0.1.6)
-      activesupport (~> 3.0)
-      rails (~> 3.0)
-      vkill_gems_methods (~> 0.1.0)
     immortal (1.0.5)
       activerecord (~> 3.1.1)
     jquery-rails (1.0.19)
@@ -158,16 +149,7 @@ GEM
       ruby_parser (>= 2.3.1)
     mime-types (1.17.2)
     multi_json (1.0.4)
-    multi_xml (0.4.1)
     multipart-post (1.1.4)
-    nested_form (0.1.1)
-    net-scp (1.0.4)
-      net-ssh (>= 1.99.1)
-    net-sftp (2.0.5)
-      net-ssh (>= 2.0.9)
-    net-ssh (2.2.1)
-    net-ssh-gateway (1.1.0)
-      net-ssh (>= 1.99.1)
     nokogiri (1.5.0)
     oauth (0.4.5)
     oauth2 (0.4.1)
@@ -204,10 +186,6 @@ GEM
       activesupport (= 3.1.3)
       bundler (~> 1.0)
       railties (= 3.1.3)
-    rails-erd (0.4.5)
-      activerecord (~> 3.0)
-      activesupport (~> 3.0)
-      ruby-graphviz (~> 0.9.18)
     rails-i18n (0.1.11)
       i18n (~> 0.5)
     rails_config (0.2.5)
@@ -263,7 +241,6 @@ GEM
       activesupport (~> 3.0)
       railties (~> 3.0)
       rspec (~> 2.7.0)
-    ruby-graphviz (0.9.21)
     ruby_parser (2.3.1)
       sexp_processor (~> 3.0)
     rubyzip (0.9.5)
@@ -275,10 +252,6 @@ GEM
       railties (~> 3.1.0)
       sass (~> 3.1.10)
       tilt (~> 1.3.2)
-    seed_upgrade (0.1.2)
-      machinist (~> 2.0.0.beta2)
-      rails (~> 3.0)
-      vkill_gems_methods (~> 0.1.0)
     selenium-webdriver (2.14.0)
       childprocess (>= 0.2.1)
       ffi (~> 1.0.9)
@@ -330,16 +303,8 @@ GEM
     valid_attribute (1.2.0)
     vegas (0.1.8)
       rack (>= 1.0.0)
-    vkill_gems_methods (0.1.2)
-      activesupport (~> 3.0)
-      term-ansicolor (~> 1.0.7)
     xpath (0.1.4)
       nokogiri (~> 1.3)
-    yajl-ruby (1.1.0)
-    youdao_fanyi (0.1.2.2)
-      activesupport (~> 3.0)
-      httparty (~> 0.8.1)
-      vkill_gems_methods (~> 0.1.2)
 
 PLATFORMS
   ruby
@@ -352,10 +317,8 @@ DEPENDENCIES
   attribute_enums (~> 0.1.3)
   by_star (~> 1.0.1)
   cancan (~> 1.6.7)
-  capistrano (~> 2.9.0)
   capybara (~> 1.1.2)
   carrierwave (~> 0.5.8)
-  client_side_validations (~> 3.1.3)
   coffee-rails (~> 3.1.1)
   database_cleaner (~> 0.7.0)
   eventmachine (~> 1.0.0.beta.4)
@@ -369,19 +332,17 @@ DEPENDENCIES
   haml-rails (~> 0.3.4)
   high_voltage (~> 1.0.1)
   i18n-js (~> 2.1.2)
-  i18n_attributes (~> 0.1.6)
   immortal (~> 1.0.5)
   jquery-rails
   kaminari (~> 0.12.4)
   machinist (>= 2.0.0.beta2)
   mail_view (~> 1.0.2)
-  nested_form (~> 0.1.1)
+  nested_form!
   nokogiri (~> 1.5.0)
   pg (~> 0.12.0pre258)
   pry (~> 0.9.7.4)
   pry-padrino (~> 0.1.2)
   rails (= 3.1.3)
-  rails-erd (~> 0.4.5)
   rails-i18n (~> 0.1.10)
   rails_config (~> 0.2.5)
   redis-store (~> 1.0.0.1)
@@ -393,10 +354,9 @@ DEPENDENCIES
   rr (~> 1.0.4)
   rspec-rails (~> 2.7)
   sass-rails (~> 3.1.4)
-  seed_upgrade (~> 0.1.2)
   simple_form!
   sorcery (~> 0.7.5)
-  sqlite3
+  sqlite3 (~> 1.3.4)
   squeel (~> 0.9.3)
   stringex (~> 1.3.0)
   therubyracer (~> 0.9.9)
@@ -404,5 +364,3 @@ DEPENDENCIES
   timecop (~> 0.3.5)
   uglifier (>= 1.0.3)
   valid_attribute (~> 1.2.0)
-  yajl-ruby (~> 1.1.0)
-  youdao_fanyi (~> 0.1.2.2)

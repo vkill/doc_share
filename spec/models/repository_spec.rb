@@ -82,6 +82,7 @@ end
 #  describtion      :text
 #  visibility       :string(255)
 #  features         :string(255)
+#  git_repo_path    :string(255)
 #  created_at       :datetime
 #  updated_at       :datetime
 #  watchers_count   :integer         default(0)

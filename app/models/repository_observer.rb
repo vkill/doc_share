@@ -2,7 +2,16 @@ class RepositoryObserver < ActiveRecord::Observer
 
   observe :repository
 
+  def before_create(record)
+    #generate git_repo_path
+    record.git_repo_path = File.join(::Settings.sys.repo.base_dir, record.username, record.name + ".git")
+  end
+
   def after_create(record)
+    #bare init repo dir
+    r = Grit::Repo.init_bare record.git_repo_path
+    i = r.index
+    i.commit "init"
 
     #forks count
     if record.parent

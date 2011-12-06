@@ -1,6 +1,6 @@
 .page-header
   %h2 Sign up
-= simple_form_for(@user, :url => users_path, :html => { :method => :post }, :wrapper => :inline) do |f|
+= simple_form_for(@user, :url => users_path, :wrapper => :inline, :validate => false) do |f|
   - if f.error_notification
     .alert-message.warning.fade.in(data-alert="alert")
       %a(class="close" href="#") ×

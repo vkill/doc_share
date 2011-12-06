@@ -7,3 +7,7 @@ web:
       keywords: doc share
     title: doc share
 
+sys:
+  repo:
+    base_dir: <%= Rails.root.join("repo").to_s %>
+

@@ -52,20 +52,18 @@ describe RepositoryObserver do
     end
   end
 
-  context "create bare git repository when created" do
-    it "generate git_repo_path" do
-      user = User.make!
-      repository = Repository.make!(:user => user)
-      repository.git_repo_path.should be_kind_of(String)
-      repository.git_repo_path.should match(/\/#{ user.username }\/#{ repository.name }\.git$/)
-    end
-    it "create bare git repository" do
-      user = User.make!
-      repository = Repository.make!(:user => user)
-      repo = Grit::Repo.new repository.git_repo_path
-      repo.commits.size.should == 1
-      repo.commits.first.message.should == "init"
-    end
+  it "generate git_repo_path" do
+    user = User.make!
+    repository = Repository.make!(:user => user)
+    repository.git_repo_path.should be_kind_of(String)
+    repository.git_repo_path.should match(/\/#{ user.username }\/#{ repository.name }\.git$/)
+  end
+  it "create bare git repository" do
+    user = User.make!
+    repository = Repository.make!(:user => user)
+    repo = Grit::Repo.new repository.git_repo_path
+    repo.commits.size.should == 1
+    repo.commits.first.message.should == "init"
   end
 
 end

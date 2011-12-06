@@ -6,7 +6,7 @@ gem 'rails', '3.1.3'
 # gem 'rails',     :git => 'git://github.com/rails/rails.git'
 
 gem 'pg', "~> 0.12.0pre258"
-gem 'sqlite3'
+gem 'sqlite3', "~> 1.3.4", :group => [:development]
 
 # Gems used only for assets and not required
 # in production environments by default.
@@ -16,7 +16,6 @@ group :assets do
   gem 'uglifier', '>= 1.0.3'
 end
 
-gem 'jquery-rails'
 
 # To use ActiveModel has_secure_password
 # gem 'bcrypt-ruby', '~> 3.0.0'
@@ -32,9 +31,9 @@ gem 'jquery-rails'
 
 gem "therubyracer", "~> 0.9.9", :require => "v8"
 gem "eventmachine", "~> 1.0.0.beta.4"
-gem "capistrano", "~> 2.9.0", :require => false, :group => [:development]
+#gem "capistrano", "~> 2.9.0", :require => false, :group => [:development]
 gem "jquery-rails"
-gem "yajl-ruby", "~> 1.1.0", :require => "yajl"
+#gem "yajl-ruby", "~> 1.1.0", :require => "yajl"
 gem "nokogiri", "~> 1.5.0"
 gem "rspec-rails", "~> 2.7", :group => [:test]
 gem "rr", "~> 1.0.4", :group => [:test]
@@ -47,7 +46,7 @@ gem "ffaker", "~> 1.10.1", :group => [:development, :test]
 gem "timecop", "~> 0.3.5", :group => [:development, :test]
 gem "valid_attribute", "~> 1.2.0", :group => [:test]
 gem "annotate", "~> 2.4.1.beta1", :require => false, :group => [:development]
-gem "rails-erd", "~> 0.4.5", :group => [:development]
+#gem "rails-erd", "~> 0.4.5", :group => [:development]
 gem "thin", "~> 1.3.1", :require => false, :group => [:development]
 gem "pry", "~> 0.9.7.4", :group => [:development]
 gem "pry-padrino", "~> 0.1.2", :group => [:development]
@@ -65,15 +64,15 @@ gem "resque_mailer", "~> 2.0.2"
 gem "rails_config", "~> 0.2.5"
 gem "haml-rails", "~> 0.3.4"
 gem "simple_form", :git => 'git://github.com/plataformatec/simple_form.git'
-gem "nested_form", "~> 0.1.1"
+gem "nested_form", :git => 'git://github.com/ryanb/nested_form.git'
 gem "kaminari", "~> 0.12.4"
 
-gem "youdao_fanyi", "~> 0.1.2.2", :group => [:development]
-gem "i18n_attributes", "~> 0.1.6", :group => [:development]
-gem "seed_upgrade", "~> 0.1.2", :group => [:development]
+#gem "youdao_fanyi", "~> 0.1.2.2", :group => [:development]
+#gem "i18n_attributes", "~> 0.1.6", :group => [:development]
+#gem "seed_upgrade", "~> 0.1.2", :group => [:development]
 gem "attribute_enums", "~> 0.1.3"
 
-gem "client_side_validations", "~> 3.1.3"
+#gem "client_side_validations", "~> 3.1.3"
 gem "carrierwave", "~> 0.5.8"
 gem "ancestry", "~> 1.2.4"
 gem "by_star", "~> 1.0.1"
