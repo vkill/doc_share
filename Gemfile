@@ -70,7 +70,7 @@ gem "kaminari", "~> 0.12.4"
 #gem "youdao_fanyi", "~> 0.1.2.2", :group => [:development]
 #gem "i18n_attributes", "~> 0.1.6", :group => [:development]
 #gem "seed_upgrade", "~> 0.1.2", :group => [:development]
-gem "attribute_enums", "~> 0.1.3"
+gem "attribute_enums", "~> 0.1.4"
 
 #gem "client_side_validations", "~> 3.1.3"
 gem "carrierwave", "~> 0.5.8"
