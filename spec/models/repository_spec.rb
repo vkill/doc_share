@@ -5,14 +5,14 @@ describe Repository do
   context "valid_attribute" do
     it { should have_valid(:user).when( User.make! ) }
     it { should have_valid(:category).when( Category.make! ) }
-    it { should have_valid(:repo_files).when( [RepoFile.make!] ) }
+#    it { should have_valid(:repo_files).when( [RepoFile.make!] ) }
     it { should have_valid(:issues).when( [Issue.make!] ) }
     it { should have_valid(:comments).when( [Comment.make!] ) }
 
 
     it { should have_valid(:name).when('test_123' * 2 ) }
     it { should_not have_valid(:name).when('s'*5, 's'*31, nil) }
-    it { should have_valid(:visibility).when('public', 'private' ) }
+    it { should have_valid(:visibility).when('public_repo', 'private_repo' ) }
     it { should_not have_valid(:visibility).when('test') }
 
   end
@@ -65,6 +65,16 @@ describe Repository do
       new_repository = repository_a.fork_by!(user)
       repository_a.forks.should eq([new_repository])
       repository_a.forks.size.should == 1
+    end
+
+    it "has git_repo method" do
+      repository = Repository.make!
+      repository.git_repo.should be_kind_of(Grit::Repo)
+    end
+
+    it "has visibility_prefix method" do
+      repository = Repository.make!(:visibility => :public_repo)
+      repository.visibility_prefix.should == "public"
     end
   end
 

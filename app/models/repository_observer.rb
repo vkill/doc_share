@@ -19,7 +19,7 @@ class RepositoryObserver < ActiveRecord::Observer
     end
 
     #count
-    User.increment_counter("#{ record.visibility }_repositories_count", record.user.id)
+    User.increment_counter("#{ record.visibility_prefix }_repositories_count", record.user.id)
 
     #log
     action = record.root == record ? :created_repository : :forked_repository
@@ -29,14 +29,14 @@ class RepositoryObserver < ActiveRecord::Observer
   def before_update(record)
     #count
     if record.changed? and record.changed_attributes['visibility']
-      User.decrement_counter("#{ record.changed_attributes['visibility'] }_repositories_count", record.user.id)
-      User.increment_counter("#{ record.visibility }_repositories_count", record.user.id)
+      User.decrement_counter("#{ record.changed_attributes['visibility'].to_s.split("_")[0] }_repositories_count", record.user.id)
+      User.increment_counter("#{ record.visibility_prefix }_repositories_count", record.user.id)
     end
   end
 
   def after_destroy(record)
     #count
-    User.decrement_counter("#{ record.visibility }_repositories_count", record.user.id)
+    User.decrement_counter("#{ record.visibility_prefix }_repositories_count", record.user.id)
 
     #log
     action = :destroyed_repository

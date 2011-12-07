@@ -25,7 +25,7 @@ class Repository < ActiveRecord::Base
   validates :name, :presence => true,
                       :length => { :within => 6..30 }
   validates_uniqueness_of :name, :scope => :user_id
-  attribute_enums :visibility, :in => [:public, :private], :default => :public
+  attribute_enums :visibility, :in => [:public_repo, :private_repo], :default => :public_repo
 
   delegate :email, :username, :to => :user
 
@@ -51,6 +51,14 @@ class Repository < ActiveRecord::Base
 
   def forked_by_user?(user)
     !forks.where(:user_id => user.id).blank?
+  end
+
+  def git_repo
+    Grit::Repo.new(git_repo_path)
+  end
+
+  def visibility_prefix
+    self.visibility.to_s.split("_")[0]
   end
 
   private

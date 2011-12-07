@@ -20,7 +20,7 @@ describe RepositoryObserver do
   context "+- *_repositories_count" do
     it "public repository created or destroyed, +-1 public_repositories_count" do
       user = User.make!
-      repository = Repository.make!(:user => user, :visibility => :public)
+      repository = Repository.make!(:user => user, :visibility => :public_repo)
       user.reload
       user.public_repositories_count.should == 1
       repository.destroy
@@ -30,7 +30,7 @@ describe RepositoryObserver do
 
     it "private repository created or destroyed, +-1 private_repositories_count" do
       user = User.make!
-      repository = Repository.make!(:user => user, :visibility => :private)
+      repository = Repository.make!(:user => user, :visibility => :private_repo)
       user.reload
       user.private_repositories_count.should == 1
       repository.destroy
@@ -40,11 +40,11 @@ describe RepositoryObserver do
 
     it "when repository before update, if visibility changed, -1 (changed_visibility)_repositories_count" do
       user = User.make!
-      repository = Repository.make!(:user => user, :visibility => :public)
+      repository = Repository.make!(:user => user, :visibility => :public_repo)
       user.reload
       user.public_repositories_count.should == 1
       user.private_repositories_count.should == 0
-      repository.visibility = :private
+      repository.visibility = :private_repo
       repository.save
       user.reload
       user.public_repositories_count.should == 0

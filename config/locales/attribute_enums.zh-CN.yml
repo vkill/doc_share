@@ -22,8 +22,8 @@ zh-CN:
 
       repository:
         visibility:
-          public: 公有
-          private: 私有
+          public_repo: 公有
+          private_repo: 私有
 
       user:
         gender:

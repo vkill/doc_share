@@ -51,7 +51,7 @@ Repository.blueprint do
   category    { Category.make! }
   name        { "repo_#{sn}" }
   describtion { Faker::Lorem.paragraph }
-  visibility  { :public }
+  visibility  { :public_repo }
 end
 
 Issue.blueprint do
@@ -74,7 +74,7 @@ end
 
 RepoFile.blueprint do
   repository  { Repository.make! }
-  repo_file   { File.open(Rails.root.join("config.ru").to_s) }
+  repo_file   { File.open(Rails.root.join("spec", "support", "file.txt").to_s) }
 end
 
 

@@ -10,7 +10,7 @@ class RepoFile < ActiveRecord::Base
 
   default_scope order('created_at DESC')
 
-  delegate :git_repo_path, :to => :repository
+  delegate :git_repo_path, :git_repo, :to => :repository
 
   validate :repo_file_uniqueness_with_repository
 
