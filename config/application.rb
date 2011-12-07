@@ -96,6 +96,8 @@ module DocShare
 
     # Version of your assets, change this if you want to expire all your assets
     config.assets.version = '1.0'
+
+    config.assets.paths << %Q`#{config.root}/app/assets/flash`
   end
 end
 ActiveSupport::XmlMini.backend = 'Nokogiri'

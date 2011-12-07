@@ -7,7 +7,7 @@
     .page-header
       - r = Grit::Repo.new @repository.git_repo_path
       = r.tree.contents
-      = binding.pry
+      /= binding.pry
   .span1
     = link_to "add_repo_file", [:add_repo_file, @repository]
 

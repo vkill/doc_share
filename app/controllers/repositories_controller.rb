@@ -4,7 +4,7 @@ class RepositoriesController < ApplicationController
   respond_to :js, :only => [:reverse_watch]
 
   before_filter :require_login, :only => [:new, :create, :reverse_watch, :fork, :private_repositories,
-                                          :edit, :update]
+                                          :edit, :update, :add_repo_file]
   before_filter :set_current_user, :only => [:create]
 
   def index

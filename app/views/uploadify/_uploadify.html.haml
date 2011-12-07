@@ -1,0 +1,37 @@
+- @uploadify_id = ['uploadify', rand(10000)].join("_")
+- if @repository
+  - @uploader = repository_path(@repository)
+  - @checkExisting = ""
+  - @fileObjName = "repo_file[repo_file]"
+- else
+  - @uploader = "/uploadify"
+  - @checkExisting = "/uploadify_check_exist"
+  - @fileObjName = "file"
+
+- @swf = asset_path("uploadify.swf")
+- @cancelImage = asset_path("uploadify-cancel.png")
+- @debug = Rails.env.production? ? false : true
+- @fileSizeLimit = 2.megabytes
+- @queueSizeLimit = 10.megabytes
+- @session_key = Rails.application.config.session_options[:key]
+- @session_value = u(cookies[@session_key])
+
+
+%p.pull-right
+  = link_to t("web.page.start_upload"), "javascript:void(0)", :data => { :uploadify_start_upload => true,
+                                                                        :association_uploader_id => @uploadify_id }
+  = link_to t("web.page.stop_upload"), "javascript:void(0)", :data => { :uploadify_stop_upload => true,
+                                                                        :association_uploader_id => @uploadify_id }
+%p
+%div{:id => @uploadify_id, :data => {:uploadify => true.to_s,
+                                      :uploader => @uploader,
+                                      :checkExisting => @checkExisting,
+                                      :fileObjName => @fileObjName,
+                                      :swf => @swf,
+                                      :cancelImage => @cancelImage,
+                                      :debug => @debug.to_s,
+                                      :fileSizeLimit => @fileSizeLimit,
+                                      :queueSizeLimit => @queueSizeLimit,
+                                      "session-key" => @session_key,
+                                      "session-value" => @session_value}}
+

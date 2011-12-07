@@ -95,3 +95,6 @@ gem "friendly_id", "~> 4.0.0.beta14"
 #
 gem "grit", "~> 2.4.1"
 
+#
+gem "flash_cookie_session", "~> 1.1.1"
+
