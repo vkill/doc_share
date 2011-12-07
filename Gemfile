@@ -5,7 +5,7 @@ gem 'rails', '3.1.3'
 # Bundle edge Rails instead:
 # gem 'rails',     :git => 'git://github.com/rails/rails.git'
 
-gem 'pg', "~> 0.12.0pre258"
+gem 'pg', "~> 0.11.0"
 gem 'sqlite3', "~> 1.3.4", :group => [:development]
 
 # Gems used only for assets and not required

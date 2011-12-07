@@ -31,6 +31,7 @@ zh-CN:
       send_message: 发消息
       reply: 回复
 
+      select_files: 点击选择文件
       start_upload: 开始上传
       stop_upload: 取消上传
 

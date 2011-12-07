@@ -13,9 +13,10 @@
 - @debug = Rails.env.production? ? false : true
 - @fileSizeLimit = 2.megabytes
 - @queueSizeLimit = 10.megabytes
+- @buttonText = t("web.page.select_files")
 - @session_key = Rails.application.config.session_options[:key]
 - @session_value = u(cookies[@session_key])
-
+- @csrf_token = u(form_authenticity_token)
 
 %p.pull-right
   = link_to t("web.page.start_upload"), "javascript:void(0)", :data => { :uploadify_start_upload => true,
@@ -32,6 +33,8 @@
                                       :debug => @debug.to_s,
                                       :fileSizeLimit => @fileSizeLimit,
                                       :queueSizeLimit => @queueSizeLimit,
+                                      :buttonText => @buttonText,
                                       "session-key" => @session_key,
-                                      "session-value" => @session_value}}
+                                      "session-value" => @session_value,
+                                      "csrf-token" => @csrf_token}}
 

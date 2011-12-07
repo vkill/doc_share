@@ -1,11 +1,12 @@
 $(document).ready(function() {
   $("[data-uploadify]").each(function(){
     var data = {}
-    data[$("meta[name=csrf-param]").attr('content')] = encodeURIComponent($("meta[name=csrf-token]").attr('content'))
+    data[$("meta[name=csrf-param]").attr('content')] = encodeURIComponent($(this).data("cstf-token"))
     data['_http_accept'] = 'application/javascript'
     data['_method'] = "put"
-    data['utf8'] = "true"
+    data['utf8'] = "✓"
     data[$(this).data("session-key")] = encodeURIComponent($(this).data("session-value"))
+    data["X-CSRF-Token"] = $("meta[name=csrf-token]").attr('content')
 
     $(this).uploadify({
       swf             : $(this).data("swf"),
@@ -14,7 +15,7 @@ $(document).ready(function() {
       checkExisting   : $(this).data("checkexisting"),
       debug           : $(this).data("debug"),
       auto            : false,
-      buttonText      : "选择文件",
+      buttonText      : $(this).data("buttontext"),
       width           : 80,
       height          : 30,
       fileObjName     : $(this).data("fileobjname"),
@@ -35,7 +36,7 @@ $(document).ready(function() {
   })
 
   $("[data-uploadify-stop-upload]").click(function(){
-    $("#" + $(this).data("association-uploader-id")).uploadifyStop('*')
+    $("#" + $(this).data("association-uploader-id")).uploadifyStop()
   })
 });
 
