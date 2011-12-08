@@ -14,6 +14,17 @@ class RepoFile < ActiveRecord::Base
 
   validate :repo_file_uniqueness_with_repository
 
+  # jquery_fileupload use
+  include ::Rails.application.routes.url_helpers
+  def to_jquery_fileupload
+    {
+      "name" => read_attribute(:repo_file),
+      "size" => repo_file.size,
+      "delete_url" => account_repository_repo_file_path(repository, id),
+      "delete_type" => "DELETE"
+     }
+  end
+
   private
     def repo_file_uniqueness_with_repository
       errors.add :repo_file, :taken if RepoFile.where(:repository_id => self.repository_id).where(:repo_file => self.repo_file.filename).exists?

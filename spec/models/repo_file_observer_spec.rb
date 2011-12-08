@@ -14,5 +14,9 @@ describe RepoFileObserver do
     repo.commits.size.should == 3
     repo.commits.last.message.should == "delete file.txt"
   end
+
+  it "update commit with git repo" do
+    pending
+  end
 end
 

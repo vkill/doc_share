@@ -2,13 +2,12 @@
   .row
     .span14.offset1
       #jquery_fileupload_repo
-        = simple_nested_form_for(@repository, :url => repository_path(@repository), :wrapper => :inline, :validate => false) do |f|
+        = simple_form_for([:account, @repository, @repo_file], :wrapper => :inline) do |f|
           .row
             .span8
               .fileinput-button
-                = f.simple_fields_for :repo_files do |f_repo_file|
-                  /%span #{ t("add_files", :scope => [:web, :page]) }
-                  = f_repo_file.input_field :repo_file, :as => :file, :class => "span1"
+                /%span #{ t("add_files", :scope => [:web, :page]) }
+                = f.input_field :repo_file, :as => :file, :class => "span1"
             .span6
               .fileupload-buttonbar
                 %button.start{:type => "submit"} #{ t("start_upload_files", :scope => [:web, :page]) }

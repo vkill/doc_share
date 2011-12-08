@@ -22,6 +22,12 @@ describe RepoFile do
     end
   end
 
+  context "function" do
+    it "has to_jquery_fileupload, jquery_fileupload use" do
+      pending
+    end
+  end
+
 end
 # == Schema Information
 #

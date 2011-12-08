@@ -5,4 +5,5 @@
 //= require sessions
 //= require users
 //= require account/main
+//= require account/repo_files
 
