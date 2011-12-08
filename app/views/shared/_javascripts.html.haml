@@ -1,10 +1,14 @@
+/%script{:src => "//ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"}
+/%script{:src => "//ajax.googleapis.com/ajax/libs/jqueryui/1.8.8/jquery-ui.min.js"}
 = javascript_include_tag "application"
 
 :javascript
-  I18n.defaultLocale = "#{ I18n.default_locale }";
-  I18n.locale = "#{ I18n.locale }";
+  $(document).ready(function() {
+    I18n.defaultLocale = "#{ I18n.default_locale }";
+    I18n.locale = "#{ I18n.locale }";
+  })
 
-%script(language="javascript" src="/javascripts/uploadify.rails.js")
+%script(language="javascript" src="/javascripts/jquery_file_upload_rails31.js")
 
 = yield :javascript
 
