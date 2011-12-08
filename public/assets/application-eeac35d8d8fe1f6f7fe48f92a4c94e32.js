@@ -21406,1592 +21406,6 @@ $.effects.transfer = function(o) {
   });
 
 })( jQuery );
-
-
-window.setTimeout(function() {
-  $(".alert-message").fadeTo(500, 0).slideUp(500, function(){
-      $(this).remove();
-  });
-}, 5000);
-
-
-
-$(window).load(function(){
-  I18n.defaultLocale = "zh-CN";
-  I18n.locale = "zh-CN";
-});
-
-/*
- * jQuery File Upload User Interface Plugin 4.4.1
- * https://github.com/blueimp/jQuery-File-Upload
- *
- * Copyright 2010, Sebastian Tschan
- * https://blueimp.net
- *
- * Licensed under the MIT license:
- * http://creativecommons.org/licenses/MIT/
- */
-
-/*jslint browser: true, unparam: true */
-/*global jQuery, FileReader, URL, webkitURL */
-
-
-(function ($) {
-    'use strict';
-
-    var undef = 'undefined',
-        func = 'function',
-        UploadHandler,
-        methods,
-
-        MultiLoader = function (callBack) {
-            var loaded = 0,
-                list = [];
-            this.complete = function () {
-                loaded += 1;
-                if (loaded === list.length + 1) {
-                    // list.length * onComplete + 1 * onLoadAll
-                    callBack(list);
-                    loaded = 0;
-                    list = [];
-                }
-            };
-            this.push = function (item) {
-                list.push(item);
-            };
-            this.getList = function () {
-                return list;
-            };
-        };
-        
-    UploadHandler = function (container, options) {
-        var uploadHandler = this,
-            dragOverTimeout,
-            isDropZoneEnlarged,
-            multiLoader = new MultiLoader(function (list) {
-                uploadHandler.hideProgressBarAll(function () {
-                    uploadHandler.resetProgressBarAll();
-                    if (typeof uploadHandler.onCompleteAll === func) {
-                        uploadHandler.onCompleteAll(list);
-                    }
-                });
-            }),
-            getUploadTable = function (handler) {
-                return typeof handler.uploadTable === func ?
-                    handler.uploadTable(handler) : handler.uploadTable;
-            },
-            getDownloadTable = function (handler) {
-                return typeof handler.downloadTable === func ?
-                    handler.downloadTable(handler) : handler.downloadTable;
-            };
-        
-        this.requestHeaders = {'Accept': 'application/json, text/javascript, */*; q=0.01'};
-        this.dropZone = container;
-        this.imageTypes = /^image\/(gif|jpeg|png)$/;
-        this.previewMaxWidth = this.previewMaxHeight = 80;
-        this.previewLoadDelay = 100;
-        this.previewAsCanvas = true;
-        this.previewSelector = '.file_upload_preview';
-        this.progressSelector = '.file_upload_progress div';
-        this.cancelSelector = '.file_upload_cancel button';
-        this.cssClassSmall = 'file_upload_small';
-        this.cssClassLarge = 'file_upload_large';
-        this.cssClassHighlight = 'file_upload_highlight';
-        this.dropEffect = 'highlight';
-        this.uploadTable = this.downloadTable = null;
-        this.buildUploadRow = this.buildDownloadRow = null;
-        this.progressAllNode = null;
-
-        this.loadImage = function (file, callBack, maxWidth, maxHeight, imageTypes, noCanvas) {
-            var img,
-                scaleImage,
-                urlAPI,
-                fileReader;
-            if (imageTypes && !imageTypes.test(file.type)) {
-                return null;
-            }
-            scaleImage = function (img) {
-                var canvas = document.createElement('canvas'),
-                    scale = Math.min(
-                        (maxWidth || img.width) / img.width,
-                        (maxHeight || img.height) / img.height
-                    );
-                if (scale > 1) {
-                    scale = 1;
-                }
-                img.width = parseInt(img.width * scale, 10);
-                img.height = parseInt(img.height * scale, 10);
-                if (noCanvas || typeof canvas.getContext !== func) {
-                    return img;
-                }
-                canvas.width = img.width;
-                canvas.height = img.height;
-                canvas.getContext('2d').drawImage(img, 0, 0, img.width, img.height);
-                return canvas;
-            };
-            img = document.createElement('img');
-            urlAPI = typeof URL !== undef ? URL : typeof webkitURL !== undef ? webkitURL : null;
-            if (urlAPI && typeof urlAPI.createObjectURL === func) {
-                img.onload = function () {
-                    urlAPI.revokeObjectURL(this.src);
-                    callBack(scaleImage(img));
-                };
-                img.src = urlAPI.createObjectURL(file);
-            } else if (typeof FileReader !== undef &&
-                    typeof FileReader.prototype.readAsDataURL === func) {
-                img.onload = function () {
-                    callBack(scaleImage(img));
-                };
-                fileReader = new FileReader();
-                fileReader.onload = function (e) {
-                    img.src = e.target.result;
-                };
-                fileReader.readAsDataURL(file);
-            } else {
-                callBack(null);
-            }
-        };
-
-        this.addNode = function (parentNode, node, callBack) {
-            if (parentNode && parentNode.length && node && node.length) {
-                node.css('display', 'none').appendTo(parentNode).fadeIn(function () {
-                    if (typeof callBack === func) {
-                        try {
-                            callBack();
-                        } catch (e) {
-                            // Fix endless exception loop:
-                            node.stop();
-                            throw e;
-                        }
-                    }
-                });
-            } else if (typeof callBack === func) {
-                callBack();
-            }
-        };
-
-        this.removeNode = function (node, callBack) {
-            if (node && node.length) {
-                node.fadeOut(function () {
-                    node.remove();
-                    if (typeof callBack === func) {
-                        try {
-                            callBack();
-                        } catch (e) {
-                            // Fix endless exception loop:
-                            node.stop();
-                            throw e;
-                        }
-                    }
-                });
-            } else if (typeof callBack === func) {
-                callBack();
-            }
-        };
-        
-        this.replaceNode = function (oldNode, newNode, callBack) {
-            if (!(newNode && newNode.length)) {
-                return uploadHandler.removeNode(oldNode, callBack);
-            }
-            if (oldNode && oldNode.length) {
-                oldNode.fadeOut(function () {
-                    newNode.css('display', 'none');
-                    oldNode.replaceWith(newNode);
-                    newNode.fadeIn(function () {
-                        if (typeof callBack === func) {
-                            try {
-                                callBack();
-                            } catch (e) {
-                                // Fix endless exception loop:
-                                oldNode.stop();
-                                newNode.stop();
-                                throw e;
-                            }
-                        }
-                    });
-                });
-            } else if (typeof callBack === func) {
-                callBack();
-            }
-        };
-
-        this.resetProgressBarAll = function () {
-            if (uploadHandler.progressbarAll) {
-                uploadHandler.progressbarAll.progressbar(
-                    'value',
-                    0
-                );
-            }
-        };
-
-        this.hideProgressBarAll = function (callBack) {
-            if (uploadHandler.progressbarAll && !$(getUploadTable(uploadHandler))
-                    .find(uploadHandler.progressSelector + ':visible:first').length) {
-                uploadHandler.progressbarAll.fadeOut(callBack);
-            } else if (typeof callBack === func) {
-                callBack();
-            }
-        };
-
-        this.onAbort = function (event, files, index, xhr, handler) {
-            handler.removeNode(handler.uploadRow, handler.hideProgressBarAll);
-        };
-        
-        this.cancelUpload = function (event, files, index, xhr, handler) {
-            var readyState = xhr.readyState;
-            xhr.abort();
-            // If readyState is below 2, abort() has no effect:
-            if (typeof readyState !== 'number' || readyState < 2) {
-                handler.onAbort(event, files, index, xhr, handler);
-            }
-        };
-        
-        this.initProgressBar = function (node, value) {
-            if (!node || !node.length) {
-                return null;
-            }
-            if (typeof node.progressbar === func) {
-                return node.progressbar({
-                    value: value
-                });
-            } else {
-                node.addClass('progressbar')
-                    .append($('<div/>').css('width', value + '%'))
-                    .progressbar = function (key, value) {
-                        return this.each(function () {
-                            if (key === 'destroy') {
-                                $(this).removeClass('progressbar').empty();
-                            } else {
-                                $(this).children().css('width', value + '%');
-                            }
-                        });
-                    };
-                return node;
-            }
-        };
-        
-        this.destroyProgressBar = function (node) {
-            if (!node || !node.length) {
-                return null;
-            }
-            return node.progressbar('destroy');
-        };
-        
-        this.initUploadProgress = function (xhr, handler) {
-            if (!xhr.upload && handler.progressbar) {
-                handler.progressbar.progressbar(
-                    'value',
-                    100 // indeterminate progress displayed by a full animated progress bar
-                );
-            }
-        };
-
-        this.initUploadProgressAll = function () {
-            if (uploadHandler.progressbarAll && uploadHandler.progressbarAll.is(':hidden')) {
-                uploadHandler.progressbarAll.fadeIn();
-            }
-        };
-
-        this.onSend = function (event, files, index, xhr, handler) {
-            handler.initUploadProgress(xhr, handler);
-        };
-
-        this.onProgress = function (event, files, index, xhr, handler) {
-            if (handler.progressbar && event.lengthComputable) {
-                handler.progressbar.progressbar(
-                    'value',
-                    parseInt(event.loaded / event.total * 100, 10)
-                );
-            }
-        };
-
-        this.onProgressAll = function (event, list) {
-            if (uploadHandler.progressbarAll && event.lengthComputable) {
-                uploadHandler.progressbarAll.progressbar(
-                    'value',
-                    parseInt(event.loaded / event.total * 100, 10)
-                );
-            }
-        };
-
-        this.onLoadAll = function (list) {
-            multiLoader.complete();
-        };
-
-        this.initProgressBarAll = function () {
-            if (!uploadHandler.progressbarAll) {
-                uploadHandler.progressbarAll = uploadHandler.initProgressBar(
-                    (typeof uploadHandler.progressAllNode === func ?
-                    uploadHandler.progressAllNode(uploadHandler) : uploadHandler.progressAllNode),
-                    0
-                );
-            }
-        };
-        
-        this.destroyProgressBarAll = function () {
-            uploadHandler.destroyProgressBar(uploadHandler.progressbarAll);
-        };
-
-        this.loadPreviewImage = function (files, index, handler) {
-            index = index || 0;
-            handler.uploadRow.find(handler.previewSelector).each(function () {
-                var previewNode = $(this),
-                    file = files[index];
-                setTimeout(function () {
-                    handler.loadImage(
-                        file,
-                        function (img) {
-                            handler.addNode(
-                                previewNode,
-                                $(img)
-                            );
-                        },
-                        handler.previewMaxWidth,
-                        handler.previewMaxHeight,
-                        handler.imageTypes,
-                        !handler.previewAsCanvas
-                    );
-                }, handler.previewLoadDelay);
-                index += 1;
-            });
-        };
-
-        this.initUploadRow = function (event, files, index, xhr, handler) {
-            var uploadRow = handler.uploadRow = (typeof handler.buildUploadRow === func ?
-                handler.buildUploadRow(files, index, handler) : null);
-            if (uploadRow) {
-                handler.progressbar = handler.initProgressBar(
-                    uploadRow.find(handler.progressSelector),
-                    0
-                );
-                uploadRow.find(handler.cancelSelector).click(function (e) {
-                    handler.cancelUpload(e, files, index, xhr, handler);
-                    e.preventDefault();
-                });
-                handler.loadPreviewImage(files, index, handler);
-            }
-        };
-        
-        this.initUpload = function (event, files, index, xhr, handler, callBack) {
-            handler.initUploadRow(event, files, index, xhr, handler);
-            handler.addNode(
-                getUploadTable(handler),
-                handler.uploadRow,
-                function () {
-                    if (typeof handler.beforeSend === func) {
-                        handler.beforeSend(event, files, index, xhr, handler, callBack);
-                    } else {
-                        callBack();
-                    }
-                }
-            );
-            handler.initUploadProgressAll();
-        };
-        
-        this.parseResponse = function (xhr, handler) {
-            if (typeof xhr.responseText !== undef) {
-                return $.parseJSON(xhr.responseText);
-            } else {
-                // Instead of an XHR object, an iframe is used for legacy browsers:
-                return $.parseJSON(xhr.contents().text());
-            }
-        };
-        
-        this.initDownloadRow = function (event, files, index, xhr, handler) {
-            var json, downloadRow;
-            try {
-                json = handler.response = handler.parseResponse(xhr, handler);
-            } catch (e) {
-                if (typeof handler.onError === func) {
-                    handler.originalEvent = event;
-                    handler.onError(e, files, index, xhr, handler);
-                } else {
-                    throw e;
-                }
-            }
-            downloadRow = handler.downloadRow = (typeof handler.buildDownloadRow === func ?
-                handler.buildDownloadRow(json, handler) : null);
-        };
-        
-        this.onLoad = function (event, files, index, xhr, handler) {
-            var uploadTable = getUploadTable(handler),
-                downloadTable = getDownloadTable(handler),
-                callBack = function () {
-                    if (typeof handler.onComplete === func) {
-                        handler.onComplete(event, files, index, xhr, handler);
-                    }
-                    multiLoader.complete();
-                };
-            multiLoader.push(Array.prototype.slice.call(arguments, 1));
-            handler.initDownloadRow(event, files, index, xhr, handler);
-            if (uploadTable && handler.uploadRow && handler.uploadRow.length &&
-                    (!downloadTable || uploadTable.get(0) === downloadTable.get(0))) {
-                handler.replaceNode(handler.uploadRow, handler.downloadRow, callBack);
-            } else {
-                handler.removeNode(handler.uploadRow, function () {
-                    handler.addNode(
-                        downloadTable,
-                        handler.downloadRow,
-                        callBack
-                    );
-                });
-            }
-        };
-
-        this.dropZoneEnlarge = function () {
-            if (!isDropZoneEnlarged) {
-                if (typeof uploadHandler.dropZone.switchClass === func) {
-                    uploadHandler.dropZone.switchClass(
-                        uploadHandler.cssClassSmall,
-                        uploadHandler.cssClassLarge
-                    );
-                } else {
-                    uploadHandler.dropZone.addClass(uploadHandler.cssClassLarge);
-                    uploadHandler.dropZone.removeClass(uploadHandler.cssClassSmall);
-                }
-                isDropZoneEnlarged = true;
-            }
-        };
-        
-        this.dropZoneReduce = function () {
-            if (typeof uploadHandler.dropZone.switchClass === func) {
-                uploadHandler.dropZone.switchClass(
-                    uploadHandler.cssClassLarge,
-                    uploadHandler.cssClassSmall
-                );
-            } else {
-                uploadHandler.dropZone.addClass(uploadHandler.cssClassSmall);
-                uploadHandler.dropZone.removeClass(uploadHandler.cssClassLarge);
-            }
-            isDropZoneEnlarged = false;
-        };
-
-        this.onDocumentDragEnter = function (event) {
-            uploadHandler.dropZoneEnlarge();
-        };
-        
-        this.onDocumentDragOver = function (event) {
-            if (dragOverTimeout) {
-                clearTimeout(dragOverTimeout);
-            }
-            dragOverTimeout = setTimeout(function () {
-                uploadHandler.dropZoneReduce();
-            }, 200);
-        };
-        
-        this.onDragEnter = this.onDragLeave = function (event) {
-            uploadHandler.dropZone.toggleClass(uploadHandler.cssClassHighlight);
-        };
-        
-        this.onDrop = function (event) {
-            if (dragOverTimeout) {
-                clearTimeout(dragOverTimeout);
-            }
-            if (uploadHandler.dropEffect && typeof uploadHandler.dropZone.effect === func) {
-                uploadHandler.dropZone.effect(uploadHandler.dropEffect, function () {
-                    uploadHandler.dropZone.removeClass(uploadHandler.cssClassHighlight);
-                    uploadHandler.dropZoneReduce();
-                });
-            } else {
-                uploadHandler.dropZone.removeClass(uploadHandler.cssClassHighlight);
-                uploadHandler.dropZoneReduce();
-            }
-        };
-
-        this.init = function () {
-            uploadHandler.initProgressBarAll();
-            if (typeof uploadHandler.initExtended === func) {
-                uploadHandler.initExtended();
-            }
-        };
-        
-        this.destroy = function () {
-            if (typeof uploadHandler.destroyExtended === func) {
-                uploadHandler.destroyExtended();
-            }
-            uploadHandler.destroyProgressBarAll();
-        };
-
-        $.extend(this, options);
-    };
-
-    methods = {
-        init : function (options) {
-            return this.each(function () {
-                $(this).fileUpload(new UploadHandler($(this), options));
-            });
-        },
-        
-        option: function (option, value, namespace) {
-            if (!option || (typeof option === 'string' && typeof value === undef)) {
-                return $(this).fileUpload('option', option, value, namespace);
-            }
-            return this.each(function () {
-                $(this).fileUpload('option', option, value, namespace);
-            });
-        },
-            
-        destroy : function (namespace) {
-            return this.each(function () {
-                $(this).fileUpload('destroy', namespace);
-            });
-        },
-        
-        upload: function (files, namespace) {
-            return this.each(function () {
-                $(this).fileUpload('upload', files, namespace);
-            });
-        }
-    };
-    
-    $.fn.fileUploadUI = function (method) {
-        if (methods[method]) {
-            return methods[method].apply(this, Array.prototype.slice.call(arguments, 1));
-        } else if (typeof method === 'object' || !method) {
-            return methods.init.apply(this, arguments);
-        } else {
-            $.error('Method "' + method + '" does not exist on jQuery.fileUploadUI');
-        }
-    };
-    
-}(jQuery));
-/*
- * jQuery File Upload Plugin 4.5.1
- * https://github.com/blueimp/jQuery-File-Upload
- *
- * Copyright 2010, Sebastian Tschan
- * https://blueimp.net
- *
- * Licensed under the MIT license:
- * http://creativecommons.org/licenses/MIT/
- */
-
-/*jslint browser: true, unparam: true */
-/*global XMLHttpRequestUpload, File, FileReader, FormData, ProgressEvent, unescape, jQuery, upload */
-
-
-(function ($) {
-    'use strict';
-
-    var defaultNamespace = 'file_upload',
-        undef = 'undefined',
-        func = 'function',
-        FileUpload,
-        methods,
-
-        MultiLoader = function (callBack, numOrList) {
-            var loaded = 0,
-                list = [];
-            if (numOrList) {
-                if (numOrList.length) {
-                    list = numOrList;
-                } else {
-                    list[numOrList - 1] = null;
-                }
-            }
-            this.complete = function () {
-                loaded += 1;
-                if (loaded === list.length) {
-                    callBack(list);
-                    loaded = 0;
-                    list = [];
-                }
-            };
-            this.push = function (item) {
-                list.push(item);
-            };
-            this.getList = function () {
-                return list;
-            };
-        },
-        
-        SequenceHandler = function () {
-            var sequence = [];
-            this.push = function (callBack) {
-                sequence.push(callBack);
-                if (sequence.length === 1) {
-                    callBack();
-                }
-            };
-            this.next = function () {
-                sequence.shift();
-                if (sequence.length) {
-                    sequence[0]();
-                }
-            };
-        };
-        
-    FileUpload = function (container) {
-        var fileUpload = this,
-            uploadForm,
-            fileInput,
-            settings = {
-                namespace: defaultNamespace,
-                uploadFormFilter: function (index) {
-                    return true;
-                },
-                fileInputFilter: function (index) {
-                    return true;
-                },
-                cssClass: defaultNamespace,
-                dragDropSupport: true,
-                dropZone: container,
-                url: function (form) {
-                    return form.attr('action');
-                },
-                method: function (form) {
-                    return form.attr('method');
-                },
-                fieldName: function (input) {
-                    return input.attr('name');
-                },
-                formData: function (form) {
-                    return form.serializeArray();
-                },
-                requestHeaders: null,
-                multipart: true,
-                multiFileRequest: false,
-                withCredentials: false,
-                forceIframeUpload: false,
-                sequentialUploads: false,
-                maxChunkSize: null,
-                maxFileReaderSize: 50000000,
-                replaceFileInput: true
-            },
-            documentListeners = {},
-            dropZoneListeners = {},
-            protocolRegExp = /^http(s)?:\/\//,
-            optionsReference,
-            multiLoader = new MultiLoader(function (list) {
-                if (typeof settings.onLoadAll === func) {
-                    settings.onLoadAll(list);
-                }
-            }),
-            sequenceHandler = new SequenceHandler(),
-            
-            completeNext = function () {
-                multiLoader.complete();
-                sequenceHandler.next();
-            },
-
-            isXHRUploadCapable = function () {
-                return typeof XMLHttpRequest !== undef && typeof XMLHttpRequestUpload !== undef &&
-                    typeof File !== undef && (!settings.multipart || typeof FormData !== undef ||
-                    (typeof FileReader !== undef && typeof XMLHttpRequest.prototype.sendAsBinary === func));
-            },
-
-            initEventHandlers = function () {
-                if (settings.dragDropSupport) {
-                    if (typeof settings.onDocumentDragEnter === func) {
-                        documentListeners['dragenter.' + settings.namespace] = function (e) {
-                            settings.onDocumentDragEnter(e);
-                        };
-                    }
-                    if (typeof settings.onDocumentDragLeave === func) {
-                        documentListeners['dragleave.' + settings.namespace] = function (e) {
-                            settings.onDocumentDragLeave(e);
-                        };
-                    }
-                    documentListeners['dragover.'   + settings.namespace] = fileUpload.onDocumentDragOver;
-                    documentListeners['drop.'       + settings.namespace] = fileUpload.onDocumentDrop;
-                    $(document).bind(documentListeners);
-                    if (typeof settings.onDragEnter === func) {
-                        dropZoneListeners['dragenter.' + settings.namespace] = function (e) {
-                            settings.onDragEnter(e);
-                        };
-                    }
-                    if (typeof settings.onDragLeave === func) {
-                        dropZoneListeners['dragleave.' + settings.namespace] = function (e) {
-                            settings.onDragLeave(e);
-                        };
-                    }
-                    dropZoneListeners['dragover.'   + settings.namespace] = fileUpload.onDragOver;
-                    dropZoneListeners['drop.'       + settings.namespace] = fileUpload.onDrop;
-                    settings.dropZone.bind(dropZoneListeners);
-                }
-                fileInput.bind('change.' + settings.namespace, fileUpload.onChange);
-            },
-
-            removeEventHandlers = function () {
-                $.each(documentListeners, function (key, value) {
-                    $(document).unbind(key, value);
-                });
-                $.each(dropZoneListeners, function (key, value) {
-                    settings.dropZone.unbind(key, value);
-                });
-                fileInput.unbind('change.' + settings.namespace);
-            },
-
-            isChunkedUpload = function (settings) {
-                return typeof settings.uploadedBytes !== undef;
-            },
-
-            createProgressEvent = function (lengthComputable, loaded, total) {
-                var event;
-                if (typeof document.createEvent === func && typeof ProgressEvent !== undef) {
-                    event = document.createEvent('ProgressEvent');
-                    event.initProgressEvent(
-                        'progress',
-                        false,
-                        false,
-                        lengthComputable,
-                        loaded,
-                        total
-                    );
-                } else {
-                    event = {
-                        lengthComputable: true,
-                        loaded: loaded,
-                        total: total
-                    };
-                }
-                return event;
-            },
-
-            getProgressTotal = function (files, index, settings) {
-                var i,
-                    total;
-                if (typeof settings.progressTotal === undef) {
-                    if (files[index]) {
-                        total = files[index].size;
-                        settings.progressTotal = total ? total : 1;
-                    } else {
-                        total = 0;
-                        for (i = 0; i < files.length; i += 1) {
-                            total += files[i].size;
-                        }
-                        settings.progressTotal = total;
-                    }
-                }
-                return settings.progressTotal;
-            },
-
-            handleGlobalProgress = function (event, files, index, xhr, settings) {
-                var progressEvent,
-                    loaderList,
-                    globalLoaded = 0,
-                    globalTotal = 0;
-                if (event.lengthComputable && typeof settings.onProgressAll === func) {
-                    settings.progressLoaded = parseInt(
-                        event.loaded / event.total * getProgressTotal(files, index, settings),
-                        10
-                    );
-                    loaderList = multiLoader.getList();
-                    $.each(loaderList, function (index, item) {
-                        // item is an array with [files, index, xhr, settings]
-                        globalLoaded += item[3].progressLoaded || 0;
-                        globalTotal += getProgressTotal(item[0], item[1], item[3]);
-                    });
-                    progressEvent = createProgressEvent(
-                        true,
-                        globalLoaded,
-                        globalTotal
-                    );
-                    settings.onProgressAll(progressEvent, loaderList);
-                }
-            },
-            
-            handleLoadEvent = function (event, files, index, xhr, settings) {
-                var progressEvent;
-                if (isChunkedUpload(settings)) {
-                    settings.uploadedBytes += settings.chunkSize;
-                    progressEvent = createProgressEvent(
-                        true,
-                        settings.uploadedBytes,
-                        files[index].size
-                    );
-                    if (typeof settings.onProgress === func) {
-                        settings.onProgress(progressEvent, files, index, xhr, settings);
-                    }
-                    handleGlobalProgress(progressEvent, files, index, xhr, settings);
-                    if (settings.uploadedBytes < files[index].size) {
-                        if (typeof settings.resumeUpload === func) {
-                            settings.resumeUpload(
-                                event,
-                                files,
-                                index,
-                                xhr,
-                                settings,
-                                function () {
-                                    upload(event, files, index, xhr, settings, true);
-                                }
-                            );
-                        } else {
-                            upload(event, files, index, xhr, settings, true);
-                        }
-                        return;
-                    }
-                }
-                settings.progressLoaded = getProgressTotal(files, index, settings);
-                if (typeof settings.onLoad === func) {
-                    settings.onLoad(event, files, index, xhr, settings);
-                }
-                completeNext();
-            },
-            
-            handleProgressEvent = function (event, files, index, xhr, settings) {
-                var progressEvent = event;
-                if (isChunkedUpload(settings) && event.lengthComputable) {
-                    progressEvent = createProgressEvent(
-                        true,
-                        settings.uploadedBytes + parseInt(event.loaded / event.total * settings.chunkSize, 10),
-                        files[index].size
-                    );
-                }
-                if (typeof settings.onProgress === func) {
-                    settings.onProgress(progressEvent, files, index, xhr, settings);
-                }
-                handleGlobalProgress(progressEvent, files, index, xhr, settings);
-            },
-            
-            initUploadEventHandlers = function (files, index, xhr, settings) {
-                if (xhr.upload) {
-                    xhr.upload.onprogress = function (e) {
-                        handleProgressEvent(e, files, index, xhr, settings);
-                    };
-                }
-                xhr.onload = function (e) {
-                    handleLoadEvent(e, files, index, xhr, settings);
-                };
-                xhr.onabort = function (e) {
-                    settings.progressTotal = settings.progressLoaded;
-                    if (typeof settings.onAbort === func) {
-                        settings.onAbort(e, files, index, xhr, settings);
-                    }
-                    completeNext();
-                };
-                xhr.onerror = function (e) {
-                    settings.progressTotal = settings.progressLoaded;
-                    if (typeof settings.onError === func) {
-                        settings.onError(e, files, index, xhr, settings);
-                    }
-                    completeNext();
-                };
-            },
-
-            getUrl = function (settings) {
-                if (typeof settings.url === func) {
-                    return settings.url(settings.uploadForm || uploadForm);
-                }
-                return settings.url;
-            },
-            
-            getMethod = function (settings) {
-                if (typeof settings.method === func) {
-                    return settings.method(settings.uploadForm || uploadForm);
-                }
-                return settings.method;
-            },
-            
-            getFieldName = function (settings) {
-                if (typeof settings.fieldName === func) {
-                    return settings.fieldName(settings.fileInput || fileInput);
-                }
-                return settings.fieldName;
-            },
-
-            getFormData = function (settings) {
-                var formData;
-                if (typeof settings.formData === func) {
-                    return settings.formData(settings.uploadForm || uploadForm);
-                } else if ($.isArray(settings.formData)) {
-                    return settings.formData;
-                } else if (settings.formData) {
-                    formData = [];
-                    $.each(settings.formData, function (name, value) {
-                        formData.push({name: name, value: value});
-                    });
-                    return formData;
-                }
-                return [];
-            },
-
-            isSameDomain = function (url) {
-                if (protocolRegExp.test(url)) {
-                    var host = location.host,
-                        indexStart = location.protocol.length + 2,
-                        index = url.indexOf(host, indexStart),
-                        pathIndex = index + host.length;
-                    if ((index === indexStart || index === url.indexOf('@', indexStart) + 1) &&
-                            (url.length === pathIndex || $.inArray(url.charAt(pathIndex), ['/', '?', '#']) !== -1)) {
-                        return true;
-                    }
-                    return false;
-                }
-                return true;
-            },
-
-            initUploadRequest = function (files, index, xhr, settings) {
-                var file = files[index],
-                    url = getUrl(settings),
-                    sameDomain = isSameDomain(url);
-                xhr.open(getMethod(settings), url, true);
-                if (sameDomain) {
-                    xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
-                    if (!settings.multipart || isChunkedUpload(settings)) {
-                        xhr.setRequestHeader('X-File-Name', file.name);
-                        xhr.setRequestHeader('X-File-Type', file.type);
-                        xhr.setRequestHeader('X-File-Size', file.size);
-                        if (!isChunkedUpload(settings)) {
-                            xhr.setRequestHeader('Content-Type', file.type);
-                        } else if (!settings.multipart) {
-                            xhr.setRequestHeader('Content-Type', 'application/octet-stream');
-                        }
-                    }
-                } else if (settings.withCredentials) {
-                    xhr.withCredentials = true;
-                }
-                if ($.isArray(settings.requestHeaders)) {
-                    $.each(settings.requestHeaders, function (index, header) {
-                        xhr.setRequestHeader(header.name, header.value);
-                    });
-                } else if (settings.requestHeaders) {
-                    $.each(settings.requestHeaders, function (name, value) {
-                        xhr.setRequestHeader(name, value);
-                    });
-                }
-            },
-
-            formDataUpload = function (files, xhr, settings) {
-                var formData = new FormData(),
-                    i;
-                $.each(getFormData(settings), function (index, field) {
-                    formData.append(field.name, field.value);
-                });
-                for (i = 0; i < files.length; i += 1) {
-                    formData.append(getFieldName(settings), files[i]);
-                }
-                xhr.send(formData);
-            },
-
-            loadFileContent = function (file, callBack) {
-                file.reader = new FileReader();
-                file.reader.onload = callBack;
-                file.reader.readAsBinaryString(file);
-            },
-
-            utf8encode = function (str) {
-                return unescape(encodeURIComponent(str));
-            },
-
-            buildMultiPartFormData = function (boundary, files, filesFieldName, fields) {
-                var doubleDash = '--',
-                    crlf     = '\r\n',
-                    formData = '',
-                    buffer = [];
-                $.each(fields, function (index, field) {
-                    formData += doubleDash + boundary + crlf +
-                        'Content-Disposition: form-data; name="' +
-                        utf8encode(field.name) +
-                        '"' + crlf + crlf +
-                        utf8encode(field.value) + crlf;
-                });
-                $.each(files, function (index, file) {
-                    formData += doubleDash + boundary + crlf +
-                        'Content-Disposition: form-data; name="' +
-                        utf8encode(filesFieldName) +
-                        '"; filename="' + utf8encode(file.name) + '"' + crlf +
-                        'Content-Type: ' + utf8encode(file.type) + crlf + crlf;
-                    buffer.push(formData);
-                    buffer.push(file.reader.result);
-                    delete file.reader;
-                    formData = crlf;
-                });
-                formData += doubleDash + boundary + doubleDash + crlf;
-                buffer.push(formData);
-                return buffer.join('');
-            },
-            
-            fileReaderUpload = function (files, xhr, settings) {
-                var boundary = '----MultiPartFormBoundary' + (new Date()).getTime(),
-                    loader,
-                    i;
-                xhr.setRequestHeader('Content-Type', 'multipart/form-data; boundary=' + boundary);
-                loader = new MultiLoader(function () {
-                    xhr.sendAsBinary(buildMultiPartFormData(
-                        boundary,
-                        files,
-                        getFieldName(settings),
-                        getFormData(settings)
-                    ));
-                }, files.length);
-                for (i = 0; i < files.length; i += 1) {
-                    loadFileContent(files[i], loader.complete);
-                }
-            },
-
-            getBlob = function (file, settings) {
-                var blob,
-                    ub = settings.uploadedBytes,
-                    mcs = settings.maxChunkSize;
-                if (file && typeof file.slice === func && (ub || (mcs && mcs < file.size))) {
-                    settings.uploadedBytes = ub = ub || 0;
-                    blob = file.slice(ub, mcs || file.size - ub);
-                    settings.chunkSize = blob.size;
-                    return blob;
-                }
-                return file;
-            },
-
-            upload = function (event, files, index, xhr, settings, nextChunk) {
-                var send;
-                send = function () {
-                    if (!nextChunk) {
-                        if (typeof settings.onSend === func &&
-                                settings.onSend(event, files, index, xhr, settings) === false) {
-                            completeNext();
-                            return;
-                        }
-                    }
-                    var blob = getBlob(files[index], settings),
-                        filesToUpload;
-                    initUploadEventHandlers(files, index, xhr, settings);
-                    initUploadRequest(files, index, xhr, settings);
-                    if (!settings.multipart) {
-                        if (xhr.upload) {
-                            xhr.send(blob);
-                        } else {
-                            $.error('Browser does not support XHR file uploads');
-                        }
-                    } else {
-                        filesToUpload = (typeof index === 'number') ? [blob] : files;
-                        if (typeof FormData !== undef) {
-                            formDataUpload(filesToUpload, xhr, settings);
-                        } else if (typeof FileReader !== undef && typeof xhr.sendAsBinary === func) {
-                            fileReaderUpload(filesToUpload, xhr, settings);
-                        } else {
-                            $.error('Browser does not support multipart/form-data XHR file uploads');
-                        }
-                    }
-                };
-                if (!nextChunk) {
-                    multiLoader.push(Array.prototype.slice.call(arguments, 1));
-                    if (settings.sequentialUploads) {
-                        sequenceHandler.push(send);
-                        return;
-                    }
-                }
-                send();
-            },
-
-            handleUpload = function (event, files, input, form, index) {
-                var xhr = new XMLHttpRequest(),
-                    uploadSettings = $.extend({}, settings);
-                uploadSettings.fileInput = input;
-                uploadSettings.uploadForm = form;
-                if (typeof uploadSettings.initUpload === func) {
-                    uploadSettings.initUpload(
-                        event,
-                        files,
-                        index,
-                        xhr,
-                        uploadSettings,
-                        function () {
-                            upload(event, files, index, xhr, uploadSettings);
-                        }
-                    );
-                } else {
-                    upload(event, files, index, xhr, uploadSettings);
-                }
-            },
-
-            handleLegacyGlobalProgress = function (event, files, index, iframe, settings) {
-                var total = 0,
-                    progressEvent;
-                if (typeof index === undef) {
-                    $.each(files, function (index, file) {
-                        total += file.size ? file.size : 1;
-                    });
-                } else {
-                    total = files[index].size ? files[index].size : 1;
-                }
-                progressEvent = createProgressEvent(true, total, total);
-                settings.progressLoaded = total;
-                handleGlobalProgress(progressEvent, files, index, iframe, settings);
-            },
-
-            legacyUploadFormDataInit = function (input, form, settings) {
-                var formData = getFormData(settings);
-                form.find(':input').not(':disabled')
-                    .attr('disabled', true)
-                    .addClass(settings.namespace + '_disabled');
-                $.each(formData, function (index, field) {
-                    $('<input type="hidden"/>')
-                        .attr('name', field.name)
-                        .val(field.value)
-                        .addClass(settings.namespace + '_form_data')
-                        .appendTo(form);
-                });
-                input
-                    .attr('name', getFieldName(settings))
-                    .appendTo(form);
-            },
-
-            legacyUploadFormDataReset = function (input, form, settings) {
-                input.detach();
-                form.find('.' + settings.namespace + '_disabled')
-                    .removeAttr('disabled')
-                    .removeClass(settings.namespace + '_disabled');
-                form.find('.' + settings.namespace + '_form_data').remove();
-            },
-
-            legacyUpload = function (event, files, input, form, iframe, settings, index) {
-                var send;
-                send = function () {
-                    if (typeof settings.onSend === func && settings.onSend(event, files, index, iframe, settings) === false) {
-                        completeNext();
-                        return;
-                    }
-                    var originalAttributes = {
-                        'action': form.attr('action'),
-                        'method': form.attr('method'),
-                        'target': form.attr('target'),
-                        'enctype': form.attr('enctype')
-                    };
-                    iframe
-                        .unbind('abort')
-                        .bind('abort', function (e) {
-                            iframe.readyState = 0;
-                            // javascript:false as iframe src prevents warning popups on HTTPS in IE6
-                            // concat is used here to prevent the "Script URL" JSLint error:
-                            iframe.unbind('load').attr('src', 'javascript'.concat(':false;'));
-                            handleLegacyGlobalProgress(e, files, index, iframe, settings);
-                            if (typeof settings.onAbort === func) {
-                                settings.onAbort(e, files, index, iframe, settings);
-                            }
-                            completeNext();
-                        })
-                        .unbind('load')
-                        .bind('load', function (e) {
-                            iframe.readyState = 4;
-                            handleLegacyGlobalProgress(e, files, index, iframe, settings);
-                            if (typeof settings.onLoad === func) {
-                                settings.onLoad(e, files, index, iframe, settings);
-                            }
-                            // Fix for IE endless progress bar activity bug
-                            // (happens on form submits to iframe targets):
-                            $('<iframe src="javascript:false;" style="display:none;"></iframe>')
-                                .appendTo(form).remove();
-                            completeNext();
-                        });
-                    form
-                        .attr('action', getUrl(settings))
-                        .attr('method', getMethod(settings))
-                        .attr('target', iframe.attr('name'))
-                        .attr('enctype', 'multipart/form-data');
-                    legacyUploadFormDataInit(input, form, settings);
-                    iframe.readyState = 2;
-                    form.get(0).submit();
-                    legacyUploadFormDataReset(input, form, settings);
-                    $.each(originalAttributes, function (name, value) {
-                        if (value) {
-                            form.attr(name, value);
-                        } else {
-                            form.removeAttr(name);
-                        }
-                    });
-                };
-                multiLoader.push([files, index, iframe, settings]);
-                if (settings.sequentialUploads) {
-                    sequenceHandler.push(send);
-                } else {
-                    send();
-                }
-            },
-
-            normalizeFile = function (index, file) {
-                if (typeof file.name === undef && typeof file.size === undef) {
-                    file.name = file.fileName;
-                    file.size = file.fileSize;
-                }
-            },
-
-            handleLegacyUpload = function (event, input, form, index) {
-                if (!(event && input && form)) {
-                    $.error('Iframe based File Upload requires a file input change event');
-                    return;
-                }
-                // javascript:false as iframe src prevents warning popups on HTTPS in IE6:
-                var iframe = $('<iframe src="javascript:false;" style="display:none;" name="iframe_' +
-                    settings.namespace + '_' + (new Date()).getTime() + '"></iframe>'),
-                    uploadSettings = $.extend({}, settings),
-                    files = event.target && event.target.files;
-                files = files ? Array.prototype.slice.call(files, 0) : [{name: input.val(), type: null, size: null}];
-                $.each(files, normalizeFile);
-                index = files.length === 1 ? 0 : index;
-                uploadSettings.fileInput = input;
-                uploadSettings.uploadForm = form;
-                iframe.readyState = 0;
-                iframe.abort = function () {
-                    iframe.trigger('abort');
-                };
-                iframe.bind('load', function () {
-                    iframe.unbind('load');
-                    if (typeof uploadSettings.initUpload === func) {
-                        uploadSettings.initUpload(
-                            event,
-                            files,
-                            index,
-                            iframe,
-                            uploadSettings,
-                            function () {
-                                legacyUpload(event, files, input, form, iframe, uploadSettings, index);
-                            }
-                        );
-                    } else {
-                        legacyUpload(event, files, input, form, iframe, uploadSettings, index);
-                    }
-                }).appendTo(form);
-            },
-
-            canHandleXHRUploadSize = function (files) {
-                var bytes = 0,
-                    totalBytes = 0,
-                    i;
-                if (settings.multipart && typeof FormData === undef) {
-                    for (i = 0; i < files.length; i += 1) {
-                        bytes = files[i].size;
-                        if (bytes > settings.maxFileReaderSize) {
-                            return false;
-                        }
-                        totalBytes += bytes;
-                    }
-                    if (settings.multiFileRequest && totalBytes > settings.maxFileReaderSize) {
-                        return false;
-                    }
-                }
-                return true;
-            },
-
-            handleFiles = function (event, files, input, form) {
-                if (!canHandleXHRUploadSize(files)) {
-                    handleLegacyUpload(event, input, form);
-                    return;
-                }
-                var i;
-                files = Array.prototype.slice.call(files, 0);
-                $.each(files, normalizeFile);
-                if (settings.multiFileRequest && settings.multipart && files.length) {
-                    handleUpload(event, files, input, form);
-                } else {
-                    for (i = 0; i < files.length; i += 1) {
-                        handleUpload(event, files, input, form, i);
-                    }
-                }
-            },
-            
-            initUploadForm = function () {
-                uploadForm = (container.is('form') ? container : container.find('form'))
-                    .filter(settings.uploadFormFilter);
-            },
-            
-            initFileInput = function () {
-                fileInput = (uploadForm.length ? uploadForm : container).find('input:file')
-                    .filter(settings.fileInputFilter);
-            },
-            
-            replaceFileInput = function (input) {
-                var inputClone = input.clone(true);
-                $('<form/>').append(inputClone).get(0).reset();
-                input.after(inputClone).detach();
-                initFileInput();
-            };
-
-        this.onDocumentDragOver = function (e) {
-            if (typeof settings.onDocumentDragOver === func &&
-                    settings.onDocumentDragOver(e) === false) {
-                return false;
-            }
-            e.preventDefault();
-        };
-        
-        this.onDocumentDrop = function (e) {
-            if (typeof settings.onDocumentDrop === func &&
-                    settings.onDocumentDrop(e) === false) {
-                return false;
-            }
-            e.preventDefault();
-        };
-
-        this.onDragOver = function (e) {
-            if (typeof settings.onDragOver === func &&
-                    settings.onDragOver(e) === false) {
-                return false;
-            }
-            var dataTransfer = e.originalEvent.dataTransfer;
-            if (dataTransfer && dataTransfer.files) {
-                dataTransfer.dropEffect = dataTransfer.effectAllowed = 'copy';
-                e.preventDefault();
-            }
-        };
-
-        this.onDrop = function (e) {
-            if (typeof settings.onDrop === func &&
-                    settings.onDrop(e) === false) {
-                return false;
-            }
-            var dataTransfer = e.originalEvent.dataTransfer;
-            if (dataTransfer && dataTransfer.files && isXHRUploadCapable()) {
-                handleFiles(e, dataTransfer.files);
-            }
-            e.preventDefault();
-        };
-        
-        this.onChange = function (e) {
-            if (typeof settings.onChange === func &&
-                    settings.onChange(e) === false) {
-                return false;
-            }
-            var input = $(e.target),
-                form = $(e.target.form);
-            if (form.length === 1) {
-                if (settings.replaceFileInput) {
-                    input.data(defaultNamespace + '_form', form);
-                    replaceFileInput(input);
-                }
-            } else {
-                form = input.data(defaultNamespace + '_form');
-            }
-            if (!settings.forceIframeUpload && e.target.files && isXHRUploadCapable()) {
-                handleFiles(e, e.target.files, input, form);
-            } else {
-                handleLegacyUpload(e, input, form);
-            }
-        };
-
-        this.init = function (options) {
-            if (options) {
-                $.extend(settings, options);
-                optionsReference = options;
-            }
-            initUploadForm();
-            initFileInput();
-            if (container.data(settings.namespace)) {
-                $.error('FileUpload with namespace "' + settings.namespace + '" already assigned to this element');
-                return;
-            }
-            container
-                .data(settings.namespace, fileUpload)
-                .addClass(settings.cssClass);
-            settings.dropZone.not(container).addClass(settings.cssClass);
-            initEventHandlers();
-            if (typeof settings.init === func) {
-                settings.init();
-            }
-        };
-
-        this.options = function (options) {
-            var oldCssClass,
-                oldDropZone,
-                uploadFormFilterUpdate,
-                fileInputFilterUpdate;
-            if (typeof options === undef) {
-                return $.extend({}, settings);
-            }
-            if (optionsReference) {
-                $.extend(optionsReference, options);
-            }
-            removeEventHandlers();
-            $.each(options, function (name, value) {
-                switch (name) {
-                case 'namespace':
-                    $.error('The FileUpload namespace cannot be updated.');
-                    return;
-                case 'uploadFormFilter':
-                    uploadFormFilterUpdate = true;
-                    fileInputFilterUpdate = true;
-                    break;
-                case 'fileInputFilter':
-                    fileInputFilterUpdate = true;
-                    break;
-                case 'cssClass':
-                    oldCssClass = settings.cssClass;
-                    break;
-                case 'dropZone':
-                    oldDropZone = settings.dropZone;
-                    break;
-                }
-                settings[name] = value;
-            });
-            if (uploadFormFilterUpdate) {
-                initUploadForm();
-            }
-            if (fileInputFilterUpdate) {
-                initFileInput();
-            }
-            if (typeof oldCssClass !== undef) {
-                container
-                    .removeClass(oldCssClass)
-                    .addClass(settings.cssClass);
-                (oldDropZone ? oldDropZone : settings.dropZone).not(container)
-                    .removeClass(oldCssClass);
-                settings.dropZone.not(container).addClass(settings.cssClass);
-            } else if (oldDropZone) {
-                oldDropZone.not(container).removeClass(settings.cssClass);
-                settings.dropZone.not(container).addClass(settings.cssClass);
-            }
-            initEventHandlers();
-        };
-        
-        this.option = function (name, value) {
-            var options;
-            if (typeof value === undef) {
-                return settings[name];
-            }
-            options = {};
-            options[name] = value;
-            fileUpload.options(options);
-        };
-        
-        this.destroy = function () {
-            if (typeof settings.destroy === func) {
-                settings.destroy();
-            }
-            removeEventHandlers();
-            container
-                .removeData(settings.namespace)
-                .removeClass(settings.cssClass);
-            settings.dropZone.not(container).removeClass(settings.cssClass);
-        };
-        
-        this.upload = function (files) {
-            if (typeof files.length === undef) {
-                files = [files];
-            }
-            handleFiles(null, files);
-        };
-    };
-
-    methods = {
-        init : function (options) {
-            return this.each(function () {
-                (new FileUpload($(this))).init(options);
-            });
-        },
-        
-        option: function (option, value, namespace) {
-            namespace = namespace ? namespace : defaultNamespace;
-            var fileUpload = $(this).data(namespace);
-            if (fileUpload) {
-                if (!option) {
-                    return fileUpload.options();
-                } else if (typeof option === 'string' && typeof value === undef) {
-                    return fileUpload.option(option);
-                }
-            } else {
-                $.error('No FileUpload with namespace "' + namespace + '" assigned to this element');
-            }
-            return this.each(function () {
-                var fu = $(this).data(namespace);
-                if (fu) {
-                    if (typeof option === 'string') {
-                        fu.option(option, value);
-                    } else {
-                        fu.options(option);
-                    }
-                } else {
-                    $.error('No FileUpload with namespace "' + namespace + '" assigned to this element');
-                }
-            });
-        },
-                
-        destroy: function (namespace) {
-            namespace = namespace ? namespace : defaultNamespace;
-            return this.each(function () {
-                var fileUpload = $(this).data(namespace);
-                if (fileUpload) {
-                    fileUpload.destroy();
-                } else {
-                    $.error('No FileUpload with namespace "' + namespace + '" assigned to this element');
-                }
-            });
-        },
-        
-        upload: function (files, namespace) {
-            namespace = namespace ? namespace : defaultNamespace;
-            return this.each(function () {
-                var fileUpload = $(this).data(namespace);
-                if (fileUpload) {
-                    fileUpload.upload(files);
-                } else {
-                    $.error('No FileUpload with namespace "' + namespace + '" assigned to this element');
-                }
-            });
-        }
-    };
-    
-    $.fn.fileUpload = function (method) {
-        if (methods[method]) {
-            return methods[method].apply(this, Array.prototype.slice.call(arguments, 1));
-        } else if (typeof method === 'object' || !method) {
-            return methods.init.apply(this, arguments);
-        } else {
-            $.error('Method "' + method + '" does not exist on jQuery.fileUpload');
-        }
-    };
-    
-}(jQuery));
-
-
-jQuery(function($) {
-  $('form a.add_nested_fields').live('click', function() {
-    // Setup
-    var assoc   = $(this).attr('data-association');            // Name of child
-    var content = $('#' + assoc + '_fields_blueprint').html(); // Fields template
-
-    // Make the context correct by replacing new_<parents> with the generated ID
-    // of each of the parent objects
-    var context = ($(this).closest('.fields').find('input:first').attr('name') || '').replace(new RegExp('\[[a-z]+\]$'), '');
-
-    // context will be something like this for a brand new form:
-    // project[tasks_attributes][new_1255929127459][assignments_attributes][new_1255929128105]
-    // or for an edit form:
-    // project[tasks_attributes][0][assignments_attributes][1]
-    if(context) {
-      var parent_names = context.match(/[a-z_]+_attributes/g) || [];
-      var parent_ids   = context.match(/(new_)?[0-9]+/g) || [];
-
-      for(i = 0; i < parent_names.length; i++) {
-        if(parent_ids[i]) {
-          content = content.replace(
-            new RegExp('(_' + parent_names[i] + ')_.+?_', 'g'),
-            '$1_' + parent_ids[i] + '_');
-
-          content = content.replace(
-            new RegExp('(\\[' + parent_names[i] + '\\])\\[.+?\\]', 'g'),
-            '$1[' + parent_ids[i] + ']');
-        }
-      }
-    }
-
-    // Make a unique ID for the new child
-    var regexp  = new RegExp('new_' + assoc, 'g');
-    var new_id  = new Date().getTime();
-    content     = content.replace(regexp, "new_" + new_id);
-
-    $(this).before(content);
-    $(this).closest("form").trigger('nested:fieldAdded');
-    return false;
-  });
-
-  $('form a.remove_nested_fields').live('click', function() {
-    var hidden_field = $(this).prev('input[type=hidden]')[0];
-    if(hidden_field) {
-      hidden_field.value = '1';
-    }
-    $(this).closest('.fields').hide();
-    $(this).closest("form").trigger('nested:fieldRemoved');
-    return false;
-  });
-});
-
-
-
-
-
-
-
-
 /* ==========================================================
  * bootstrap-alerts.js v1.4.0
  * http://twitter.github.com/bootstrap/javascript.html#alerts
@@ -23113,71 +21527,6 @@ jQuery(function($) {
   $(document).ready(function () {
     new Alert($('body'), {
       selector: '.alert-message[data-alert] .close'
-    })
-  })
-
-}( window.jQuery || window.ender );
-/* ============================================================
- * bootstrap-buttons.js v1.4.0
- * http://twitter.github.com/bootstrap/javascript.html#buttons
- * ============================================================
- * Copyright 2011 Twitter, Inc.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- * ============================================================ */
-
-
-!function( $ ){
-
-  "use strict"
-
-  function setState(el, state) {
-    var d = 'disabled'
-      , $el = $(el)
-      , data = $el.data()
-
-    state = state + 'Text'
-    data.resetText || $el.data('resetText', $el.html())
-
-    $el.html( data[state] || $.fn.button.defaults[state] )
-
-    setTimeout(function () {
-      state == 'loadingText' ?
-        $el.addClass(d).attr(d, d) :
-        $el.removeClass(d).removeAttr(d)
-    }, 0)
-  }
-
-  function toggle(el) {
-    $(el).toggleClass('active')
-  }
-
-  $.fn.button = function(options) {
-    return this.each(function () {
-      if (options == 'toggle') {
-        return toggle(this)
-      }
-      options && setState(this, options)
-    })
-  }
-
-  $.fn.button.defaults = {
-    loadingText: 'loading...'
-  }
-
-  $(function () {
-    $('body').delegate('.btn[data-toggle]', 'click', function () {
-      $(this).button('toggle')
     })
   })
 
@@ -23496,195 +21845,6 @@ jQuery(function($) {
       var $this = $(this).data('show', true)
       $('#' + $this.attr('data-controls-modal')).modal( $this.data() )
     })
-  })
-
-}( window.jQuery || window.ender );
-/* ========================================================
- * bootstrap-tabs.js v1.4.0
- * http://twitter.github.com/bootstrap/javascript.html#tabs
- * ========================================================
- * Copyright 2011 Twitter, Inc.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- * ======================================================== */
-
-
-
-!function( $ ){
-
-  "use strict"
-
-  function activate ( element, container ) {
-    container
-      .find('> .active')
-      .removeClass('active')
-      .find('> .dropdown-menu > .active')
-      .removeClass('active')
-
-    element.addClass('active')
-
-    if ( element.parent('.dropdown-menu') ) {
-      element.closest('li.dropdown').addClass('active')
-    }
-  }
-
-  function tab( e ) {
-    var $this = $(this)
-      , $ul = $this.closest('ul:not(.dropdown-menu)')
-      , href = $this.attr('href')
-      , previous
-      , $href
-
-    if ( /^#\w+/.test(href) ) {
-      e.preventDefault()
-
-      if ( $this.parent('li').hasClass('active') ) {
-        return
-      }
-
-      previous = $ul.find('.active a').last()[0]
-      $href = $(href)
-
-      activate($this.parent('li'), $ul)
-      activate($href, $href.parent())
-
-      $this.trigger({
-        type: 'change'
-      , relatedTarget: previous
-      })
-    }
-  }
-
-
- /* TABS/PILLS PLUGIN DEFINITION
-  * ============================ */
-
-  $.fn.tabs = $.fn.pills = function ( selector ) {
-    return this.each(function () {
-      $(this).delegate(selector || '.tabs li > a, .pills > li > a', 'click', tab)
-    })
-  }
-
-  $(document).ready(function () {
-    $('body').tabs('ul[data-tabs] li > a, ul[data-pills] > li > a')
-  })
-
-}( window.jQuery || window.ender );
-/* =============================================================
- * bootstrap-scrollspy.js v1.4.0
- * http://twitter.github.com/bootstrap/javascript.html#scrollspy
- * =============================================================
- * Copyright 2011 Twitter, Inc.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- * ============================================================== */
-
-
-
-!function ( $ ) {
-
-  "use strict"
-
-  var $window = $(window)
-
-  function ScrollSpy( topbar, selector ) {
-    var processScroll = $.proxy(this.processScroll, this)
-    this.$topbar = $(topbar)
-    this.selector = selector || 'li > a'
-    this.refresh()
-    this.$topbar.delegate(this.selector, 'click', processScroll)
-    $window.scroll(processScroll)
-    this.processScroll()
-  }
-
-  ScrollSpy.prototype = {
-
-      refresh: function () {
-        this.targets = this.$topbar.find(this.selector).map(function () {
-          var href = $(this).attr('href')
-          return /^#\w/.test(href) && $(href).length ? href : null
-        })
-
-        this.offsets = $.map(this.targets, function (id) {
-          return $(id).offset().top
-        })
-      }
-
-    , processScroll: function () {
-        var scrollTop = $window.scrollTop() + 10
-          , offsets = this.offsets
-          , targets = this.targets
-          , activeTarget = this.activeTarget
-          , i
-
-        for (i = offsets.length; i--;) {
-          activeTarget != targets[i]
-            && scrollTop >= offsets[i]
-            && (!offsets[i + 1] || scrollTop <= offsets[i + 1])
-            && this.activateButton( targets[i] )
-        }
-      }
-
-    , activateButton: function (target) {
-        this.activeTarget = target
-
-        this.$topbar
-          .find(this.selector).parent('.active')
-          .removeClass('active')
-
-        this.$topbar
-          .find(this.selector + '[href="' + target + '"]')
-          .parent('li')
-          .addClass('active')
-      }
-
-  }
-
-  /* SCROLLSPY PLUGIN DEFINITION
-   * =========================== */
-
-  $.fn.scrollSpy = function( options ) {
-    var scrollspy = this.data('scrollspy')
-
-    if (!scrollspy) {
-      return this.each(function () {
-        $(this).data('scrollspy', new ScrollSpy( this, options ))
-      })
-    }
-
-    if ( options === true ) {
-      return scrollspy
-    }
-
-    if ( typeof options == 'string' ) {
-      scrollspy[options]()
-    }
-
-    return this
-  }
-
-  $(document).ready(function () {
-    $('body').scrollSpy('[data-scrollspy] li > a')
   })
 
 }( window.jQuery || window.ender );
@@ -24101,8 +22261,260 @@ jQuery(function($) {
   $.fn.twipsy.rejectAttrOptions.push( 'content' )
 
 }( window.jQuery || window.ender );
-// Bootstrap v1.4.0
-;
+/* =============================================================
+ * bootstrap-scrollspy.js v1.4.0
+ * http://twitter.github.com/bootstrap/javascript.html#scrollspy
+ * =============================================================
+ * Copyright 2011 Twitter, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * ============================================================== */
+
+
+
+!function ( $ ) {
+
+  "use strict"
+
+  var $window = $(window)
+
+  function ScrollSpy( topbar, selector ) {
+    var processScroll = $.proxy(this.processScroll, this)
+    this.$topbar = $(topbar)
+    this.selector = selector || 'li > a'
+    this.refresh()
+    this.$topbar.delegate(this.selector, 'click', processScroll)
+    $window.scroll(processScroll)
+    this.processScroll()
+  }
+
+  ScrollSpy.prototype = {
+
+      refresh: function () {
+        this.targets = this.$topbar.find(this.selector).map(function () {
+          var href = $(this).attr('href')
+          return /^#\w/.test(href) && $(href).length ? href : null
+        })
+
+        this.offsets = $.map(this.targets, function (id) {
+          return $(id).offset().top
+        })
+      }
+
+    , processScroll: function () {
+        var scrollTop = $window.scrollTop() + 10
+          , offsets = this.offsets
+          , targets = this.targets
+          , activeTarget = this.activeTarget
+          , i
+
+        for (i = offsets.length; i--;) {
+          activeTarget != targets[i]
+            && scrollTop >= offsets[i]
+            && (!offsets[i + 1] || scrollTop <= offsets[i + 1])
+            && this.activateButton( targets[i] )
+        }
+      }
+
+    , activateButton: function (target) {
+        this.activeTarget = target
+
+        this.$topbar
+          .find(this.selector).parent('.active')
+          .removeClass('active')
+
+        this.$topbar
+          .find(this.selector + '[href="' + target + '"]')
+          .parent('li')
+          .addClass('active')
+      }
+
+  }
+
+  /* SCROLLSPY PLUGIN DEFINITION
+   * =========================== */
+
+  $.fn.scrollSpy = function( options ) {
+    var scrollspy = this.data('scrollspy')
+
+    if (!scrollspy) {
+      return this.each(function () {
+        $(this).data('scrollspy', new ScrollSpy( this, options ))
+      })
+    }
+
+    if ( options === true ) {
+      return scrollspy
+    }
+
+    if ( typeof options == 'string' ) {
+      scrollspy[options]()
+    }
+
+    return this
+  }
+
+  $(document).ready(function () {
+    $('body').scrollSpy('[data-scrollspy] li > a')
+  })
+
+}( window.jQuery || window.ender );
+/* ========================================================
+ * bootstrap-tabs.js v1.4.0
+ * http://twitter.github.com/bootstrap/javascript.html#tabs
+ * ========================================================
+ * Copyright 2011 Twitter, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * ======================================================== */
+
+
+
+!function( $ ){
+
+  "use strict"
+
+  function activate ( element, container ) {
+    container
+      .find('> .active')
+      .removeClass('active')
+      .find('> .dropdown-menu > .active')
+      .removeClass('active')
+
+    element.addClass('active')
+
+    if ( element.parent('.dropdown-menu') ) {
+      element.closest('li.dropdown').addClass('active')
+    }
+  }
+
+  function tab( e ) {
+    var $this = $(this)
+      , $ul = $this.closest('ul:not(.dropdown-menu)')
+      , href = $this.attr('href')
+      , previous
+      , $href
+
+    if ( /^#\w+/.test(href) ) {
+      e.preventDefault()
+
+      if ( $this.parent('li').hasClass('active') ) {
+        return
+      }
+
+      previous = $ul.find('.active a').last()[0]
+      $href = $(href)
+
+      activate($this.parent('li'), $ul)
+      activate($href, $href.parent())
+
+      $this.trigger({
+        type: 'change'
+      , relatedTarget: previous
+      })
+    }
+  }
+
+
+ /* TABS/PILLS PLUGIN DEFINITION
+  * ============================ */
+
+  $.fn.tabs = $.fn.pills = function ( selector ) {
+    return this.each(function () {
+      $(this).delegate(selector || '.tabs li > a, .pills > li > a', 'click', tab)
+    })
+  }
+
+  $(document).ready(function () {
+    $('body').tabs('ul[data-tabs] li > a, ul[data-pills] > li > a')
+  })
+
+}( window.jQuery || window.ender );
+/* ============================================================
+ * bootstrap-buttons.js v1.4.0
+ * http://twitter.github.com/bootstrap/javascript.html#buttons
+ * ============================================================
+ * Copyright 2011 Twitter, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * ============================================================ */
+
+
+!function( $ ){
+
+  "use strict"
+
+  function setState(el, state) {
+    var d = 'disabled'
+      , $el = $(el)
+      , data = $el.data()
+
+    state = state + 'Text'
+    data.resetText || $el.data('resetText', $el.html())
+
+    $el.html( data[state] || $.fn.button.defaults[state] )
+
+    setTimeout(function () {
+      state == 'loadingText' ?
+        $el.addClass(d).attr(d, d) :
+        $el.removeClass(d).removeAttr(d)
+    }, 0)
+  }
+
+  function toggle(el) {
+    $(el).toggleClass('active')
+  }
+
+  $.fn.button = function(options) {
+    return this.each(function () {
+      if (options == 'toggle') {
+        return toggle(this)
+      }
+      options && setState(this, options)
+    })
+  }
+
+  $.fn.button.defaults = {
+    loadingText: 'loading...'
+  }
+
+  $(function () {
+    $('body').delegate('.btn[data-toggle]', 'click', function () {
+      $(this).button('toggle')
+    })
+  })
+
+}( window.jQuery || window.ender );
 // Instantiate the object
 var I18n = I18n || {};
 
@@ -24555,6 +22967,2950 @@ I18n.l = I18n.localize;
 I18n.p = I18n.pluralize;
 var I18n = I18n || {};
 I18n.translations = {"en":{"date":{"formats":{"default":"%Y-%m-%d","short":"%b %d","long":"%B %d, %Y"},"day_names":["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"],"abbr_day_names":["Sun","Mon","Tue","Wed","Thu","Fri","Sat"],"month_names":[null,"January","February","March","April","May","June","July","August","September","October","November","December"],"abbr_month_names":[null,"Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"],"order":["year","month","day"]},"time":{"formats":{"default":"%a, %d %b %Y %H:%M:%S %z","short":"%d %b %H:%M","long":"%B %d, %Y %H:%M"},"am":"am","pm":"pm"},"support":{"array":{"words_connector":", ","two_words_connector":" and ","last_word_connector":", and "}},"errors":{"format":"%{attribute} %{message}","messages":{"inclusion":"is not included in the list","exclusion":"is reserved","invalid":"is invalid","confirmation":"doesn't match confirmation","accepted":"must be accepted","empty":"can't be empty","blank":"can't be blank","too_long":"is too long (maximum is %{count} characters)","too_short":"is too short (minimum is %{count} characters)","wrong_length":"is the wrong length (should be %{count} characters)","not_a_number":"is not a number","not_an_integer":"must be an integer","greater_than":"must be greater than %{count}","greater_than_or_equal_to":"must be greater than or equal to %{count}","equal_to":"must be equal to %{count}","less_than":"must be less than %{count}","less_than_or_equal_to":"must be less than or equal to %{count}","odd":"must be odd","even":"must be even","not_a_date":"is not a date","after":"must be after %{date}","after_or_equal_to":"must be after or equal to %{date}","before":"must be before %{date}","before_or_equal_to":"must be before or equal to %{date}","carrierwave_processing_error":"failed to be processed","carrierwave_integrity_error":"is not of an allowed file type","extension_white_list_error":"You are not allowed to upload %{extension} files, allowed types: %{allowed_types}","rmagick_processing_error":"Failed to manipulate with rmagick, maybe it is not an image? Original Error: %{e}","mime_types_processing_error":"Failed to process file with MIME::Types, maybe not valid content-type? Original Error: %{e}","mini_magick_processing_error":"Failed to manipulate with MiniMagick, maybe it is not an image? Original Error: %{e}"}},"activerecord":{"errors":{"messages":{"taken":"has already been taken","record_invalid":"Validation failed: %{errors}"}}},"number":{"format":{"separator":".","delimiter":",","precision":3,"significant":false,"strip_insignificant_zeros":false},"currency":{"format":{"format":"%u%n","unit":"$","separator":".","delimiter":",","precision":2,"significant":false,"strip_insignificant_zeros":false}},"percentage":{"format":{"delimiter":""}},"precision":{"format":{"delimiter":""}},"human":{"format":{"delimiter":"","precision":3,"significant":true,"strip_insignificant_zeros":true},"storage_units":{"format":"%n %u","units":{"byte":{"one":"Byte","other":"Bytes"},"kb":"KB","mb":"MB","gb":"GB","tb":"TB"}},"decimal_units":{"format":"%n %u","units":{"unit":"","thousand":"Thousand","million":"Million","billion":"Billion","trillion":"Trillion","quadrillion":"Quadrillion"}}}},"datetime":{"distance_in_words":{"half_a_minute":"half a minute","less_than_x_seconds":{"one":"less than 1 second","other":"less than %{count} seconds"},"x_seconds":{"one":"1 second","other":"%{count} seconds"},"less_than_x_minutes":{"one":"less than a minute","other":"less than %{count} minutes"},"x_minutes":{"one":"1 minute","other":"%{count} minutes"},"about_x_hours":{"one":"about 1 hour","other":"about %{count} hours"},"x_days":{"one":"1 day","other":"%{count} days"},"about_x_months":{"one":"about 1 month","other":"about %{count} months"},"x_months":{"one":"1 month","other":"%{count} months"},"about_x_years":{"one":"about 1 year","other":"about %{count} years"},"over_x_years":{"one":"over 1 year","other":"over %{count} years"},"almost_x_years":{"one":"almost 1 year","other":"almost %{count} years"}},"prompts":{"year":"Year","month":"Month","day":"Day","hour":"Hour","minute":"Minute","second":"Seconds"}},"helpers":{"select":{"prompt":"Please select"},"submit":{"create":"Create %{model}","update":"Update %{model}","submit":"Save %{model}"}},"flash":{"actions":{"create":{"notice":"%{resource_name} was successfully created."},"update":{"notice":"%{resource_name} was successfully updated."},"destroy":{"notice":"%{resource_name} was successfully destroyed.","alert":"%{resource_name} could not be destroyed."}}},"views":{"pagination":{"first":"&laquo; First","last":"Last &raquo;","previous":"&lsaquo; Prev","next":"Next &rsaquo;","truncate":"..."}}},"es":{"errors":{"messages":{"not_a_date":"no es una fecha","after":"tiene que ser posterior a %{date}","after_or_equal_to":"tiene que ser posterior o igual a %{date}","before":"tiene que ser antes de %{date}","before_or_equal_to":"tiene que ser antes o igual a %{date}","inclusion":"no est\u00e1 incluido en la lista","exclusion":"est\u00e1 reservado","invalid":"no es v\u00e1lido","confirmation":"no coincide con la confirmaci\u00f3n","accepted":"debe ser aceptado","empty":"no puede estar vac\u00edo","blank":"no puede estar en blanco","too_long":"es demasiado largo (%{count} caracteres m\u00e1ximo)","too_short":"es demasiado corto (%{count} caracteres m\u00ednimo)","wrong_length":"no tiene la longitud correcta (%{count} caracteres exactos)","not_a_number":"no es un n\u00famero","not_an_integer":"debe ser un entero","greater_than":"debe ser mayor que %{count}","greater_than_or_equal_to":"debe ser mayor que o igual a %{count}","equal_to":"debe ser igual a %{count}","less_than":"debe ser menor que %{count}","less_than_or_equal_to":"debe ser menor que o igual a %{count}","odd":"debe ser impar","even":"debe ser par"},"format":"%{attribute} %{message}"},"date":{"formats":{"default":"%d/%m/%Y","short":"%d de %b","long":"%d de %B de %Y"},"day_names":["domingo","lunes","martes","mi\u00e9rcoles","jueves","viernes","s\u00e1bado"],"abbr_day_names":["dom","lun","mar","mi\u00e9","jue","vie","s\u00e1b"],"month_names":[null,"enero","febrero","marzo","abril","mayo","junio","julio","agosto","septiembre","octubre","noviembre","diciembre"],"abbr_month_names":[null,"ene","feb","mar","abr","may","jun","jul","ago","sep","oct","nov","dic"],"order":["day","month","year"]},"time":{"formats":{"default":"%A, %d de %B de %Y %H:%M:%S %z","short":"%d de %b %H:%M","long":"%d de %B de %Y %H:%M"},"am":"am","pm":"pm"},"support":{"array":{"words_connector":", ","two_words_connector":" y ","last_word_connector":", y "},"select":{"prompt":"Por favor seleccione"}},"number":{"format":{"separator":",","delimiter":".","precision":3,"significant":false,"strip_insignificant_zeros":false},"currency":{"format":{"format":"%n %u","unit":"\u20ac","separator":",","delimiter":".","precision":2,"significant":false,"strip_insignificant_zeros":false}},"percentage":{"format":{"delimiter":""}},"precision":{"format":{"delimiter":""}},"human":{"format":{"delimiter":"","precision":1,"significant":true,"strip_insignificant_zeros":true},"storage_units":{"format":"%n %u","units":{"byte":{"one":"Byte","other":"Bytes"},"kb":"KB","mb":"MB","gb":"GB","tb":"TB"}},"decimal_units":{"format":"%n %u","units":{"unit":"","thousand":"mil","million":"mill\u00f3n","billion":"mil millones","trillion":"bill\u00f3n","quadrillion":"mil billones"}}}},"datetime":{"distance_in_words":{"half_a_minute":"medio minuto","less_than_x_seconds":{"one":"menos de 1 segundo","other":"menos de %{count} segundos"},"x_seconds":{"one":"1 segundo","other":"%{count} segundos"},"less_than_x_minutes":{"one":"menos de 1 minuto","other":"menos de %{count} minutos"},"x_minutes":{"one":"1 minuto","other":"%{count} minutos"},"about_x_hours":{"one":"alrededor de 1 hora","other":"alrededor de %{count} horas"},"x_days":{"one":"1 d\u00eda","other":"%{count} d\u00edas"},"about_x_months":{"one":"alrededor de 1 mes","other":"alrededor de %{count} meses"},"x_months":{"one":"1 mes","other":"%{count} meses"},"about_x_years":{"one":"alrededor de 1 a\u00f1o","other":"alrededor de %{count} a\u00f1os"},"over_x_years":{"one":"m\u00e1s de 1 a\u00f1o","other":"m\u00e1s de %{count} a\u00f1os"},"almost_x_years":{"one":"casi 1 a\u00f1o","other":"casi %{count} a\u00f1os"}},"prompts":{"year":"A\u00f1o","month":"Mes","day":"D\u00eda","hour":"Hora","minute":"Minutos","second":"Segundos"}},"helpers":{"select":{"prompt":"Por favor seleccione"},"submit":{"create":"Crear %{model}","update":"Actualizar %{model}","submit":"Guardar %{model}"}},"activerecord":{"errors":{"template":{"header":{"one":"No se pudo guardar este/a %{model} porque se encontr\u00f3 1 error","other":"No se pudo guardar este/a %{model} porque se encontraron %{count} errores"},"body":"Se encontraron problemas con los siguientes campos:"},"messages":{"taken":"ya est\u00e1 en uso","record_invalid":"La validaci\u00f3n fall\u00f3: %{errors}","inclusion":"no est\u00e1 incluido en la lista","exclusion":"est\u00e1 reservado","invalid":"no es v\u00e1lido","confirmation":"no coincide con la confirmaci\u00f3n","accepted":"debe ser aceptado","empty":"no puede estar vac\u00edo","blank":"no puede estar en blanco","too_long":"es demasiado largo (%{count} caracteres m\u00e1ximo)","too_short":"es demasiado corto (%{count} caracteres m\u00ednimo)","wrong_length":"no tiene la longitud correcta (%{count} caracteres exactos)","not_a_number":"no es un n\u00famero","not_an_integer":"debe ser un entero","greater_than":"debe ser mayor que %{count}","greater_than_or_equal_to":"debe ser mayor que o igual a %{count}","equal_to":"debe ser igual a %{count}","less_than":"debe ser menor que %{count}","less_than_or_equal_to":"debe ser menor que o igual a %{count}","odd":"debe ser impar","even":"debe ser par"},"full_messages":{"format":"%{attribute} %{message}"}}}},"ca":{"errors":{"messages":{"not_a_date":"is not a date","after":"must be after %{date}","after_or_equal_to":"must be after or equal to %{date}","before":"must be before %{date}","before_or_equal_to":"must be before or equal to %{date}","inclusion":"no est\u00e0 incl\u00f3s a la llista","exclusion":"est\u00e0 reservat","invalid":"no \u00e9s v\u00e0lid","confirmation":"no coincideix","accepted":"ha de ser acceptat","empty":"no pot estar buit","blank":"no pot estar en blanc","too_long":"\u00e9s massa llarg (%{count} car\u00e0cters m\u00e0xim)","too_short":"\u00e9s massa curt (%{count} car\u00e0cters m\u00ednim)","wrong_length":"no t\u00e9 la longitud correcte (%{count} car\u00e0cters exactament)","not_a_number":"no \u00e9s un n\u00famero","not_an_integer":"ha de ser un enter","taken":"no est\u00e0 disponible","greater_than":"ha de ser m\u00e9s gran que %{count}","greater_than_or_equal_to":"ha de ser m\u00e9s gran o igual a %{count}","equal_to":"ha de ser igual a %{count}","less_than":"ha de ser menor que %{count}","less_than_or_equal_to":"ha de ser menor o igual a %{count}","odd":"ha de ser imparell","even":"ha de ser parell"},"format":"%{attribute} %{message}"},"date":{"formats":{"default":"%d-%m-%Y","short":"%d de %b","long":"%d de %B de %Y"},"day_names":["Diumenge","Dilluns","Dimarts","Dimecres","Dijous","Divendres","Dissabte"],"abbr_day_names":["Dg","Dl","Dm","Dc","Dj","Dv","Ds"],"month_names":[null,"Gener","Febrer","Mar\u00e7","Abril","Maig","Juny","Juliol","Agost","Setembre","Octubre","Novembre","Desembre"],"abbr_month_names":["~,","Gen","Feb","Mar","Abr","Mai","Jun","Jul","Ago","Set","Oct","Nov","Des"],"order":["day","month","year"]},"time":{"formats":{"default":"%A, %d de %B de %Y %H:%M:%S %z","short":"%d de %b %H:%M","long":"%d de %B de %Y %H:%M"},"am":"am","pm":"pm"},"support":{"array":{"sentence_connector":"i","words_connector":", ","two_words_connector":" i ","last_word_connector":", i "},"select":{"prompt":"Si us plau tria"}},"number":{"format":{"separator":",","delimiter":".","precision":3,"significant":false,"strip_insignificant_zeros":false},"currency":{"format":{"format":"%n %u","unit":"\u20ac","separator":",","delimiter":".","precision":2,"significant":false,"strip_insignificant_zeros":false}},"percentage":{"format":{"delimiter":""}},"precision":{"format":{"delimiter":""}},"human":{"format":{"delimiter":"","precision":1,"significant":true,"strip_insignificant_zeros":true},"storage_units":{"format":"%n %u","units":{"byte":{"one":"Byte","other":"Bytes"},"kb":"KB","mb":"MB","gb":"GB","tb":"TB"}},"decimal_units":{"format":"%n %u","units":{"unit":"","thousand":"Mil","million":"Mili\u00f3","billion":"Bili\u00f3","trillion":"Trili\u00f3","quadrillion":"Quatrili\u00f3"}}}},"datetime":{"distance_in_words":{"half_a_minute":"mig minut","less_than_x_seconds":{"one":"menys d'1 segon","other":"menys de %{count} segons"},"x_seconds":{"one":"1 segon","other":"%{count} segons"},"less_than_x_minutes":{"one":"menys d'1 minut","other":"menys de %{count} minuts"},"x_minutes":{"one":"1 minut","other":"%{count} minuts"},"about_x_hours":{"one":"aproximadament 1 hora","other":"aproximadament %{count} hores"},"x_days":{"one":"1 dia","other":"%{count} dies"},"about_x_months":{"one":"aproximadament 1 mes","other":"aproximadament %{count} mesos"},"x_months":{"one":"1 mes","other":"%{count} mesos"},"about_x_years":{"one":"aproximadament 1 any","other":"aproximadament %{count} anys"},"over_x_years":{"one":"m\u00e9s d'1 any","other":"m\u00e9s de %{count} anys"},"almost_x_years":{"one":"casi 1 any","other":"casi %{count} anys"}},"prompts":{"year":"Any","month":"Mes","day":"Dia","hour":"Hora","minute":"Minut","second":"Segun"}},"helpers":{"select":{"prompt":"Si us plau tria"},"submit":{"create":"Crear %{model}","update":"Actualizar %{model}","submit":"Guardar %{model}"}},"activerecord":{"errors":{"template":{"header":{"one":"No s'ha pogut desar aquest/a %{model} perqu\u00e8 hi ha 1 error","other":"No s'ha pogut desar aquest/a %{model} perqu\u00e8 hi ha hagut %{count} errors"},"body":"Hi ha hagut problemes amb els seg\u00fcents camps:"},"messages":{"taken":"no est\u00e0 disponible","record_invalid":"La validaci\u00f3 ha fallat: %{errors}","inclusion":"no est\u00e0 incl\u00f3s a la llista","exclusion":"est\u00e0 reservat","invalid":"no \u00e9s v\u00e0lid","confirmation":"no coincideix","accepted":"ha de ser acceptat","empty":"no pot estar buit","blank":"no pot estar en blanc","too_long":"\u00e9s massa llarg (%{count} car\u00e0cters m\u00e0xim)","too_short":"\u00e9s massa curt (%{count} car\u00e0cters m\u00ednim)","wrong_length":"no t\u00e9 la longitud correcte (%{count} car\u00e0cters exactament)","not_a_number":"no \u00e9s un n\u00famero","not_an_integer":"ha de ser un enter","greater_than":"ha de ser m\u00e9s gran que %{count}","greater_than_or_equal_to":"ha de ser m\u00e9s gran o igual a %{count}","equal_to":"ha de ser igual a %{count}","less_than":"ha de ser menor que %{count}","less_than_or_equal_to":"ha de ser menor o igual a %{count}","odd":"ha de ser imparell","even":"ha de ser parell"},"full_messages":{"format":"%{attribute} %{message}"}}}},"ru":{"errors":{"messages":{"not_a_date":"\u043d\u0435\u0432\u0435\u0440\u043d\u044b\u0439 \u0444\u043e\u0440\u043c\u0430\u0442","after":"\u0434\u043e\u043b\u0436\u043d\u0430 \u0431\u044b\u0442\u044c \u043f\u043e\u0437\u0434\u043d\u0435\u0435 \u0447\u0435\u043c %{date}","after_or_equal_to":"\u0434\u043e\u043b\u0436\u043d\u0430 \u0440\u0430\u0432\u043d\u044f\u0442\u044c\u0441\u044f \u0438\u043b\u0438 \u0431\u044b\u0442\u044c \u043f\u043e\u0437\u0434\u043d\u0435\u0435 \u0447\u0435\u043c %{date}","before":"\u0434\u043e\u043b\u0436\u043d\u0430 \u0431\u044b\u0442\u044c \u0440\u0430\u043d\u0435\u0435 \u0447\u0435\u043c %{date}","before_or_equal_to":"\u0434\u043e\u043b\u0436\u043d\u0430 \u0440\u0430\u0432\u043d\u044f\u0442\u044c\u0441\u044f \u0438\u043b\u0438 \u0431\u044b\u0442\u044c \u0440\u0430\u043d\u0435\u0435 \u0447\u0435\u043c %{date}","inclusion":"\u0438\u043c\u0435\u0435\u0442 \u043d\u0435\u043f\u0440\u0435\u0434\u0443\u0441\u043c\u043e\u0442\u0440\u0435\u043d\u043d\u043e\u0435 \u0437\u043d\u0430\u0447\u0435\u043d\u0438\u0435","exclusion":"\u0438\u043c\u0435\u0435\u0442 \u0437\u0430\u0440\u0435\u0437\u0435\u0440\u0432\u0438\u0440\u043e\u0432\u0430\u043d\u043d\u043e\u0435 \u0437\u043d\u0430\u0447\u0435\u043d\u0438\u0435","invalid":"\u0438\u043c\u0435\u0435\u0442 \u043d\u0435\u0432\u0435\u0440\u043d\u043e\u0435 \u0437\u043d\u0430\u0447\u0435\u043d\u0438\u0435","confirmation":"\u043d\u0435 \u0441\u043e\u0432\u043f\u0430\u0434\u0430\u0435\u0442 \u0441 \u043f\u043e\u0434\u0442\u0432\u0435\u0440\u0436\u0434\u0435\u043d\u0438\u0435\u043c","accepted":"\u043d\u0443\u0436\u043d\u043e \u043f\u043e\u0434\u0442\u0432\u0435\u0440\u0434\u0438\u0442\u044c","empty":"\u043d\u0435 \u043c\u043e\u0436\u0435\u0442 \u0431\u044b\u0442\u044c \u043f\u0443\u0441\u0442\u044b\u043c","blank":"\u043d\u0435 \u043c\u043e\u0436\u0435\u0442 \u0431\u044b\u0442\u044c \u043f\u0443\u0441\u0442\u044b\u043c","too_long":{"one":"\u0441\u043b\u0438\u0448\u043a\u043e\u043c \u0431\u043e\u043b\u044c\u0448\u043e\u0439 \u0434\u043b\u0438\u043d\u044b (\u043d\u0435 \u043c\u043e\u0436\u0435\u0442 \u0431\u044b\u0442\u044c \u0431\u043e\u043b\u044c\u0448\u0435 \u0447\u0435\u043c %{count} \u0441\u0438\u043c\u0432\u043e\u043b)","few":"\u0441\u043b\u0438\u0448\u043a\u043e\u043c \u0431\u043e\u043b\u044c\u0448\u043e\u0439 \u0434\u043b\u0438\u043d\u044b (\u043d\u0435 \u043c\u043e\u0436\u0435\u0442 \u0431\u044b\u0442\u044c \u0431\u043e\u043b\u044c\u0448\u0435 \u0447\u0435\u043c %{count} \u0441\u0438\u043c\u0432\u043e\u043b\u0430)","many":"\u0441\u043b\u0438\u0448\u043a\u043e\u043c \u0431\u043e\u043b\u044c\u0448\u043e\u0439 \u0434\u043b\u0438\u043d\u044b (\u043d\u0435 \u043c\u043e\u0436\u0435\u0442 \u0431\u044b\u0442\u044c \u0431\u043e\u043b\u044c\u0448\u0435 \u0447\u0435\u043c %{count} \u0441\u0438\u043c\u0432\u043e\u043b\u043e\u0432)","other":"\u0441\u043b\u0438\u0448\u043a\u043e\u043c \u0431\u043e\u043b\u044c\u0448\u043e\u0439 \u0434\u043b\u0438\u043d\u044b (\u043d\u0435 \u043c\u043e\u0436\u0435\u0442 \u0431\u044b\u0442\u044c \u0431\u043e\u043b\u044c\u0448\u0435 \u0447\u0435\u043c %{count} \u0441\u0438\u043c\u0432\u043e\u043b\u0430)"},"too_short":{"one":"\u043d\u0435\u0434\u043e\u0441\u0442\u0430\u0442\u043e\u0447\u043d\u043e\u0439 \u0434\u043b\u0438\u043d\u044b (\u043d\u0435 \u043c\u043e\u0436\u0435\u0442 \u0431\u044b\u0442\u044c \u043c\u0435\u043d\u044c\u0448\u0435 %{count} \u0441\u0438\u043c\u0432\u043e\u043b\u0430)","few":"\u043d\u0435\u0434\u043e\u0441\u0442\u0430\u0442\u043e\u0447\u043d\u043e\u0439 \u0434\u043b\u0438\u043d\u044b (\u043d\u0435 \u043c\u043e\u0436\u0435\u0442 \u0431\u044b\u0442\u044c \u043c\u0435\u043d\u044c\u0448\u0435 %{count} \u0441\u0438\u043c\u0432\u043e\u043b\u043e\u0432)","many":"\u043d\u0435\u0434\u043e\u0441\u0442\u0430\u0442\u043e\u0447\u043d\u043e\u0439 \u0434\u043b\u0438\u043d\u044b (\u043d\u0435 \u043c\u043e\u0436\u0435\u0442 \u0431\u044b\u0442\u044c \u043c\u0435\u043d\u044c\u0448\u0435 %{count} \u0441\u0438\u043c\u0432\u043e\u043b\u043e\u0432)","other":"\u043d\u0435\u0434\u043e\u0441\u0442\u0430\u0442\u043e\u0447\u043d\u043e\u0439 \u0434\u043b\u0438\u043d\u044b (\u043d\u0435 \u043c\u043e\u0436\u0435\u0442 \u0431\u044b\u0442\u044c \u043c\u0435\u043d\u044c\u0448\u0435 %{count} \u0441\u0438\u043c\u0432\u043e\u043b\u0430)"},"wrong_length":{"one":"\u043d\u0435\u0432\u0435\u0440\u043d\u043e\u0439 \u0434\u043b\u0438\u043d\u044b (\u043c\u043e\u0436\u0435\u0442 \u0431\u044b\u0442\u044c \u0434\u043b\u0438\u043d\u043e\u0439 \u0440\u043e\u0432\u043d\u043e %{count} \u0441\u0438\u043c\u0432\u043e\u043b)","few":"\u043d\u0435\u0432\u0435\u0440\u043d\u043e\u0439 \u0434\u043b\u0438\u043d\u044b (\u043c\u043e\u0436\u0435\u0442 \u0431\u044b\u0442\u044c \u0434\u043b\u0438\u043d\u043e\u0439 \u0440\u043e\u0432\u043d\u043e %{count} \u0441\u0438\u043c\u0432\u043e\u043b\u0430)","many":"\u043d\u0435\u0432\u0435\u0440\u043d\u043e\u0439 \u0434\u043b\u0438\u043d\u044b (\u043c\u043e\u0436\u0435\u0442 \u0431\u044b\u0442\u044c \u0434\u043b\u0438\u043d\u043e\u0439 \u0440\u043e\u0432\u043d\u043e %{count} \u0441\u0438\u043c\u0432\u043e\u043b\u043e\u0432)","other":"\u043d\u0435\u0432\u0435\u0440\u043d\u043e\u0439 \u0434\u043b\u0438\u043d\u044b (\u043c\u043e\u0436\u0435\u0442 \u0431\u044b\u0442\u044c \u0434\u043b\u0438\u043d\u043e\u0439 \u0440\u043e\u0432\u043d\u043e %{count} \u0441\u0438\u043c\u0432\u043e\u043b\u0430)"},"taken":"\u0443\u0436\u0435 \u0441\u0443\u0449\u0435\u0441\u0442\u0432\u0443\u0435\u0442","not_a_number":"\u043d\u0435 \u044f\u0432\u043b\u044f\u0435\u0442\u0441\u044f \u0447\u0438\u0441\u043b\u043e\u043c","not_an_integer":"\u043d\u0435 \u044f\u0432\u043b\u044f\u0435\u0442\u0441\u044f \u0446\u0435\u043b\u044b\u043c \u0447\u0438\u0441\u043b\u043e\u043c","greater_than":"\u043c\u043e\u0436\u0435\u0442 \u0438\u043c\u0435\u0442\u044c \u0437\u043d\u0430\u0447\u0435\u043d\u0438\u0435 \u0431\u043e\u043b\u044c\u0448\u0435\u0435 %{count}","greater_than_or_equal_to":"\u043c\u043e\u0436\u0435\u0442 \u0438\u043c\u0435\u0442\u044c \u0437\u043d\u0430\u0447\u0435\u043d\u0438\u0435 \u0431\u043e\u043b\u044c\u0448\u0435\u0435 \u0438\u043b\u0438 \u0440\u0430\u0432\u043d\u043e\u0435 %{count}","equal_to":"\u043c\u043e\u0436\u0435\u0442 \u0438\u043c\u0435\u0442\u044c \u043b\u0438\u0448\u044c \u0437\u043d\u0430\u0447\u0435\u043d\u0438\u0435, \u0440\u0430\u0432\u043d\u043e\u0435 %{count}","less_than":"\u043c\u043e\u0436\u0435\u0442 \u0438\u043c\u0435\u0442\u044c \u0437\u043d\u0430\u0447\u0435\u043d\u0438\u0435 \u043c\u0435\u043d\u044c\u0448\u0435\u0435 \u0447\u0435\u043c %{count}","less_than_or_equal_to":"\u043c\u043e\u0436\u0435\u0442 \u0438\u043c\u0435\u0442\u044c \u0437\u043d\u0430\u0447\u0435\u043d\u0438\u0435 \u043c\u0435\u043d\u044c\u0448\u0435\u0435 \u0438\u043b\u0438 \u0440\u0430\u0432\u043d\u043e\u0435 %{count}","odd":"\u043c\u043e\u0436\u0435\u0442 \u0438\u043c\u0435\u0442\u044c \u043b\u0438\u0448\u044c \u0447\u0435\u0442\u043d\u043e\u0435 \u0437\u043d\u0430\u0447\u0435\u043d\u0438\u0435","even":"\u043c\u043e\u0436\u0435\u0442 \u0438\u043c\u0435\u0442\u044c \u043b\u0438\u0448\u044c \u043d\u0435\u0447\u0435\u0442\u043d\u043e\u0435 \u0437\u043d\u0430\u0447\u0435\u043d\u0438\u0435","record_invalid":"\u0412\u043e\u0437\u043d\u0438\u043a\u043b\u0438 \u043e\u0448\u0438\u0431\u043a\u0438: %{errors}"},"format":"%{attribute} %{message}"},"date":{"formats":{"default":"%d.%m.%Y","short":"%d %b","long":"%d %B %Y"},"day_names":["\u0432\u043e\u0441\u043a\u0440\u0435\u0441\u0435\u043d\u044c\u0435","\u043f\u043e\u043d\u0435\u0434\u0435\u043b\u044c\u043d\u0438\u043a","\u0432\u0442\u043e\u0440\u043d\u0438\u043a","\u0441\u0440\u0435\u0434\u0430","\u0447\u0435\u0442\u0432\u0435\u0440\u0433","\u043f\u044f\u0442\u043d\u0438\u0446\u0430","\u0441\u0443\u0431\u0431\u043e\u0442\u0430"],"standalone_day_names":["\u0412\u043e\u0441\u043a\u0440\u0435\u0441\u0435\u043d\u044c\u0435","\u041f\u043e\u043d\u0435\u0434\u0435\u043b\u044c\u043d\u0438\u043a","\u0412\u0442\u043e\u0440\u043d\u0438\u043a","\u0421\u0440\u0435\u0434\u0430","\u0427\u0435\u0442\u0432\u0435\u0440\u0433","\u041f\u044f\u0442\u043d\u0438\u0446\u0430","\u0421\u0443\u0431\u0431\u043e\u0442\u0430"],"abbr_day_names":["\u0412\u0441","\u041f\u043d","\u0412\u0442","\u0421\u0440","\u0427\u0442","\u041f\u0442","\u0421\u0431"],"month_names":[null,"\u044f\u043d\u0432\u0430\u0440\u044f","\u0444\u0435\u0432\u0440\u0430\u043b\u044f","\u043c\u0430\u0440\u0442\u0430","\u0430\u043f\u0440\u0435\u043b\u044f","\u043c\u0430\u044f","\u0438\u044e\u043d\u044f","\u0438\u044e\u043b\u044f","\u0430\u0432\u0433\u0443\u0441\u0442\u0430","\u0441\u0435\u043d\u0442\u044f\u0431\u0440\u044f","\u043e\u043a\u0442\u044f\u0431\u0440\u044f","\u043d\u043e\u044f\u0431\u0440\u044f","\u0434\u0435\u043a\u0430\u0431\u0440\u044f"],"standalone_month_names":[null,"\u042f\u043d\u0432\u0430\u0440\u044c","\u0424\u0435\u0432\u0440\u0430\u043b\u044c","\u041c\u0430\u0440\u0442","\u0410\u043f\u0440\u0435\u043b\u044c","\u041c\u0430\u0439","\u0418\u044e\u043d\u044c","\u0418\u044e\u043b\u044c","\u0410\u0432\u0433\u0443\u0441\u0442","\u0421\u0435\u043d\u0442\u044f\u0431\u0440\u044c","\u041e\u043a\u0442\u044f\u0431\u0440\u044c","\u041d\u043e\u044f\u0431\u0440\u044c","\u0414\u0435\u043a\u0430\u0431\u0440\u044c"],"abbr_month_names":[null,"\u044f\u043d\u0432.","\u0444\u0435\u0432\u0440.","\u043c\u0430\u0440\u0442\u0430","\u0430\u043f\u0440.","\u043c\u0430\u044f","\u0438\u044e\u043d\u044f","\u0438\u044e\u043b\u044f","\u0430\u0432\u0433.","\u0441\u0435\u043d\u0442.","\u043e\u043a\u0442.","\u043d\u043e\u044f\u0431.","\u0434\u0435\u043a."],"standalone_abbr_month_names":[null,"\u044f\u043d\u0432.","\u0444\u0435\u0432\u0440.","\u043c\u0430\u0440\u0442","\u0430\u043f\u0440.","\u043c\u0430\u0439","\u0438\u044e\u043d\u044c","\u0438\u044e\u043b\u044c","\u0430\u0432\u0433.","\u0441\u0435\u043d\u0442.","\u043e\u043a\u0442.","\u043d\u043e\u044f\u0431.","\u0434\u0435\u043a."],"order":["day","month","year"]},"time":{"formats":{"default":"%a, %d %b %Y, %H:%M:%S %z","short":"%d %b, %H:%M","long":"%d %B %Y, %H:%M"},"am":"\u0443\u0442\u0440\u0430","pm":"\u0432\u0435\u0447\u0435\u0440\u0430"},"number":{"format":{"separator":".","delimiter":" ","precision":3,"significant":false,"strip_insignificant_zeros":false},"currency":{"format":{"format":"%n %u","unit":"\u0440\u0443\u0431.","separator":".","delimiter":" ","precision":2,"significant":false,"strip_insignificant_zeros":false}},"percentage":{"format":{"delimiter":""}},"precision":{"format":{"delimiter":""}},"human":{"format":{"delimiter":"","precision":1,"significant":false,"strip_insignificant_zeros":false},"storage_units":{"format":"%n %u","units":{"byte":{"one":"\u0431\u0430\u0439\u0442","few":"\u0431\u0430\u0439\u0442\u0430","many":"\u0431\u0430\u0439\u0442","other":"\u0431\u0430\u0439\u0442\u0430"},"kb":"\u041a\u0411","mb":"\u041c\u0411","gb":"\u0413\u0411","tb":"\u0422\u0411"}},"decimal_units":{"format":"%n %u","units":{"unit":"","thousand":{"one":"\u0442\u044b\u0441\u044f\u0447\u0430","few":"\u0442\u044b\u0441\u044f\u0447","many":"\u0442\u044b\u0441\u044f\u0447","other":"\u0442\u044b\u0441\u044f\u0447"},"million":{"one":"\u043c\u0438\u043b\u043b\u0438\u043e\u043d","few":"\u043c\u0438\u043b\u043b\u0438\u043e\u043d\u043e\u0432","many":"\u043c\u0438\u043b\u043b\u0438\u043e\u043d\u043e\u0432","other":"\u043c\u0438\u043b\u043b\u0438\u043e\u043d\u043e\u0432"},"billion":{"one":"\u043c\u0438\u043b\u043b\u0438\u0430\u0440\u0434","few":"\u043c\u0438\u043b\u043b\u0438\u0430\u0440\u0434\u043e\u0432","many":"\u043c\u0438\u043b\u043b\u0438\u0430\u0440\u0434\u043e\u0432","other":"\u043c\u0438\u043b\u043b\u0438\u0430\u0440\u0434\u043e\u0432"},"trillion":{"one":"\u0442\u0440\u0438\u043b\u043b\u0438\u043e\u043d","few":"\u0442\u0440\u0438\u043b\u043b\u0438\u043e\u043d\u043e\u0432","many":"\u0442\u0440\u0438\u043b\u043b\u0438\u043e\u043d\u043e\u0432","other":"\u0442\u0440\u0438\u043b\u043b\u0438\u043e\u043d\u043e\u0432"},"quadrillion":{"one":"\u043a\u0432\u0430\u0434\u0440\u0438\u043b\u043b\u0438\u043e\u043d","few":"\u043a\u0432\u0430\u0434\u0440\u0438\u043b\u043b\u0438\u043e\u043d\u043e\u0432","many":"\u043a\u0432\u0430\u0434\u0440\u0438\u043b\u043b\u0438\u043e\u043d\u043e\u0432","other":"\u043a\u0432\u0430\u0434\u0440\u0438\u043b\u043b\u0438\u043e\u043d\u043e\u0432"}}}}},"datetime":{"distance_in_words":{"half_a_minute":"\u043c\u0435\u043d\u044c\u0448\u0435 \u043c\u0438\u043d\u0443\u0442\u044b","less_than_x_seconds":{"one":"\u043c\u0435\u043d\u044c\u0448\u0435 %{count} \u0441\u0435\u043a\u0443\u043d\u0434\u044b","few":"\u043c\u0435\u043d\u044c\u0448\u0435 %{count} \u0441\u0435\u043a\u0443\u043d\u0434","many":"\u043c\u0435\u043d\u044c\u0448\u0435 %{count} \u0441\u0435\u043a\u0443\u043d\u0434","other":"\u043c\u0435\u043d\u044c\u0448\u0435 %{count} \u0441\u0435\u043a\u0443\u043d\u0434\u044b"},"x_seconds":{"one":"%{count} \u0441\u0435\u043a\u0443\u043d\u0434\u0430","few":"%{count} \u0441\u0435\u043a\u0443\u043d\u0434\u044b","many":"%{count} \u0441\u0435\u043a\u0443\u043d\u0434","other":"%{count} \u0441\u0435\u043a\u0443\u043d\u0434\u044b"},"less_than_x_minutes":{"one":"\u043c\u0435\u043d\u044c\u0448\u0435 %{count} \u043c\u0438\u043d\u0443\u0442\u044b","few":"\u043c\u0435\u043d\u044c\u0448\u0435 %{count} \u043c\u0438\u043d\u0443\u0442","many":"\u043c\u0435\u043d\u044c\u0448\u0435 %{count} \u043c\u0438\u043d\u0443\u0442","other":"\u043c\u0435\u043d\u044c\u0448\u0435 %{count} \u043c\u0438\u043d\u0443\u0442\u044b"},"x_minutes":{"one":"%{count} \u043c\u0438\u043d\u0443\u0442\u0443","few":"%{count} \u043c\u0438\u043d\u0443\u0442\u044b","many":"%{count} \u043c\u0438\u043d\u0443\u0442","other":"%{count} \u043c\u0438\u043d\u0443\u0442\u044b"},"about_x_hours":{"one":"\u043e\u043a\u043e\u043b\u043e %{count} \u0447\u0430\u0441\u0430","few":"\u043e\u043a\u043e\u043b\u043e %{count} \u0447\u0430\u0441\u043e\u0432","many":"\u043e\u043a\u043e\u043b\u043e %{count} \u0447\u0430\u0441\u043e\u0432","other":"\u043e\u043a\u043e\u043b\u043e %{count} \u0447\u0430\u0441\u0430"},"x_days":{"one":"%{count} \u0434\u0435\u043d\u044c","few":"%{count} \u0434\u043d\u044f","many":"%{count} \u0434\u043d\u0435\u0439","other":"%{count} \u0434\u043d\u044f"},"about_x_months":{"one":"\u043e\u043a\u043e\u043b\u043e %{count} \u043c\u0435\u0441\u044f\u0446\u0430","few":"\u043e\u043a\u043e\u043b\u043e %{count} \u043c\u0435\u0441\u044f\u0446\u0435\u0432","many":"\u043e\u043a\u043e\u043b\u043e %{count} \u043c\u0435\u0441\u044f\u0446\u0435\u0432","other":"\u043e\u043a\u043e\u043b\u043e %{count} \u043c\u0435\u0441\u044f\u0446\u0430"},"x_months":{"one":"%{count} \u043c\u0435\u0441\u044f\u0446","few":"%{count} \u043c\u0435\u0441\u044f\u0446\u0430","many":"%{count} \u043c\u0435\u0441\u044f\u0446\u0435\u0432","other":"%{count} \u043c\u0435\u0441\u044f\u0446\u0430"},"about_x_years":{"one":"\u043e\u043a\u043e\u043b\u043e %{count} \u0433\u043e\u0434\u0430","few":"\u043e\u043a\u043e\u043b\u043e %{count} \u043b\u0435\u0442","many":"\u043e\u043a\u043e\u043b\u043e %{count} \u043b\u0435\u0442","other":"\u043e\u043a\u043e\u043b\u043e %{count} \u043b\u0435\u0442"},"over_x_years":{"one":"\u0431\u043e\u043b\u044c\u0448\u0435 %{count} \u0433\u043e\u0434\u0430","few":"\u0431\u043e\u043b\u044c\u0448\u0435 %{count} \u043b\u0435\u0442","many":"\u0431\u043e\u043b\u044c\u0448\u0435 %{count} \u043b\u0435\u0442","other":"\u0431\u043e\u043b\u044c\u0448\u0435 %{count} \u043b\u0435\u0442"},"almost_x_years":{"one":"\u043f\u043e\u0447\u0442\u0438 1 \u0433\u043e\u0434","other":"\u043f\u043e\u0447\u0442\u0438 %{count} \u043b\u0435\u0442"}},"prompts":{"year":"\u0413\u043e\u0434","month":"\u041c\u0435\u0441\u044f\u0446","day":"\u0414\u0435\u043d\u044c","hour":"\u0427\u0430\u0441\u043e\u0432","minute":"\u041c\u0438\u043d\u0443\u0442","second":"\u0421\u0435\u043a\u0443\u043d\u0434"}},"helpers":{"select":{"prompt":"\u0412\u044b\u0431\u0435\u0440\u0438\u0442\u0435: "},"submit":{"create":"\u0421\u043e\u0437\u0434\u0430\u0442\u044c %{model}","update":"\u0421\u043e\u0445\u0440\u0430\u043d\u0438\u0442\u044c %{model}","submit":"\u0421\u043e\u0445\u0440\u0430\u043d\u0438\u0442\u044c %{model}"}},"activerecord":{"errors":{"template":{"header":{"one":"%{model}: \u0441\u043e\u0445\u0440\u0430\u043d\u0435\u043d\u0438\u0435 \u043d\u0435 \u0443\u0434\u0430\u043b\u043e\u0441\u044c \u0438\u0437-\u0437\u0430 %{count} \u043e\u0448\u0438\u0431\u043a\u0438","few":"%{model}: \u0441\u043e\u0445\u0440\u0430\u043d\u0435\u043d\u0438\u0435 \u043d\u0435 \u0443\u0434\u0430\u043b\u043e\u0441\u044c \u0438\u0437-\u0437\u0430 %{count} \u043e\u0448\u0438\u0431\u043e\u043a","many":"%{model}: \u0441\u043e\u0445\u0440\u0430\u043d\u0435\u043d\u0438\u0435 \u043d\u0435 \u0443\u0434\u0430\u043b\u043e\u0441\u044c \u0438\u0437-\u0437\u0430 %{count} \u043e\u0448\u0438\u0431\u043e\u043a","other":"%{model}: \u0441\u043e\u0445\u0440\u0430\u043d\u0435\u043d\u0438\u0435 \u043d\u0435 \u0443\u0434\u0430\u043b\u043e\u0441\u044c \u0438\u0437-\u0437\u0430 %{count} \u043e\u0448\u0438\u0431\u043a\u0438"},"body":"\u041f\u0440\u043e\u0431\u043b\u0435\u043c\u044b \u0432\u043e\u0437\u043d\u0438\u043a\u043b\u0438 \u0441\u043e \u0441\u043b\u0435\u0434\u0443\u044e\u0449\u0438\u043c\u0438 \u043f\u043e\u043b\u044f\u043c\u0438:"},"messages":{"inclusion":"\u0438\u043c\u0435\u0435\u0442 \u043d\u0435\u043f\u0440\u0435\u0434\u0443\u0441\u043c\u043e\u0442\u0440\u0435\u043d\u043d\u043e\u0435 \u0437\u043d\u0430\u0447\u0435\u043d\u0438\u0435","exclusion":"\u0438\u043c\u0435\u0435\u0442 \u0437\u0430\u0440\u0435\u0437\u0435\u0440\u0432\u0438\u0440\u043e\u0432\u0430\u043d\u043d\u043e\u0435 \u0437\u043d\u0430\u0447\u0435\u043d\u0438\u0435","invalid":"\u0438\u043c\u0435\u0435\u0442 \u043d\u0435\u0432\u0435\u0440\u043d\u043e\u0435 \u0437\u043d\u0430\u0447\u0435\u043d\u0438\u0435","confirmation":"\u043d\u0435 \u0441\u043e\u0432\u043f\u0430\u0434\u0430\u0435\u0442 \u0441 \u043f\u043e\u0434\u0442\u0432\u0435\u0440\u0436\u0434\u0435\u043d\u0438\u0435\u043c","accepted":"\u043d\u0443\u0436\u043d\u043e \u043f\u043e\u0434\u0442\u0432\u0435\u0440\u0434\u0438\u0442\u044c","empty":"\u043d\u0435 \u043c\u043e\u0436\u0435\u0442 \u0431\u044b\u0442\u044c \u043f\u0443\u0441\u0442\u044b\u043c","blank":"\u043d\u0435 \u043c\u043e\u0436\u0435\u0442 \u0431\u044b\u0442\u044c \u043f\u0443\u0441\u0442\u044b\u043c","too_long":{"one":"\u0441\u043b\u0438\u0448\u043a\u043e\u043c \u0431\u043e\u043b\u044c\u0448\u043e\u0439 \u0434\u043b\u0438\u043d\u044b (\u043d\u0435 \u043c\u043e\u0436\u0435\u0442 \u0431\u044b\u0442\u044c \u0431\u043e\u043b\u044c\u0448\u0435 \u0447\u0435\u043c %{count} \u0441\u0438\u043c\u0432\u043e\u043b)","few":"\u0441\u043b\u0438\u0448\u043a\u043e\u043c \u0431\u043e\u043b\u044c\u0448\u043e\u0439 \u0434\u043b\u0438\u043d\u044b (\u043d\u0435 \u043c\u043e\u0436\u0435\u0442 \u0431\u044b\u0442\u044c \u0431\u043e\u043b\u044c\u0448\u0435 \u0447\u0435\u043c %{count} \u0441\u0438\u043c\u0432\u043e\u043b\u0430)","many":"\u0441\u043b\u0438\u0448\u043a\u043e\u043c \u0431\u043e\u043b\u044c\u0448\u043e\u0439 \u0434\u043b\u0438\u043d\u044b (\u043d\u0435 \u043c\u043e\u0436\u0435\u0442 \u0431\u044b\u0442\u044c \u0431\u043e\u043b\u044c\u0448\u0435 \u0447\u0435\u043c %{count} \u0441\u0438\u043c\u0432\u043e\u043b\u043e\u0432)","other":"\u0441\u043b\u0438\u0448\u043a\u043e\u043c \u0431\u043e\u043b\u044c\u0448\u043e\u0439 \u0434\u043b\u0438\u043d\u044b (\u043d\u0435 \u043c\u043e\u0436\u0435\u0442 \u0431\u044b\u0442\u044c \u0431\u043e\u043b\u044c\u0448\u0435 \u0447\u0435\u043c %{count} \u0441\u0438\u043c\u0432\u043e\u043b\u0430)"},"too_short":{"one":"\u043d\u0435\u0434\u043e\u0441\u0442\u0430\u0442\u043e\u0447\u043d\u043e\u0439 \u0434\u043b\u0438\u043d\u044b (\u043d\u0435 \u043c\u043e\u0436\u0435\u0442 \u0431\u044b\u0442\u044c \u043c\u0435\u043d\u044c\u0448\u0435 %{count} \u0441\u0438\u043c\u0432\u043e\u043b\u0430)","few":"\u043d\u0435\u0434\u043e\u0441\u0442\u0430\u0442\u043e\u0447\u043d\u043e\u0439 \u0434\u043b\u0438\u043d\u044b (\u043d\u0435 \u043c\u043e\u0436\u0435\u0442 \u0431\u044b\u0442\u044c \u043c\u0435\u043d\u044c\u0448\u0435 %{count} \u0441\u0438\u043c\u0432\u043e\u043b\u043e\u0432)","many":"\u043d\u0435\u0434\u043e\u0441\u0442\u0430\u0442\u043e\u0447\u043d\u043e\u0439 \u0434\u043b\u0438\u043d\u044b (\u043d\u0435 \u043c\u043e\u0436\u0435\u0442 \u0431\u044b\u0442\u044c \u043c\u0435\u043d\u044c\u0448\u0435 %{count} \u0441\u0438\u043c\u0432\u043e\u043b\u043e\u0432)","other":"\u043d\u0435\u0434\u043e\u0441\u0442\u0430\u0442\u043e\u0447\u043d\u043e\u0439 \u0434\u043b\u0438\u043d\u044b (\u043d\u0435 \u043c\u043e\u0436\u0435\u0442 \u0431\u044b\u0442\u044c \u043c\u0435\u043d\u044c\u0448\u0435 %{count} \u0441\u0438\u043c\u0432\u043e\u043b\u0430)"},"wrong_length":{"one":"\u043d\u0435\u0432\u0435\u0440\u043d\u043e\u0439 \u0434\u043b\u0438\u043d\u044b (\u043c\u043e\u0436\u0435\u0442 \u0431\u044b\u0442\u044c \u0434\u043b\u0438\u043d\u043e\u0439 \u0440\u043e\u0432\u043d\u043e %{count} \u0441\u0438\u043c\u0432\u043e\u043b)","few":"\u043d\u0435\u0432\u0435\u0440\u043d\u043e\u0439 \u0434\u043b\u0438\u043d\u044b (\u043c\u043e\u0436\u0435\u0442 \u0431\u044b\u0442\u044c \u0434\u043b\u0438\u043d\u043e\u0439 \u0440\u043e\u0432\u043d\u043e %{count} \u0441\u0438\u043c\u0432\u043e\u043b\u0430)","many":"\u043d\u0435\u0432\u0435\u0440\u043d\u043e\u0439 \u0434\u043b\u0438\u043d\u044b (\u043c\u043e\u0436\u0435\u0442 \u0431\u044b\u0442\u044c \u0434\u043b\u0438\u043d\u043e\u0439 \u0440\u043e\u0432\u043d\u043e %{count} \u0441\u0438\u043c\u0432\u043e\u043b\u043e\u0432)","other":"\u043d\u0435\u0432\u0435\u0440\u043d\u043e\u0439 \u0434\u043b\u0438\u043d\u044b (\u043c\u043e\u0436\u0435\u0442 \u0431\u044b\u0442\u044c \u0434\u043b\u0438\u043d\u043e\u0439 \u0440\u043e\u0432\u043d\u043e %{count} \u0441\u0438\u043c\u0432\u043e\u043b\u0430)"},"taken":"\u0443\u0436\u0435 \u0441\u0443\u0449\u0435\u0441\u0442\u0432\u0443\u0435\u0442","not_a_number":"\u043d\u0435 \u044f\u0432\u043b\u044f\u0435\u0442\u0441\u044f \u0447\u0438\u0441\u043b\u043e\u043c","greater_than":"\u043c\u043e\u0436\u0435\u0442 \u0438\u043c\u0435\u0442\u044c \u0437\u043d\u0430\u0447\u0435\u043d\u0438\u0435 \u0431\u043e\u043b\u044c\u0448\u0435\u0435 %{count}","greater_than_or_equal_to":"\u043c\u043e\u0436\u0435\u0442 \u0438\u043c\u0435\u0442\u044c \u0437\u043d\u0430\u0447\u0435\u043d\u0438\u0435 \u0431\u043e\u043b\u044c\u0448\u0435\u0435 \u0438\u043b\u0438 \u0440\u0430\u0432\u043d\u043e\u0435 %{count}","equal_to":"\u043c\u043e\u0436\u0435\u0442 \u0438\u043c\u0435\u0442\u044c \u043b\u0438\u0448\u044c \u0437\u043d\u0430\u0447\u0435\u043d\u0438\u0435, \u0440\u0430\u0432\u043d\u043e\u0435 %{count}","less_than":"\u043c\u043e\u0436\u0435\u0442 \u0438\u043c\u0435\u0442\u044c \u0437\u043d\u0430\u0447\u0435\u043d\u0438\u0435 \u043c\u0435\u043d\u044c\u0448\u0435\u0435 \u0447\u0435\u043c %{count}","less_than_or_equal_to":"\u043c\u043e\u0436\u0435\u0442 \u0438\u043c\u0435\u0442\u044c \u0437\u043d\u0430\u0447\u0435\u043d\u0438\u0435 \u043c\u0435\u043d\u044c\u0448\u0435\u0435 \u0438\u043b\u0438 \u0440\u0430\u0432\u043d\u043e\u0435 %{count}","odd":"\u043c\u043e\u0436\u0435\u0442 \u0438\u043c\u0435\u0442\u044c \u043b\u0438\u0448\u044c \u0447\u0435\u0442\u043d\u043e\u0435 \u0437\u043d\u0430\u0447\u0435\u043d\u0438\u0435","even":"\u043c\u043e\u0436\u0435\u0442 \u0438\u043c\u0435\u0442\u044c \u043b\u0438\u0448\u044c \u043d\u0435\u0447\u0435\u0442\u043d\u043e\u0435 \u0437\u043d\u0430\u0447\u0435\u043d\u0438\u0435","record_invalid":"\u0412\u043e\u0437\u043d\u0438\u043a\u043b\u0438 \u043e\u0448\u0438\u0431\u043a\u0438: %{errors}"},"full_messages":{"format":"%{attribute} %{message}"}}},"support":{"select":{"prompt":"\u0412\u044b\u0431\u0435\u0440\u0438\u0442\u0435: "},"array":{"sentence_connector":"\u0438","skip_last_comma":true,"words_connector":", ","two_words_connector":" \u0438 ","last_word_connector":" \u0438 "}}},"nl":{"errors":{"messages":{"not_a_date":"is geen datum","after":"moet na %{date} liggen","after_or_equal_to":"moet gelijk zijn aan of na %{date} liggen","before":"moet voor %{date} liggen","before_or_equal_to":"moet gelijk zijn of voor %{date} liggen","inclusion":"is niet in de lijst opgenomen","exclusion":"is niet beschikbaar","invalid":"is ongeldig","confirmation":"komt niet met de bevestiging overeen","accepted":"moet worden geaccepteerd","empty":"moet opgegeven zijn","blank":"moet opgegeven zijn","too_long":"is te lang (maximaal %{count} tekens)","too_short":"is te kort (minimaal %{count} tekens)","wrong_length":"heeft onjuiste lengte (moet %{count} tekens lang zijn)","not_a_number":"is geen getal","not_an_integer":"moet een geheel getal zijn","greater_than":"moet groter zijn dan %{count}","greater_than_or_equal_to":"moet groter dan of gelijk zijn aan %{count}","equal_to":"moet gelijk zijn aan %{count}","less_than":"moet minder zijn dan %{count}","less_than_or_equal_to":"moet minder dan of gelijk zijn aan %{count}","odd":"moet oneven zijn","even":"moet even zijn"},"format":"%{attribute} %{message}"},"date":{"formats":{"default":"%d/%m/%Y","short":"%e %b","long":"%e %B %Y","only_day":"%e"},"day_names":["zondag","maandag","dinsdag","woensdag","donderdag","vrijdag","zaterdag"],"abbr_day_names":["zon","maa","din","woe","don","vri","zat"],"month_names":[null,"januari","februari","maart","april","mei","juni","juli","augustus","september","oktober","november","december"],"abbr_month_names":[null,"jan","feb","mar","apr","mei","jun","jul","aug","sep","okt","nov","dec"],"order":["day","month","year"]},"time":{"formats":{"default":"%a %d %b %Y %H:%M:%S %Z","short":"%d %b %H:%M","long":"%d %B %Y %H:%M","time":"%H:%M","only_second":"%S"},"am":"'s ochtends","pm":"'s middags"},"support":{"array":{"words_connector":", ","two_words_connector":" en ","last_word_connector":" en "},"select":{"prompt":"Selecteer"}},"number":{"format":{"separator":",","delimiter":".","precision":2,"significant":false,"strip_insignificant_zeros":false},"currency":{"format":{"format":"%u%n","unit":"\u20ac","separator":",","delimiter":".","precision":2,"significant":false,"strip_insignificant_zeros":false}},"percentage":{"format":{"delimiter":""}},"precision":{"format":{"delimiter":""}},"human":{"format":{"delimiter":"","precision":3,"significant":true,"strip_insignificant_zeros":true},"storage_units":{"format":"%n %u","units":{"byte":{"one":"Byte","other":"Bytes"},"kb":"KB","mb":"MB","gb":"GB","tb":"TB"}},"decimal_units":{"format":"%n %u","units":{"unit":"","thousand":"duizend","million":"miljoen","billion":"miljard","trillion":"biljoen","quadrillion":"biljard"}}}},"datetime":{"distance_in_words":{"half_a_minute":"een halve minuut","less_than_x_seconds":{"one":"minder dan een seconde","other":"minder dan %{count} seconden"},"x_seconds":{"one":"1 seconde","other":"%{count} seconden"},"less_than_x_minutes":{"one":"minder dan een minuut","other":"minder dan %{count} minuten"},"x_minutes":{"one":"1 minuut","other":"%{count} minuten"},"about_x_hours":{"one":"ongeveer een uur","other":"ongeveer %{count} uur"},"x_days":{"one":"1 dag","other":"%{count} dagen"},"about_x_months":{"one":"ongeveer een maand","other":"ongeveer %{count} maanden"},"x_months":{"one":"1 maand","other":"%{count} maanden"},"about_x_years":{"one":"ongeveer een jaar","other":"ongeveer %{count} jaar"},"over_x_years":{"one":"meer dan een jaar","other":"meer dan %{count} jaar"},"almost_x_years":{"one":"bijna een jaar","other":"bijna %{count} jaar"}},"prompts":{"year":"jaar","month":"maand","day":"dag","hour":"uur","minute":"minuut","second":"seconde"}},"helpers":{"select":{"prompt":"Selecteer"},"submit":{"create":"%{model} toevoegen","update":"%{model} bewaren","submit":"%{model} opslaan"}},"activerecord":{"errors":{"template":{"header":{"one":"%{model} niet opgeslagen: 1 fout gevonden","other":"%{model} niet opgeslagen: %{count} fouten gevonden"},"body":"Controleer de volgende velden:"},"messages":{"taken":"is al in gebruik","record_invalid":"Validatie mislukt: %{errors}","inclusion":"is niet in de lijst opgenomen","exclusion":"is niet beschikbaar","invalid":"is ongeldig","confirmation":"komt niet met de bevestiging overeen","accepted":"moet worden geaccepteerd","empty":"moet opgegeven zijn","blank":"moet opgegeven zijn","too_long":"is te lang (maximaal %{count} tekens)","too_short":"is te kort (minimaal %{count} tekens)","wrong_length":"heeft onjuiste lengte (moet %{count} tekens lang zijn)","not_a_number":"is geen getal","not_an_integer":"moet een geheel getal zijn","greater_than":"moet groter zijn dan %{count}","greater_than_or_equal_to":"moet groter dan of gelijk zijn aan %{count}","equal_to":"moet gelijk zijn aan %{count}","less_than":"moet minder zijn dan %{count}","less_than_or_equal_to":"moet minder dan of gelijk zijn aan %{count}","odd":"moet oneven zijn","even":"moet even zijn"},"full_messages":{"format":"%{attribute} %{message}"}}}},"th":{"date":{"formats":{"default":{},"short":"%d %b","long":{}},"day_names":["\u0e2d\u0e32\u0e17\u0e34\u0e15\u0e22\u0e4c","\u0e08\u0e31\u0e19\u0e17\u0e23\u0e4c","\u0e2d\u0e31\u0e07\u0e04\u0e32\u0e23","\u0e1e\u0e38\u0e18","\u0e1e\u0e24\u0e2b\u0e31\u0e2a\u0e1a\u0e14\u0e35","\u0e28\u0e38\u0e01\u0e23\u0e4c","\u0e40\u0e2a\u0e32\u0e23\u0e4c"],"abbr_day_names":["\u0e2d\u0e32","\u0e08","\u0e2d","\u0e1e","\u0e1e\u0e24","\u0e28","\u0e2a"],"month_names":[null,"\u0e21\u0e01\u0e23\u0e32\u0e04\u0e21","\u0e01\u0e38\u0e21\u0e20\u0e32\u0e1e\u0e31\u0e19\u0e18\u0e4c","\u0e21\u0e35\u0e19\u0e32\u0e04\u0e21","\u0e40\u0e21\u0e29\u0e32\u0e22\u0e19","\u0e1e\u0e24\u0e29\u0e20\u0e32\u0e04\u0e21","\u0e21\u0e34\u0e16\u0e38\u0e19\u0e32\u0e22\u0e19","\u0e01\u0e23\u0e01\u0e0e\u0e32\u0e04\u0e21","\u0e2a\u0e34\u0e07\u0e2b\u0e32\u0e04\u0e21","\u0e01\u0e31\u0e19\u0e22\u0e32\u0e22\u0e19","\u0e15\u0e38\u0e25\u0e32\u0e04\u0e21","\u0e1e\u0e24\u0e28\u0e08\u0e34\u0e01\u0e32\u0e22\u0e19","\u0e18\u0e31\u0e19\u0e27\u0e32\u0e04\u0e21"],"abbr_month_names":[null,"\u0e21.\u0e04.","\u0e01.\u0e1e.","\u0e21\u0e35.\u0e04.","\u0e40\u0e21.\u0e22.","\u0e1e.\u0e04.","\u0e21\u0e34.\u0e22.","\u0e01.\u0e04.","\u0e2a.\u0e04.","\u0e01.\u0e22.","\u0e15.\u0e04.","\u0e1e.\u0e22.","\u0e18.\u0e04."],"order":["day","month","year"]},"time":{"formats":{"default":{},"short":"%d %b %H:%M \u0e19.","long":{}},"am":"\u0e01\u0e48\u0e2d\u0e19\u0e40\u0e17\u0e35\u0e48\u0e22\u0e07","pm":"\u0e2b\u0e25\u0e31\u0e07\u0e40\u0e17\u0e35\u0e48\u0e22\u0e07"},"support":{"array":{"words_connector":", ","two_words_connector":" \u0e41\u0e25\u0e30 ","last_word_connector":", \u0e41\u0e25\u0e30 "},"select":{"prompt":"\u0e42\u0e1b\u0e23\u0e14\u0e40\u0e25\u0e37\u0e2d\u0e01"}},"number":{"format":{"separator":".","delimiter":",","precision":3,"significant":false,"strip_insignificant_zeros":false},"currency":{"format":{"format":"%n %u","unit":"\u0e1a\u0e32\u0e17","separator":".","delimiter":",","precision":2,"significant":false,"strip_insignificant_zeros":false}},"percentage":{"format":{"delimiter":""}},"precision":{"format":{"delimiter":""}},"human":{"format":{"delimiter":"","precision":3,"significant":true,"strip_insignificant_zeros":true},"storage_units":{"format":"%n %u","units":{"byte":"\u0e44\u0e1a\u0e15\u0e4c","kb":"\u0e01\u0e34\u0e42\u0e25\u0e44\u0e1a\u0e15\u0e4c","mb":"\u0e40\u0e21\u0e01\u0e30\u0e44\u0e1a\u0e15\u0e4c","gb":"\u0e08\u0e34\u0e01\u0e30\u0e44\u0e1a\u0e15\u0e4c","tb":"\u0e40\u0e17\u0e23\u0e30\u0e44\u0e1a\u0e15\u0e4c"}},"decimal_units":{"format":"%n %u","units":{"unit":"","thousand":"\u0e1e\u0e31\u0e19","million":"\u0e25\u0e49\u0e32\u0e19","billion":"\u0e1e\u0e31\u0e19\u0e25\u0e49\u0e32\u0e19","trillion":"\u0e25\u0e49\u0e32\u0e19\u0e25\u0e49\u0e32\u0e19","quadrillion":"\u0e1e\u0e31\u0e19\u0e25\u0e49\u0e32\u0e19\u0e25\u0e49\u0e32\u0e19"}}}},"datetime":{"distance_in_words":{"half_a_minute":"\u0e04\u0e23\u0e36\u0e48\u0e07\u0e19\u0e32\u0e17\u0e35","less_than_x_seconds":"\u0e19\u0e49\u0e2d\u0e22\u0e01\u0e27\u0e48\u0e32 %{count} \u0e27\u0e34\u0e19\u0e32\u0e17\u0e35","x_seconds":"%{count} \u0e27\u0e34\u0e19\u0e32\u0e17\u0e35","less_than_x_minutes":"\u0e19\u0e49\u0e2d\u0e22\u0e01\u0e27\u0e48\u0e32 %{count} \u0e19\u0e32\u0e17\u0e35","x_minutes":"%{count} \u0e19\u0e32\u0e17\u0e35","about_x_hours":"\u0e1b\u0e23\u0e30\u0e21\u0e32\u0e13 %{count} \u0e0a\u0e31\u0e48\u0e27\u0e42\u0e21\u0e07","x_days":"%{count} \u0e27\u0e31\u0e19","about_x_months":"\u0e1b\u0e23\u0e30\u0e21\u0e32\u0e13 %{count} \u0e40\u0e14\u0e37\u0e2d\u0e19","x_months":"%{count} \u0e40\u0e14\u0e37\u0e2d\u0e19","about_x_years":"\u0e1b\u0e23\u0e30\u0e21\u0e32\u0e13 %{count} \u0e1b\u0e35","over_x_years":"\u0e21\u0e32\u0e01\u0e01\u0e27\u0e48\u0e32 %{count} \u0e1b\u0e35","almost_x_years":"\u0e40\u0e01\u0e37\u0e2d\u0e1a %{count} \u0e1b\u0e35"},"prompts":{"year":"\u0e1b\u0e35","month":"\u0e40\u0e14\u0e37\u0e2d\u0e19","day":"\u0e27\u0e31\u0e19","hour":"\u0e0a\u0e31\u0e48\u0e27\u0e42\u0e21\u0e07","minute":"\u0e19\u0e32\u0e17\u0e35","second":"\u0e27\u0e34\u0e19\u0e32\u0e17\u0e35"}},"helpers":{"select":{"prompt":"\u0e42\u0e1b\u0e23\u0e14\u0e40\u0e25\u0e37\u0e2d\u0e01"},"submit":{"create":"\u0e2a\u0e23\u0e49\u0e32\u0e07%{model}","update":"\u0e1b\u0e23\u0e31\u0e1a\u0e1b\u0e23\u0e38\u0e07%{model}","submit":"\u0e1a\u0e31\u0e19\u0e17\u0e36\u0e01%{model}"}},"errors":{"format":"%{attribute} %{message}","messages":{"inclusion":"\u0e44\u0e21\u0e48\u0e44\u0e14\u0e49\u0e2d\u0e22\u0e39\u0e48\u0e43\u0e19\u0e23\u0e32\u0e22\u0e01\u0e32\u0e23","exclusion":"\u0e44\u0e21\u0e48\u0e44\u0e14\u0e49\u0e23\u0e31\u0e1a\u0e2d\u0e19\u0e38\u0e0d\u0e32\u0e15\u0e43\u0e2b\u0e49\u0e43\u0e0a\u0e49","invalid":"\u0e44\u0e21\u0e48\u0e16\u0e39\u0e01\u0e15\u0e49\u0e2d\u0e07","confirmation":"\u0e44\u0e21\u0e48\u0e15\u0e23\u0e07\u0e01\u0e31\u0e1a\u0e01\u0e32\u0e23\u0e22\u0e37\u0e19\u0e22\u0e31\u0e19","accepted":"\u0e15\u0e49\u0e2d\u0e07\u0e16\u0e39\u0e01\u0e22\u0e2d\u0e21\u0e23\u0e31\u0e1a","empty":"\u0e15\u0e49\u0e2d\u0e07\u0e44\u0e21\u0e48\u0e40\u0e27\u0e49\u0e19\u0e27\u0e48\u0e32\u0e07\u0e40\u0e2d\u0e32\u0e44\u0e27\u0e49","blank":"\u0e15\u0e49\u0e2d\u0e07\u0e44\u0e21\u0e48\u0e40\u0e27\u0e49\u0e19\u0e27\u0e48\u0e32\u0e07\u0e40\u0e2d\u0e32\u0e44\u0e27\u0e49","too_long":"\u0e22\u0e32\u0e27\u0e40\u0e01\u0e34\u0e19\u0e44\u0e1b (\u0e15\u0e49\u0e2d\u0e07\u0e44\u0e21\u0e48\u0e40\u0e01\u0e34\u0e19 %{count} \u0e15\u0e31\u0e27\u0e2d\u0e31\u0e01\u0e29\u0e23)","too_short":"\u0e2a\u0e31\u0e49\u0e19\u0e40\u0e01\u0e34\u0e19\u0e44\u0e1b (\u0e15\u0e49\u0e2d\u0e07\u0e22\u0e32\u0e27\u0e01\u0e27\u0e48\u0e32 %{count} \u0e15\u0e31\u0e27\u0e2d\u0e31\u0e01\u0e29\u0e23)","wrong_length":"\u0e21\u0e35\u0e04\u0e27\u0e32\u0e21\u0e22\u0e32\u0e27\u0e44\u0e21\u0e48\u0e16\u0e39\u0e01\u0e15\u0e49\u0e2d\u0e07 (\u0e15\u0e49\u0e2d\u0e07\u0e21\u0e35\u0e04\u0e27\u0e32\u0e21\u0e22\u0e32\u0e27 %{count} \u0e15\u0e31\u0e27\u0e2d\u0e31\u0e01\u0e29\u0e23)","not_a_number":"\u0e44\u0e21\u0e48\u0e43\u0e0a\u0e48\u0e15\u0e31\u0e27\u0e40\u0e25\u0e02","not_an_integer":"\u0e44\u0e21\u0e48\u0e43\u0e0a\u0e48\u0e08\u0e33\u0e19\u0e27\u0e19\u0e40\u0e15\u0e47\u0e21","greater_than":"\u0e15\u0e49\u0e2d\u0e07\u0e21\u0e32\u0e01\u0e01\u0e27\u0e48\u0e32 %{count}","greater_than_or_equal_to":"\u0e15\u0e49\u0e2d\u0e07\u0e21\u0e32\u0e01\u0e01\u0e27\u0e48\u0e32\u0e2b\u0e23\u0e37\u0e2d\u0e40\u0e17\u0e48\u0e32\u0e01\u0e31\u0e1a %{count}","equal_to":"\u0e15\u0e49\u0e2d\u0e07\u0e21\u0e35\u0e04\u0e48\u0e32\u0e40\u0e17\u0e48\u0e32\u0e01\u0e31\u0e1a %{count}","less_than":"\u0e15\u0e49\u0e2d\u0e07\u0e21\u0e35\u0e04\u0e48\u0e32\u0e19\u0e49\u0e2d\u0e22\u0e01\u0e27\u0e48\u0e32 %{count}","less_than_or_equal_to":"\u0e15\u0e49\u0e2d\u0e07\u0e21\u0e35\u0e04\u0e48\u0e32\u0e19\u0e49\u0e2d\u0e22\u0e01\u0e27\u0e48\u0e32\u0e2b\u0e23\u0e37\u0e2d\u0e40\u0e17\u0e48\u0e32\u0e01\u0e31\u0e1a %{count}","odd":"\u0e15\u0e49\u0e2d\u0e07\u0e40\u0e1b\u0e47\u0e19\u0e08\u0e33\u0e19\u0e27\u0e19\u0e04\u0e35\u0e48","even":"\u0e15\u0e49\u0e2d\u0e07\u0e40\u0e1b\u0e47\u0e19\u0e08\u0e33\u0e19\u0e27\u0e19\u0e04\u0e39\u0e48"}},"activerecord":{"errors":{"template":{"header":"\u0e1e\u0e1a\u0e02\u0e49\u0e2d\u0e1c\u0e34\u0e14\u0e1e\u0e25\u0e32\u0e14 %{count} \u0e1b\u0e23\u0e30\u0e01\u0e32\u0e23 \u0e17\u0e33\u0e43\u0e2b\u0e49\u0e44\u0e21\u0e48\u0e2a\u0e32\u0e21\u0e32\u0e23\u0e16\u0e1a\u0e31\u0e19\u0e17\u0e36\u0e01%{model}\u0e44\u0e14\u0e49","body":"\u0e42\u0e1b\u0e23\u0e14\u0e15\u0e23\u0e27\u0e08\u0e2a\u0e2d\u0e1a\u0e02\u0e49\u0e2d\u0e21\u0e39\u0e25\u0e43\u0e19\u0e0a\u0e48\u0e2d\u0e07\u0e15\u0e48\u0e2d\u0e44\u0e1b\u0e19\u0e35\u0e49:"},"messages":{"taken":"\u0e16\u0e39\u0e01\u0e43\u0e0a\u0e49\u0e44\u0e1b\u0e41\u0e25\u0e49\u0e27","record_invalid":"\u0e44\u0e21\u0e48\u0e1c\u0e48\u0e32\u0e19\u0e01\u0e32\u0e23\u0e15\u0e23\u0e27\u0e08\u0e2a\u0e2d\u0e1a: %{errors}","inclusion":"\u0e44\u0e21\u0e48\u0e44\u0e14\u0e49\u0e2d\u0e22\u0e39\u0e48\u0e43\u0e19\u0e23\u0e32\u0e22\u0e01\u0e32\u0e23","exclusion":"\u0e44\u0e21\u0e48\u0e44\u0e14\u0e49\u0e23\u0e31\u0e1a\u0e2d\u0e19\u0e38\u0e0d\u0e32\u0e15\u0e43\u0e2b\u0e49\u0e43\u0e0a\u0e49","invalid":"\u0e44\u0e21\u0e48\u0e16\u0e39\u0e01\u0e15\u0e49\u0e2d\u0e07","confirmation":"\u0e44\u0e21\u0e48\u0e15\u0e23\u0e07\u0e01\u0e31\u0e1a\u0e01\u0e32\u0e23\u0e22\u0e37\u0e19\u0e22\u0e31\u0e19","accepted":"\u0e15\u0e49\u0e2d\u0e07\u0e16\u0e39\u0e01\u0e22\u0e2d\u0e21\u0e23\u0e31\u0e1a","empty":"\u0e15\u0e49\u0e2d\u0e07\u0e44\u0e21\u0e48\u0e40\u0e27\u0e49\u0e19\u0e27\u0e48\u0e32\u0e07\u0e40\u0e2d\u0e32\u0e44\u0e27\u0e49","blank":"\u0e15\u0e49\u0e2d\u0e07\u0e44\u0e21\u0e48\u0e40\u0e27\u0e49\u0e19\u0e27\u0e48\u0e32\u0e07\u0e40\u0e2d\u0e32\u0e44\u0e27\u0e49","too_long":"\u0e22\u0e32\u0e27\u0e40\u0e01\u0e34\u0e19\u0e44\u0e1b (\u0e15\u0e49\u0e2d\u0e07\u0e44\u0e21\u0e48\u0e40\u0e01\u0e34\u0e19 %{count} \u0e15\u0e31\u0e27\u0e2d\u0e31\u0e01\u0e29\u0e23)","too_short":"\u0e2a\u0e31\u0e49\u0e19\u0e40\u0e01\u0e34\u0e19\u0e44\u0e1b (\u0e15\u0e49\u0e2d\u0e07\u0e22\u0e32\u0e27\u0e01\u0e27\u0e48\u0e32 %{count} \u0e15\u0e31\u0e27\u0e2d\u0e31\u0e01\u0e29\u0e23)","wrong_length":"\u0e21\u0e35\u0e04\u0e27\u0e32\u0e21\u0e22\u0e32\u0e27\u0e44\u0e21\u0e48\u0e16\u0e39\u0e01\u0e15\u0e49\u0e2d\u0e07 (\u0e15\u0e49\u0e2d\u0e07\u0e21\u0e35\u0e04\u0e27\u0e32\u0e21\u0e22\u0e32\u0e27 %{count} \u0e15\u0e31\u0e27\u0e2d\u0e31\u0e01\u0e29\u0e23)","not_a_number":"\u0e44\u0e21\u0e48\u0e43\u0e0a\u0e48\u0e15\u0e31\u0e27\u0e40\u0e25\u0e02","not_an_integer":"\u0e44\u0e21\u0e48\u0e43\u0e0a\u0e48\u0e08\u0e33\u0e19\u0e27\u0e19\u0e40\u0e15\u0e47\u0e21","greater_than":"\u0e15\u0e49\u0e2d\u0e07\u0e21\u0e32\u0e01\u0e01\u0e27\u0e48\u0e32 %{count}","greater_than_or_equal_to":"\u0e15\u0e49\u0e2d\u0e07\u0e21\u0e32\u0e01\u0e01\u0e27\u0e48\u0e32\u0e2b\u0e23\u0e37\u0e2d\u0e40\u0e17\u0e48\u0e32\u0e01\u0e31\u0e1a %{count}","equal_to":"\u0e15\u0e49\u0e2d\u0e07\u0e21\u0e35\u0e04\u0e48\u0e32\u0e40\u0e17\u0e48\u0e32\u0e01\u0e31\u0e1a %{count}","less_than":"\u0e15\u0e49\u0e2d\u0e07\u0e21\u0e35\u0e04\u0e48\u0e32\u0e19\u0e49\u0e2d\u0e22\u0e01\u0e27\u0e48\u0e32 %{count}","less_than_or_equal_to":"\u0e15\u0e49\u0e2d\u0e07\u0e21\u0e35\u0e04\u0e48\u0e32\u0e19\u0e49\u0e2d\u0e22\u0e01\u0e27\u0e48\u0e32\u0e2b\u0e23\u0e37\u0e2d\u0e40\u0e17\u0e48\u0e32\u0e01\u0e31\u0e1a %{count}","odd":"\u0e15\u0e49\u0e2d\u0e07\u0e40\u0e1b\u0e47\u0e19\u0e08\u0e33\u0e19\u0e27\u0e19\u0e04\u0e35\u0e48","even":"\u0e15\u0e49\u0e2d\u0e07\u0e40\u0e1b\u0e47\u0e19\u0e08\u0e33\u0e19\u0e27\u0e19\u0e04\u0e39\u0e48"},"full_messages":{"format":"%{attribute} %{message}"}}}},"cs":{"support":{"array":{"two_words_connector":" a ","last_word_connector":" a ","words_connector":", "},"select":{"prompt":"Pros\u00edm vyberte si"}},"date":{"formats":{"default":"%d. %m. %Y","short":"%d %b","long":"%d. %B %Y"},"day_names":["Ned\u011ble","Pond\u011bl\u00ed","\u00dater\u00fd","St\u0159eda","\u010ctvrtek","P\u00e1tek","Sobota"],"abbr_day_names":["Ne","Po","\u00dat","St","\u010ct","P\u00e1","So"],"month_names":["~","Leden","\u00danor","B\u0159ezen","Duben","Kv\u011bten","\u010cerven","\u010cervenec","Srpen","Z\u00e1\u0159\u00ed","\u0158\u00edjen","Listopad","Prosinec"],"abbr_month_names":["~","Led","\u00dano","B\u0159e","Dub","Kv\u011b","\u010cvn","\u010cvc","Srp","Z\u00e1\u0159","\u0158\u00edj","Lis","Pro"],"order":["day","month","year"]},"time":{"formats":{"default":"%a %d. %B %Y %H:%M %z","short":"%d. %m. %H:%M","long":"%A %d. %B %Y %H:%M"},"am":"am","pm":"pm"},"number":{"format":{"precision":3,"separator":".","delimiter":",","significant":false,"strip_insignificant_zeros":false},"currency":{"format":{"unit":"K\u010d","precision":2,"format":"%n %u","negative_format":"-%n %u","separator":",","delimiter":" ","significant":false,"strip_insignificant_zeros":false}},"human":{"format":{"precision":1,"delimiter":"","significant":false,"strip_insignificant_zeros":false},"storage_units":{"format":"%n %u","units":{"byte":"B","kb":"KB","mb":"MB","gb":"GB","tb":"TB"}},"decimal_units":{"format":"%n %u","units":{"unit":"","thousand":"Tis\u00edc","million":"Milion","billion":"Miliarda","trillion":"Bilion","quadrillion":"Kvadrilion"}}},"percentage":{"format":{"delimiter":""}},"precision":{"format":{"delimiter":""}}},"datetime":{"prompts":{"second":"Sekunda","minute":"Minuta","hour":"Hodina","day":"Den","month":"M\u011bs\u00edc","year":"Rok"},"distance_in_words":{"half_a_minute":"p\u016fl minutou","less_than_x_seconds":{"one":"necelou sekundou","other":"ani ne %{count} sekundami"},"x_seconds":{"one":"sekundou","other":"%{count} sekundami"},"less_than_x_minutes":{"one":"necelou minutou","other":"ani ne %{count} minutami"},"x_minutes":{"one":"minutou","other":"%{count} minutami"},"about_x_hours":{"one":"asi hodinou","other":"asi %{count} hodinami"},"x_days":{"one":"24 hodinami","other":"%{count} dny"},"about_x_months":{"one":"asi m\u011bs\u00edcem","other":"asi %{count} m\u011bs\u00edci"},"x_months":{"one":"m\u011bs\u00edcem","other":"%{count} m\u011bs\u00edci"},"about_x_years":{"one":"asi rokem","other":"asi %{count} roky"},"over_x_years":{"one":"v\u00edce ne\u017e rokem","other":"v\u00edce ne\u017e %{count} roky"},"almost_x_years":{"one":"t\u00e9m\u011b\u0159 rokem","other":"t\u00e9m\u011b\u0159 %{count} roky"}}},"helpers":{"select":{"prompt":"Pros\u00edm vyberte si"},"submit":{"create":"Vytvo\u0159it %{model}","update":"Aktualizovat %{model}","submit":"Ulo\u017eit %{model}"}},"errors":{"format":"%{attribute} %{message}","messages":{"inclusion":"nen\u00ed v seznamu povolen\u00fdch hodnot","exclusion":"je vyhrazeno pro jin\u00fd \u00fa\u010del","invalid":"nen\u00ed platn\u00e1 hodnota","confirmation":"nebylo potvrzeno","accepted":"mus\u00ed b\u00fdt potvrzeno","empty":"nesm\u00ed b\u00fdt pr\u00e1zdn\u00fd/\u00e1/\u00e9","blank":"je povinn\u00e1 polo\u017eka","too_long":"je p\u0159\u00edli\u0161 dlouh\u00fd/\u00e1/\u00e9 (max. %{count} znak\u016f)","too_short":"je p\u0159\u00edli\u0161 kr\u00e1tk\u00fd/\u00e1/\u00e9 (min. %{count} znak\u016f)","wrong_length":"nem\u00e1 spr\u00e1vnou d\u00e9lku (o\u010dek\u00e1v\u00e1no %{count} znak\u016f)","not_a_number":"nen\u00ed \u010d\u00edslo","greater_than":"mus\u00ed b\u00fdt v\u011bt\u0161\u00ed ne\u017e %{count}","greater_than_or_equal_to":"mus\u00ed b\u00fdt v\u011bt\u0161\u00ed nebo rovno %{count}","equal_to":"mus\u00ed b\u00fdt rovno %{count}","less_than":"mus\u00ed b\u00fdt m\u00e9n\u011b ne\u017e %{count}","less_than_or_equal_to":"mus\u00ed b\u00fdt m\u00e9n\u011b nebo rovno %{count}","odd":"mus\u00ed b\u00fdt lich\u00e9 \u010d\u00edslo","even":"mus\u00ed b\u00fdt sud\u00e9 \u010d\u00edslo","not_an_integer":"mus\u00ed b\u00fdt cel\u00e9 \u010d\u00edslo"}},"activerecord":{"errors":{"messages":{"taken":"ji\u017e datab\u00e1ze obsahuje","record_invalid":"Validace je ne\u00faspe\u0161n\u00e1: %{errors}","inclusion":"nen\u00ed v seznamu povolen\u00fdch hodnot","exclusion":"je vyhrazeno pro jin\u00fd \u00fa\u010del","invalid":"nen\u00ed platn\u00e1 hodnota","confirmation":"nebylo potvrzeno","accepted":"mus\u00ed b\u00fdt potvrzeno","empty":"nesm\u00ed b\u00fdt pr\u00e1zdn\u00fd/\u00e1/\u00e9","blank":"je povinn\u00e1 polo\u017eka","too_long":"je p\u0159\u00edli\u0161 dlouh\u00fd/\u00e1/\u00e9 (max. %{count} znak\u016f)","too_short":"je p\u0159\u00edli\u0161 kr\u00e1tk\u00fd/\u00e1/\u00e9 (min. %{count} znak\u016f)","wrong_length":"nem\u00e1 spr\u00e1vnou d\u00e9lku (o\u010dek\u00e1v\u00e1no %{count} znak\u016f)","not_a_number":"nen\u00ed \u010d\u00edslo","greater_than":"mus\u00ed b\u00fdt v\u011bt\u0161\u00ed ne\u017e %{count}","greater_than_or_equal_to":"mus\u00ed b\u00fdt v\u011bt\u0161\u00ed nebo rovno %{count}","equal_to":"mus\u00ed b\u00fdt rovno %{count}","less_than":"mus\u00ed b\u00fdt m\u00e9n\u011b ne\u017e %{count}","less_than_or_equal_to":"mus\u00ed b\u00fdt m\u00e9n\u011b nebo rovno %{count}","odd":"mus\u00ed b\u00fdt lich\u00e9 \u010d\u00edslo","even":"mus\u00ed b\u00fdt sud\u00e9 \u010d\u00edslo","not_an_integer":"mus\u00ed b\u00fdt cel\u00e9 \u010d\u00edslo"},"template":{"header":{"one":"P\u0159i ukl\u00e1d\u00e1n\u00ed objektu %{model} do\u0161lo k chyb\u00e1m a nebylo jej mo\u017en\u00e9 ulo\u017eit","other":"P\u0159i ukl\u00e1d\u00e1n\u00ed objektu %{model} do\u0161lo ke %{count} chyb\u00e1m a nebylo mo\u017en\u00e9 jej ulo\u017eit"},"body":"N\u00e1sleduj\u00edc\u00ed pole obsahuj\u00ed chybn\u011b vypln\u011bn\u00e9 \u00fadaje:"},"full_messages":{"format":"%{attribute} %{message}"}}}},"bn-IN":{"number":{"format":{"separator":".","delimiter":",","precision":2},"currency":{"format":{"format":"%u %n","unit":"Rs.","separator":".","delimiter":",","precision":2}},"percentage":{"format":{"delimiter":""}},"precision":{"format":{"delimiter":""}},"human":{"format":{"delimiter":"","precision":1},"storage_units":{"format":"%n %u","units":{"byte":{"one":"Byte","other":"Bytes"},"kb":"KB","mb":"MB","gb":"GB","tb":"TB"}}}},"datetime":{"distance_in_words":{"half_a_minute":"\u0985\u09be\u09b0\u09cd\u09a7\u09c7\u0995 \u09ae\u09bf\u09a8\u09bf\u099f","less_than_x_seconds":{"one":"\u09e7 \u09b8\u09c7\u0995\u09c7\u09a8\u09cd\u09a1\u09b0 \u0995\u09ae ","other":"%{count} \u09b8\u09c7\u0995\u09c7\u09a8\u09cd\u09a1\u09c7\u09b0 \u0995\u09ae"},"x_seconds":{"one":"\u09e7 \u09b8\u09c7\u0995\u09c7\u09a8\u09cd\u09a1","other":"%{count} \u09b8\u09c7\u0995\u09c7\u09a8\u09cd\u09a1"},"less_than_x_minutes":{"one":"\u09e7 \u09ae\u09bf\u09a8\u09bf\u099f\u09c7\u09b0 \u0995\u09ae","other":"%{count} \u09ae\u09bf\u09a8\u09bf\u099f\u09c7\u09b0 \u0995\u09ae"},"x_minutes":{"one":"\u09e7 \u09ae\u09bf\u09a8\u09bf\u099f","other":"%{count} \u09ae\u09bf\u09a8\u09bf\u099f"},"about_x_hours":{"one":"\u09aa\u09cd\u09b0\u09be\u09df \u09e7 \u0998\u09a8\u09cd\u099f\u09be","other":"\u09aa\u09cd\u09b0\u09be\u09df %{count} \u0998\u09a8\u09cd\u099f\u09be"},"x_days":{"one":"\u09e7 \u09a6\u09bf\u09a8","other":"%{count} \u09a6\u09bf\u09a8"},"about_x_months":{"one":"\u09aa\u09cd\u09b0\u09be\u09df \u09e7 \u09ae\u09be\u09b8","other":"\u09aa\u09cd\u09b0\u09be\u09df %{count} \u09ae\u09be\u09b8"},"x_months":{"one":"\u09e7 \u09ae\u09be\u09b8","other":"%{count} \u09ae\u09be\u09b8"},"about_x_years":{"one":"\u09aa\u09cd\u09b0\u09be\u09df \u09e7 \u09ac\u099b\u09b0","other":"\u09aa\u09cd\u09b0\u09be\u09df %{count} \u09ac\u099b\u09b0"},"over_x_years":{"one":"\u09e7 \u09ac\u099b\u09b0\u09c7\u09b0 \u09ac\u09c7\u09b6\u09bf","other":"%{count} \u09ac\u099b\u09b0\u09c7\u09b0 \u09ac\u09c7\u09b6\u09bf"}},"prompts":{"year":"\u09ac\u099b\u09b0","month":"\u09ae\u09be\u09b8","day":"\u09a6\u09bf\u09a8","hour":"\u0998\u09a8\u09cd\u099f\u09be","minute":"\u09ae\u09bf\u09a8\u09bf\u099f","second":"\u09b8\u09c7\u0995\u09c7\u09a8\u09cd\u09a1"}},"activerecord":{"errors":{"template":{"header":{"one":"\u09e7 \u099f\u09bf \u09a4\u09cd\u09b0\u09c1\u099f\u09bf\u09b0 \u0995\u09be\u09b0\u09a8\u09c7 %{model} \u09b8\u0982\u09b0\u0995\u09cd\u09b7\u09a8 \u0995\u09b0\u09be \u09b8\u09ae\u09cd\u09ad\u09ac \u09b9\u09df\u09a8\u09bf","other":"%{count} \u099f\u09bf \u09a4\u09cd\u09b0\u09c1\u099f\u09bf\u09b0 \u0995\u09be\u09b0\u09a8\u09c7 %{model} \u09b8\u0982\u09b0\u0995\u09cd\u09b7\u09a8 \u0995\u09b0\u09be \u09b8\u09ae\u09cd\u09ad\u09ac \u09b9\u09df\u09a8\u09bf"},"body":"\u098f\u0987 \u09ab\u09bf\u09b2\u09cd\u09a1\u0997\u09c1\u09b2\u09cb\u09a4\u09c7 \u0995\u09bf\u099b\u09c1 \u09b8\u09ae\u09b8\u09cd\u09af\u09be \u09a6\u09c7\u0996\u09be \u09a6\u09bf\u09df\u09c7\u099b\u09c7:"},"messages":{"inclusion":"\u09b2\u09bf\u09b8\u09cd\u099f\u09c7 \u0985\u09a8\u09cd\u09a4\u09b0\u09cd\u09ad\u09c1\u0995\u09cd\u09a4 \u09a8\u09df","exclusion":"\u09b0\u09bf\u09b8\u09be\u09b0\u09cd\u09ad \u0995\u09b0\u09be \u0985\u09be\u099b\u09c7","invalid":"\u09b8\u09a0\u09bf\u0995 \u09a8\u09df","confirmation":"\u0985\u09a8\u09c1\u09ae\u09cb\u09a6\u09a8\u09c7\u09b0 \u09b8\u0999\u09cd\u0997\u09c7 \u09ae\u09bf\u09b2\u099b\u09c7 \u09a8\u09be","accepted":"\u0997\u09cd\u09b0\u09be\u09b9\u09cd\u09af \u0995\u09b0\u09a4\u09c7 \u09b9\u09ac\u09c7","empty":"\u0996\u09be\u09b2\u09bf \u09b0\u09be\u0996\u09be \u09af\u09be\u09ac\u09c7 \u09a8\u09be","blank":"\u09ab\u09be\u0981\u0995\u09be \u09b0\u09be\u0996\u09be \u09af\u09be\u09ac\u09c7 \u09a8\u09be","too_long":"\u0996\u09c1\u09ac \u09ac\u09dc\u09cb (\u09b8\u09b0\u09cd\u09ac\u09cb\u099a\u09cd\u099a %{count} \u0985\u0995\u09cd\u09b7\u09b0)","too_short":"\u0996\u09c1\u09ac \u099b\u09cb\u099f\u09cb (\u09b8\u09b0\u09cd\u09ac\u09a8\u09bf\u09ae\u09cd\u09a8 %{count} \u0985\u0995\u09cd\u09b7\u09b0)","wrong_length":"\u09a6\u09c8\u09b0\u09cd\u0998\u09cd\u09af\u099f\u09bf \u09b8\u09a0\u09bf\u0995 \u09a8\u09df (%{count} \u0985\u0995\u09cd\u09b7\u09b0 \u09b9\u09a4\u09c7 \u09b9\u09ac\u09c7)","taken":"\u0985\u09be\u0997\u09c7\u0987 \u09a8\u09bf\u09df\u09c7 \u09a8\u09c7\u0993\u09df\u09be \u09b9\u09df\u09c7\u099b\u09c7","not_a_number":"\u09a8\u09ae\u09cd\u09ac\u09b0 \u09a8\u09df","greater_than":"%{count} \u09a5\u09c7\u0995\u09c7 \u09ac\u09dc\u09cb \u09b9\u09a4\u09c7 \u09b9\u09ac\u09c7","greater_than_or_equal_to":"%{count} \u09a5\u09c7\u0995\u09c7 \u09ac\u09dc\u09cb \u0985\u09a5\u09ac\u09be \u09a4\u09be\u09b0 \u09b8\u09ae\u09be\u09a8 \u09b9\u09a4\u09c7 \u09b9\u09ac\u09c7","equal_to":"%{count} \u098f\u09b0 \u09b8\u0999\u09cd\u0997\u09c7 \u09b8\u09ae\u09be\u09a8 \u09b9\u09a4\u09c7 \u09b9\u09ac\u09c7","less_than":"%{count} \u09a5\u09c7\u0995\u09c7 \u099b\u09cb\u099f\u09cb \u09b9\u09a4\u09c7 \u09b9\u09ac\u09c7","less_than_or_equal_to":"%{count} \u09a5\u09c7\u0995\u09c7 \u099b\u09cb\u099f\u09cb \u0985\u09a5\u09ac\u09be \u09a4\u09be\u09b0 \u09b8\u09ae\u09be\u09a8 \u09b9\u09a4\u09c7 \u09b9\u09ac\u09c7","odd":"\u09ac\u09c7\u099c\u09cb\u09dc \u09b9\u09a4\u09c7 \u09b9\u09ac\u09c7","even":"\u099c\u09cb\u09dc \u09b9\u09a4\u09c7 \u09b9\u09ac\u09c7"}}},"date":{"formats":{"default":"%e/%m/%Y","short":"%e de %b","long":"%e de %B de %Y"},"day_names":["\u09b0\u09ac\u09bf\u09ac\u09be\u09b0","\u09b8\u09cb\u09ae\u09ac\u09be\u09b0","\u09ae\u0999\u09cd\u0997\u09b2\u09ac\u09be\u09b0","\u09ac\u09c1\u09a7\u09ac\u09be\u09b0","\u09ac\u09c3\u09b9\u09b8\u09cd\u09aa\u09a4\u09bf\u09ac\u09be\u09b0","\u09b6\u09c1\u0995\u09cd\u09b0\u09ac\u09be\u09b0","\u09b6\u09a8\u09bf\u09ac\u09be\u09b0"],"abbr_day_names":["\u09b0\u09ac\u09bf\u09ac\u09be\u09b0","\u09b8\u09cb\u09ae\u09ac\u09be\u09b0","\u09ae\u0999\u09cd\u0997\u09b2\u09ac\u09be\u09b0","\u09ac\u09c1\u09a7\u09ac\u09be\u09b0","\u09ac\u09c3\u09b9\u09b8\u09cd\u09aa\u09a4\u09bf\u09ac\u09be\u09b0","\u09b6\u09c1\u0995\u09cd\u09b0\u09ac\u09be\u09b0","\u09b6\u09a8\u09bf\u09ac\u09be\u09b0"],"month_names":[null,"\u099c\u09be\u09a8\u09c1\u09df\u09be\u09b0\u09bf","\u09ab\u09c7\u09ac\u09cd\u09b0\u09c1\u09df\u09be\u09b0\u09bf","\u09ae\u09be\u09b0\u09cd\u099a","\u098f\u09aa\u09cd\u09b0\u09bf\u09b2","\u09ae\u09c7","\u099c\u09c1\u09a8","\u099c\u09c1\u09b2\u09be\u0987","\u0985\u0997\u09be\u09b8\u09cd\u099f","\u09b8\u09c7\u09aa\u09cd\u099f\u09c7\u09ae\u09ac\u09be\u09b0","\u0985\u0995\u09cd\u099f\u09cb\u09ac\u09be\u09b0","\u09a8\u09ad\u09c7\u09ae\u09cd\u09ac\u09be\u09b0","\u09a1\u09bf\u09b8\u09c7\u09ae\u09cd\u09ac\u09be\u09b0"],"abbr_month_names":[null,"\u099c\u09be\u09a8\u09c1\u09df\u09be\u09b0\u09bf","\u09ab\u09c7\u09ac\u09cd\u09b0\u09c1\u09df\u09be\u09b0\u09bf","\u09ae\u09be\u09b0\u09cd\u099a","\u098f\u09aa\u09cd\u09b0\u09bf\u09b2","\u09ae\u09c7","\u099c\u09c1\u09a8","\u099c\u09c1\u09b2\u09be\u0987","\u0985\u0997\u09be\u09b8\u09cd\u099f","\u09b8\u09c7\u09aa\u09cd\u099f\u09c7\u09ae\u09ac\u09be\u09b0","\u0985\u0995\u09cd\u099f\u09cb\u09ac\u09be\u09b0","\u09a8\u09ad\u09c7\u09ae\u09cd\u09ac\u09be\u09b0","\u09a1\u09bf\u09b8\u09c7\u09ae\u09cd\u09ac\u09be\u09b0"],"order":["year","month","day"]},"time":{"formats":{"default":"%A, %e de %B de %Y %H:%M:%S %z","short":"%e de %b %H:%M","long":"%e de %B de %Y %H:%M"},"am":"am","pm":"pm"},"support":{"array":{"words_connector":", ","two_words_connector":" \u098f\u09ac\u0982 ","last_word_connector":", \u098f\u09ac\u0982 "}}},"csb":{"date":{"formats":{"default":"%d-%m-%Y","short":"%d %b","long":"%B %d, %Y"},"day_names":["niedzela","p\u00f2niedz\u00f4\u0142k","wt\u00f3rk","strzoda","czwi\u00f4rtk","pi\u0105tk","sob\u00f2ta"],"abbr_day_names":["nie","p\u00f2n","wt\u00f3","str","czw","pi\u0105","sob"],"month_names":[null,"st\u00ebcznik","gromicznik","str\u00ebmiannik","\u0142\u017c\u00ebkwi\u00f4t","m\u00f4j","czerwi\u0144c","l\u00ebpi\u0144c","z\u00e9lnik","s\u00e9wnik","rujan","l\u00ebstopadnik","g\u00f2dnik"],"abbr_month_names":[null,"st\u00eb","gro","str","\u0142\u017c\u00eb","m\u00f4j","cze","l\u00ebp","z\u00e9l","s\u00e9w","ruj","l\u00ebs","g\u00f2d"],"order":["day","month","year"]},"time":{"formats":{"default":"%a, %d %b %Y %H:%M:%S %z","short":"%d %b %H:%M","long":"%B %d, %Y %H:%M"},"am":"przed p\u00f4\u0142nim","pm":"p\u00f2 p\u00f4\u0142nim"},"support":{"array":{"words_connector":", ","two_words_connector":" \u00eb ","last_word_connector":" a t\u00e9\u017c "},"select":{"prompt":"Prosz\u00e3 w\u00ebbrac"}},"number":{"format":{"separator":",","delimiter":" ","precision":3,"significant":false,"strip_insignificant_zeros":false},"currency":{"format":{"format":"%u %n","unit":"PLN","separator":",","delimiter":" ","precision":2,"significant":false,"strip_insignificant_zeros":true}},"percentage":{"format":{"delimiter":""}},"precision":{"format":{"delimiter":""}},"human":{"format":{"delimiter":"","precision":3,"significant":true,"strip_insignificant_zeros":true},"storage_units":{"format":"%n %u","units":{"byte":{"one":"bajt","other":"bajt\u00eb"},"kb":"KB","mb":"MB","gb":"GB","tb":"TB"}},"decimal_units":{"format":"%n %u","units":{"unit":"","thousand":"T\u00ebs\u0105c","million":"Mili\u00f3n","billion":"Miliard","trillion":"Bili\u00f3n","quadrillion":"Biliard"}}}},"datetime":{"distance_in_words":{"half_a_minute":"p\u00f3\u0142 minut\u00eb","less_than_x_seconds":{"one":"mni jak sek\u00f9nda","few":"mni jak %{count} sek\u00f9nd\u00eb","other":"mni jak %{count} sek\u00f9nd\u00f3w"},"x_seconds":{"one":"1 sek\u00f9nda","few":"%{count} sek\u00f9nd\u00eb","other":"%{count} sek\u00f9nd\u00f3w"},"less_than_x_minutes":{"one":"mni jak minuta","few":"mni jak %{count} minut\u00eb","other":"mni jak %{count} minut\u00f3w"},"x_minutes":{"one":"1 minuta","few":"%{count} minut\u00eb","other":"%{count} minut\u00f3w"},"about_x_hours":{"one":"k\u00f2le g\u00f2dz\u00ebn\u00eb","few":"k\u00f2le %{count} g\u00f2dz\u00ebn","other":"k\u00f2le %{count} g\u00f2dz\u00ebn"},"x_days":{"one":"1 dz\u00e9\u0144","few":"%{count} dni","other":"%{count} dni\u00f3w"},"about_x_months":{"one":"k\u00f2le mies\u0105ca","few":"k\u00f2le %{count} mies\u0105c\u00f3w","other":"k\u00f2le %{count} mies\u0105c\u00f3w"},"x_months":{"one":"1 mies\u0105c","few":"%{count} miesi\u0105ce","other":"%{count} miesi\u0119c\u00f3w"},"about_x_years":{"one":"k\u00f2le rok\u00f9","few":"k\u00f2le %{count} lat","other":"k\u00f2le %{count} lat"},"over_x_years":{"one":"wicy jak rok","few":"wicy jak %{count} lata","other":"wicy jak %{count} lat"},"almost_x_years":{"one":"wnet rok","few":"wnet %{count} lata","other":"wnet %{count} lat"}},"prompts":{"year":"Rok","month":"Miesi\u0105c","day":"Dz\u00e9\u0144","hour":"G\u00f2dz\u00ebna","minute":"Minuta","second":"Sekunda"}},"helpers":{"select":{"prompt":"Prosz\u00e3 w\u00ebbrac"},"submit":{"create":"\u00d9s\u00f4dz\u00eb %{model}","update":"Aktualiz\u00ebj\u00eb %{model}","submit":"Zapisz\u00eb %{model}"}},"errors":{"format":"%{attribute} %{message}","messages":{"inclusion":"ni ma na l\u00ebsce dop\u00f9szczaln\u00ebch w\u00f4rtnot\u00f3w","exclusion":"je zarezerwow\u00f3n\u00e9","invalid":"je zmi\u0142k\u00f2w\u00e9","confirmation":"nie zg\u00f2dz\u00f4 s\u00e3 z p\u00f2cwierdzenim","accepted":"m\u00f9szi b\u00ebc zaakceptow\u00f3n\u00e9","empty":"ni m\u00f2\u017c\u00e9 b\u00ebc p\u00f9st\u00e9","blank":"ni m\u00f2\u017ce b\u00ebc p\u00f9st\u00e9","too_long":"je za d\u0142\u00ebd\u017c\u00e9 (maksymalno %{count} znak\u00f3w)","too_short":"je za kr\u00f3tcz\u00e9 (prz\u00ebn\u00f4mni %{count} znak\u00f3w)","wrong_length":"m\u00f4 l\u00ebch\u0105 d\u0142ug\u00f2t\u00e3 (b\u00eb m\u00f9sza miec %{count} znak\u00f3w)","not_a_number":"nie je l\u00ebczb\u0105","not_an_integer":"muszi b\u00ebc ca\u0142own\u0105 l\u00ebczb\u0105","greater_than":"m\u00f9szi b\u00ebc wiksz\u00e9 \u00f2d %{count}","greater_than_or_equal_to":"m\u00f9szi b\u00ebc wiksz\u00e9 ab\u00f2 r\u00f3wn\u00e9 %{count}","equal_to":"m\u00f9szi b\u00ebc r\u00f3wne %{count}","less_than":"m\u00f9szi b\u00ebc mnisz\u00e9 \u00f2d %{count}","less_than_or_equal_to":"m\u00f9szi b\u00ebc mnisz\u00e9 ab\u00f2 r\u00f3wn\u00e9 %{count}","odd":"m\u00f9szi b\u00ebc nieparz\u00ebst\u00e9","even":"m\u00f9sz\u00e9 b\u00ebc parz\u00ebst\u00e9"}},"activerecord":{"errors":{"template":{"header":{"one":"%{model} nie \u00f2st\u00f4\u0142 zach\u00f2w\u00f3ny przez jedn\u0105 fel\u00e3","other":"%{model} nie \u00f2st\u00f4\u0142 zach\u00f2w\u00f3ny przez %{count} fel\u00f3w"},"body":"Fele tikaj\u0105 s\u00e3 n\u00ebch p\u00f3l:"},"messages":{"taken":"je ju zaj\u00e3t\u00e9","record_invalid":"Negatiwn\u00e9 spr\u00f4wdzeni\u00e9 p\u00f2prawnosc\u00eb: %{errors}","inclusion":"ni ma na l\u00ebsce dop\u00f9szczaln\u00ebch w\u00f4rtnot\u00f3w","exclusion":"je zarezerwow\u00f3n\u00e9","invalid":"je zmi\u0142k\u00f2w\u00e9","confirmation":"nie zg\u00f2dz\u00f4 s\u00e3 z p\u00f2cwierdzenim","accepted":"m\u00f9szi b\u00ebc zaakceptow\u00f3n\u00e9","empty":"ni m\u00f2\u017c\u00e9 b\u00ebc p\u00f9st\u00e9","blank":"ni m\u00f2\u017ce b\u00ebc p\u00f9st\u00e9","too_long":"je za d\u0142\u00ebd\u017c\u00e9 (maksymalno %{count} znak\u00f3w)","too_short":"je za kr\u00f3tcz\u00e9 (prz\u00ebn\u00f4mni %{count} znak\u00f3w)","wrong_length":"m\u00f4 l\u00ebch\u0105 d\u0142ug\u00f2t\u00e3 (b\u00eb m\u00f9sza miec %{count} znak\u00f3w)","not_a_number":"nie je l\u00ebczb\u0105","not_an_integer":"muszi b\u00ebc ca\u0142own\u0105 l\u00ebczb\u0105","greater_than":"m\u00f9szi b\u00ebc wiksz\u00e9 \u00f2d %{count}","greater_than_or_equal_to":"m\u00f9szi b\u00ebc wiksz\u00e9 ab\u00f2 r\u00f3wn\u00e9 %{count}","equal_to":"m\u00f9szi b\u00ebc r\u00f3wne %{count}","less_than":"m\u00f9szi b\u00ebc mnisz\u00e9 \u00f2d %{count}","less_than_or_equal_to":"m\u00f9szi b\u00ebc mnisz\u00e9 ab\u00f2 r\u00f3wn\u00e9 %{count}","odd":"m\u00f9szi b\u00ebc nieparz\u00ebst\u00e9","even":"m\u00f9sz\u00e9 b\u00ebc parz\u00ebst\u00e9"},"full_messages":{"format":"%{attribute} %{message}"}}}},"de":{"date":{"formats":{"default":"%d.%m.%Y","short":"%e. %b","long":"%e. %B %Y","only_day":"%e"},"day_names":["Sonntag","Montag","Dienstag","Mittwoch","Donnerstag","Freitag","Samstag"],"abbr_day_names":["So","Mo","Di","Mi","Do","Fr","Sa"],"month_names":[null,"Januar","Februar","M\u00e4rz","April","Mai","Juni","Juli","August","September","Oktober","November","Dezember"],"abbr_month_names":[null,"Jan","Feb","M\u00e4r","Apr","Mai","Jun","Jul","Aug","Sep","Okt","Nov","Dez"],"order":["day","month","year"]},"time":{"formats":{"default":"%A, %d. %B %Y, %H:%M Uhr","short":"%d. %B, %H:%M Uhr","long":"%A, %d. %B %Y, %H:%M Uhr","time":"%H:%M"},"am":"vormittags","pm":"nachmittags"},"datetime":{"distance_in_words":{"half_a_minute":"eine halbe Minute","less_than_x_seconds":{"one":"weniger als eine Sekunde","other":"weniger als %{count} Sekunden"},"x_seconds":{"one":"eine Sekunde","other":"%{count} Sekunden"},"less_than_x_minutes":{"one":"weniger als eine Minute","other":"weniger als %{count} Minuten"},"x_minutes":{"one":"eine Minute","other":"%{count} Minuten"},"about_x_hours":{"one":"etwa eine Stunde","other":"etwa %{count} Stunden"},"x_days":{"one":"ein Tag","other":"%{count} Tage"},"about_x_months":{"one":"etwa ein Monat","other":"etwa %{count} Monate"},"x_months":{"one":"ein Monat","other":"%{count} Monate"},"almost_x_years":{"one":"fast ein Jahr","other":"fast %{count} Jahre"},"about_x_years":{"one":"etwa ein Jahr","other":"etwa %{count} Jahre"},"over_x_years":{"one":"mehr als ein Jahr","other":"mehr als %{count} Jahre"}},"prompts":{"second":"Sekunden","minute":"Minuten","hour":"Stunden","day":"Tag","month":"Monat","year":"Jahr"}},"number":{"format":{"precision":2,"separator":",","delimiter":".","significant":false,"strip_insignificant_zeros":false},"currency":{"format":{"unit":"\u20ac","format":"%n %u","separator":",","delimiter":".","precision":2,"significant":false,"strip_insignificant_zeros":false}},"percentage":{"format":{"delimiter":""}},"precision":{"format":{"delimiter":""}},"human":{"format":{"delimiter":"","precision":1,"significant":true,"strip_insignificant_zeros":true},"storage_units":{"format":"%n %u","units":{"byte":{"one":"Byte","other":"Bytes"},"kb":"KB","mb":"MB","gb":"GB","tb":"TB"}},"decimal_units":{"format":"%n %u","units":{"unit":"","thousand":"Tausend","million":"Millionen","billion":{"one":"Milliarde","other":"Milliarden"},"trillion":"Billionen","quadrillion":{"one":"Billiarde","other":"Billiarden"}}}}},"support":{"array":{"words_connector":", ","two_words_connector":" und ","last_word_connector":" und "},"select":{"prompt":"Bitte w\u00e4hlen:"}},"helpers":{"select":{"prompt":"Bitte w\u00e4hlen"},"submit":{"create":"%{model} erstellen","update":"%{model} aktualisieren","submit":"%{model} speichern"}},"errors":{"format":"%{attribute} %{message}","messages":{"inclusion":"ist kein g\u00fcltiger Wert","exclusion":"ist nicht verf\u00fcgbar","invalid":"ist nicht g\u00fcltig","confirmation":"stimmt nicht mit der Best\u00e4tigung \u00fcberein","accepted":"muss akzeptiert werden","empty":"muss ausgef\u00fcllt werden","blank":"muss ausgef\u00fcllt werden","too_long":"ist zu lang (nicht mehr als %{count} Zeichen)","too_short":"ist zu kurz (nicht weniger als %{count} Zeichen)","wrong_length":"hat die falsche L\u00e4nge (muss genau %{count} Zeichen haben)","not_a_number":"ist keine Zahl","greater_than":"muss gr\u00f6\u00dfer als %{count} sein","greater_than_or_equal_to":"muss gr\u00f6\u00dfer oder gleich %{count} sein","equal_to":"muss genau %{count} sein","less_than":"muss kleiner als %{count} sein","less_than_or_equal_to":"muss kleiner oder gleich %{count} sein","odd":"muss ungerade sein","even":"muss gerade sein","not_an_integer":"muss ganzzahlig sein","not_saved":{"one":"Speichern nicht m\u00f6glich: ein Fehler.","other":"Speichern nicht m\u00f6glich: %{count} Fehler."}},"template":{"header":{"one":"Konnte %{model} nicht speichern: ein Fehler.","other":"Konnte %{model} nicht speichern: %{count} Fehler."},"body":"Bitte \u00fcberpr\u00fcfen Sie die folgenden Felder:"}},"activerecord":{"errors":{"messages":{"taken":"ist bereits vergeben","record_invalid":"G\u00fcltigkeitspr\u00fcfung ist fehlgeschlagen: %{errors}","inclusion":"ist kein g\u00fcltiger Wert","exclusion":"ist nicht verf\u00fcgbar","invalid":"ist nicht g\u00fcltig","confirmation":"stimmt nicht mit der Best\u00e4tigung \u00fcberein","accepted":"muss akzeptiert werden","empty":"muss ausgef\u00fcllt werden","blank":"muss ausgef\u00fcllt werden","too_long":"ist zu lang (nicht mehr als %{count} Zeichen)","too_short":"ist zu kurz (nicht weniger als %{count} Zeichen)","wrong_length":"hat die falsche L\u00e4nge (muss genau %{count} Zeichen haben)","not_a_number":"ist keine Zahl","greater_than":"muss gr\u00f6\u00dfer als %{count} sein","greater_than_or_equal_to":"muss gr\u00f6\u00dfer oder gleich %{count} sein","equal_to":"muss genau %{count} sein","less_than":"muss kleiner als %{count} sein","less_than_or_equal_to":"muss kleiner oder gleich %{count} sein","odd":"muss ungerade sein","even":"muss gerade sein","not_an_integer":"muss ganzzahlig sein","not_saved":{"one":"Speichern nicht m\u00f6glich: ein Fehler.","other":"Speichern nicht m\u00f6glich: %{count} Fehler."}},"template":{"header":{"one":"Konnte %{model} nicht speichern: ein Fehler.","other":"Konnte %{model} nicht speichern: %{count} Fehler."},"body":"Bitte \u00fcberpr\u00fcfen Sie die folgenden Felder:"},"full_messages":{"format":"%{attribute} %{message}"}}}},"ro":{"date":{"formats":{"default":"%d-%m-%Y","short":"%d %b","long":"%d %B %Y"},"day_names":["Duminic\u0103","Luni","Mar\u021bi","Miercuri","Joi","Vineri","S\u00e2mbat\u0103"],"abbr_day_names":["Dum","Lun","Mar","Mie","Joi","Vin","S\u00e2m"],"month_names":[null,"Ianuarie","Februarie","Martie","Aprilie","Mai","Iunie","Iulie","August","Septembrie","Octombrie","Noiembrie","Decembrie"],"abbr_month_names":[null,"Ian","Feb","Mar","Apr","Mai","Iun","Iul","Aug","Sep","Oct","Noi","Dec"],"order":["day","month","year"]},"time":{"formats":{"default":"%a %d %b %Y, %H:%M:%S %z","short":"%d %b %H:%M","long":"%d %B %Y %H:%M"},"am":"","pm":""},"support":{"array":{"words_connector":", ","two_words_connector":" \u015fi ","last_word_connector":" \u015fi "},"select":{"prompt":"Alege\u0163i"}},"number":{"format":{"precision":3,"separator":".","delimiter":",","significant":false,"strip_insignificant_zeros":false},"currency":{"format":{"unit":"RON","precision":2,"separator":".","delimiter":",","format":"%n %u","significant":false,"strip_insignificant_zeros":false}},"percentage":{"format":{"delimiter":","}},"precision":{"format":{"delimiter":""}},"human":{"format":{"delimiter":",","precision":3,"significant":true,"strip_insignificant_zeros":true},"storage_units":{"format":"%n %u","units":{"byte":{"one":"Byte","other":"Bytes"},"kb":"KB","mb":"MB","gb":"GB","tb":"TB"}},"decimal_units":{"format":"%n %u","units":{"unit":"","thousand":"Mie","million":"Milion","billion":"Miliard","trillion":"Trilion","quadrillion":"Quadrilion"}}}},"datetime":{"distance_in_words":{"half_a_minute":"jum\u0103tate de minut","less_than_x_seconds":{"one":"mai pu\u021bin de o secund\u0103","other":"mai pu\u021bin de %{count} secunde"},"x_seconds":{"one":"1 secund\u0103","other":"%{count} secunde"},"less_than_x_minutes":{"one":"mai pu\u021bin de un minut","other":"mai pu\u021bin de %{count} minute"},"x_minutes":{"one":"1 minut","other":"%{count} minute"},"about_x_hours":{"one":"aproximativ o or\u0103","other":"aproximativ %{count} ore"},"x_days":{"one":"1 zi","other":"%{count} zile"},"about_x_months":{"one":"aproximativ o lun\u0103","other":"aproximativ %{count} luni"},"x_months":{"one":"1 lun\u0103","other":"%{count} luni"},"about_x_years":{"one":"aproximativ un an","other":"aproximativ %{count} ani"},"over_x_years":{"one":"mai mult de un an","other":"mai mult de %{count} ani"},"almost_x_years":{"one":"aproape 1 an","other":"aproape %{count} ani"}},"prompts":{"year":"Anul","month":"Luna","day":"Ziua","hour":"Ora","minute":"Minutul","second":"Secunda"}},"helpers":{"select":{"prompt":"Alege\u0163i"},"submit":{"create":"Creare %{model}","update":"Modificare %{model}","submit":"Salvare %{model}"}},"errors":{"format":"%{attribute} %{message}","messages":{"inclusion":"nu este inclus \u00een list\u0103","exclusion":"este rezervat","invalid":"este invalid","confirmation":"nu este confirmat","accepted":"trebuie dat acceptul","empty":"nu poate fi gol","blank":"nu poate fi gol","too_long":"este prea lung (se pot folosi maximum %{count} caractere)","too_short":"este pre scurt (minumim de caractere este %{count})","wrong_length":"nu are lungimea corect\u0103 (trebuie s\u0103 aiba %{count} caractere)","not_a_number":"nu este un num\u0103r","not_an_integer":"trebuie s\u0103 fie un mum\u0103r \u00eentreg","greater_than":"trebuie s\u0103 fie mai mare dec\u00e2t %{count}","greater_than_or_equal_to":"trebuie s\u0103 fie mai mare sau egal cu %{count}","equal_to":"trebuie s\u0103 fie egal cu %{count}","less_than":"trebuie s\u0103 fie mai mic dec\u00e2t %{count}","less_than_or_equal_to":"trebuie s\u0103 fie mai mic sau egal cu %{count}","odd":"trebuie s\u0103 fie par","even":"trebuie s\u0103 fie impar"}},"activerecord":{"errors":{"template":{"header":{"one":"Nu am putut salva acest %{model}: o eroare","other":"Nu am putut salva acest %{model}: %{count} erori."},"body":"\u00cencearc\u0103 s\u0103 corectezi urmatoarele c\u00e2mpuri:"},"messages":{"taken":"este deja folosit","record_invalid":"Validare nereu\u015fit\u0103 %{errors}","inclusion":"nu este inclus \u00een list\u0103","exclusion":"este rezervat","invalid":"este invalid","confirmation":"nu este confirmat","accepted":"trebuie dat acceptul","empty":"nu poate fi gol","blank":"nu poate fi gol","too_long":"este prea lung (se pot folosi maximum %{count} caractere)","too_short":"este pre scurt (minumim de caractere este %{count})","wrong_length":"nu are lungimea corect\u0103 (trebuie s\u0103 aiba %{count} caractere)","not_a_number":"nu este un num\u0103r","not_an_integer":"trebuie s\u0103 fie un mum\u0103r \u00eentreg","greater_than":"trebuie s\u0103 fie mai mare dec\u00e2t %{count}","greater_than_or_equal_to":"trebuie s\u0103 fie mai mare sau egal cu %{count}","equal_to":"trebuie s\u0103 fie egal cu %{count}","less_than":"trebuie s\u0103 fie mai mic dec\u00e2t %{count}","less_than_or_equal_to":"trebuie s\u0103 fie mai mic sau egal cu %{count}","odd":"trebuie s\u0103 fie par","even":"trebuie s\u0103 fie impar"},"full_messages":{"format":"%{attribute} %{message}"}}}},"bg":{"date":{"formats":{"default":"%d.%m.%Y","short":"%d %b","long":"%d %B %Y"},"day_names":["\u043d\u0435\u0434\u0435\u043b\u044f","\u043f\u043e\u043d\u0435\u0434\u0435\u043b\u043d\u0438\u043a","\u0432\u0442\u043e\u0440\u043d\u0438\u043a","\u0441\u0440\u044f\u0434\u0430","\u0447\u0435\u0442\u0432\u044a\u0440\u0442\u044a\u043a","\u043f\u0435\u0442\u044a\u043a","\u0441\u044a\u0431\u043e\u0442\u0430"],"abbr_day_names":["\u043d\u0435\u0434","\u043f\u043e\u043d","\u0432\u0442","\u0441\u0440","\u0447\u0435\u0442","\u043f\u0435\u0442","\u0441\u044a\u0431"],"month_names":[null,"\u044f\u043d\u0443\u0430\u0440\u0438","\u0444\u0435\u0432\u0440\u0443\u0430\u0440\u0438","\u043c\u0430\u0440\u0442","\u0430\u043f\u0440\u0438\u043b","\u043c\u0430\u0439","\u044e\u043d\u0438","\u044e\u043b\u0438","\u0430\u0432\u0433\u0443\u0441\u0442","\u0441\u0435\u043f\u0442\u0435\u043c\u0432\u0440\u0438","\u043e\u043a\u0442\u043e\u043c\u0432\u0440\u0438","\u043d\u043e\u0435\u043c\u0432\u0440\u0438","\u0434\u0435\u043a\u0435\u043c\u0432\u0440\u0438"],"abbr_month_names":[null,"\u044f\u043d\u0443.","\u0444\u0435\u0432.","\u043c\u0430\u0440\u0442","\u0430\u043f\u0440.","\u043c\u0430\u0439","\u044e\u043d\u0438","\u044e\u043b\u0438","\u0430\u0432\u0433.","\u0441\u0435\u043f.","\u043e\u043a\u0442.","\u043d\u043e\u0435\u043c.","\u0434\u0435\u043a."],"order":["day","month","year"]},"time":{"formats":{"default":"%a, %d %b %Y, %H:%M:%S %z","short":"%d %b, %H:%M","long":"%d %B %Y, %H:%M"},"am":"\u043f\u0440\u0435\u0434\u0438 \u043e\u0431\u044f\u0434","pm":"\u0441\u043b\u0435\u0434\u043e\u0431\u0435\u0434"},"support":{"array":{"words_connector":", ","two_words_connector":" \u0438 ","last_word_connector":" \u0438 "},"select":{"prompt":"\u041c\u043e\u043b\u044f \u043e\u0442\u0431\u0435\u043b\u0435\u0436\u0435\u0442\u0435"}},"number":{"format":{"separator":",","delimiter":" ","precision":3,"significant":false,"strip_insignificant_zeros":false},"currency":{"format":{"format":"%n %u","unit":"\u043b\u0432.","separator":",","delimiter":" ","precision":2,"significant":false,"strip_insignificant_zeros":false}},"percentage":{"format":{"delimiter":""}},"precision":{"format":{"delimiter":""}},"human":{"format":{"delimiter":"","precision":1,"significant":true,"strip_insignificant_zeros":true},"storage_units":{"format":"%n %u","units":{"byte":{"one":"\u0411\u0430\u0439\u0442","other":"\u0411\u0430\u0439\u0442\u0430"},"kb":"\u041a\u0411","mb":"\u041c\u0411","gb":"\u0413\u0411","tb":"\u0422\u0411"}},"decimal_units":{"format":"%n %u","units":{"unit":"","thousand":"\u0445\u0438\u043b\u044f\u0434\u0438","million":"\u043c\u0438\u043b\u0438\u043e\u043d\u0430","billion":"\u043c\u0438\u043b\u0438\u0430\u0440\u0434\u0430","trillion":"\u0442\u0440\u0438\u043b\u0438\u043e\u043d\u0430","quadrillion":"\u043a\u0432\u0430\u0434\u0440\u0438\u043b\u0438\u043e\u043d\u0430"}}}},"datetime":{"distance_in_words":{"half_a_minute":"\u043f\u043e\u043b\u043e\u0432\u0438\u043d \u043c\u0438\u043d\u0443\u0442\u0430","less_than_x_seconds":{"one":"\u043f\u043e-\u043c\u0430\u043b\u043a\u043e \u043e\u0442 1 \u0441\u0435\u043a\u0443\u043d\u0434\u0430","other":"\u043f\u043e-\u043c\u0430\u043b\u043a\u043e \u043e\u0442 %{count} \u0441\u0435\u043a\u0443\u043d\u0434\u0438"},"x_seconds":{"one":"1 \u0441\u0435\u043a\u0443\u043d\u0434\u0430","other":"%{count} \u0441\u0435\u043a\u0443\u043d\u0434\u0438"},"less_than_x_minutes":{"one":"\u043f\u043e-\u043c\u0430\u043b\u043a\u043e \u043e\u0442 1 \u043c\u0438\u043d\u0443\u0442\u0430","other":"\u043f\u043e-\u043c\u0430\u043b\u043a\u043e \u043e\u0442 %{count} \u043c\u0438\u043d\u0443\u0442\u0438"},"x_minutes":{"one":"1 \u043c\u0438\u043d\u0443\u0442\u0430","other":"%{count} \u043c\u0438\u043d\u0443\u0442\u0438"},"about_x_hours":{"one":"\u043e\u043a\u043e\u043b\u043e 1 \u0447\u0430\u0441","other":"\u043e\u043a\u043e\u043b\u043e %{count} \u0447\u0430\u0441\u0430"},"x_days":{"one":"1 \u0434\u0435\u043d","other":"%{count} \u0434\u043d\u0438"},"about_x_months":{"one":"\u043e\u043a\u043e\u043b\u043e 1 \u043c\u0435\u0441\u0435\u0446","other":"\u043e\u043a\u043e\u043b\u043e %{count} \u043c\u0435\u0441\u0435\u0446\u0430"},"x_months":{"one":"1 \u043c\u0435\u0441\u0435\u0446","other":"%{count} \u043c\u0435\u0441\u0435\u0446\u0430"},"about_x_years":{"one":"\u043e\u043a\u043e\u043b\u043e 1 \u0433\u043e\u0434\u0438\u043d\u0430","other":"\u043e\u043a\u043e\u043b\u043e %{count} \u0433\u043e\u0434\u0438\u043d\u0438"},"over_x_years":{"one":"\u043d\u0430\u0434 1 \u0433\u043e\u0434\u0438\u043d\u0430","other":"\u043d\u0430\u0434 %{count} \u0433\u043e\u0434\u0438\u043d\u0438"},"almost_x_years":{"one":"\u043f\u043e\u0447\u0442\u0438 1 \u0433\u043e\u0434\u0438\u043d\u0430","other":"\u043f\u043e\u0447\u0442\u0438 %{count} \u0433\u043e\u0434\u0438\u043d\u0438"}},"prompts":{"year":"\u0413\u043e\u0434\u0438\u043d\u0430","month":"\u041c\u0435\u0441\u0435\u0446","day":"\u0414\u0435\u043d","hour":"\u0427\u0430\u0441","minute":"\u041c\u0438\u043d\u0443\u0442\u0430","second":"\u0421\u0435\u043a\u0443\u043d\u0434\u0430"}},"helpers":{"select":{"prompt":"\u041c\u043e\u043b\u044f \u043e\u0442\u0431\u0435\u043b\u0435\u0436\u0435\u0442\u0435"},"submit":{"create":"\u0421\u044a\u0437\u0434\u0430\u0439 %{model}","update":"\u041e\u0431\u043d\u043e\u0432\u0438 %{model}","submit":"\u0417\u0430\u043f\u0430\u0437\u0438 %{model}"}},"errors":{"format":"%{attribute} %{message}","messages":{"inclusion":"\u0441\u044a\u0434\u044a\u0440\u0436\u0430 \u043d\u0435\u043f\u0440\u0435\u0434\u0432\u0438\u0434\u0435\u043d\u0430 \u0441\u0442\u043e\u0439\u043d\u043e\u0441\u0442","exclusion":"\u0441\u044a\u0434\u044a\u0440\u0436\u0430 \u043f\u0440\u0435\u0434\u0432\u0430\u0440\u0438\u0442\u0435\u043b\u043d\u043e \u0437\u0430\u0434\u0430\u0434\u0435\u043d\u0430 \u0441\u0442\u043e\u0439\u043d\u043e\u0441\u0442","invalid":"\u0441\u044a\u0434\u044a\u0440\u0436\u0430 \u043d\u0435\u0432\u044f\u0440\u043d\u0430 \u0441\u0442\u043e\u0439\u043d\u043e\u0441\u0442","confirmation":"\u043d\u0435 \u0441\u044a\u043e\u0442\u0432\u0435\u0442\u0441\u0442\u0432\u0430 \u043d\u0430 \u043f\u043e\u0442\u0432\u044a\u0440\u0436\u0434\u0435\u043d\u0438\u0435\u0442\u043e","accepted":"\u0442\u0440\u044f\u0431\u0432\u0430 \u0434\u0430 \u0441\u0435 \u043f\u043e\u0442\u0432\u044a\u0440\u0434\u0438","empty":"\u043d\u0435 \u043c\u043e\u0436\u0435 \u0434\u0430 \u0435 \u043f\u0440\u0430\u0437\u043d\u043e","blank":"\u043d\u0435 \u043c\u043e\u0436\u0435 \u0434\u0430 \u0435 \u0431\u0435\u0437 \u0441\u0442\u043e\u0439\u043d\u043e\u0441\u0442","too_long":"\u0435 \u043f\u0440\u0435\u043a\u0430\u043b\u0435\u043do \u0434\u044a\u043b\u0433\u043e (\u043d\u0435 \u043c\u043e\u0436\u0435 \u0434\u0430 \u0435 \u043f\u043e\u0432\u0435\u0447\u0435 \u043e\u0442 %{count} \u0441\u0438\u043c\u0432\u043e\u043b\u0430)","too_short":"\u0435 \u043f\u0440\u0435\u043a\u0430\u043b\u0435\u043d\u043e \u043a\u044a\u0441\u043e (\u043d\u0435 \u043c\u043e\u0436\u0435 \u0434\u0430 \u0431\u044a\u0434\u0435 \u043f\u043e-\u043c\u0430\u043b\u043a\u043e \u043e\u0442 %{count} \u0441\u0438\u043c\u0432\u043e\u043b\u0430)","wrong_length":"\u0435 \u0441 \u0433\u0440\u0435\u0448\u043d\u0430 \u0434\u044a\u043b\u0436\u0438\u043d\u0430 (\u0442\u0440\u044f\u0431\u0432\u0430 \u0434\u0430 \u0435 \u0441 \u0434\u044a\u043b\u0436\u0438\u043d\u0430, \u0440\u0430\u0432\u043d\u0430 \u043d\u0430 %{count} \u0441\u0438\u043c\u0432\u043e\u043b\u0430)","not_a_number":"\u043d\u0435 \u0435 \u0447\u0438\u0441\u043b\u043e","not_an_integer":"\u043d\u0435 \u0435 \u0446\u044f\u043b\u043e \u0447\u0438\u0441\u043b\u043e","greater_than":"\u0442\u0440\u044f\u0431\u0432\u0430 \u0434\u0430 \u0438\u043c\u0430 \u0441\u0442\u043e\u0439\u043d\u043e\u0441\u0442, \u043f\u043e-\u0433\u043e\u043b\u044f\u043c\u0430 \u043e\u0442 %{count}","greater_than_or_equal_to":"\u0442\u0440\u044f\u0431\u0432\u0430 \u0434\u0430 \u0438\u043c\u0430 \u0441\u0442\u043e\u0439\u043d\u043e\u0441\u0442, \u043f\u043e-\u0433\u043e\u043b\u044f\u043c\u0430 \u0438\u043b\u0438 \u0440\u0430\u0432\u043d\u0430 \u043d\u0430 %{count}","equal_to":"\u0442\u0440\u044f\u0431\u0432\u0430 \u0434\u0430 \u0438\u043c\u0430 \u0441\u0442\u043e\u0439\u043d\u043e\u0441\u0442, \u0440\u0430\u0432\u043d\u0430 \u043d\u0430 %{count}","less_than":"\u0442\u0440\u044f\u0431\u0432\u0430 \u0434\u0430 \u0438\u043c\u0430 \u0441\u0442\u043e\u0439\u043d\u043e\u0441\u0442, \u043f\u043e-\u043c\u0430\u043b\u043a\u0430 \u043e\u0442 %{count}","less_than_or_equal_to":"\u0442\u0440\u044f\u0431\u0432\u0430 \u0434\u0430 \u0438\u043c\u0430 \u0441\u0442\u043e\u0439\u043d\u043e\u0441\u0442, \u043f\u043e-\u0433\u043e\u043b\u044f\u043c\u0430 \u0438\u043b\u0438 \u0440\u0430\u0432\u043d\u0430 \u043d\u0430 %{count}","odd":"\u0442\u0440\u044f\u0431\u0432\u0430 \u0434\u0430 \u0435 \u0447\u0435\u0442\u043d\u043e","even":"\u0442\u0440\u044f\u0431\u0432\u0430 \u0434\u0430 \u0435 \u043d\u0435\u0447\u0435\u0442\u043d\u043e"}},"activerecord":{"errors":{"template":{"header":{"one":"%{model}: \u0437\u0430\u043f\u0438\u0441\u0430 \u0435 \u043d\u0435\u0443\u0441\u043f\u0435\u0448\u0435\u043d \u0437\u0430\u0440\u0430\u0434\u0438 1 \u0433\u0440\u0435\u0448\u043a\u0430","other":"%{model}: \u0437\u0430\u043f\u0438\u0441\u0430 \u0435 \u043d\u0435\u0443\u0441\u043f\u0435\u0448\u0435\u043d \u0437\u0430\u0440\u0430\u0434\u0438 %{count} \u0433\u0440\u0435\u0448\u043a\u0438"},"body":"\u0412\u044a\u0437\u043d\u0438\u043a\u043d\u0430\u0445\u0430 \u043f\u0440\u043e\u0431\u043b\u0435\u043c\u0438 \u0441\u044a\u0441 \u0441\u043b\u0435\u0434\u043d\u0438\u0442\u0435 \u043f\u043e\u043b\u0435\u0442\u0430:"},"messages":{"taken":"\u0432\u0435\u0447\u0435 \u0441\u044a\u0449\u0435\u0441\u0442\u0432\u0443\u0432\u0430","record_invalid":"\u0438\u043c\u0430\u0448\u0435 \u0433\u0440\u0435\u0448\u043a\u0438: %{errors}","inclusion":"\u0441\u044a\u0434\u044a\u0440\u0436\u0430 \u043d\u0435\u043f\u0440\u0435\u0434\u0432\u0438\u0434\u0435\u043d\u0430 \u0441\u0442\u043e\u0439\u043d\u043e\u0441\u0442","exclusion":"\u0441\u044a\u0434\u044a\u0440\u0436\u0430 \u043f\u0440\u0435\u0434\u0432\u0430\u0440\u0438\u0442\u0435\u043b\u043d\u043e \u0437\u0430\u0434\u0430\u0434\u0435\u043d\u0430 \u0441\u0442\u043e\u0439\u043d\u043e\u0441\u0442","invalid":"\u0441\u044a\u0434\u044a\u0440\u0436\u0430 \u043d\u0435\u0432\u044f\u0440\u043d\u0430 \u0441\u0442\u043e\u0439\u043d\u043e\u0441\u0442","confirmation":"\u043d\u0435 \u0441\u044a\u043e\u0442\u0432\u0435\u0442\u0441\u0442\u0432\u0430 \u043d\u0430 \u043f\u043e\u0442\u0432\u044a\u0440\u0436\u0434\u0435\u043d\u0438\u0435\u0442\u043e","accepted":"\u0442\u0440\u044f\u0431\u0432\u0430 \u0434\u0430 \u0441\u0435 \u043f\u043e\u0442\u0432\u044a\u0440\u0434\u0438","empty":"\u043d\u0435 \u043c\u043e\u0436\u0435 \u0434\u0430 \u0435 \u043f\u0440\u0430\u0437\u043d\u043e","blank":"\u043d\u0435 \u043c\u043e\u0436\u0435 \u0434\u0430 \u0435 \u0431\u0435\u0437 \u0441\u0442\u043e\u0439\u043d\u043e\u0441\u0442","too_long":"\u0435 \u043f\u0440\u0435\u043a\u0430\u043b\u0435\u043do \u0434\u044a\u043b\u0433\u043e (\u043d\u0435 \u043c\u043e\u0436\u0435 \u0434\u0430 \u0435 \u043f\u043e\u0432\u0435\u0447\u0435 \u043e\u0442 %{count} \u0441\u0438\u043c\u0432\u043e\u043b\u0430)","too_short":"\u0435 \u043f\u0440\u0435\u043a\u0430\u043b\u0435\u043d\u043e \u043a\u044a\u0441\u043e (\u043d\u0435 \u043c\u043e\u0436\u0435 \u0434\u0430 \u0431\u044a\u0434\u0435 \u043f\u043e-\u043c\u0430\u043b\u043a\u043e \u043e\u0442 %{count} \u0441\u0438\u043c\u0432\u043e\u043b\u0430)","wrong_length":"\u0435 \u0441 \u0433\u0440\u0435\u0448\u043d\u0430 \u0434\u044a\u043b\u0436\u0438\u043d\u0430 (\u0442\u0440\u044f\u0431\u0432\u0430 \u0434\u0430 \u0435 \u0441 \u0434\u044a\u043b\u0436\u0438\u043d\u0430, \u0440\u0430\u0432\u043d\u0430 \u043d\u0430 %{count} \u0441\u0438\u043c\u0432\u043e\u043b\u0430)","not_a_number":"\u043d\u0435 \u0435 \u0447\u0438\u0441\u043b\u043e","not_an_integer":"\u043d\u0435 \u0435 \u0446\u044f\u043b\u043e \u0447\u0438\u0441\u043b\u043e","greater_than":"\u0442\u0440\u044f\u0431\u0432\u0430 \u0434\u0430 \u0438\u043c\u0430 \u0441\u0442\u043e\u0439\u043d\u043e\u0441\u0442, \u043f\u043e-\u0433\u043e\u043b\u044f\u043c\u0430 \u043e\u0442 %{count}","greater_than_or_equal_to":"\u0442\u0440\u044f\u0431\u0432\u0430 \u0434\u0430 \u0438\u043c\u0430 \u0441\u0442\u043e\u0439\u043d\u043e\u0441\u0442, \u043f\u043e-\u0433\u043e\u043b\u044f\u043c\u0430 \u0438\u043b\u0438 \u0440\u0430\u0432\u043d\u0430 \u043d\u0430 %{count}","equal_to":"\u0442\u0440\u044f\u0431\u0432\u0430 \u0434\u0430 \u0438\u043c\u0430 \u0441\u0442\u043e\u0439\u043d\u043e\u0441\u0442, \u0440\u0430\u0432\u043d\u0430 \u043d\u0430 %{count}","less_than":"\u0442\u0440\u044f\u0431\u0432\u0430 \u0434\u0430 \u0438\u043c\u0430 \u0441\u0442\u043e\u0439\u043d\u043e\u0441\u0442, \u043f\u043e-\u043c\u0430\u043b\u043a\u0430 \u043e\u0442 %{count}","less_than_or_equal_to":"\u0442\u0440\u044f\u0431\u0432\u0430 \u0434\u0430 \u0438\u043c\u0430 \u0441\u0442\u043e\u0439\u043d\u043e\u0441\u0442, \u043f\u043e-\u0433\u043e\u043b\u044f\u043c\u0430 \u0438\u043b\u0438 \u0440\u0430\u0432\u043d\u0430 \u043d\u0430 %{count}","odd":"\u0442\u0440\u044f\u0431\u0432\u0430 \u0434\u0430 \u0435 \u0447\u0435\u0442\u043d\u043e","even":"\u0442\u0440\u044f\u0431\u0432\u0430 \u0434\u0430 \u0435 \u043d\u0435\u0447\u0435\u0442\u043d\u043e"},"full_messages":{"format":"%{attribute} %{message}"}}},"i18n":{"transliterate":{"rule":{"\u0430":"a","\u0410":"A","\u0431":"b","\u0411":"B","\u0432":"v","\u0412":"V","\u0433":"g","\u0413":"G","\u0434":"d","\u0414":"D","\u0435":"e","\u0415":"E","\u0436":"zh","\u0416":"Zh","\u0437":"z","\u0417":"Z","\u0438":"i","\u0418":"I","\u0439":"y","\u0419":"Y","\u043a":"k","\u041a":"K","\u043b":"l","\u041b":"L","\u043c":"m","\u041c":"M","\u043d":"n","\u041d":"N","\u043e":"o","\u041e":"O","\u043f":"p","\u041f":"P","\u0440":"r","\u0420":"R","\u0441":"s","\u0421":"S","\u0442":"t","\u0422":"T","\u0443":"u","\u0423":"U","\u0444":"f","\u0424":"F","\u0445":"h","\u0425":"H","\u0446":"ts","\u0426":"Ts","\u0447":"ch","\u0427":"Ch","\u0448":"sh","\u0428":"Sh","\u0449":"sht","\u0429":"Sht","\u044a":"a","\u042a":"A","\u044c":"y","\u042c":"Y","\u044e":"yu","\u042e":"Yu","\u044f":"ya","\u042f":"Ya"}}}},"mk":{"date":{"formats":{"default":"%d/%m/%Y","short":"%e %b","long":"%B %e, %Y","only_day":"%e"},"day_names":["\u041d\u0435\u0434\u0435\u043b\u0430","\u041f\u043e\u043d\u0435\u0434\u0435\u043b\u043d\u0438\u043a","\u0412\u0442\u043e\u0440\u043d\u0438\u043a","\u0421\u0440\u0435\u0434\u0430","\u0427\u0435\u0442\u0432\u0440\u0442\u043e\u043a","\u041f\u0435\u0442\u043e\u043a","\u0421\u0430\u0431\u043e\u0442\u0430"],"abbr_day_names":["\u041d\u0435\u0434","\u041f\u043e\u043d","\u0412\u0442\u043e","\u0421\u0440\u0435","\u0427\u0435\u0442","\u041f\u0435\u0442","\u0421\u0430\u0431"],"month_names":[null,"\u0408\u0430\u043d\u0443\u0430\u0440\u0438","\u0424\u0435\u0432\u0440\u0443\u0430\u0440\u0438","\u041c\u0430\u0440\u0442","\u0410\u043f\u0440\u0438\u043b","\u041c\u0430\u0458","\u0408\u0443\u043d\u0438","\u0408\u0443\u043b\u0438","\u0410\u0432\u0433\u0443\u0441\u0442","\u0421\u0435\u043f\u0442\u0435\u043c\u0432\u0440\u0438","\u041e\u043a\u0442\u043e\u043c\u0432\u0440\u0438","\u041d\u043e\u0435\u043c\u0432\u0440\u0438","\u0414\u0435\u043a\u0435\u043c\u0432\u0440\u0438"],"abbr_month_names":[null,"\u0408\u0430\u043d","\u0424\u0435\u0432","\u041c\u0430\u0440","\u0410\u043f\u0440","\u041c\u0430\u0458","\u0408\u0443\u043d","\u0408\u0443\u043b","\u0410\u0432\u0433","\u0421\u0435\u043f","\u041e\u043a\u0442","\u041d\u043e\u0435","\u0414\u0435\u043a"],"order":["day","month","year"]},"time":{"formats":{"default":"%a %b %d %H:%M:%S %Z %Y","time":"%H:%M","short":"%d %b %H:%M","long":"%B %d, %Y %H:%M","only_second":"%S"},"am":"\u0410\u041c","pm":"\u041f\u041c"},"datetime":{"formats":{"default":"%Y-%m-%dT%H:%M:%S%Z"},"distance_in_words":{"half_a_minute":"\u043f\u043e\u043b\u0430 \u043c\u0438\u043d\u0443\u0442\u0430","less_than_x_seconds":{"zero":"\u043f\u043e\u043c\u0430\u043b\u043a\u0443 \u043e\u0434 \u0441\u0435\u043a\u0443\u043d\u0434\u0430","one":"\u043f\u043e\u043c\u0430\u043b\u043a\u0443 \u043e\u0434 1 \u0441\u0435\u043a\u0443\u043d\u0434\u0430","few":"\u043f\u043e\u043c\u0430\u043b\u043a\u0443 \u043e\u0434 %{count} \u0441\u0435\u043a\u0443\u043d\u0434\u0438","other":"\u043f\u043e\u043c\u0430\u043b\u043a\u0443 \u043e\u0434 %{count} \u0441\u0435\u043a\u0443\u043d\u0434\u0438"},"x_seconds":{"one":"1 \u0441\u0435\u043a\u0443\u043d\u0434\u0430","few":"%{count} \u0441\u0435\u043a\u0443\u043d\u0434\u0438","other":"%{count} \u0441\u0435\u043a\u0443\u043d\u0434\u0438"},"less_than_x_minutes":{"zero":"\u043f\u043e\u043c\u0430\u043b\u043a\u0443 \u043e\u0434 \u043c\u0438\u043d\u0443\u0442\u0430","one":"\u043f\u043e\u043c\u0430\u043b\u043a\u0443 \u043e\u0434 1 \u043c\u0438\u043d\u0443\u0442\u0430","other":"\u043f\u043e\u043c\u0430\u043b\u043a\u0443 \u043e\u0434 %{count} \u043c\u0438\u043d\u0443\u0442\u0438"},"x_minutes":{"one":"1 \u043c\u0438\u043d\u0443\u0442\u0430","other":"%{count} \u043c\u0438\u043d\u0443\u0442\u0438"},"about_x_hours":{"one":"\u043e\u043a\u043e\u043b\u0443 1 \u0447\u0430\u0441","few":"\u043e\u043a\u043e\u043b\u0443 %{count} \u0447\u0430\u0441\u0430","other":"\u043e\u043a\u043e\u043b\u0443 %{count} \u0447\u0430\u0441\u0430"},"x_days":{"one":"1 \u0434\u0435\u043d","other":"%{count} \u0434\u0435\u043d\u043e\u0432\u0438"},"about_x_months":{"one":"\u043e\u043a\u043e\u043b\u0443 1 \u043c\u0435\u0441\u0435\u0446","few":"\u043e\u043a\u043e\u043b\u0443 %{count} \u043c\u0435\u0441\u0435\u0446\u0438","other":"\u043e\u043a\u043e\u043b\u0443 %{count} \u043c\u0435\u0441\u0435\u0446\u0438"},"x_months":{"one":"1 \u043c\u0435\u0441\u0435\u0446","few":"%{count} \u043c\u0435\u0441\u0435\u0446\u0438","other":"%{count} \u043c\u0435\u0441\u0435\u0446\u0438"},"about_x_years":{"one":"\u043e\u043a\u043e\u043b\u0443 1 \u0433\u043e\u0434\u0438\u043d\u0430","other":"\u043e\u043a\u043e\u043b\u0443 %{count} \u0433\u043e\u0434\u0438\u043d\u0438"},"over_x_years":{"one":"\u043d\u0430\u0434 1 \u0433\u043e\u0434\u0438\u043d\u0430","other":"\u043d\u0430\u0434 %{count} \u0433\u043e\u0434\u0438\u043d\u0438"}}},"number":{"format":{"precision":3,"separator":",","delimiter":"."},"currency":{"format":{"unit":"MKD","precision":2,"format":"%n %u"}}},"support":{"array":{"sentence_connector":"\u0438"}},"activerecord":{"errors":{"template":{"header":{"one":"\u041d\u0435 \u0443\u0441\u043f\u0435\u0430\u0432 \u0434\u0430 \u0433\u043e \u0437\u0430\u0447\u0443\u0432\u0430\u043c %{model}: 1 \u0433\u0440\u0435\u0448\u043a\u0430.","few":"\u041d\u0435 \u0443\u0441\u043f\u0435\u0430\u0432 \u0434\u0430 \u0433\u043e \u0437\u0430\u0447\u0443\u0432\u0430\u043c %{model}: %{count} \u0433\u0440\u0435\u0448\u043a\u0438.","other":"\u041d\u0435 \u0443\u0441\u043f\u0435\u0430\u0432 \u0434\u0430 \u0433\u043e \u0437\u0430\u0447\u0443\u0432\u0430\u043c %{model}: %{count} \u0433\u0440\u0435\u0448\u043a\u0438."},"body":"\u0412\u0435 \u043c\u043e\u043b\u0438\u043c\u0435 \u043f\u0440\u043e\u0432\u0435\u0440\u0435\u0442\u0435 \u0433\u0438 \u0441\u043b\u0435\u0434\u043d\u0438\u0442\u0435 \u043f\u043e\u043b\u0438\u045a\u0430:"},"messages":{"inclusion":"\u043d\u0435 \u0435 \u0432\u043e \u043b\u0438\u0441\u0442\u0430\u0442\u0430","exclusion":"\u043d\u0435 \u0435 \u0434\u043e\u0441\u0442\u0430\u043f\u043d\u043e","invalid":"\u043d\u0435 \u0435 \u0438\u0441\u043f\u0440\u0430\u0432\u0435\u043d","confirmation":"\u043d\u0435 \u0441\u0435 \u0441\u043e\u0432\u043f\u0430\u0453\u0430 \u0441\u043e \u0441\u0432\u043e\u0458\u0430\u0442\u0430 \u043f\u043e\u0442\u0432\u0440\u0434\u0430","accepted":"\u043c\u043e\u0440\u0430 \u0434\u0430 \u0431\u0438\u0434\u0435 \u043f\u0440\u0438\u0444\u0430\u0442\u0435\u043d","empty":"\u043c\u043e\u0440\u0430 \u0434\u0430 \u0431\u0438\u0434\u0435 \u0437\u0430\u0434\u0430\u0434\u0435\u043d","blank":"\u043c\u043e\u0440\u0430 \u0434\u0430 \u0431\u0438\u0434\u0435 \u0437\u0430\u0434\u0430\u0434\u0435\u043d","too_long":"\u0435 \u043f\u0440\u0435\u0434\u043e\u043b\u0433 (\u043d\u0435 \u043f\u043e\u0432\u0435\u045c\u0435 \u043e\u0434 %{count} \u043a\u0430\u0440\u0430\u043a\u0442\u0435\u0440\u0438)","too_short":"\u0435 \u043f\u0440\u0435\u043a\u0440\u0430\u0442\u043e\u043a (\u043d\u0435 \u043f\u043e\u043c\u0430\u043b\u043a\u0443 \u043e\u0434 %{count} \u043a\u0430\u0440\u0430\u043a\u0442\u0435\u0440\u0438)","wrong_length":"\u043d\u0435\u0441\u043e\u043e\u0434\u0432\u0435\u0442\u043d\u0430 \u0434\u043e\u043b\u0436\u0438\u043d\u0430 (\u043c\u043e\u0440\u0430 \u0434\u0430 \u0438\u043c\u0430\u0442\u0435 %{count} \u043a\u0430\u0440\u0430\u043a\u0442\u0435\u0440\u0438)","taken":"\u0435 \u0437\u0430\u0444\u0430\u0442\u0435\u043d\u043e","not_a_number":"\u043d\u0435 \u0435 \u0431\u0440\u043e\u0458 ","greater_than":"\u043c\u043e\u0440\u0430 \u0434\u0430 \u0431\u0438\u0434\u0435 \u043f\u043e\u0433\u043e\u043b\u0435\u043c\u043e \u043e\u0434 %{count}","greater_than_or_equal_to":"\u043c\u043e\u0440\u0430 \u0434\u0430 \u0431\u0438\u0434\u0435 \u043f\u043e\u0433\u043e\u043b\u0435\u043c\u043e \u0438\u043b\u0438 \u0435\u0434\u043d\u0430\u043a\u0432\u043e \u043d\u0430 %{count}","equal_to":"\u043c\u043e\u0440\u0430 \u0434\u0430 \u0431\u0438\u0434\u0435 \u0435\u0434\u043d\u0430\u043a\u0432\u043e \u043d\u0430 %{count}","less_than":"\u043c\u043e\u0440\u0430 \u0434\u0430 \u0431\u0438\u0434\u0435 \u043f\u043e\u043c\u0430\u043b\u043e \u043e\u0434 %{count}","less_than_or_equal_to":"\u043c\u043e\u0440\u0430 \u0434\u0430 \u0431\u0438\u0434\u0435 \u043f\u043e\u043c\u0430\u043b\u043e \u0438\u043b\u0438 \u0435\u0434\u043d\u0430\u043a\u0432\u043e \u043d\u0430 %{count}","odd":"\u043c\u043e\u0440\u0430 \u0434\u0430 \u0431\u0438\u0434\u0435 \u043d\u0435\u043f\u0430\u0440\u043d\u043e","even":"\u043c\u043e\u0440\u0430 \u0434\u0430 \u0431\u0438\u0434\u0435 \u043f\u0430\u0440\u043d\u043e"}}}},"de-AT":{"date":{"formats":{"default":"%d.%m.%Y","short":"%e. %b","long":"%e. %B %Y","only_day":"%e"},"day_names":["Sonntag","Montag","Dienstag","Mittwoch","Donnerstag","Freitag","Samstag"],"abbr_day_names":["So","Mo","Di","Mi","Do","Fr","Sa"],"month_names":[null,"J\u00e4nner","Februar","M\u00e4rz","April","Mai","Juni","Juli","August","September","Oktober","November","Dezember"],"abbr_month_names":[null,"J\u00e4n","Feb","M\u00e4r","Apr","Mai","Jun","Jul","Aug","Sep","Okt","Nov","Dez"],"order":["day","month","year"]},"time":{"formats":{"default":"%A, %d. %B %Y, %H:%M Uhr","short":"%d. %B, %H:%M Uhr","long":"%A, %d. %B %Y, %H:%M Uhr","time":"%H:%M"},"am":"vormittags","pm":"nachmittags"},"datetime":{"distance_in_words":{"half_a_minute":"eine halbe Minute","less_than_x_seconds":{"one":"weniger als eine Sekunde","other":"weniger als %{count} Sekunden"},"x_seconds":{"one":"eine Sekunde","other":"%{count} Sekunden"},"less_than_x_minutes":{"one":"weniger als eine Minute","other":"weniger als %{count} Minuten"},"x_minutes":{"one":"eine Minute","other":"%{count} Minuten"},"about_x_hours":{"one":"etwa eine Stunde","other":"etwa %{count} Stunden"},"x_days":{"one":"ein Tag","other":"%{count} Tage"},"about_x_months":{"one":"etwa ein Monat","other":"etwa %{count} Monate"},"x_months":{"one":"ein Monat","other":"%{count} Monate"},"almost_x_years":{"one":"fast ein Jahr","other":"fast %{count} Jahre"},"about_x_years":{"one":"etwa ein Jahr","other":"etwa %{count} Jahre"},"over_x_years":{"one":"mehr als ein Jahr","other":"mehr als %{count} Jahre"}},"prompts":{"second":"Sekunden","minute":"Minuten","hour":"Stunden","day":"Tag","month":"Monat","year":"Jahr"}},"number":{"format":{"precision":2,"separator":",","delimiter":".","significant":false,"strip_insignificant_zeros":false},"currency":{"format":{"unit":"\u20ac","format":"%u %n","separator":",","delimiter":".","precision":2,"significant":false,"strip_insignificant_zeros":false}},"percentage":{"format":{"delimiter":""}},"precision":{"format":{"delimiter":""}},"human":{"format":{"delimiter":"","precision":1,"significant":true,"strip_insignificant_zeros":true},"storage_units":{"format":"%n %u","units":{"byte":{"one":"Byte","other":"Bytes"},"kb":"KB","mb":"MB","gb":"GB","tb":"TB"}},"decimal_units":{"format":"%n %u","units":{"unit":"","thousand":"Tausend","million":"Millionen","billion":{"one":"Milliarde","others":"Milliarden"},"trillion":"Billionen","quadrillion":{"one":"Billiarde","others":"Billiarden"}}}}},"support":{"array":{"words_connector":", ","two_words_connector":" und ","last_word_connector":" und "},"select":{"prompt":"Bitte w\u00e4hlen:"}},"helpers":{"select":{"prompt":"Bitte w\u00e4hlen"},"submit":{"create":"%{model} erstellen","update":"%{model} aktualisieren","submit":"%{model} speichern"}},"errors":{"format":"%{attribute} %{message}","messages":{"inclusion":"ist kein g\u00fcltiger Wert","exclusion":"ist nicht verf\u00fcgbar","invalid":"ist nicht g\u00fcltig","confirmation":"stimmt nicht mit der Best\u00e4tigung \u00fcberein","accepted":"muss akzeptiert werden","empty":"muss ausgef\u00fcllt werden","blank":"muss ausgef\u00fcllt werden","too_long":"ist zu lang (nicht mehr als %{count} Zeichen)","too_short":"ist zu kurz (nicht weniger als %{count} Zeichen)","wrong_length":"hat die falsche L\u00e4nge (muss genau %{count} Zeichen haben)","not_a_number":"ist keine Zahl","greater_than":"muss gr\u00f6\u00dfer als %{count} sein","greater_than_or_equal_to":"muss gr\u00f6\u00dfer oder gleich %{count} sein","equal_to":"muss genau %{count} sein","less_than":"muss kleiner als %{count} sein","less_than_or_equal_to":"muss kleiner oder gleich %{count} sein","odd":"muss ungerade sein","even":"muss gerade sein","not_an_integer":"muss ganzzahlig sein"},"template":{"header":{"one":"Konnte %{model} nicht speichern: ein Fehler.","other":"Konnte %{model} nicht speichern: %{count} Fehler."},"body":"Bitte \u00fcberpr\u00fcfen Sie die folgenden Felder:"}},"activerecord":{"errors":{"messages":{"taken":"ist bereits vergeben","record_invalid":"G\u00fcltigkeitspr\u00fcfung ist fehlgeschlagen: %{errors}","inclusion":"ist kein g\u00fcltiger Wert","exclusion":"ist nicht verf\u00fcgbar","invalid":"ist nicht g\u00fcltig","confirmation":"stimmt nicht mit der Best\u00e4tigung \u00fcberein","accepted":"muss akzeptiert werden","empty":"muss ausgef\u00fcllt werden","blank":"muss ausgef\u00fcllt werden","too_long":"ist zu lang (nicht mehr als %{count} Zeichen)","too_short":"ist zu kurz (nicht weniger als %{count} Zeichen)","wrong_length":"hat die falsche L\u00e4nge (muss genau %{count} Zeichen haben)","not_a_number":"ist keine Zahl","greater_than":"muss gr\u00f6\u00dfer als %{count} sein","greater_than_or_equal_to":"muss gr\u00f6\u00dfer oder gleich %{count} sein","equal_to":"muss genau %{count} sein","less_than":"muss kleiner als %{count} sein","less_than_or_equal_to":"muss kleiner oder gleich %{count} sein","odd":"muss ungerade sein","even":"muss gerade sein","not_an_integer":"muss ganzzahlig sein"},"template":{"header":{"one":"Konnte %{model} nicht speichern: ein Fehler.","other":"Konnte %{model} nicht speichern: %{count} Fehler."},"body":"Bitte \u00fcberpr\u00fcfen Sie die folgenden Felder:"},"full_messages":{"format":"%{attribute} %{message}"}}}},"es-CO":{"number":{"percentage":{"format":{"delimiter":","}},"currency":{"format":{"format":"%u%n","unit":"$","separator":".","delimiter":",","precision":0,"significant":false,"strip_insignificant_zeros":false}},"format":{"delimiter":",","precision":2,"significant":false,"strip_insignificant_zeros":false,"separator":"."},"human":{"format":{"delimiter":",","precision":3,"significant":true,"strip_insignificant_zeros":true},"storage_units":{"format":"%n %u","units":{"byte":{"one":"Byte","other":"Bytes"},"kb":"KB","mb":"MB","gb":"GB","tb":"TB"}},"decimal_units":{"format":"%n %u","units":{"unit":"","thousand":"mil","million":"mill\u00f3n","billion":"mil millones","trillion":"bill\u00f3n","quadrillion":"mil billones"}}},"precision":{"format":{"delimiter":","}}},"date":{"order":["day","month","year"],"abbr_day_names":["dom","lun","mar","mi\u00e9","jue","vie","s\u00e1b"],"abbr_month_names":[null,"ene","feb","mar","abr","may","jun","jul","ago","sep","oct","nov","dic"],"day_names":["domingo","lunes","martes","mi\u00e9rcoles","jueves","viernes","s\u00e1bado"],"month_names":[null,"enero","febrero","marzo","abril","mayo","junio","julio","agosto","septiembre","octubre","noviembre","diciembre"],"formats":{"short":"%d de %b","default":"%d/%m/%Y","long":"%A, %d de %B de %Y"}},"time":{"formats":{"short":"%d de %b a las %H:%M hrs","default":"%a, %d de %b de %Y a las %H:%M:%S %Z","long":"%A, %d de %B de %Y a las %I:%M %p"},"am":"am","pm":"pm"},"support":{"array":{"words_connector":", ","two_words_connector":" y ","last_word_connector":" y "},"select":{"prompt":"Por favor selecciona"}},"datetime":{"distance_in_words":{"half_a_minute":"medio minuto","less_than_x_seconds":{"one":"menos de 1 segundo","other":"menos de %{count} segundos"},"x_seconds":{"one":"1 segundo","other":"%{count} segundos"},"less_than_x_minutes":{"one":"menos de 1 minuto","other":"menos de %{count} minutos"},"x_minutes":{"one":"1 minuto","other":"%{count} minutos"},"about_x_hours":{"one":"cerca de 1 hora","other":"cerca de %{count} horas"},"x_days":{"one":"1 d\u00eda","other":"%{count} d\u00edas"},"about_x_months":{"one":"cerca de 1 mes","other":"cerca de %{count} meses"},"x_months":{"one":"1 mes","other":"%{count} meses"},"about_x_years":{"other":"cerca de %{count} a\u00f1os","one":"cerca de 1 a\u00f1o"},"over_x_years":{"one":"m\u00e1s de 1 a\u00f1o","other":"m\u00e1s de %{count} a\u00f1os"},"almost_x_years":{"one":"casi 1 a\u00f1o","other":"casi %{count} a\u00f1os"}},"prompts":{"year":"A\u00f1o","month":"Mes","day":"D\u00eda","hour":"Hora","minute":"Minuto","second":"Segundos"}},"helpers":{"select":{"prompt":"Por favor selecciona"},"submit":{"create":"Crear %{model}","update":"Actualizar %{model}","submit":"Guardar %{model}"}},"errors":{"format":"%{attribute} %{message}","messages":{"inclusion":"no est\u00e1 inclu\u00eddo en la lista","exclusion":"est\u00e1 reservado","invalid":"es inv\u00e1lido","confirmation":"no coincide con la confirmaci\u00f3n","blank":"no puede estar en blanco","empty":"no puede estar vac\u00edo","not_a_number":"no es un n\u00famero","not_an_integer":"debe ser un entero","less_than":"debe ser menor que %{count}","less_than_or_equal_to":"debe ser menor o igual que %{count}","greater_than":"debe ser mayor que %{count}","greater_than_or_equal_to":"debe ser mayor o igual que %{count}","too_short":{"one":"es demasiado corto (m\u00ednimo 1 caracter)","other":"es demasiado corto (m\u00ednimo %{count} caracteres)"},"too_long":{"one":"es demasiado largo (m\u00e1ximo 1 caracter)","other":"es demasiado largo (m\u00e1ximo %{count} caracteres)"},"equal_to":"debe ser igual a %{count}","wrong_length":{"one":"longitud err\u00f3nea (debe ser de 1 caracter)","other":"longitud err\u00f3nea (debe ser de %{count} caracteres)"},"accepted":"debe ser aceptado","even":"debe ser un n\u00famero par","odd":"debe ser un n\u00famero impar"}},"activerecord":{"errors":{"template":{"header":{"one":"%{model} no pudo guardarse debido a 1 error","other":"%{model} no pudo guardarse debido a %{count} errores"},"body":"Revise que los siguientes campos sean v\u00e1lidos:"},"messages":{"taken":"ya ha sido tomado","record_invalid":"La validaci\u00f3n fall\u00f3: %{errors}","inclusion":"no est\u00e1 inclu\u00eddo en la lista","exclusion":"est\u00e1 reservado","invalid":"es inv\u00e1lido","confirmation":"no coincide con la confirmaci\u00f3n","blank":"no puede estar en blanco","empty":"no puede estar vac\u00edo","not_a_number":"no es un n\u00famero","not_an_integer":"debe ser un entero","less_than":"debe ser menor que %{count}","less_than_or_equal_to":"debe ser menor o igual que %{count}","greater_than":"debe ser mayor que %{count}","greater_than_or_equal_to":"debe ser mayor o igual que %{count}","too_short":{"one":"es demasiado corto (m\u00ednimo 1 caracter)","other":"es demasiado corto (m\u00ednimo %{count} caracteres)"},"too_long":{"one":"es demasiado largo (m\u00e1ximo 1 caracter)","other":"es demasiado largo (m\u00e1ximo %{count} caracteres)"},"equal_to":"debe ser igual a %{count}","wrong_length":{"one":"longitud err\u00f3nea (debe ser de 1 caracter)","other":"longitud err\u00f3nea (debe ser de %{count} caracteres)"},"accepted":"debe ser aceptado","even":"debe ser un n\u00famero par","odd":"debe ser un n\u00famero impar"},"full_messages":{"format":"%{attribute} %{message}"}}}},"hi-IN":{"date":{"formats":{"default":"%d-%m-%Y","short":"%b %d","long":"%B %d, %Y"},"day_names":["\u0930\u0935\u093f\u0935\u093e\u0930","\u0938\u094b\u092e\u0935\u093e\u0930","\u092e\u0902\u0917\u0932\u0935\u093e\u0930","\u092c\u0941\u0927\u0935\u093e\u0930","\u0917\u0941\u0930\u0941\u0935\u093e\u0930","\u0936\u0941\u0915\u094d\u0930\u0935\u093e\u0930","\u0936\u0928\u093f\u0935\u093e\u0930"],"abbr_day_names":["\u0930\u0935\u093f","\u0938\u094b\u092e","\u092e\u0902\u0917\u0932","\u092c\u0941\u0927","\u0917\u0941\u0930\u0941","\u0936\u0941\u0915\u094d\u0930","\u0936\u0928\u093f"],"month_names":[null,"\u091c\u0928\u0935\u0930\u0940","\u092b\u0930\u0935\u0930\u0940","\u092e\u093e\u0930\u094d\u091a","\u0905\u092a\u094d\u0930\u0948\u0932","\u092e\u0908","\u091c\u0942\u0928","\u091c\u0941\u0932\u093e\u0908","\u0905\u0917\u0938\u094d\u0924","\u0938\u093f\u0924\u0902\u092c\u0930","\u0905\u0915\u094d\u091f\u0942\u092c\u0930","\u0928\u0935\u0902\u092c\u0930","\u0926\u093f\u0938\u0902\u092c\u0930"],"abbr_month_names":[null,"Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"],"order":["day","month","year"]},"time":{"formats":{"default":"%a, %d %b %Y %H:%M:%S %z","short":"%d %b %H:%M","long":"%B %d, %Y %H:%M"},"am":"am","pm":"pm"},"support":{"array":{"words_connector":", ","two_words_connector":" \u0914\u0930 ","last_word_connector":", \u0914\u0930 "},"select":{"prompt":"\u0915\u0943\u092a\u092f\u093e \u091a\u0941\u0928\u0947\u0902"}},"number":{"format":{"separator":".","delimiter":",","precision":3,"significant":false,"strip_insignificant_zeros":false},"currency":{"format":{"format":"%u%n","unit":"$","separator":".","delimiter":",","precision":2,"significant":false,"strip_insignificant_zeros":false}},"percentage":{"format":{"delimiter":""}},"precision":{"format":{"delimiter":""}},"human":{"format":{"delimiter":"","precision":3,"significant":true,"strip_insignificant_zeros":true},"storage_units":{"format":"%n %u","units":{"byte":{"one":"Byte","other":"Bytes"},"kb":"KB","mb":"MB","gb":"GB","tb":"TB"}},"decimal_units":{"format":"%n %u","units":{"unit":"","thousand":"\u0939\u091c\u093c\u093e\u0930","million":"\u092e\u093f\u0932\u094d\u0932\u093f\u0913\u0902\u0928","billion":"\u0905\u0930\u092c","trillion":"\u0916\u0930\u092c","quadrillion":"\u0915\u0930\u094b\u0921\u093c \u0936\u0902\u0916"}}}},"datetime":{"distance_in_words":{"half_a_minute":"\u090f\u0915 \u0906\u0927\u093e \u092e\u093f\u0928\u091f","less_than_x_seconds":{"one":"\u090f\u0915 \u0938\u0947\u0915\u0902\u0921 \u0938\u0947 \u0915\u092e","other":"%{count}  \u0938\u0947\u0915\u0902\u0921 \u0938\u0947 \u0915\u092e"},"x_seconds":{"one":"\u090f\u0915 \u0938\u0947\u0915\u0902\u0921","other":"%{count} \u0938\u0947\u0915\u0902\u0921"},"less_than_x_minutes":{"one":"\u090f\u0915 \u092e\u093f\u0928\u091f \u0938\u0947 \u0915\u092e","other":"%{count} \u092e\u093f\u0928\u091f \u0938\u0947 \u0915\u092e"},"x_minutes":{"one":"\u090f\u0915 \u092e\u093f\u0928\u091f","other":"%{count} \u092e\u093f\u0928\u091f"},"about_x_hours":{"one":"\u0932\u0917 - \u092d\u0917 \u090f\u0915 \u0918\u0902\u091f\u093e","other":"\u0932\u0917 - \u092d\u0917 %{count} \u0918\u0902\u091f\u093e"},"x_days":{"one":"\u090f\u0915 \u0926\u093f\u0928","other":"%{count} \u0926\u093f\u0928"},"about_x_months":{"one":"\u0932\u0917 - \u092d\u0917 1 \u092e\u0939\u0940\u0928\u093e","other":"\u0932\u0917 - \u092d\u0917 %{count} \u092e\u0939\u0940\u0928\u093e"},"x_months":{"one":"\u090f\u0915 \u092e\u0939\u0940\u0928\u093e","other":"%{count} \u092e\u0939\u0940\u0928\u093e"},"about_x_years":{"one":"\u0932\u0917 - \u092d\u0917 1 \u0938\u093e\u0932","other":"\u0932\u0917 - \u092d\u0917 %{count} \u0938\u093e\u0932"},"over_x_years":{"one":"\u090f\u0915 \u0938\u093e\u0932 \u0915\u0947 \u090a\u092a\u0930","other":"%{count} \u0938\u093e\u0932 \u0915\u0947 \u090a\u092a\u0930"},"almost_x_years":{"one":"\u0932\u0917 - \u092d\u0917 \u090f\u0915 \u0938\u093e\u0932","other":"\u0932\u0917 - \u092d\u0917 %{count} \u0938\u093e\u0932"}},"prompts":{"year":"\u0935\u0930\u094d\u0937","month":"\u092e\u093e\u0939","day":"\u0926\u093f\u0928","hour":"\u0918\u0902\u091f\u093e","minute":"\u0915\u094d\u0937\u0923","second":"\u0938\u0947\u0915\u0902\u0921"}},"helpers":{"select":{"prompt":"\u0915\u0943\u092a\u092f\u093e \u091a\u0941\u0928\u0947\u0902"},"submit":{"create":"\u092c\u0928\u093e\u090f\u0901 %{model}","update":"\u0905\u0926\u094d\u092f\u0924\u0928 %{model}","submit":"\u0938\u0939\u0947\u091c\u0947\u0902 %{model}"}},"errors":{"format":"%{attribute} %{message}","messages":{"inclusion":"\u0938\u0942\u091a\u0940 \u092e\u0947\u0902 \u0936\u093e\u092e\u093f\u0932 \u0928\u0939\u0940\u0902 \u0939\u0948","exclusion":"\u0906\u0930\u0915\u094d\u0937\u093f\u0924 \u0939\u0948","invalid":"\u0905\u0935\u0948\u0927 \u0939\u0948","confirmation":"\u092a\u0941\u0937\u094d\u091f\u093f\u0915\u0930\u0923 \u092e\u0947\u0932 \u0928\u0939\u0940\u0902 \u0916\u093e\u0924\u093e","accepted":"\u0939\u094b\u0928\u093e \u0938\u094d\u0935\u0940\u0915\u093e\u0930 \u0915\u093f\u092f\u093e \u091c\u093e\u0928\u093e \u0906\u0935\u0936\u094d\u092f\u0915","empty":"\u0916\u093e\u0932\u0940 \u0928\u0939\u0940\u0902 \u0915\u093f\u092f\u093e \u091c\u093e \u0938\u0915\u0924\u093e","blank":"\u0916\u093e\u0932\u0940 \u0928\u0939\u0940\u0902 \u0915\u093f\u092f\u093e \u091c\u093e \u0938\u0915\u0924\u093e","too_long":"\u092c\u0939\u0941\u0924 \u0932\u0902\u092c\u093e \u0939\u0948 (\u0905\u0927\u093f\u0915\u0924\u092e %{count} \u0905\u0915\u094d\u0937\u0930\u094b\u0902 \u0939\u0948)","too_short":"\u092c\u0939\u0941\u0924 \u091b\u094b\u091f\u093e \u0939\u0948 (\u0928\u094d\u092f\u0942\u0928\u0924\u092e %{count} \u0905\u0915\u094d\u0937\u0930\u094b\u0902 \u0939\u0948)","wrong_length":"\u0917\u0932\u0924 \u0932\u0902\u092c\u093e\u0908 \u0939\u0948 (%{count} \u0935\u0930\u094d\u0923 \u0935\u093e\u0932\u0947 \u0939\u094b\u0928\u0947 \u091a\u093e\u0939\u093f\u090f)","not_a_number":"\u0915\u094b\u0908 \u0938\u0902\u0916\u094d\u092f\u093e \u0928\u0939\u0940\u0902 \u0939\u0948","not_an_integer":"\u090f\u0915 \u092a\u0942\u0930\u094d\u0923\u093e\u0902\u0915 \u0939\u094b\u0928\u093e \u091a\u093e\u0939\u093f\u090f","greater_than":"%{count} \u0938\u0947 \u0905\u0927\u093f\u0915 \u0939\u094b\u0928\u093e \u091a\u093e\u0939\u093f\u090f","greater_than_or_equal_to":"%{count} \u0938\u0947 \u092c\u0921\u093c\u093e \u092f\u093e \u092c\u0930\u093e\u092c\u0930 \u0939\u094b\u0928\u093e \u0906\u0935\u0936\u094d\u092f\u0915 \u0939\u0948","equal_to":"%{count} \u0915\u0947 \u0932\u093f\u090f \u092c\u0930\u093e\u092c\u0930 \u0939\u094b\u0928\u093e \u091a\u093e\u0939\u093f\u090f","less_than":"%{count} \u0938\u0947 \u0915\u092e \u0939\u094b\u0928\u093e \u091a\u093e\u0939\u093f\u090f","less_than_or_equal_to":"%{count} \u0938\u0947 \u0915\u092e \u092f\u093e \u092c\u0930\u093e\u092c\u0930 \u0939\u094b\u0928\u093e \u0906\u0935\u0936\u094d\u092f\u0915 \u0939\u0948","odd":"\u0935\u093f\u0937\u092e \u0939\u094b\u0928\u093e \u091a\u093e\u0939\u093f\u090f","even":"\u0938\u092e \u0939\u094b\u0928\u093e \u091a\u093e\u0939\u093f\u090f"}},"activerecord":{"errors":{"template":{"header":{"one":"\u090f\u0915 \u0924\u094d\u0930\u0941\u091f\u093f \u0938\u0939\u0947\u091c\u0947 \u091c\u093e\u0928\u0947 \u0938\u0947 \u0907\u0938 %{model} \u0915\u094b \u0928\u093f\u0937\u093f\u0926\u094d\u0927","other":"%{count} \u0924\u094d\u0930\u0941\u091f\u093f\u092f\u094b\u0902 \u0915\u094b \u0938\u0939\u0947\u091c\u0947 \u091c\u093e\u0928\u0947 \u0938\u0947 \u0907\u0938 %{model} \u0928\u093f\u0937\u093f\u0926\u094d\u0927"},"body":"\u0935\u0939\u093e\u0901 \u0928\u093f\u092e\u094d\u0928\u0932\u093f\u0916\u093f\u0924 \u0915\u094d\u0937\u0947\u0924\u094d\u0930\u094b\u0902 \u0915\u0947 \u0938\u093e\u0925 \u0938\u092e\u0938\u094d\u092f\u093e\u0913\u0902 \u0930\u0939\u0947 \u0925\u0947:"},"messages":{"taken":"\u092a\u0939\u0932\u0947 \u0939\u0940 \u0932\u0947 \u0932\u093f\u092f\u093e \u0917\u092f\u093e \u0939\u0948","record_invalid":"\u0938\u0924\u094d\u092f\u093e\u092a\u0928 \u0935\u093f\u092b\u0932: %{errors}","inclusion":"\u0938\u0942\u091a\u0940 \u092e\u0947\u0902 \u0936\u093e\u092e\u093f\u0932 \u0928\u0939\u0940\u0902 \u0939\u0948","exclusion":"\u0906\u0930\u0915\u094d\u0937\u093f\u0924 \u0939\u0948","invalid":"\u0905\u0935\u0948\u0927 \u0939\u0948","confirmation":"\u092a\u0941\u0937\u094d\u091f\u093f\u0915\u0930\u0923 \u092e\u0947\u0932 \u0928\u0939\u0940\u0902 \u0916\u093e\u0924\u093e","accepted":"\u0939\u094b\u0928\u093e \u0938\u094d\u0935\u0940\u0915\u093e\u0930 \u0915\u093f\u092f\u093e \u091c\u093e\u0928\u093e \u0906\u0935\u0936\u094d\u092f\u0915","empty":"\u0916\u093e\u0932\u0940 \u0928\u0939\u0940\u0902 \u0915\u093f\u092f\u093e \u091c\u093e \u0938\u0915\u0924\u093e","blank":"\u0916\u093e\u0932\u0940 \u0928\u0939\u0940\u0902 \u0915\u093f\u092f\u093e \u091c\u093e \u0938\u0915\u0924\u093e","too_long":"\u092c\u0939\u0941\u0924 \u0932\u0902\u092c\u093e \u0939\u0948 (\u0905\u0927\u093f\u0915\u0924\u092e %{count} \u0905\u0915\u094d\u0937\u0930\u094b\u0902 \u0939\u0948)","too_short":"\u092c\u0939\u0941\u0924 \u091b\u094b\u091f\u093e \u0939\u0948 (\u0928\u094d\u092f\u0942\u0928\u0924\u092e %{count} \u0905\u0915\u094d\u0937\u0930\u094b\u0902 \u0939\u0948)","wrong_length":"\u0917\u0932\u0924 \u0932\u0902\u092c\u093e\u0908 \u0939\u0948 (%{count} \u0935\u0930\u094d\u0923 \u0935\u093e\u0932\u0947 \u0939\u094b\u0928\u0947 \u091a\u093e\u0939\u093f\u090f)","not_a_number":"\u0915\u094b\u0908 \u0938\u0902\u0916\u094d\u092f\u093e \u0928\u0939\u0940\u0902 \u0939\u0948","not_an_integer":"\u090f\u0915 \u092a\u0942\u0930\u094d\u0923\u093e\u0902\u0915 \u0939\u094b\u0928\u093e \u091a\u093e\u0939\u093f\u090f","greater_than":"%{count} \u0938\u0947 \u0905\u0927\u093f\u0915 \u0939\u094b\u0928\u093e \u091a\u093e\u0939\u093f\u090f","greater_than_or_equal_to":"%{count} \u0938\u0947 \u092c\u0921\u093c\u093e \u092f\u093e \u092c\u0930\u093e\u092c\u0930 \u0939\u094b\u0928\u093e \u0906\u0935\u0936\u094d\u092f\u0915 \u0939\u0948","equal_to":"%{count} \u0915\u0947 \u0932\u093f\u090f \u092c\u0930\u093e\u092c\u0930 \u0939\u094b\u0928\u093e \u091a\u093e\u0939\u093f\u090f","less_than":"%{count} \u0938\u0947 \u0915\u092e \u0939\u094b\u0928\u093e \u091a\u093e\u0939\u093f\u090f","less_than_or_equal_to":"%{count} \u0938\u0947 \u0915\u092e \u092f\u093e \u092c\u0930\u093e\u092c\u0930 \u0939\u094b\u0928\u093e \u0906\u0935\u0936\u094d\u092f\u0915 \u0939\u0948","odd":"\u0935\u093f\u0937\u092e \u0939\u094b\u0928\u093e \u091a\u093e\u0939\u093f\u090f","even":"\u0938\u092e \u0939\u094b\u0928\u093e \u091a\u093e\u0939\u093f\u090f"},"full_messages":{"format":"%{attribute} %{message}"}}}},"ja":{"date":{"formats":{"default":"%Y/%m/%d","short":"%m/%d","long":"%Y\u5e74%m\u6708%d\u65e5(%a)"},"day_names":["\u65e5\u66dc\u65e5","\u6708\u66dc\u65e5","\u706b\u66dc\u65e5","\u6c34\u66dc\u65e5","\u6728\u66dc\u65e5","\u91d1\u66dc\u65e5","\u571f\u66dc\u65e5"],"abbr_day_names":["\u65e5","\u6708","\u706b","\u6c34","\u6728","\u91d1","\u571f"],"month_names":[null,"1\u6708","2\u6708","3\u6708","4\u6708","5\u6708","6\u6708","7\u6708","8\u6708","9\u6708","10\u6708","11\u6708","12\u6708"],"abbr_month_names":[null,"1\u6708","2\u6708","3\u6708","4\u6708","5\u6708","6\u6708","7\u6708","8\u6708","9\u6708","10\u6708","11\u6708","12\u6708"],"order":["year","month","day"]},"time":{"formats":{"default":"%Y/%m/%d %H:%M:%S","short":"%y/%m/%d %H:%M","long":"%Y\u5e74%m\u6708%d\u65e5(%a) %H\u6642%M\u5206%S\u79d2 %Z"},"am":"\u5348\u524d","pm":"\u5348\u5f8c"},"support":{"array":{"sentence_connector":"\u3068","skip_last_comma":true,"words_connector":"\u3068","two_words_connector":"\u3068","last_word_connector":"\u3068"},"select":{"prompt":"\u9078\u629e\u3057\u3066\u304f\u3060\u3055\u3044\u3002"}},"number":{"format":{"separator":".","delimiter":",","precision":3,"significant":false,"strip_insignificant_zeros":false},"currency":{"format":{"format":"%n%u","unit":"\u5186","separator":".","delimiter":",","precision":3,"significant":false,"strip_insignificant_zeros":false}},"percentage":{"format":{"delimiter":""}},"precision":{"format":{"delimiter":""}},"human":{"format":{"delimiter":"","precision":3,"significant":true,"strip_insignificant_zeros":true},"storage_units":{"format":"%n%u","units":{"byte":"\u30d0\u30a4\u30c8","kb":"\u30ad\u30ed\u30d0\u30a4\u30c8","mb":"\u30e1\u30ac\u30d0\u30a4\u30c8","gb":"\u30ae\u30ac\u30d0\u30a4\u30c8","tb":"\u30c6\u30e9\u30d0\u30a4\u30c8"}},"decimal_units":{"format":"%n %u","units":{"unit":"","thousand":"\u5343","million":"\u767e\u4e07","billion":"\u5341\u5104","trillion":"\u5146","quadrillion":"\u5343\u5146"}}}},"datetime":{"distance_in_words":{"half_a_minute":"30\u79d2\u524d\u5f8c","less_than_x_seconds":{"one":"1\u79d2\u4ee5\u5185","other":"%{count}\u79d2\u4ee5\u5185"},"x_seconds":{"one":"1\u79d2","other":"%{count}\u79d2"},"less_than_x_minutes":{"one":"1\u5206\u4ee5\u5185","other":"%{count}\u5206\u4ee5\u5185"},"x_minutes":{"one":"1\u5206","other":"%{count}\u5206"},"about_x_hours":{"one":"\u7d041\u6642\u9593","other":"\u7d04%{count}\u6642\u9593"},"x_days":{"one":"1\u65e5","other":"%{count}\u65e5"},"about_x_months":{"one":"\u7d041\u30f6\u6708","other":"\u7d04%{count}\u30f6\u6708"},"x_months":{"one":"1\u30f6\u6708","other":"%{count}\u30f6\u6708"},"about_x_years":{"one":"\u7d041\u5e74","other":"\u7d04%{count}\u5e74"},"over_x_years":{"one":"1\u5e74\u4ee5\u4e0a","other":"%{count}\u5e74\u4ee5\u4e0a"},"almost_x_years":{"one":"1\u5e74\u5f31","other":"%{count}\u5e74\u5f31"}},"prompts":{"year":"\u5e74","month":"\u6708","day":"\u65e5","hour":"\u6642","minute":"\u5206","second":"\u79d2"}},"helpers":{"select":{"prompt":"\u9078\u629e\u3057\u3066\u304f\u3060\u3055\u3044\u3002"},"submit":{"create":"\u767b\u9332\u3059\u308b","update":"\u66f4\u65b0\u3059\u308b","submit":"\u4fdd\u5b58\u3059\u308b"}},"errors":{"format":"%{attribute}%{message}","messages":{"inclusion":"\u306f\u4e00\u89a7\u306b\u3042\u308a\u307e\u305b\u3093\u3002","exclusion":"\u306f\u4e88\u7d04\u3055\u308c\u3066\u3044\u307e\u3059\u3002","invalid":"\u306f\u4e0d\u6b63\u306a\u5024\u3067\u3059\u3002","confirmation":"\u304c\u4e00\u81f4\u3057\u307e\u305b\u3093\u3002","accepted":"\u3092\u53d7\u8afe\u3057\u3066\u304f\u3060\u3055\u3044\u3002","empty":"\u3092\u5165\u529b\u3057\u3066\u304f\u3060\u3055\u3044\u3002","blank":"\u3092\u5165\u529b\u3057\u3066\u304f\u3060\u3055\u3044\u3002","too_long":"\u306f%{count}\u6587\u5b57\u4ee5\u5185\u3067\u5165\u529b\u3057\u3066\u304f\u3060\u3055\u3044\u3002","too_short":"\u306f%{count}\u6587\u5b57\u4ee5\u4e0a\u3067\u5165\u529b\u3057\u3066\u304f\u3060\u3055\u3044\u3002","wrong_length":"\u306f%{count}\u6587\u5b57\u3067\u5165\u529b\u3057\u3066\u304f\u3060\u3055\u3044\u3002","not_a_number":"\u306f\u6570\u5024\u3067\u5165\u529b\u3057\u3066\u304f\u3060\u3055\u3044\u3002","not_an_integer":"\u306f\u6574\u6570\u3067\u5165\u529b\u3057\u3066\u304f\u3060\u3055\u3044\u3002","greater_than":"\u306f%{count}\u3088\u308a\u5927\u304d\u3044\u5024\u306b\u3057\u3066\u304f\u3060\u3055\u3044\u3002","greater_than_or_equal_to":"\u306f%{count}\u4ee5\u4e0a\u306e\u5024\u306b\u3057\u3066\u304f\u3060\u3055\u3044\u3002","equal_to":"\u306f%{count}\u306b\u3057\u3066\u304f\u3060\u3055\u3044\u3002","less_than":"\u306f%{count}\u3088\u308a\u5c0f\u3055\u3044\u5024\u306b\u3057\u3066\u304f\u3060\u3055\u3044\u3002","less_than_or_equal_to":"\u306f%{count}\u4ee5\u4e0b\u306e\u5024\u306b\u3057\u3066\u304f\u3060\u3055\u3044\u3002","odd":"\u306f\u5947\u6570\u306b\u3057\u3066\u304f\u3060\u3055\u3044\u3002","even":"\u306f\u5076\u6570\u306b\u3057\u3066\u304f\u3060\u3055\u3044\u3002"}},"activerecord":{"errors":{"template":{"header":{"one":"%{model}\u306b\u30a8\u30e9\u30fc\u304c\u767a\u751f\u3057\u307e\u3057\u305f\u3002","other":"%{model}\u306b%{count}\u3064\u306e\u30a8\u30e9\u30fc\u304c\u767a\u751f\u3057\u307e\u3057\u305f\u3002"},"body":"\u6b21\u306e\u9805\u76ee\u3092\u78ba\u8a8d\u3057\u3066\u304f\u3060\u3055\u3044\u3002"},"messages":{"taken":"\u306f\u3059\u3067\u306b\u5b58\u5728\u3057\u307e\u3059\u3002","record_invalid":"\u30d0\u30ea\u30c7\u30fc\u30b7\u30e7\u30f3\u306b\u5931\u6557\u3057\u307e\u3057\u305f\u3002 %{errors}","inclusion":"\u306f\u4e00\u89a7\u306b\u3042\u308a\u307e\u305b\u3093\u3002","exclusion":"\u306f\u4e88\u7d04\u3055\u308c\u3066\u3044\u307e\u3059\u3002","invalid":"\u306f\u4e0d\u6b63\u306a\u5024\u3067\u3059\u3002","confirmation":"\u304c\u4e00\u81f4\u3057\u307e\u305b\u3093\u3002","accepted":"\u3092\u53d7\u8afe\u3057\u3066\u304f\u3060\u3055\u3044\u3002","empty":"\u3092\u5165\u529b\u3057\u3066\u304f\u3060\u3055\u3044\u3002","blank":"\u3092\u5165\u529b\u3057\u3066\u304f\u3060\u3055\u3044\u3002","too_long":"\u306f%{count}\u6587\u5b57\u4ee5\u5185\u3067\u5165\u529b\u3057\u3066\u304f\u3060\u3055\u3044\u3002","too_short":"\u306f%{count}\u6587\u5b57\u4ee5\u4e0a\u3067\u5165\u529b\u3057\u3066\u304f\u3060\u3055\u3044\u3002","wrong_length":"\u306f%{count}\u6587\u5b57\u3067\u5165\u529b\u3057\u3066\u304f\u3060\u3055\u3044\u3002","not_a_number":"\u306f\u6570\u5024\u3067\u5165\u529b\u3057\u3066\u304f\u3060\u3055\u3044\u3002","not_an_integer":"\u306f\u6574\u6570\u3067\u5165\u529b\u3057\u3066\u304f\u3060\u3055\u3044\u3002","greater_than":"\u306f%{count}\u3088\u308a\u5927\u304d\u3044\u5024\u306b\u3057\u3066\u304f\u3060\u3055\u3044\u3002","greater_than_or_equal_to":"\u306f%{count}\u4ee5\u4e0a\u306e\u5024\u306b\u3057\u3066\u304f\u3060\u3055\u3044\u3002","equal_to":"\u306f%{count}\u306b\u3057\u3066\u304f\u3060\u3055\u3044\u3002","less_than":"\u306f%{count}\u3088\u308a\u5c0f\u3055\u3044\u5024\u306b\u3057\u3066\u304f\u3060\u3055\u3044\u3002","less_than_or_equal_to":"\u306f%{count}\u4ee5\u4e0b\u306e\u5024\u306b\u3057\u3066\u304f\u3060\u3055\u3044\u3002","odd":"\u306f\u5947\u6570\u306b\u3057\u3066\u304f\u3060\u3055\u3044\u3002","even":"\u306f\u5076\u6570\u306b\u3057\u3066\u304f\u3060\u3055\u3044\u3002"},"full_messages":{"format":"%{attribute}%{message}"}}}},"kn":{"date":{"formats":{"default":"%Y-%m-%d","short":"%b %d","long":"%B %d, %Y"},"day_names":["\u0cb0\u0cb5\u0cbf\u0cb5\u0cbe\u0cb0","\u0cb8\u0ccb\u0cae\u0cb5\u0cbe\u0cb0","\u0cae\u0c82\u0c97\u0cb3\u0cb5\u0cbe\u0cb0","\u0cac\u0cc1\u0ca7\u0cb5\u0cbe\u0cb0","\u0c97\u0cc1\u0cb0\u0cc1\u0cb5\u0cbe\u0cb0","\u0cb6\u0cc1\u0c95\u0ccd\u0cb0\u0cb5\u0cbe\u0cb0","\u0cb6\u0ca8\u0cbf\u0cb5\u0cbe\u0cb0"],"abbr_day_names":["\u0cb0\u0cb5\u0cbf","\u0cb8\u0ccb\u0cae","\u0cae\u0c82\u0c97\u0cb3","\u0cac\u0cc1\u0ca7","\u0c97\u0cc1\u0cb0\u0cc1","\u0cb6\u0cc1\u0c95\u0ccd\u0cb0","\u0cb6\u0ca8\u0cbf"],"month_names":[null,"\u0c9c\u0ca8\u0cb5\u0cb0\u0cbf","\u0cab\u0cc6\u0cac\u0ccd\u0cb0\u0cb5\u0cb0\u0cbf","\u0cae\u0cbe\u0cb0\u0ccd\u0c9a\u0ccd","\u0c8f\u0caa\u0ccd\u0cb0\u0cbf\u0cb2\u0ccd","\u0cae\u0cc7","\u0c9c\u0cc2\u0ca8\u0ccd","\u0c9c\u0cc1\u0cb2\u0cc8","\u0c86\u0c97\u0cb8\u0ccd\u0c9f\u0ccd","\u0cb8\u0cc6\u0caa\u0ccd\u0c9f\u0cc6\u0c82\u0cac\u0cb0\u0ccd","\u0c85\u0c95\u0ccd\u0c9f\u0ccb\u0cac\u0cb0\u0ccd","\u0ca8\u0cb5\u0c82\u0cac\u0cb0\u0ccd","\u0ca1\u0cbf\u0cb8\u0cc6\u0c82\u0cac\u0cb0\u0ccd"],"abbr_month_names":[null,"Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"],"order":["year","month","day"]},"time":{"formats":{"default":"%a, %d %b %Y %H:%M:%S %z","short":"%d %b %H:%M","long":"%B %d, %Y %H:%M"},"am":"\u0caa\u0ccd\u0cb0\u0cbe\u0ca4\u0c83\u0c95\u0cbe\u0cb2","pm":"\u0c85\u0caa\u0cb0\u0ca8\u0ccd\u0ca8\u0c83"},"support":{"array":{"words_connector":", ","two_words_connector":" \u0cae\u0ca4\u0ccd\u0ca4\u0cc1  ","last_word_connector":", \u0cae\u0ca4\u0ccd\u0ca4\u0cc1  "},"select":{"prompt":"\u0ca6\u0caf\u0cb5\u0cbf\u0c9f\u0ccd\u0c9f\u0cc1 \u0c86\u0cb0\u0cbf\u0cb8\u0cbf"}},"number":{"format":{"separator":".","delimiter":",","precision":3,"significant":false,"strip_insignificant_zeros":false},"currency":{"format":{"format":"%u%n","unit":"$","separator":".","delimiter":",","precision":2,"significant":false,"strip_insignificant_zeros":false}},"percentage":{"format":{"delimiter":""}},"precision":{"format":{"delimiter":""}},"human":{"format":{"delimiter":"","precision":3,"significant":true,"strip_insignificant_zeros":true},"storage_units":{"format":"%n %u","units":{"byte":{"one":"Byte","other":"Bytes"},"kb":"KB","mb":"MB","gb":"GB","tb":"TB"}},"decimal_units":{"format":"%n %u","units":{"unit":"","thousand":"\u0cb8\u0cbe\u0cb5\u0cbf\u0cb0","million":"\u0ca6\u0cb6\u0cb2\u0c95\u0ccd\u0cb7","billion":"\u0cb2\u0c95\u0ccd\u0cb7\u0c95\u0ccb\u0c9f\u0cbf","trillion":"\u0ca8\u0cc0\u0cb2\u0ccd","quadrillion":"\u0caa\u0ca6\u0ccd\u0cae"}}}},"datetime":{"distance_in_words":{"half_a_minute":"\u0c92\u0c82\u0ca6\u0cc1 \u0c85\u0cb0\u0ccd\u0ca7 \u0ca8\u0cbf\u0cae\u0cbf\u0cb7","less_than_x_seconds":{"one":"\u0c92\u0c82\u0ca6\u0cc1 \u0cb8\u0cc6\u0c95\u0cc6\u0c82\u0ca1\u0cbf\u0c97\u0cc2 \u0c95\u0ca1\u0cbf\u0cae\u0cc6","other":"%{count} \u0cb8\u0cc6\u0c95\u0cc6\u0c82\u0ca1\u0cbf\u0c97\u0cbf\u0c82\u0ca4 \u0c95\u0ca1\u0cbf\u0cae\u0cc6"},"x_seconds":{"one":"1 \u0cb8\u0cc6\u0c95\u0cc6\u0c82\u0ca1\u0ccd","other":"%{count} \u0cb8\u0cc6\u0c95\u0cc6\u0c82\u0ca1\u0cc1\u0c97\u0cb3\u0cc1"},"less_than_x_minutes":{"one":"\u0c92\u0c82\u0ca6\u0cc1 \u0ca8\u0cbf\u0cae\u0cbf\u0cb7\u0c95\u0ccd\u0c95\u0cc2 \u0c95\u0ca1\u0cbf\u0cae\u0cc6","other":"%{count} \u0ca8\u0cbf\u0cae\u0cbf\u0cb7\u0c95\u0ccd\u0c95\u0cbf\u0c82\u0ca4 \u0c95\u0ca1\u0cbf\u0cae\u0cc6"},"x_minutes":{"one":"1 \u0ca8\u0cbf\u0cae\u0cbf\u0cb7","other":"%{count} \u0ca8\u0cbf\u0cae\u0cbf\u0cb7\u0c97\u0cb3\u0cc1"},"about_x_hours":{"one":"\u0cb8\u0cc1\u0cae\u0cbe\u0cb0\u0cc1 \u0c92\u0c82\u0ca6\u0cc1 \u0c97\u0c82\u0c9f\u0cc6","other":"\u0cb8\u0cc1\u0cae\u0cbe\u0cb0\u0cc1 %{count} \u0c97\u0c82\u0c9f\u0cc6\u0c97\u0cb3\u0cc1"},"x_days":{"one":"1 \u0ca6\u0cbf\u0ca8","other":"%{count} \u0ca6\u0cbf\u0ca8\u0c97\u0cb3\u0cc1"},"about_x_months":{"one":"\u0cb8\u0cc1\u0cae\u0cbe\u0cb0\u0cc1 \u0c92\u0c82\u0ca6\u0cc1 \u0ca4\u0cbf\u0c82\u0c97\u0cb3\u0cc1","other":"\u0cb8\u0cc1\u0cae\u0cbe\u0cb0\u0cc1 %{count} \u0ca4\u0cbf\u0c82\u0c97\u0cb3\u0cc1\u0c97\u0cb3\u0cc1"},"x_months":{"one":"1 \u0ca4\u0cbf\u0c82\u0c97\u0cb3\u0cc1","other":"%{count} \u0ca4\u0cbf\u0c82\u0c97\u0cb3\u0cc1\u0c97\u0cb3\u0cc1"},"about_x_years":{"one":"\u0cb8\u0cc1\u0cae\u0cbe\u0cb0\u0cc1 \u0c92\u0c82\u0ca6\u0cc1 \u0cb5\u0cb0\u0cc1\u0cb7","other":"\u0cb8\u0cc1\u0cae\u0cbe\u0cb0\u0cc1 %{count} \u0cb5\u0cb0\u0cc1\u0cb7\u0c97\u0cb3\u0cc1"},"over_x_years":{"one":"\u0c92\u0c82\u0ca6\u0cc1 \u0cb5\u0cb0\u0cc1\u0cb7\u0c95\u0ccd\u0c95\u0cbf\u0c82\u0ca4 \u0cb9\u0cc6\u0c9a\u0ccd\u0c9a\u0cc1","other":"%{count} \u0cb5\u0cb0\u0cc1\u0cb7\u0c97\u0cb3\u0cbf\u0c97\u0cbf\u0c82\u0ca4 \u0cb9\u0cc6\u0c9a\u0ccd\u0c9a\u0cc1"},"almost_x_years":{"one":"\u0cb8\u0cb0\u0cbf\u0cb8\u0cc1\u0cae\u0cbe\u0cb0\u0cc1 \u0c92\u0c82\u0ca6\u0cc1 \u0cb5\u0cb0\u0cc1\u0cb7","other":"\u0cb8\u0cb0\u0cbf\u0cb8\u0cc1\u0cae\u0cbe\u0cb0\u0cc1 %{count} \u0cb5\u0cb0\u0cc1\u0cb7\u0c97\u0cb3\u0cc1"}},"prompts":{"year":"\u0cb5\u0cb0\u0cc1\u0cb7","month":"\u0ca4\u0cbf\u0c82\u0c97\u0cb3\u0cc1","day":"\u0ca6\u0cbf\u0ca8","hour":"\u0c97\u0c82\u0c9f\u0cc6","minute":"\u0ca8\u0cbf\u0cae\u0cbf\u0cb7","second":"\u0cb8\u0cc6\u0c95\u0cc6\u0c82\u0ca1\u0cc1"}},"helpers":{"select":{"prompt":"\u0ca6\u0caf\u0cb5\u0cbf\u0c9f\u0ccd\u0c9f\u0cc1 \u0c86\u0cb0\u0cbf\u0cb8\u0cbf"},"submit":{"create":"%{model} \u0cb0\u0c9a\u0cbf\u0cb8\u0cbf","update":"%{model} \u0cb0\u0c9a\u0cbf\u0cb8\u0cbf","submit":"%{model} \u0c95\u0cb3\u0cc1\u0cb9\u0cbf\u0cb8\u0cc1"}},"errors":{"format":"%{attribute} %{message}","messages":{"inclusion":"\u0caa\u0c9f\u0ccd\u0c9f\u0cbf\u0caf\u0cb2\u0ccd\u0cb2\u0cbf \u0cb6\u0cbe\u0cae\u0cc0\u0cb2\u0cc1 \u0c86\u0c97\u0cbf\u0cb2\u0ccd\u0cb2","exclusion":"\u0c95\u0cbe\u0caf\u0ccd\u0ca6\u0cbf\u0cb0\u0cbf\u0cb8\u0cb2\u0cbe\u0c97\u0cbf\u0ca6\u0cc6","invalid":"\u0ca8\u0cbf\u0cb0\u0cb0\u0ccd\u0ca5\u0c95\u0cb5\u0cbe\u0c97\u0cbf\u0ca6\u0cc6","confirmation":"\u0cb8\u0cae\u0cb0\u0ccd\u0ca5\u0ca8\u0cc6 \u0cb8\u0cb0\u0cbf\u0cac\u0cb0\u0cb2\u0ccd\u0cb2\u0cbf\u0cb2\u0ccd\u0cb2","accepted":"\u0c92\u0caa\u0ccd\u0caa\u0cbf\u0c95\u0cca\u0cb3\u0ccd\u0cb3\u0cac\u0cc7\u0c95\u0cc1","empty":"\u0c96\u0cbe\u0cb2\u0cbf \u0cac\u0cbf\u0ca1\u0cb2\u0cc1 \u0cb8\u0ca7\u0ccd\u0caf\u0cb5\u0cbf\u0cb2\u0ccd\u0cb2","blank":"\u0c96\u0cbe\u0cb2\u0cbf \u0cac\u0cbf\u0ca1\u0cb2\u0cc1 \u0cb8\u0ca7\u0ccd\u0caf\u0cb5\u0cbf\u0cb2\u0ccd\u0cb2","too_long":"\u0cac\u0cb9\u0cb3 \u0ca6\u0cca\u0ca1\u0ccd\u0ca1\u0ca6\u0cbe\u0c97\u0cbf\u0ca6\u0cc6 (\u0c97\u0cb0\u0cbf\u0cb7\u0ccd\u0c9f %{count} \u0c85\u0c95\u0ccd\u0cb7\u0cb0\u0c97\u0cb3\u0cc1)","too_short":"\u0cac\u0cb9\u0cb3 \u0c9a\u0cbf\u0c95\u0ccd\u0c95\u0ca6\u0cbe\u0c97\u0cbf\u0ca6\u0cc6 (\u0c95\u0ca8\u0cbf\u0cb7\u0ccd\u0ca0 %{count} \u0c85\u0c95\u0ccd\u0cb7\u0cb0\u0c97\u0cb3\u0cc1)","wrong_length":"\u0ca4\u0caa\u0ccd\u0caa\u0cc1 \u0c89\u0ca6\u0ccd\u0ca6\u0cb5\u0cbf\u0ca6\u0cc6 (%{count} \u0c85\u0c95\u0ccd\u0cb7\u0cb0\u0c97\u0cb3\u0cbf\u0cb0\u0cac\u0cc7\u0c95\u0cc1)","not_a_number":"\u0cb8\u0c82\u0c96\u0cc6 \u0c86\u0c97\u0cbf\u0cb2\u0ccd\u0cb2","not_an_integer":"\u0cb8\u0c82\u0c96\u0cc6 \u0c86\u0c97\u0cbf\u0cb0\u0cac\u0cc7\u0c95\u0cc1","greater_than":"%{count} \u0c95\u0ccd\u0c95\u0cbf\u0c82\u0ca4 \u0cb9\u0cc6\u0c9a\u0ccd\u0c9a\u0cbf\u0cb0\u0cac\u0cc7\u0c95\u0cc1","greater_than_or_equal_to":"%{count} \u0c95\u0cbf\u0c82\u0ca4 \u0cb9\u0cc6\u0c9a\u0ccd\u0c9a\u0cc1 \u0c85\u0ca5\u0cb5\u0cbe \u0cb8\u0cae\u0cbe\u0ca8\u0cb5\u0cbe\u0c97\u0cbf\u0cb0 \u0c87\u0cb0\u0cac\u0cc7\u0c95\u0cc1","equal_to":"%{count} \u0c95\u0ccd\u0c95\u0cc6 \u0cb8\u0cae\u0cbe\u0ca8\u0cb5\u0cbe\u0c97\u0cbf\u0cb0\u0cac\u0cc7\u0c95\u0cc1","less_than":"%{count} \u0c95\u0ccd\u0c95\u0cbf\u0c82\u0ca4 \u0c95\u0ca1\u0cbf\u0cae\u0cc6 \u0c86\u0c97\u0cbf\u0cb0\u0cac\u0cc7\u0c95\u0cc1","less_than_or_equal_to":"%{count} \u0c95\u0cbf\u0c82\u0ca4 \u0c95\u0ca1\u0cbf\u0cae\u0cc6 \u0c85\u0ca5\u0cb5\u0cbe \u0cb8\u0cae\u0cbe\u0ca8\u0cb5\u0cbe\u0c97\u0cbf\u0cb0 \u0c87\u0cb0\u0cac\u0cc7\u0c95\u0cc1","odd":"\u0cac\u0cc6\u0cb8 \u0c86\u0c97\u0cbf\u0cb0\u0cac\u0cc7\u0c95\u0cc1","even":"\u0cb8\u0cae \u0c86\u0c97\u0cbf\u0cb0\u0cac\u0cc7\u0c95\u0cc1"}},"activerecord":{"errors":{"template":{"header":{"one":"1 \u0ca7\u0ccb\u0cb7\u0ca6 \u0caa\u0cb0\u0cbf\u0ca3\u0cbe\u0cae %{model} \u0c85\u0ca8\u0ccd\u0ca8\u0cc1 \u0cb0\u0c9a\u0cbf\u0cb8\u0cb2\u0cc1 \u0cb8\u0cbe\u0ca7\u0ccd\u0caf\u0cb5\u0cbe\u0c97\u0cb2\u0cbf\u0cb2\u0ccd\u0cb2","other":"%{count} \u0ca7\u0ccb\u0cb7\u0c97\u0cb3 \u0caa\u0cb0\u0cbf\u0ca3\u0cbe\u0cae %{model} \u0c85\u0ca8\u0ccd\u0ca8\u0cc1 \u0cb0\u0c9a\u0cbf\u0cb8\u0cb2\u0cc1 \u0cb8\u0cbe\u0ca7\u0ccd\u0caf\u0cb5\u0cbe\u0c97\u0cb2\u0cbf\u0cb2\u0ccd\u0cb2"},"body":"\u0cb8\u0cae\u0cb8\u0ccd\u0caf\u0cc6\u0c97\u0cb3\u0cbf\u0cb0\u0cc1\u0cb5 \u0c9c\u0cbe\u0c97\u0c97\u0cb3\u0cc1:"},"messages":{"taken":"\u0ca4\u0cc6\u0c97\u0cc6\u0ca6\u0cc1\u0c95\u0cca\u0c82\u0ca1\u0cbe\u0c97\u0cbf\u0ca6\u0cc6","record_invalid":"\u0ca4\u0caa\u0ccd\u0caa\u0cc1 \u0c86\u0ca7\u0cbe\u0cb0: %{errors}","inclusion":"\u0caa\u0c9f\u0ccd\u0c9f\u0cbf\u0caf\u0cb2\u0ccd\u0cb2\u0cbf \u0cb6\u0cbe\u0cae\u0cc0\u0cb2\u0cc1 \u0c86\u0c97\u0cbf\u0cb2\u0ccd\u0cb2","exclusion":"\u0c95\u0cbe\u0caf\u0ccd\u0ca6\u0cbf\u0cb0\u0cbf\u0cb8\u0cb2\u0cbe\u0c97\u0cbf\u0ca6\u0cc6","invalid":"\u0ca8\u0cbf\u0cb0\u0cb0\u0ccd\u0ca5\u0c95\u0cb5\u0cbe\u0c97\u0cbf\u0ca6\u0cc6","confirmation":"\u0cb8\u0cae\u0cb0\u0ccd\u0ca5\u0ca8\u0cc6 \u0cb8\u0cb0\u0cbf\u0cac\u0cb0\u0cb2\u0ccd\u0cb2\u0cbf\u0cb2\u0ccd\u0cb2","accepted":"\u0c92\u0caa\u0ccd\u0caa\u0cbf\u0c95\u0cca\u0cb3\u0ccd\u0cb3\u0cac\u0cc7\u0c95\u0cc1","empty":"\u0c96\u0cbe\u0cb2\u0cbf \u0cac\u0cbf\u0ca1\u0cb2\u0cc1 \u0cb8\u0ca7\u0ccd\u0caf\u0cb5\u0cbf\u0cb2\u0ccd\u0cb2","blank":"\u0c96\u0cbe\u0cb2\u0cbf \u0cac\u0cbf\u0ca1\u0cb2\u0cc1 \u0cb8\u0ca7\u0ccd\u0caf\u0cb5\u0cbf\u0cb2\u0ccd\u0cb2","too_long":"\u0cac\u0cb9\u0cb3 \u0ca6\u0cca\u0ca1\u0ccd\u0ca1\u0ca6\u0cbe\u0c97\u0cbf\u0ca6\u0cc6 (\u0c97\u0cb0\u0cbf\u0cb7\u0ccd\u0c9f %{count} \u0c85\u0c95\u0ccd\u0cb7\u0cb0\u0c97\u0cb3\u0cc1)","too_short":"\u0cac\u0cb9\u0cb3 \u0c9a\u0cbf\u0c95\u0ccd\u0c95\u0ca6\u0cbe\u0c97\u0cbf\u0ca6\u0cc6 (\u0c95\u0ca8\u0cbf\u0cb7\u0ccd\u0ca0 %{count} \u0c85\u0c95\u0ccd\u0cb7\u0cb0\u0c97\u0cb3\u0cc1)","wrong_length":"\u0ca4\u0caa\u0ccd\u0caa\u0cc1 \u0c89\u0ca6\u0ccd\u0ca6\u0cb5\u0cbf\u0ca6\u0cc6 (%{count} \u0c85\u0c95\u0ccd\u0cb7\u0cb0\u0c97\u0cb3\u0cbf\u0cb0\u0cac\u0cc7\u0c95\u0cc1)","not_a_number":"\u0cb8\u0c82\u0c96\u0cc6 \u0c86\u0c97\u0cbf\u0cb2\u0ccd\u0cb2","not_an_integer":"\u0cb8\u0c82\u0c96\u0cc6 \u0c86\u0c97\u0cbf\u0cb0\u0cac\u0cc7\u0c95\u0cc1","greater_than":"%{count} \u0c95\u0ccd\u0c95\u0cbf\u0c82\u0ca4 \u0cb9\u0cc6\u0c9a\u0ccd\u0c9a\u0cbf\u0cb0\u0cac\u0cc7\u0c95\u0cc1","greater_than_or_equal_to":"%{count} \u0c95\u0cbf\u0c82\u0ca4 \u0cb9\u0cc6\u0c9a\u0ccd\u0c9a\u0cc1 \u0c85\u0ca5\u0cb5\u0cbe \u0cb8\u0cae\u0cbe\u0ca8\u0cb5\u0cbe\u0c97\u0cbf\u0cb0 \u0c87\u0cb0\u0cac\u0cc7\u0c95\u0cc1","equal_to":"%{count} \u0c95\u0ccd\u0c95\u0cc6 \u0cb8\u0cae\u0cbe\u0ca8\u0cb5\u0cbe\u0c97\u0cbf\u0cb0\u0cac\u0cc7\u0c95\u0cc1","less_than":"%{count} \u0c95\u0ccd\u0c95\u0cbf\u0c82\u0ca4 \u0c95\u0ca1\u0cbf\u0cae\u0cc6 \u0c86\u0c97\u0cbf\u0cb0\u0cac\u0cc7\u0c95\u0cc1","less_than_or_equal_to":"%{count} \u0c95\u0cbf\u0c82\u0ca4 \u0c95\u0ca1\u0cbf\u0cae\u0cc6 \u0c85\u0ca5\u0cb5\u0cbe \u0cb8\u0cae\u0cbe\u0ca8\u0cb5\u0cbe\u0c97\u0cbf\u0cb0 \u0c87\u0cb0\u0cac\u0cc7\u0c95\u0cc1","odd":"\u0cac\u0cc6\u0cb8 \u0c86\u0c97\u0cbf\u0cb0\u0cac\u0cc7\u0c95\u0cc1","even":"\u0cb8\u0cae \u0c86\u0c97\u0cbf\u0cb0\u0cac\u0cc7\u0c95\u0cc1"},"full_messages":{"format":"%{attribute} %{message}"}}}},"et":{"date":{"formats":{"default":"%d.%m.%Y","short":"%d.%m.%y","long":"%d. %B %Y"},"day_names":["p\u00fchap\u00e4ev","esmasp\u00e4ev","teisip\u00e4ev","kolmap\u00e4ev","neljap\u00e4ev","reede","laup\u00e4ev"],"standalone_day_names":["P\u00fchap\u00e4ev","Esmasp\u00e4ev","Teisip\u00e4ev","Kolmap\u00e4ev","Neljap\u00e4ev","Reede","Laup\u00e4ev"],"abbr_day_names":["P","E","T","K","N","R","L"],"month_names":[null,"jaanuar","veebruar","m\u00e4rts","aprill","mai","juuni","juuli","august","september","oktoober","november","detsember"],"standalone_month_names":[null,"Jaanuar","Veebruar","M\u00e4rts","Aprill","Mai","Juuni","Juuli","August","September","Oktoober","November","Detsember"],"abbr_month_names":[null,"jaan.","veebr.","m\u00e4rts","apr.","mai","juuni","juuli","aug.","sept.","okt.","nov.","dets."],"standalone_abbr_month_names":[null,"jaan.","veebr.","m\u00e4rts","apr.","mai","juuni","juuli","aug.","sept.","okt.","nov.","dets."],"order":["day","month","year"]},"time":{"formats":{"default":"%d. %B %Y, %H:%M","short":"%d.%m.%y, %H:%M","long":"%a, %d. %b %Y, %H:%M:%S %z"},"am":"enne l\u00f5unat","pm":"p\u00e4rast l\u00f5unat"},"support":{"array":{"words_connector":", ","two_words_connector":" ja ","last_word_connector":" ja "},"select":{"prompt":"Palun vali"}},"number":{"format":{"separator":",","delimiter":" ","precision":2,"significant":false,"strip_insignificant_zeros":false},"currency":{"format":{"format":"%n %u","unit":"\u20ac","separator":",","delimiter":" ","precision":2,"significant":false,"strip_insignificant_zeros":false}},"percentage":{"format":{"delimiter":""}},"precision":{"format":{"delimiter":""}},"human":{"format":{"delimiter":"","precision":1,"significant":true,"strip_insignificant_zeros":true},"storage_units":{"format":"%n %u","units":{"byte":{"one":"bait","other":"baiti"},"kb":"KB","mb":"MB","gb":"GB","tb":"TB"}},"decimal_units":{"format":"%n %u","units":{"unit":"","thousand":"tuhat","million":"miljon","billion":"miljard","trillion":"triljon","quadrillion":"kvadriljon"}}}},"datetime":{"distance_in_words":{"half_a_minute":"pool minutit","less_than_x_seconds":{"one":"v\u00e4hem kui %{count} sekund","other":"v\u00e4hem kui %{count} sekundit"},"x_seconds":{"one":"%{count} sekund","other":"%{count} sekundit"},"less_than_x_minutes":{"one":"v\u00e4hem kui %{count} minut","other":"v\u00e4hem kui %{count} minutit"},"x_minutes":{"one":"%{count} minut","other":"%{count} minutit"},"about_x_hours":{"one":"umbes %{count} tund","other":"umbes %{count} tundi"},"x_days":{"one":"%{count} p\u00e4ev","other":"%{count} p\u00e4eva"},"about_x_months":{"one":"umbes %{count} kuu","other":"umbes %{count} kuud"},"x_months":{"one":"%{count} kuu","other":"%{count} kuud"},"about_x_years":{"one":"umbes %{count} aasta","other":"umbes %{count} aastat"},"over_x_years":{"one":"\u00fcle %{count} aasta","other":"\u00fcle %{count} aastat"},"almost_x_years":{"one":"peaaegu \u00fcks aasta","other":"peaaegu %{count} aastat"}},"prompts":{"year":"Aasta","month":"Kuu","day":"P\u00e4ev","hour":"Tunde","minute":"Minutit","second":"Sekundit"}},"helpers":{"select":{"prompt":"Palun vali"},"submit":{"create":"Loo uus %{model}","update":"Uuenda objekti %{model}","submit":"Salvesta %{model}"}},"errors":{"format":"%{attribute} %{message}","messages":{"inclusion":"ei leidu nimekirjas","exclusion":"on reserveeritud","invalid":"ei ole korrektne","confirmation":"ei vasta kinnitusele","accepted":"peab olema heaks kiidetud","empty":"on t\u00fchi","blank":"on t\u00e4itmata","too_long":"on liiga pikk (maksimum on %{count} t\u00e4hem\u00e4rki)","too_short":"on liiga l\u00fchike (miinimum on %{count} t\u00e4hem\u00e4rki)","wrong_length":"on vale pikkusega (peab olema %{count} t\u00e4hem\u00e4rki)","not_a_number":"ei ole number","not_an_integer":"peab olema t\u00e4isarv","greater_than":"ei tohi olla suurem kui %{count}","greater_than_or_equal_to":"peab olema suurem v\u00f5i v\u00f5rdne arvuga %{count}","equal_to":"peab v\u00f5rdne arvuga %{count}","less_than":"peab olema v\u00e4hem kui %{count}","less_than_or_equal_to":"peab olema v\u00e4hem v\u00f5i v\u00f5rdne arvuga %{count}","odd":"peab olema paaritu arv","even":"peab olema paarisarv"}},"activerecord":{"errors":{"template":{"header":{"one":"\u00dcks viga takistas objekti %{model} salvestamist","other":"%{count} viga takistasid objekti %{model} salvestamist"},"body":"Probleeme ilmnes j\u00e4rgmiste v\u00e4ljadega:"},"messages":{"taken":"on juba v\u00f5etud","record_invalid":"Valideerimine eba\u00f5nnestus: %{errors}","inclusion":"ei leidu nimekirjas","exclusion":"on reserveeritud","invalid":"ei ole korrektne","confirmation":"ei vasta kinnitusele","accepted":"peab olema heaks kiidetud","empty":"on t\u00fchi","blank":"on t\u00e4itmata","too_long":"on liiga pikk (maksimum on %{count} t\u00e4hem\u00e4rki)","too_short":"on liiga l\u00fchike (miinimum on %{count} t\u00e4hem\u00e4rki)","wrong_length":"on vale pikkusega (peab olema %{count} t\u00e4hem\u00e4rki)","not_a_number":"ei ole number","not_an_integer":"peab olema t\u00e4isarv","greater_than":"ei tohi olla suurem kui %{count}","greater_than_or_equal_to":"peab olema suurem v\u00f5i v\u00f5rdne arvuga %{count}","equal_to":"peab v\u00f5rdne arvuga %{count}","less_than":"peab olema v\u00e4hem kui %{count}","less_than_or_equal_to":"peab olema v\u00e4hem v\u00f5i v\u00f5rdne arvuga %{count}","odd":"peab olema paaritu arv","even":"peab olema paarisarv"},"full_messages":{"format":"%{attribute} %{message}"}}}},"he":{"date":{"formats":{"default":"%d-%m-%Y","short":"%e %b","long":"%e \u05d1%B, %Y","only_day":"%e"},"day_names":["\u05e8\u05d0\u05e9\u05d5\u05df","\u05e9\u05e0\u05d9","\u05e9\u05dc\u05d9\u05e9\u05d9","\u05e8\u05d1\u05d9\u05e2\u05d9","\u05d7\u05de\u05d9\u05e9\u05d9","\u05e9\u05d9\u05e9\u05d9","\u05e9\u05d1\u05ea"],"abbr_day_names":["\u05d0","\u05d1","\u05d2","\u05d3","\u05d4","\u05d5","\u05e9"],"month_names":[null,"\u05d9\u05e0\u05d5\u05d0\u05e8","\u05e4\u05d1\u05e8\u05d5\u05d0\u05e8","\u05de\u05e8\u05e5","\u05d0\u05e4\u05e8\u05d9\u05dc","\u05de\u05d0\u05d9","\u05d9\u05d5\u05e0\u05d9","\u05d9\u05d5\u05dc\u05d9","\u05d0\u05d5\u05d2\u05d5\u05e1\u05d8","\u05e1\u05e4\u05d8\u05de\u05d1\u05e8","\u05d0\u05d5\u05e7\u05d8\u05d5\u05d1\u05e8","\u05e0\u05d5\u05d1\u05de\u05d1\u05e8","\u05d3\u05e6\u05de\u05d1\u05e8"],"abbr_month_names":[null,"\u05d9\u05d0\u05e0","\u05e4\u05d1\u05e8","\u05de\u05e8\u05e5","\u05d0\u05e4\u05e8","\u05de\u05d0\u05d9","\u05d9\u05d5\u05e0","\u05d9\u05d5\u05dc","\u05d0\u05d5\u05d2","\u05e1\u05e4\u05d8","\u05d0\u05d5\u05e7","\u05e0\u05d5\u05d1","\u05d3\u05e6\u05de"],"order":["day","month","year"]},"time":{"formats":{"default":"%a %d %b %H:%M:%S %Z %Y","time":"%H:%M","short":"%d %b %H:%M","long":"%d \u05d1%B, %Y %H:%M","only_second":"%S"},"am":"am","pm":"pm"},"support":{"array":{"words_connector":", ","two_words_connector":" \u05d0\u05ea ","last_word_connector":", \u05d0\u05ea "},"select":{"prompt":"\u05e0\u05d0 \u05dc\u05d1\u05d7\u05d5\u05e8"}},"number":{"format":{"precision":3,"separator":".","delimiter":",","significant":false,"strip_insignificant_zeros":false},"currency":{"format":{"unit":"\u20aa","precision":2,"format":"%u %n","separator":".","delimiter":",","significant":false,"strip_insignificant_zeros":false}},"percentage":{"format":{"delimiter":""}},"precision":{"format":{"delimiter":""}},"human":{"format":{"delimiter":"","precision":3,"significant":true,"strip_insignificant_zeros":true},"storage_units":{"format":"%n %u","units":{"byte":{"one":"\u05d1\u05d9\u05d9\u05d8","other":"\u05d1\u05ea\u05d9\u05dd"},"kb":"\u05e7\u05d9\u05dc\u05d5-\u05d1\u05d9\u05d9\u05d8","mb":"\u05de\u05d2\u05d4-\u05d1\u05d9\u05d9\u05d8","gb":"\u05d2'\u05d9\u05d2\u05d4-\u05d1\u05d9\u05d9\u05d8","tb":"\u05d8\u05e8\u05d4-\u05d1\u05d9\u05d9\u05d8"}},"decimal_units":{"format":"%n %u","units":{"unit":"","thousand":"\u05d0\u05dc\u05e3","million":"\u05de\u05d9\u05dc\u05d9\u05d5\u05df","billion":"\u05de\u05d9\u05dc\u05d9\u05d0\u05e8\u05d3","trillion":"\u05d8\u05e8\u05d9\u05dc\u05d9\u05d5\u05df","quadrillion":"\u05e7\u05d5\u05d3\u05e8\u05d9\u05dc\u05d9\u05d5\u05df"}}}},"datetime":{"distance_in_words":{"half_a_minute":"\u05d7\u05e6\u05d9 \u05d3\u05e7\u05d4","less_than_x_seconds":{"zero":"\u05e4\u05d7\u05d5\u05ea \u05de\u05e9\u05e0\u05d9\u05d4 \u05d0\u05d7\u05ea","one":"\u05e4\u05d7\u05d5\u05ea \u05de\u05e9\u05e0\u05d9\u05d4 \u05d0\u05d7\u05ea","other":"\u05e4\u05d7\u05d5\u05ea \u05de- %{count} \u05e9\u05e0\u05d9\u05d5\u05ea"},"x_seconds":{"one":"\u05e9\u05e0\u05d9\u05d4 \u05d0\u05d7\u05ea","other":"%{count} \u05e9\u05e0\u05d9\u05d5\u05ea"},"less_than_x_minutes":{"zero":"\u05e4\u05d7\u05d5\u05ea \u05de\u05d3\u05e7\u05d4 \u05d0\u05d7\u05ea","one":"\u05e4\u05d7\u05d5\u05ea \u05de\u05d3\u05e7\u05d4 \u05d0\u05d7\u05ea","other":"\u05e4\u05d7\u05d5\u05ea \u05de- %{count} \u05d3\u05e7\u05d5\u05ea"},"x_minutes":{"one":"\u05d3\u05e7\u05d4 \u05d0\u05d7\u05ea","other":"%{count} \u05d3\u05e7\u05d5\u05ea"},"about_x_hours":{"one":"\u05d1\u05e2\u05e8\u05da \u05e9\u05e2\u05d4 \u05d0\u05d7\u05ea","other":"\u05d1\u05e2\u05e8\u05da %{count} \u05e9\u05e2\u05d5\u05ea"},"x_days":{"one":"\u05d9\u05d5\u05dd \u05d0\u05d7\u05d3","other":"%{count} \u05d9\u05de\u05d9\u05dd"},"about_x_months":{"one":"\u05d1\u05e2\u05e8\u05da \u05d7\u05d5\u05d3\u05e9 \u05d0\u05d7\u05d3","other":"\u05d1\u05e2\u05e8\u05da %{count} \u05d7\u05d5\u05d3\u05e9\u05d9\u05dd"},"x_months":{"one":"\u05d7\u05d5\u05d3\u05e9 \u05d0\u05d7\u05d3","other":"%{count} \u05d7\u05d5\u05d3\u05e9\u05d9\u05dd"},"about_x_years":{"one":"\u05d1\u05e2\u05e8\u05da \u05e9\u05e0\u05d4 \u05d0\u05d7\u05ea","other":"\u05d1\u05e2\u05e8\u05da %{count} \u05e9\u05e0\u05d9\u05dd"},"over_x_years":{"one":"\u05de\u05e2\u05dc \u05e9\u05e0\u05d4 \u05d0\u05d7\u05ea","other":"\u05de\u05e2\u05dc %{count} \u05e9\u05e0\u05d9\u05dd"},"almost_x_years":{"one":"\u05db\u05de\u05e2\u05d8 \u05e9\u05e0\u05d4","other":"\u05db\u05de\u05e2\u05d8 %{count} \u05e9\u05e0\u05d9\u05dd"}},"prompts":{"year":"\u05e9\u05e0\u05d4","month":"\u05d7\u05d5\u05d3\u05e9","day":"\u05d9\u05d5\u05dd","hour":"\u05e9\u05e2\u05d4","minute":"\u05d3\u05e7\u05d4","second":"\u05e9\u05e0\u05d9\u05d5\u05ea"}},"helpers":{"select":{"prompt":"\u05e0\u05d0 \u05dc\u05d1\u05d7\u05d5\u05e8"},"submit":{"create":"%{model} \u05d9\u05e6\u05d9\u05e8\u05ea","update":"%{model} \u05e2\u05d3\u05db\u05d5\u05df","submit":"%{model} \u05e9\u05de\u05d5\u05e8"}},"errors":{"format":"%{attribute} %{message}","messages":{"inclusion":"\u05dc\u05d0 \u05e0\u05db\u05dc\u05dc \u05d1\u05e8\u05e9\u05d9\u05de\u05d4","exclusion":"\u05dc\u05d0 \u05d6\u05de\u05d9\u05df","invalid":"\u05dc\u05d0 \u05ea\u05e7\u05d9\u05df","confirmation":"\u05dc\u05d0 \u05ea\u05d5\u05d0\u05dd \u05dc\u05d0\u05d9\u05e9\u05d5\u05e8\u05d5","accepted":"\u05d7\u05d9\u05d9\u05d1 \u05d1\u05d0\u05d9\u05e9\u05d5\u05e8","empty":"\u05dc\u05d0 \u05d9\u05db\u05d5\u05dc \u05dc\u05d4\u05d9\u05d5\u05ea \u05e8\u05d9\u05e7","blank":"\u05dc\u05d0 \u05d9\u05db\u05d5\u05dc \u05dc\u05d4\u05d9\u05d5\u05ea \u05e8\u05d9\u05e7","too_long":"\u05d9\u05d5\u05ea\u05e8 \u05de\u05d3\u05d9 \u05d0\u05e8\u05d5\u05da (\u05dc\u05d0 \u05d9\u05d5\u05ea\u05e8 \u05de- %{count} \u05ea\u05d5\u05d9\u05dd)","too_short":"\u05d9\u05d5\u05ea\u05e8 \u05de\u05d3\u05d9 \u05e7\u05e6\u05e8 (\u05dc\u05d0 \u05d9\u05d5\u05ea\u05e8 \u05de- %{count} \u05ea\u05d5\u05d9\u05dd)","wrong_length":"\u05dc\u05d0 \u05d1\u05d0\u05d5\u05e8\u05da \u05d4\u05e0\u05db\u05d5\u05df (\u05d7\u05d9\u05d9\u05d1 \u05dc\u05d4\u05d9\u05d5\u05ea %{count} \u05ea\u05d5\u05d9\u05dd)","not_a_number":"\u05d7\u05d9\u05d9\u05d1 \u05dc\u05d4\u05d9\u05d5\u05ea \u05de\u05e1\u05e4\u05e8","not_an_integer":"\u05d7\u05d9\u05d9\u05d1 \u05dc\u05d4\u05d9\u05d5\u05ea \u05de\u05e1\u05e4\u05e8 \u05e9\u05dc\u05dd","greater_than":"\u05d7\u05d9\u05d9\u05d1 \u05dc\u05d4\u05d9\u05d5\u05ea \u05d2\u05d3\u05d5\u05dc \u05de- %{count}","greater_than_or_equal_to":"\u05d7\u05d9\u05d9\u05d1 \u05dc\u05d4\u05d9\u05d5\u05ea \u05d2\u05d3\u05d5\u05dc \u05d0\u05d5 \u05e9\u05d5\u05d5\u05d4 \u05dc- %{count}","equal_to":"\u05d7\u05d9\u05d9\u05d1 \u05dc\u05d4\u05d9\u05d5\u05ea \u05e9\u05d5\u05d5\u05d4 \u05dc- %{count}","less_than":"\u05d7\u05d9\u05d9\u05d1 \u05dc\u05d4\u05d9\u05d5\u05ea \u05e7\u05d8\u05df \u05de- %{count}","less_than_or_equal_to":"\u05d7\u05d9\u05d9\u05d1 \u05dc\u05d4\u05d9\u05d5\u05ea \u05e7\u05d8\u05df \u05d0\u05d5 \u05e9\u05d5\u05d5\u05d4 \u05dc- %{count}","odd":"\u05d7\u05d9\u05d9\u05d1 \u05dc\u05d4\u05d9\u05d5\u05ea \u05d0\u05d9 \u05d6\u05d5\u05d2\u05d9","even":"\u05d7\u05d9\u05d9\u05d1 \u05dc\u05d4\u05d9\u05d5\u05ea \u05d6\u05d5\u05d2\u05d9"}},"activerecord":{"errors":{"template":{"header":{"one":"\u05dc\u05d0 \u05e0\u05d9\u05ea\u05df \u05dc\u05e9\u05de\u05d5\u05e8 \u05d0\u05ea \u05d4%{model}: \u05e9\u05d2\u05d9\u05d0\u05d4 \u05d0\u05d7\u05ea","other":"\u05dc\u05d0 \u05e0\u05d9\u05ea\u05df \u05dc\u05e9\u05de\u05d5\u05e8 \u05d0\u05ea \u05d4%{model}: %{count} \u05e9\u05d2\u05d9\u05d0\u05d5\u05ea."},"body":"\u05d0\u05e0\u05d0 \u05d1\u05d3\u05d5\u05e7 \u05d0\u05ea \u05d4\u05e9\u05d3\u05d5\u05ea \u05d4\u05d1\u05d0\u05d9\u05dd:"},"messages":{"taken":"\u05db\u05d1\u05e8 \u05d1\u05e9\u05d9\u05de\u05d5\u05e9","record_invalid":"\u05d4\u05d0\u05d9\u05de\u05d5\u05ea \u05e0\u05db\u05e9\u05dc: %{errors}","inclusion":"\u05dc\u05d0 \u05e0\u05db\u05dc\u05dc \u05d1\u05e8\u05e9\u05d9\u05de\u05d4","exclusion":"\u05dc\u05d0 \u05d6\u05de\u05d9\u05df","invalid":"\u05dc\u05d0 \u05ea\u05e7\u05d9\u05df","confirmation":"\u05dc\u05d0 \u05ea\u05d5\u05d0\u05dd \u05dc\u05d0\u05d9\u05e9\u05d5\u05e8\u05d5","accepted":"\u05d7\u05d9\u05d9\u05d1 \u05d1\u05d0\u05d9\u05e9\u05d5\u05e8","empty":"\u05dc\u05d0 \u05d9\u05db\u05d5\u05dc \u05dc\u05d4\u05d9\u05d5\u05ea \u05e8\u05d9\u05e7","blank":"\u05dc\u05d0 \u05d9\u05db\u05d5\u05dc \u05dc\u05d4\u05d9\u05d5\u05ea \u05e8\u05d9\u05e7","too_long":"\u05d9\u05d5\u05ea\u05e8 \u05de\u05d3\u05d9 \u05d0\u05e8\u05d5\u05da (\u05dc\u05d0 \u05d9\u05d5\u05ea\u05e8 \u05de- %{count} \u05ea\u05d5\u05d9\u05dd)","too_short":"\u05d9\u05d5\u05ea\u05e8 \u05de\u05d3\u05d9 \u05e7\u05e6\u05e8 (\u05dc\u05d0 \u05d9\u05d5\u05ea\u05e8 \u05de- %{count} \u05ea\u05d5\u05d9\u05dd)","wrong_length":"\u05dc\u05d0 \u05d1\u05d0\u05d5\u05e8\u05da \u05d4\u05e0\u05db\u05d5\u05df (\u05d7\u05d9\u05d9\u05d1 \u05dc\u05d4\u05d9\u05d5\u05ea %{count} \u05ea\u05d5\u05d9\u05dd)","not_a_number":"\u05d7\u05d9\u05d9\u05d1 \u05dc\u05d4\u05d9\u05d5\u05ea \u05de\u05e1\u05e4\u05e8","not_an_integer":"\u05d7\u05d9\u05d9\u05d1 \u05dc\u05d4\u05d9\u05d5\u05ea \u05de\u05e1\u05e4\u05e8 \u05e9\u05dc\u05dd","greater_than":"\u05d7\u05d9\u05d9\u05d1 \u05dc\u05d4\u05d9\u05d5\u05ea \u05d2\u05d3\u05d5\u05dc \u05de- %{count}","greater_than_or_equal_to":"\u05d7\u05d9\u05d9\u05d1 \u05dc\u05d4\u05d9\u05d5\u05ea \u05d2\u05d3\u05d5\u05dc \u05d0\u05d5 \u05e9\u05d5\u05d5\u05d4 \u05dc- %{count}","equal_to":"\u05d7\u05d9\u05d9\u05d1 \u05dc\u05d4\u05d9\u05d5\u05ea \u05e9\u05d5\u05d5\u05d4 \u05dc- %{count}","less_than":"\u05d7\u05d9\u05d9\u05d1 \u05dc\u05d4\u05d9\u05d5\u05ea \u05e7\u05d8\u05df \u05de- %{count}","less_than_or_equal_to":"\u05d7\u05d9\u05d9\u05d1 \u05dc\u05d4\u05d9\u05d5\u05ea \u05e7\u05d8\u05df \u05d0\u05d5 \u05e9\u05d5\u05d5\u05d4 \u05dc- %{count}","odd":"\u05d7\u05d9\u05d9\u05d1 \u05dc\u05d4\u05d9\u05d5\u05ea \u05d0\u05d9 \u05d6\u05d5\u05d2\u05d9","even":"\u05d7\u05d9\u05d9\u05d1 \u05dc\u05d4\u05d9\u05d5\u05ea \u05d6\u05d5\u05d2\u05d9"},"full_messages":{"format":"%{attribute} %{message}"}}}},"es-AR":{"number":{"percentage":{"format":{"delimiter":","}},"currency":{"format":{"format":"%u%n","unit":"$","separator":".","delimiter":",","precision":2,"significant":false,"strip_insignificant_zeros":false}},"format":{"delimiter":",","precision":2,"significant":false,"strip_insignificant_zeros":false,"separator":"."},"human":{"format":{"delimiter":",","precision":3,"significant":true,"strip_insignificant_zeros":true},"storage_units":{"format":"%n %u","units":{"byte":{"one":"Byte","other":"Bytes"},"kb":"KB","mb":"MB","gb":"GB","tb":"TB"}},"decimal_units":{"format":"%n %u","units":{"unit":"","thousand":"mil","million":"mill\u00f3n","billion":"mil millones","trillion":"bill\u00f3n","quadrillion":"mil billones"}}},"precision":{"format":{"delimiter":","}}},"date":{"order":["day","month","year"],"abbr_day_names":["dom","lun","mar","mi\u00e9","jue","vie","s\u00e1b"],"abbr_month_names":[null,"ene","feb","mar","abr","may","jun","jul","ago","sep","oct","nov","dic"],"day_names":["domingo","lunes","martes","mi\u00e9rcoles","jueves","viernes","s\u00e1bado"],"month_names":[null,"enero","febrero","marzo","abril","mayo","junio","julio","agosto","septiembre","octubre","noviembre","diciembre"],"formats":{"short":"%d de %b","default":"%d/%m/%Y","long":"%A, %d de %B de %Y"}},"time":{"formats":{"short":"%d de %b a las %H:%M hrs","default":"%a, %d de %b de %Y a las %H:%M:%S %Z","long":"%A, %d de %B de %Y a las %I:%M %p"},"am":"am","pm":"pm"},"support":{"array":{"words_connector":", ","two_words_connector":" y ","last_word_connector":" y "},"select":{"prompt":"Por favor selecciona"}},"datetime":{"distance_in_words":{"half_a_minute":"medio minuto","less_than_x_seconds":{"one":"menos de 1 segundo","other":"menos de %{count} segundos"},"x_seconds":{"one":"1 segundo","other":"%{count} segundos"},"less_than_x_minutes":{"one":"menos de 1 minuto","other":"menos de %{count} minutos"},"x_minutes":{"one":"1 minuto","other":"%{count} minutos"},"about_x_hours":{"one":"cerca de 1 hora","other":"cerca de %{count} horas"},"x_days":{"one":"1 d\u00eda","other":"%{count} d\u00edas"},"about_x_months":{"one":"cerca de 1 mes","other":"cerca de %{count} meses"},"x_months":{"one":"1 mes","other":"%{count} meses"},"about_x_years":{"other":"cerca de %{count} a\u00f1os","one":"cerca de 1 a\u00f1o"},"over_x_years":{"one":"m\u00e1s de 1 a\u00f1o","other":"m\u00e1s de %{count} a\u00f1os"},"almost_x_years":{"one":"casi 1 a\u00f1o","other":"casi %{count} a\u00f1os"}},"prompts":{"year":"A\u00f1o","month":"Mes","day":"D\u00eda","hour":"Hora","minute":"Minuto","second":"Segundos"}},"helpers":{"select":{"prompt":"Por favor selecciona"},"submit":{"create":"Crear %{model}","update":"Actualizar %{model}","submit":"Guardar %{model}"}},"errors":{"format":"%{attribute} %{message}","messages":{"inclusion":"no est\u00e1 inclu\u00eddo en la lista","exclusion":"est\u00e1 reservado","invalid":"es inv\u00e1lido","confirmation":"no coincide con la confirmaci\u00f3n","blank":"no puede estar en blanco","empty":"no puede estar vac\u00edo","not_a_number":"no es un n\u00famero","not_an_integer":"debe ser un entero","less_than":"debe ser menor que %{count}","less_than_or_equal_to":"debe ser menor o igual que %{count}","greater_than":"debe ser mayor que %{count}","greater_than_or_equal_to":"debe ser mayor o igual que %{count}","too_short":{"one":"es demasiado corto (m\u00ednimo 1 caracter)","other":"es demasiado corto (m\u00ednimo %{count} caracteres)"},"too_long":{"one":"es demasiado largo (m\u00e1ximo 1 caracter)","other":"es demasiado largo (m\u00e1ximo %{count} caracteres)"},"equal_to":"debe ser igual a %{count}","wrong_length":{"one":"longitud err\u00f3nea (debe ser de 1 caracter)","other":"longitud err\u00f3nea (debe ser de %{count} caracteres)"},"accepted":"debe ser aceptado","even":"debe ser un n\u00famero par","odd":"debe ser un n\u00famero non"}},"activerecord":{"errors":{"template":{"header":{"one":"%{model} no pudo guardarse debido a 1 error","other":"%{model} no pudo guardarse debido a %{count} errores"},"body":"Revise que los siguientes campos sean v\u00e1lidos:"},"messages":{"taken":"ya ha sido tomado","record_invalid":"La validaci\u00f3n fall\u00f3: %{errors}","inclusion":"no est\u00e1 inclu\u00eddo en la lista","exclusion":"est\u00e1 reservado","invalid":"es inv\u00e1lido","confirmation":"no coincide con la confirmaci\u00f3n","blank":"no puede estar en blanco","empty":"no puede estar vac\u00edo","not_a_number":"no es un n\u00famero","not_an_integer":"debe ser un entero","less_than":"debe ser menor que %{count}","less_than_or_equal_to":"debe ser menor o igual que %{count}","greater_than":"debe ser mayor que %{count}","greater_than_or_equal_to":"debe ser mayor o igual que %{count}","too_short":{"one":"es demasiado corto (m\u00ednimo 1 caracter)","other":"es demasiado corto (m\u00ednimo %{count} caracteres)"},"too_long":{"one":"es demasiado largo (m\u00e1ximo 1 caracter)","other":"es demasiado largo (m\u00e1ximo %{count} caracteres)"},"equal_to":"debe ser igual a %{count}","wrong_length":{"one":"longitud err\u00f3nea (debe ser de 1 caracter)","other":"longitud err\u00f3nea (debe ser de %{count} caracteres)"},"accepted":"debe ser aceptado","even":"debe ser un n\u00famero par","odd":"debe ser un n\u00famero non"},"full_messages":{"format":"%{attribute} %{message}"}}}},"el":{"date":{"formats":{"default":"%d/%m/%Y","short":"%d %b","long":"%e %B %Y","long_ordinal":"%e %B %Y","only_day":"%e"},"day_names":["\u039a\u03c5\u03c1\u03b9\u03b1\u03ba\u03ae","\u0394\u03b5\u03c5\u03c4\u03ad\u03c1\u03b1","\u03a4\u03c1\u03af\u03c4\u03b7","\u03a4\u03b5\u03c4\u03ac\u03c1\u03c4\u03b7","\u03a0\u03ad\u03bc\u03c0\u03c4\u03b7","\u03a0\u03b1\u03c1\u03b1\u03c3\u03ba\u03b5\u03c5\u03ae","\u03a3\u03ac\u03b2\u03b2\u03b1\u03c4\u03bf"],"abbr_day_names":["\u039a\u03c5\u03c1","\u0394\u03b5\u03c5","\u03a4\u03c1\u03b9","\u03a4\u03b5\u03c4","\u03a0\u03b5\u03bc","\u03a0\u03b1\u03c1","\u03a3\u03b1\u03b2"],"month_names":[null,"\u0399\u03b1\u03bd\u03bf\u03c5\u03ac\u03c1\u03b9\u03bf\u03c2","\u03a6\u03b5\u03b2\u03c1\u03bf\u03c5\u03ac\u03c1\u03b9\u03bf\u03c2","\u039c\u03ac\u03c1\u03c4\u03b9\u03bf\u03c2","\u0391\u03c0\u03c1\u03af\u03bb\u03b9\u03bf\u03c2","\u039c\u03ac\u03b9\u03bf\u03c2","\u0399\u03bf\u03cd\u03bd\u03b9\u03bf\u03c2","\u0399\u03bf\u03cd\u03bb\u03b9\u03bf\u03c2","\u0391\u03cd\u03b3\u03bf\u03c5\u03c3\u03c4\u03bf\u03c2","\u03a3\u03b5\u03c0\u03c4\u03ad\u03bc\u03b2\u03c1\u03b9\u03bf\u03c2","\u039f\u03ba\u03c4\u03ce\u03b2\u03c1\u03b9\u03bf\u03c2","\u039d\u03bf\u03ad\u03bc\u03b2\u03c1\u03b9\u03bf\u03c2","\u0394\u03b5\u03ba\u03ad\u03bc\u03b2\u03c1\u03b9\u03bf\u03c2"],"abbr_month_names":[null,"\u0399\u03b1\u03bd.","\u03a6\u03b5\u03b2.","\u039c\u03ac\u03c1.","\u0391\u03c0\u03c1.","\u039c\u03b1\u03b9.","\u0399\u03bf\u03c5\u03bd.","\u0399\u03bf\u03cd\u03bb.","\u0391\u03c5\u03b3.","\u03a3\u03b5\u03c0.","\u039f\u03ba\u03c4.","\u039d\u03bf\u03b5.","\u0394\u03b5\u03ba."],"order":["day","month","year"]},"time":{"formats":{"default":"%d %B %Y %H:%M","time":"%H:%M","short":"%d %b %H:%M","long":"%A %d %B %Y %H:%M:%S %Z","long_ordinal":"%A %d %B %Y %H:%M:%S %Z","only_second":"%S"},"am":"\u03c0\u03bc","pm":"\u03bc\u03bc"},"datetime":{"distance_in_words":{"half_a_minute":"\u03bc\u03b9\u03c3\u03cc \u03bb\u03b5\u03c0\u03c4\u03cc","less_than_x_seconds":{"one":"\u03bb\u03b9\u03b3\u03cc\u03c4\u03b5\u03c1\u03bf \u03b1\u03c0\u03cc \u03ad\u03bd\u03b1 \u03b4\u03b5\u03c5\u03c4\u03b5\u03c1\u03cc\u03bb\u03b5\u03c0\u03c4\u03bf","other":"\u03bb\u03b9\u03b3\u03cc\u03c4\u03b5\u03c1\u03bf \u03b1\u03c0\u03cc %{count} \u03b4\u03b5\u03c5\u03c4\u03b5\u03c1\u03cc\u03bb\u03b5\u03c0\u03c4\u03b1"},"x_seconds":{"one":"1 \u03b4\u03b5\u03c5\u03c4\u03b5\u03c1\u03cc\u03bb\u03b5\u03c0\u03c4\u03bf","other":"%{count} \u03b4\u03b5\u03c5\u03c4\u03b5\u03c1\u03cc\u03bb\u03b5\u03c0\u03c4\u03b1"},"less_than_x_minutes":{"one":"\u03bb\u03b9\u03b3\u03cc\u03c4\u03b5\u03c1\u03bf \u03b1\u03c0\u03cc \u03ad\u03bd\u03b1 \u03bb\u03b5\u03c0\u03c4\u03cc","other":"\u03bb\u03b9\u03b3\u03cc\u03c4\u03b5\u03c1\u03bf \u03b1\u03c0\u03cc %{count} \u03bb\u03b5\u03c0\u03c4\u03ac"},"x_minutes":{"one":"1 \u03bb\u03b5\u03c0\u03c4\u03cc","other":"%{count} \u03bb\u03b5\u03c0\u03c4\u03ac"},"about_x_hours":{"one":"\u03c0\u03b5\u03c1\u03af\u03c0\u03bf\u03c5 \u03bc\u03af\u03b1 \u03ce\u03c1\u03b1","other":"\u03c0\u03b5\u03c1\u03af\u03c0\u03bf\u03c5 %{count} \u03ce\u03c1\u03b5\u03c2"},"x_days":{"one":"1 \u03bc\u03ad\u03c1\u03b1","other":"%{count} \u03bc\u03ad\u03c1\u03b5\u03c2"},"about_x_months":{"one":"\u03c0\u03b5\u03c1\u03af\u03c0\u03bf\u03c5 \u03ad\u03bd\u03b1 \u03bc\u03ae\u03bd\u03b1","other":"\u03c0\u03b5\u03c1\u03af\u03c0\u03bf\u03c5 %{count} \u03bc\u03ae\u03bd\u03b5\u03c2"},"x_months":{"one":"1 \u03bc\u03ae\u03bd\u03b1","other":"%{count} \u03bc\u03ae\u03bd\u03b5\u03c2"},"about_x_years":{"one":"\u03c0\u03b5\u03c1\u03af\u03c0\u03bf\u03c5 \u03ad\u03bd\u03b1 \u03c7\u03c1\u03cc\u03bd\u03bf","other":"\u03c0\u03b5\u03c1\u03af\u03c0\u03bf\u03c5 %{count} \u03c7\u03c1\u03cc\u03bd\u03b9\u03b1"},"over_x_years":{"one":"\u03c0\u03ac\u03bd\u03c9 \u03b1\u03c0\u03cc \u03ad\u03bd\u03b1 \u03c7\u03c1\u03cc\u03bd\u03bf","other":"\u03c0\u03ac\u03bd\u03c9 \u03b1\u03c0\u03cc %{count} \u03c7\u03c1\u03cc\u03bd\u03b9\u03b1"},"almost_x_years":{"one":"\u03c3\u03c7\u03b5\u03b4\u03cc\u03bd \u03ad\u03bd\u03b1 \u03c7\u03c1\u03cc\u03bd\u03bf","other":"\u03c3\u03c7\u03b5\u03b4\u03cc\u03bd %{count} \u03c7\u03c1\u03cc\u03bd\u03b9\u03b1"}},"prompts":{"year":"\u0388\u03c4\u03bf\u03c2","month":"\u039c\u03ae\u03bd\u03b1\u03c2","day":"\u0397\u03bc\u03ad\u03c1\u03b1","hour":"\u038f\u03c1\u03b1","minute":"\u039b\u03b5\u03c0\u03c4\u03cc","second":"\u0394\u03b5\u03c5\u03c4\u03b5\u03c1\u03cc\u03bb\u03b5\u03c0\u03c4\u03bf"}},"number":{"format":{"precision":3,"separator":",","delimiter":".","significant":false,"strip_insignificant_zeros":false},"currency":{"format":{"format":"%n %u","unit":"\u20ac","separator":".","delimiter":",","precision":2,"significant":false,"strip_insignificant_zeros":false}},"percentage":{"format":{"delimiter":""}},"precision":{"format":{"delimiter":""}},"human":{"format":{"delimiter":"","precision":1,"significant":true,"strip_insignificant_zeros":true},"storage_units":{"format":"%n %u","units":{"byte":{"one":"byte","other":"bytes"},"kb":"KB","mb":"MB","gb":"GB","tb":"TB"}},"decimal_units":{"format":"%n %u","units":{"unit":"","thousand":"\u03c7\u03af\u03bb\u03b9\u03b1","million":"\u03b5\u03ba\u03b1\u03c4\u03bf\u03bc\u03bc\u03cd\u03c1\u03b9\u03bf","billion":"\u03b4\u03b9\u03c3\u03b5\u03ba\u03b1\u03c4\u03bf\u03bc\u03bc\u03cd\u03c1\u03b9\u03bf","trillion":"\u03c4\u03c1\u03b9\u03c3\u03b5\u03ba\u03b1\u03c4\u03bf\u03bc\u03bc\u03cd\u03c1\u03b9\u03bf","quadrillion":"\u03c4\u03b5\u03c4\u03c1\u03b1\u03ba\u03b9\u03c2 \u03b5\u03ba\u03b1\u03c4\u03bf\u03bc\u03bc\u03cd\u03c1\u03b9\u03bf"}}}},"support":{"array":{"sentence_connector":" \u03ba\u03b1\u03b9 ","skip_last_comma":true,"words_connector":", ","two_words_connector":" \u03ba\u03b1\u03b9 ","last_word_connector":" \u03ba\u03b1\u03b9 "},"select":{"prompt":"\u03a0\u03b1\u03c1\u03b1\u03ba\u03b1\u03bb\u03ce \u03b5\u03c0\u03b9\u03bb\u03ad\u03be\u03c4\u03b5"}},"helpers":{"select":{"prompt":"\u03a0\u03b1\u03c1\u03b1\u03ba\u03b1\u03bb\u03ce \u03b5\u03c0\u03b9\u03bb\u03ad\u03be\u03c4\u03b5"},"submit":{"create":"\u0394\u03b7\u03bc\u03b9\u03bf\u03c5\u03c1\u03b3\u03ae\u03c3\u03c4\u03b5 %{model}","update":"\u0395\u03bd\u03b7\u03bc\u03b5\u03c1\u03ce\u03c3\u03c4\u03b5 %{model}","submit":"\u0391\u03c0\u03bf\u03b8\u03b7\u03ba\u03b5\u03cd\u03c3\u03c4\u03b5 %{model}"}},"errors":{"format":"%{attribute} %{message}","messages":{"inclusion":"\u03b4\u03b5\u03bd \u03c3\u03c5\u03bc\u03c0\u03b5\u03c1\u03b9\u03bb\u03b1\u03bc\u03b2\u03ac\u03bd\u03b5\u03c4\u03b1\u03b9 \u03c3\u03c4\u03b7 \u03bb\u03af\u03c3\u03c4\u03b1","exclusion":"\u03b5\u03af\u03bd\u03b1\u03b9 \u03b4\u03b5\u03c3\u03bc\u03b5\u03c5\u03bc\u03ad\u03bd\u03bf","invalid":"\u03b5\u03af\u03bd\u03b1\u03b9 \u03ac\u03ba\u03c5\u03c1\u03bf","confirmation":"\u03b4\u03b5\u03bd \u03c4\u03b1\u03b9\u03c1\u03b9\u03ac\u03b6\u03b5\u03b9 \u03bc\u03b5 \u03c4\u03b7\u03bd \u03b5\u03c0\u03b9\u03ba\u03cd\u03c1\u03c9\u03c3\u03b7","accepted":"\u03c0\u03c1\u03ad\u03c0\u03b5\u03b9 \u03bd\u03b1 \u03b5\u03af\u03bd\u03b1\u03b9 \u03b1\u03c0\u03bf\u03b4\u03b5\u03ba\u03c4\u03cc","empty":"\u03b4\u03b5\u03bd \u03c0\u03c1\u03ad\u03c0\u03b5\u03b9 \u03bd\u03b1 \u03b5\u03af\u03bd\u03b1\u03b9 \u03ac\u03b4\u03b5\u03b9\u03bf","blank":"\u03b4\u03b5\u03bd \u03c0\u03c1\u03ad\u03c0\u03b5\u03b9 \u03bd\u03b1 \u03b5\u03af\u03bd\u03b1\u03b9 \u03ba\u03b5\u03bd\u03cc","too_long":"\u03b5\u03af\u03bd\u03b1\u03b9 \u03c0\u03bf\u03bb\u03cd \u03bc\u03b5\u03b3\u03ac\u03bb\u03bf (\u03c4\u03bf \u03bc\u03ad\u03b3\u03b9\u03c3\u03c4\u03bf \u03bc\u03ae\u03ba\u03bf\u03c2 \u03b5\u03af\u03bd\u03b1\u03b9 %{count} \u03c7\u03b1\u03c1\u03b1\u03ba\u03c4\u03ae\u03c1\u03b5\u03c2)","too_short":"\u03b5\u03af\u03bd\u03b1\u03b9 \u03c0\u03bf\u03bb\u03cd \u03bc\u03b9\u03ba\u03c1\u03cc (\u03c4\u03bf \u03bc\u03b9\u03ba\u03c1\u03cc\u03c4\u03b5\u03c1\u03bf \u03bc\u03ae\u03ba\u03bf\u03c2 \u03b5\u03af\u03bd\u03b1\u03b9 %{count} \u03c7\u03b1\u03c1\u03b1\u03ba\u03c4\u03ae\u03c1\u03b5\u03c2)","wrong_length":"\u03ad\u03c7\u03b5\u03b9 \u03bb\u03b1\u03bd\u03b8\u03b1\u03c3\u03bc\u03ad\u03bd\u03bf \u03bc\u03ae\u03ba\u03bf\u03c2 (\u03c0\u03c1\u03ad\u03c0\u03b5\u03b9 \u03bd\u03b1 \u03b5\u03af\u03bd\u03b1\u03b9 %{count} \u03c7\u03b1\u03c1\u03b1\u03ba\u03c4\u03ae\u03c1\u03b5\u03c2)","not_a_number":"\u03b4\u03b5\u03bd \u03b5\u03af\u03bd\u03b1\u03b9 \u03ad\u03bd\u03b1\u03c2 \u03b1\u03c1\u03b9\u03b8\u03bc\u03cc\u03c2","not_an_integer":"\u03c0\u03c1\u03ad\u03c0\u03b5\u03b9 \u03bd\u03b1 \u03b5\u03af\u03bd\u03b1\u03b9 \u03b1\u03ba\u03ad\u03c1\u03b1\u03b9\u03bf\u03c2 \u03b1\u03c1\u03b9\u03b8\u03bc\u03cc\u03c2","greater_than":"\u03c0\u03c1\u03ad\u03c0\u03b5\u03b9 \u03bd\u03b1 \u03b5\u03af\u03bd\u03b1\u03b9 \u03bc\u03b5\u03b3\u03b1\u03bb\u03cd\u03c4\u03b5\u03c1\u03bf \u03b1\u03c0\u03cc %{count}","greater_than_or_equal_to":"\u03c0\u03c1\u03ad\u03c0\u03b5\u03b9 \u03bd\u03b1 \u03b5\u03af\u03bd\u03b1\u03b9 \u03bc\u03b5\u03b3\u03b1\u03bb\u03cd\u03c4\u03b5\u03c1\u03bf \u03ae \u03af\u03c3\u03bf \u03bc\u03b5 %{count}","equal_to":"\u03c0\u03c1\u03ad\u03c0\u03b5\u03b9 \u03bd\u03b1 \u03b5\u03af\u03bd\u03b1\u03b9 \u03af\u03c3\u03bf \u03bc\u03b5 %{count}","less_than":"\u03c0\u03c1\u03ad\u03c0\u03b5\u03b9 \u03bd\u03b1 \u03b5\u03af\u03bd\u03b1\u03b9 \u03bb\u03b9\u03b3\u03cc\u03c4\u03b5\u03c1\u03bf \u03b1\u03c0\u03cc %{count}","less_than_or_equal_to":"\u03c0\u03c1\u03ad\u03c0\u03b5\u03b9 \u03bd\u03b1 \u03b5\u03af\u03bd\u03b1\u03b9 \u03bb\u03b9\u03b3\u03cc\u03c4\u03b5\u03c1\u03bf \u03ae \u03af\u03c3\u03bf \u03bc\u03b5 %{count}","odd":"\u03c0\u03c1\u03ad\u03c0\u03b5\u03b9 \u03bd\u03b1 \u03b5\u03af\u03bd\u03b1\u03b9 \u03c0\u03b5\u03c1\u03b9\u03c4\u03c4\u03cc\u03c2","even":"\u03c0\u03c1\u03ad\u03c0\u03b5\u03b9 \u03bd\u03b1 \u03b5\u03af\u03bd\u03b1\u03b9 \u03ac\u03c1\u03c4\u03b9\u03bf\u03c2"}},"activerecord":{"errors":{"template":{"header":{"one":"1 \u03bb\u03ac\u03b8\u03bf\u03c2 \u03b5\u03bc\u03c0\u03cc\u03b4\u03b9\u03c3\u03b5 \u03b1\u03c5\u03c4\u03cc \u03c4\u03bf %{model} \u03bd\u03b1 \u03b1\u03c0\u03bf\u03b8\u03b7\u03ba\u03b5\u03c5\u03b8\u03b5\u03af.","other":"%{count} \u03bb\u03ac\u03b8\u03b7 \u03b5\u03bc\u03c0\u03cc\u03b4\u03b9\u03c3\u03b1\u03bd \u03b1\u03c5\u03c4\u03cc \u03c4\u03bf %{model} \u03bd\u03b1 \u03b1\u03c0\u03bf\u03b8\u03b7\u03ba\u03b5\u03c5\u03b8\u03b5\u03af."},"body":"\u03a5\u03c0\u03ae\u03c1\u03be\u03b1\u03bd \u03c0\u03c1\u03bf\u03b2\u03bb\u03ae\u03bc\u03b1\u03c4\u03b1 \u03bc\u03b5 \u03c4\u03b1 \u03b1\u03ba\u03cc\u03bb\u03bf\u03c5\u03b8\u03b1 \u03c0\u03b5\u03b4\u03af\u03b1:"},"messages":{"taken":"\u03c4\u03bf \u03ad\u03c7\u03bf\u03c5\u03bd \u03ae\u03b4\u03b7 \u03c7\u03c1\u03b7\u03c3\u03b9\u03bc\u03bf\u03c0\u03bf\u03b9\u03ae\u03c3\u03b5\u03b9","record_invalid":"\u0395\u03c0\u03b9\u03ba\u03cd\u03c1\u03c9\u03c3\u03b7 \u03b1\u03c0\u03ad\u03c4\u03c5\u03c7\u03b5: %{errors}","inclusion":"\u03b4\u03b5\u03bd \u03c3\u03c5\u03bc\u03c0\u03b5\u03c1\u03b9\u03bb\u03b1\u03bc\u03b2\u03ac\u03bd\u03b5\u03c4\u03b1\u03b9 \u03c3\u03c4\u03b7 \u03bb\u03af\u03c3\u03c4\u03b1","exclusion":"\u03b5\u03af\u03bd\u03b1\u03b9 \u03b4\u03b5\u03c3\u03bc\u03b5\u03c5\u03bc\u03ad\u03bd\u03bf","invalid":"\u03b5\u03af\u03bd\u03b1\u03b9 \u03ac\u03ba\u03c5\u03c1\u03bf","confirmation":"\u03b4\u03b5\u03bd \u03c4\u03b1\u03b9\u03c1\u03b9\u03ac\u03b6\u03b5\u03b9 \u03bc\u03b5 \u03c4\u03b7\u03bd \u03b5\u03c0\u03b9\u03ba\u03cd\u03c1\u03c9\u03c3\u03b7","accepted":"\u03c0\u03c1\u03ad\u03c0\u03b5\u03b9 \u03bd\u03b1 \u03b5\u03af\u03bd\u03b1\u03b9 \u03b1\u03c0\u03bf\u03b4\u03b5\u03ba\u03c4\u03cc","empty":"\u03b4\u03b5\u03bd \u03c0\u03c1\u03ad\u03c0\u03b5\u03b9 \u03bd\u03b1 \u03b5\u03af\u03bd\u03b1\u03b9 \u03ac\u03b4\u03b5\u03b9\u03bf","blank":"\u03b4\u03b5\u03bd \u03c0\u03c1\u03ad\u03c0\u03b5\u03b9 \u03bd\u03b1 \u03b5\u03af\u03bd\u03b1\u03b9 \u03ba\u03b5\u03bd\u03cc","too_long":"\u03b5\u03af\u03bd\u03b1\u03b9 \u03c0\u03bf\u03bb\u03cd \u03bc\u03b5\u03b3\u03ac\u03bb\u03bf (\u03c4\u03bf \u03bc\u03ad\u03b3\u03b9\u03c3\u03c4\u03bf \u03bc\u03ae\u03ba\u03bf\u03c2 \u03b5\u03af\u03bd\u03b1\u03b9 %{count} \u03c7\u03b1\u03c1\u03b1\u03ba\u03c4\u03ae\u03c1\u03b5\u03c2)","too_short":"\u03b5\u03af\u03bd\u03b1\u03b9 \u03c0\u03bf\u03bb\u03cd \u03bc\u03b9\u03ba\u03c1\u03cc (\u03c4\u03bf \u03bc\u03b9\u03ba\u03c1\u03cc\u03c4\u03b5\u03c1\u03bf \u03bc\u03ae\u03ba\u03bf\u03c2 \u03b5\u03af\u03bd\u03b1\u03b9 %{count} \u03c7\u03b1\u03c1\u03b1\u03ba\u03c4\u03ae\u03c1\u03b5\u03c2)","wrong_length":"\u03ad\u03c7\u03b5\u03b9 \u03bb\u03b1\u03bd\u03b8\u03b1\u03c3\u03bc\u03ad\u03bd\u03bf \u03bc\u03ae\u03ba\u03bf\u03c2 (\u03c0\u03c1\u03ad\u03c0\u03b5\u03b9 \u03bd\u03b1 \u03b5\u03af\u03bd\u03b1\u03b9 %{count} \u03c7\u03b1\u03c1\u03b1\u03ba\u03c4\u03ae\u03c1\u03b5\u03c2)","not_a_number":"\u03b4\u03b5\u03bd \u03b5\u03af\u03bd\u03b1\u03b9 \u03ad\u03bd\u03b1\u03c2 \u03b1\u03c1\u03b9\u03b8\u03bc\u03cc\u03c2","not_an_integer":"\u03c0\u03c1\u03ad\u03c0\u03b5\u03b9 \u03bd\u03b1 \u03b5\u03af\u03bd\u03b1\u03b9 \u03b1\u03ba\u03ad\u03c1\u03b1\u03b9\u03bf\u03c2 \u03b1\u03c1\u03b9\u03b8\u03bc\u03cc\u03c2","greater_than":"\u03c0\u03c1\u03ad\u03c0\u03b5\u03b9 \u03bd\u03b1 \u03b5\u03af\u03bd\u03b1\u03b9 \u03bc\u03b5\u03b3\u03b1\u03bb\u03cd\u03c4\u03b5\u03c1\u03bf \u03b1\u03c0\u03cc %{count}","greater_than_or_equal_to":"\u03c0\u03c1\u03ad\u03c0\u03b5\u03b9 \u03bd\u03b1 \u03b5\u03af\u03bd\u03b1\u03b9 \u03bc\u03b5\u03b3\u03b1\u03bb\u03cd\u03c4\u03b5\u03c1\u03bf \u03ae \u03af\u03c3\u03bf \u03bc\u03b5 %{count}","equal_to":"\u03c0\u03c1\u03ad\u03c0\u03b5\u03b9 \u03bd\u03b1 \u03b5\u03af\u03bd\u03b1\u03b9 \u03af\u03c3\u03bf \u03bc\u03b5 %{count}","less_than":"\u03c0\u03c1\u03ad\u03c0\u03b5\u03b9 \u03bd\u03b1 \u03b5\u03af\u03bd\u03b1\u03b9 \u03bb\u03b9\u03b3\u03cc\u03c4\u03b5\u03c1\u03bf \u03b1\u03c0\u03cc %{count}","less_than_or_equal_to":"\u03c0\u03c1\u03ad\u03c0\u03b5\u03b9 \u03bd\u03b1 \u03b5\u03af\u03bd\u03b1\u03b9 \u03bb\u03b9\u03b3\u03cc\u03c4\u03b5\u03c1\u03bf \u03ae \u03af\u03c3\u03bf \u03bc\u03b5 %{count}","odd":"\u03c0\u03c1\u03ad\u03c0\u03b5\u03b9 \u03bd\u03b1 \u03b5\u03af\u03bd\u03b1\u03b9 \u03c0\u03b5\u03c1\u03b9\u03c4\u03c4\u03cc\u03c2","even":"\u03c0\u03c1\u03ad\u03c0\u03b5\u03b9 \u03bd\u03b1 \u03b5\u03af\u03bd\u03b1\u03b9 \u03ac\u03c1\u03c4\u03b9\u03bf\u03c2"},"full_messages":{"format":"%{attribute} %{message}"}}}},"es-PE":{"number":{"percentage":{"format":{"delimiter":","}},"currency":{"format":{"format":"%u%n","unit":"S./"}},"format":{"delimiter":",","precision":2,"separator":"."},"human":{"format":{"delimiter":","},"storage_units":["Bytes","KB","MB","GB","TB"]},"precision":{"format":{"delimiter":","}}},"date":{"order":["day","month","year"],"abbr_day_names":["dom","lun","mar","mi\u00e9","jue","vie","s\u00e1b"],"abbr_month_names":[null,"ene","feb","mar","abr","may","jun","jul","ago","sep","oct","nov","dic"],"day_names":["domingo","lunes","martes","mi\u00e9rcoles","jueves","viernes","s\u00e1bado"],"month_names":[null,"enero","febrero","marzo","abril","mayo","junio","julio","agosto","septiembre","octubre","noviembre","diciembre"],"formats":{"month_and_year":"%B %Y","date_and_day":"%A %d","short":"%d de %b","default":"%d/%m/%Y","long":"%A, %d de %B del %Y"}},"time":{"formats":{"short":"%d de %b a las %H:%M hrs","short_with_year":"%d %b %Y","default":"%a, %d de %b del %Y a las %H:%M:%S %Z","long":"%A, %d de %B del %Y a las %I:%M %p"},"am":"am","pm":"pm"},"datetime":{"distance_in_words":{"half_a_minute":"medio minuto","less_than_x_seconds":{"one":"menos de 1 segundo","other":"menos de {{count}} segundos"},"x_seconds":{"one":"1 segundo","other":"{{count}} segundos"},"less_than_x_minutes":{"one":"menos de 1 minuto","other":"menos de {{count}} minutos"},"x_minutes":{"one":"1 minuto","other":"{{count}} minutos"},"about_x_hours":{"one":"cerca de 1 hora","other":"cerca de {{count}} horas"},"x_days":{"one":"1 d\u00eda","other":"{{count}} d\u00edas"},"about_x_months":{"one":"cerca de 1 mes","other":"cerca de {{count}} meses"},"x_months":{"one":"1 mes","other":"{{count}} meses"},"about_x_years":{"other":"cerca de {{count}} a\u00f1os","one":"cerca de 1 a\u00f1o"},"over_x_years":{"one":"m\u00e1s de 1 a\u00f1o","other":"m\u00e1s de {{count}} a\u00f1os"}},"prompts":{"hour":"Hora","minute":"Minuto","second":"Segundo"}},"activerecord":{"errors":{"template":{"header":{"one":"{{model}} no pudo guardarse debido a 1 error","other":"{{model}} no pudo guardarse debido a {{count}} errores"},"body":"Revise que los siguientes campos sean v\u00e1lidos:"},"messages":{"record_invalid":"Falla de validaci\u00f3n: {{errors}}","inclusion":"no est\u00e1 inclu\u00eddo en la lista","exclusion":"est\u00e1 reservado","invalid":"es inv\u00e1lido","invalid_date":"es una fecha inv\u00e1lida","confirmation":"no coincide con la confirmaci\u00f3n","accepted":"debe ser aceptado","blank":"no puede estar en blanco","empty":"no puede estar vac\u00edo","not_a_number":"no es un n\u00famero","taken":"ya ha sido tomado","less_than":"debe ser menor que {{count}}","less_than_or_equal_to":"debe ser menor o igual que {{count}}","greater_than":"debe ser mayor que {{count}}","greater_than_or_equal_to":"debe ser mayor o igual que {{count}}","too_short":{"one":"es demasiado corto (m\u00ednimo 1 caracter)","other":"es demasiado corto (m\u00ednimo {{count}} caracteres)"},"too_long":{"one":"es demasiado largo (m\u00e1ximo 1 caracter)","other":"es demasiado largo (m\u00e1ximo {{count}} caracteres)"},"equal_to":"debe ser igual a {{count}}","wrong_length":{"one":"longitud err\u00f3nea (debe ser de 1 caracter)","other":"longitud err\u00f3nea (debe ser de {{count}} caracteres)"},"even":"debe ser un n\u00famero par","odd":"debe ser un n\u00famero non"}}}},"pt-PT":{"date":{"formats":{"default":"%d/%m/%Y","short":"%d de %B","long":"%d de %B de %Y"},"day_names":["Domingo","Segunda","Ter\u00e7a","Quarta","Quinta","Sexta","S\u00e1bado"],"abbr_day_names":["Dom","Seg","Ter","Qua","Qui","Sex","S\u00e1b"],"month_names":[null,"Janeiro","Fevereiro","Mar\u00e7o","Abril","Maio","Junho","Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"],"abbr_month_names":[null,"Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"],"order":["day","month","year"]},"time":{"formats":{"default":"%A, %d de %B de %Y, %H:%Mh","short":"%d/%m, %H:%M hs","long":"%A, %d de %B de %Y, %H:%Mh"},"am":"am","pm":"pm"},"support":{"array":{"words_connector":", ","two_words_connector":" e ","last_word_connector":", e"},"select":{"prompt":"Por favor seleccione"}},"number":{"format":{"separator":",","delimiter":".","precision":3,"significant":false,"strip_insignificant_zeros":false},"currency":{"format":{"format":"%u%n","unit":"\u20ac","separator":",","delimiter":".","precision":2,"significant":false,"strip_insignificant_zeros":false}},"percentage":{"format":{"delimiter":""}},"precision":{"format":{"delimiter":""}},"human":{"format":{"delimiter":"","precision":1,"significant":true,"strip_insignificant_zeros":true},"storage_units":{"format":"%n %u","units":{"byte":{"one":"Byte","other":"Bytes"},"kb":"KB","mb":"MB","gb":"GB","tb":"TB"}},"decimal_units":{"format":"%n %u","units":{"unit":"","thousand":"mil","million":{"one":"milh\u00e3o","other":"milh\u00f5es"},"billion":{"one":"mil milh\u00f5es","other":"mil milh\u00f5es"},"trillion":{"one":"bili\u00e3o","other":"bili\u00f5es"},"quadrillion":{"one":"mil bili\u00f5es","other":"mil bili\u00f5es"}}}}},"datetime":{"distance_in_words":{"half_a_minute":"meio minuto","less_than_x_seconds":{"one":"menos de 1 segundo","other":"menos de %{count} segundos"},"x_seconds":{"one":"1 segundo","other":"%{count} segundos"},"less_than_x_minutes":{"one":"menos de um minuto","other":"menos de %{count} minutos"},"x_minutes":{"one":"1 minuto","other":"%{count} minutos"},"about_x_hours":{"one":"aproximadamente 1 hora","other":"aproximadamente %{count} horas"},"x_days":{"one":"1 dia","other":"%{count} dias"},"about_x_months":{"one":"aproximadamente 1 m\u00eas","other":"aproximadamente %{count} meses"},"x_months":{"one":"1 m\u00eas","other":"%{count} meses"},"about_x_years":{"one":"aproximadamente 1 ano","other":"aproximadamente %{count} anos"},"over_x_years":{"one":"mais de 1 ano","other":"mais de %{count} anos"},"almost_x_years":{"one":"quase 1 ano","other":"quase %{count} years"}},"prompts":{"year":"Ano","month":"M\u00eas","day":"Dia","hour":"Hora","minute":"Minuto","second":"Segundo"}},"helpers":{"select":{"prompt":"Por favor seleccione"},"submit":{"create":"Criar %{model}","update":"Actualizar %{model}","submit":"Salvar %{model}"}},"errors":{"format":"%{attribute} %{message}","messages":{"inclusion":"n\u00e3o est\u00e1 inclu\u00eddo na lista","exclusion":"\u00e9 reservado","invalid":"\u00e9 inv\u00e1lido","confirmation":"n\u00e3o coincide com a confirma\u00e7\u00e3o","accepted":"tem de ser aceite","empty":"n\u00e3o pode estar vazio","blank":"n\u00e3o pode estar em branco","too_long":"\u00e9 demasiado grande (o m\u00e1ximo \u00e9 de %{count} caracteres)","too_short":"\u00e9 demasiado pequeno (o m\u00ednimo \u00e9 de %{count} caracteres)","wrong_length":"comprimento errado (deve ter %{count} caracteres)","not_a_number":"n\u00e3o \u00e9 um n\u00famero","not_an_integer":"tem de ser um inteiro","greater_than":"tem de ser maior que %{count}","greater_than_or_equal_to":"tem de ser maior ou igual a %{count}","equal_to":"tem de ser igual a %{count}","less_than":"tem de ser menor que %{count}","less_than_or_equal_to":"tem de ser menor ou igual a %{count}","odd":"tem de ser \u00edmpar","even":"tem de ser par"}},"activerecord":{"errors":{"template":{"header":{"one":"N\u00e3o foi poss\u00edvel guardar %{model}: 1 erro","other":"N\u00e3o foi poss\u00edvel guardar %{model}: %{count} erros"},"body":"Por favor, verifique os seguintes campos:"},"messages":{"taken":"n\u00e3o est\u00e1 dispon\u00edvel","record_invalid":"A valida\u00e7\u00e3o falhou: %{errors}","inclusion":"n\u00e3o est\u00e1 inclu\u00eddo na lista","exclusion":"\u00e9 reservado","invalid":"\u00e9 inv\u00e1lido","confirmation":"n\u00e3o coincide com a confirma\u00e7\u00e3o","accepted":"tem de ser aceite","empty":"n\u00e3o pode estar vazio","blank":"n\u00e3o pode estar em branco","too_long":"\u00e9 demasiado grande (o m\u00e1ximo \u00e9 de %{count} caracteres)","too_short":"\u00e9 demasiado pequeno (o m\u00ednimo \u00e9 de %{count} caracteres)","wrong_length":"comprimento errado (deve ter %{count} caracteres)","not_a_number":"n\u00e3o \u00e9 um n\u00famero","not_an_integer":"tem de ser um inteiro","greater_than":"tem de ser maior que %{count}","greater_than_or_equal_to":"tem de ser maior ou igual a %{count}","equal_to":"tem de ser igual a %{count}","less_than":"tem de ser menor que %{count}","less_than_or_equal_to":"tem de ser menor ou igual a %{count}","odd":"tem de ser \u00edmpar","even":"tem de ser par"},"full_messages":{"format":"%{attribute} %{message}"}}}},"fa":{"date":{"formats":{"default":"%Y/%m/%d","short":"%m/%d","long":"%e %B %Y"},"day_names":["\u06cc\u06a9\u0634\u0646\u0628\u0647","\u062f\u0648\u0634\u0646\u0628\u0647","\u0633\u0647\u200c\u0634\u0646\u0628\u0647","\u0686\u0647\u0627\u0631\u0634\u0646\u0628\u0647","\u067e\u0646\u062c\u200c\u0634\u0646\u0628\u0647","\u062c\u0645\u0639\u0647","\u0634\u0646\u0628\u0647"],"abbr_day_names":["\u06cc","\u062f","\u0633","\u0686","\u067e","\u062c","\u0634"],"month_names":[null,"\u0698\u0627\u0646\u0648\u06cc\u0647","\u0641\u0648\u0631\u06cc\u0647","\u0645\u0627\u0631\u0633","\u0622\u0648\u0631\u06cc\u0644","\u0645\u0647","\u0698\u0648\u0626\u0646","\u0698\u0648\u0626\u06cc\u0647","\u0627\u0648\u062a","\u0633\u067e\u062a\u0627\u0645\u0628\u0631","\u0627\u06a9\u062a\u0628\u0631","\u0646\u0648\u0627\u0645\u0628\u0631","\u062f\u0633\u0627\u0645\u0628\u0631"],"abbr_month_names":[null,"\u0698\u0627\u0646\u0648\u06cc\u0647","\u0641\u0648\u0631\u06cc\u0647","\u0645\u0627\u0631\u0633","\u0622\u0648\u0631\u06cc\u0644","\u0645\u0647","\u0698\u0648\u0626\u0646","\u0698\u0648\u0626\u06cc\u0647","\u0627\u0648\u062a","\u0633\u067e\u062a\u0627\u0645\u0628\u0631","\u0627\u06a9\u062a\u0628\u0631","\u0646\u0648\u0627\u0645\u0628\u0631","\u062f\u0633\u0627\u0645\u0628\u0631"],"order":["day","month","year"]},"time":{"formats":{"default":"%A\u060c %e %B %Y\u060c \u0633\u0627\u0639\u062a %H:%M:%S (%Z)","short":"%e %B\u060c \u0633\u0627\u0639\u062a %H:%M","long":"%e %B %Y\u060c \u0633\u0627\u0639\u062a %H:%M"},"am":"\u0642\u0628\u0644 \u0627\u0632 \u0638\u0647\u0631","pm":"\u0628\u0639\u062f \u0627\u0632 \u0638\u0647\u0631"},"support":{"array":{"words_connector":"\u060c ","two_words_connector":" \u0648 ","last_word_connector":"\u060c \u0648 "},"select":{"prompt":"\u0644\u0637\u0641\u0627 \u0627\u0646\u062a\u062e\u0627\u0628 \u06a9\u0646\u06cc\u062f"}},"number":{"format":{"separator":"\u066b","delimiter":"\u066c","precision":2,"significant":false,"strip_insignificant_zeros":false},"currency":{"format":{"unit":"\u0631\u06cc\u0627\u0644","format":"%n %u","separator":"\u066b","delimiter":"\u066c","precision":0,"significant":false,"strip_insignificant_zeros":false}},"percentage":{"format":{"delimiter":""}},"precision":{"format":{"delimiter":""}},"human":{"format":{"delimiter":"","precision":1,"significant":true,"strip_insignificant_zeros":true},"storage_units":{"format":"%n %u","units":{"byte":{"one":"\u0628\u0627\u06cc\u062a","other":"\u0628\u0627\u06cc\u062a"},"kb":"\u06a9\u06cc\u0644\u0648\u0628\u0627\u06cc\u062a","mb":"\u0645\u06af\u0627\u0628\u0627\u06cc\u062a","gb":"\u06af\u06cc\u06af\u0627\u0628\u0627\u06cc\u062a","tb":"\u062a\u0631\u0627\u0628\u0627\u06cc\u062a"}},"decimal_units":{"format":"%n %u","units":{"unit":"","thousand":"\u0647\u0632\u0627\u0631","million":"\u0645\u06cc\u0644\u06cc\u0648\u0646","billion":"\u0628\u06cc\u0644\u06cc\u0648\u0646","trillion":"\u062a\u0631\u06cc\u0644\u06cc\u0648\u0646","quadrillion":"\u06a9\u0627\u062f\u0631\u06cc\u0644\u06cc\u0648\u0646"}}}},"datetime":{"distance_in_words":{"half_a_minute":"\u0646\u06cc\u0645 \u062f\u0642\u06cc\u0642\u0647","less_than_x_seconds":{"one":"\u06f1 \u062b\u0627\u0646\u06cc\u0647","other":"\u06a9\u0645\u062a\u0631  \u0627\u0632 %{count} \u062b\u0627\u0646\u06cc\u0647"},"x_seconds":{"one":"\u06f1 \u062b\u0627\u0646\u06cc\u0647","other":"%{count} \u062b\u0627\u0646\u06cc\u0647"},"less_than_x_minutes":{"one":"\u06a9\u0645\u062a\u0631 \u0627\u0632 \u06f1 \u062f\u0642\u06cc\u0642\u0647","other":"\u06a9\u0645\u062a\u0631 \u0627\u0632 %{count} \u062f\u0642\u06cc\u0642\u0647"},"x_minutes":{"one":"\u06f1 \u062f\u0642\u06cc\u0642\u0647","other":"%{count} \u062f\u0642\u06cc\u0642\u0647"},"about_x_hours":{"one":"\u062d\u062f\u0648\u062f \u06f1 \u0633\u0627\u0639\u062a","other":"\u062d\u062f\u0648\u062f %{count} \u0633\u0627\u0639\u062a"},"x_days":{"one":"\u06f1 \u0631\u0648\u0632","other":"%{count} \u0631\u0648\u0632"},"about_x_months":{"one":"\u062d\u062f\u0648\u062f \u06f1 \u0645\u0627\u0647","other":"\u062d\u062f\u0648\u062f %{count} \u0645\u0627\u0647"},"x_months":{"one":"\u06f1 \u0645\u0627\u0647","other":"%{count} \u0645\u0627\u0647"},"about_x_years":{"one":"\u062d\u062f\u0648\u062f \u06f1 \u0633\u0627\u0644","other":"\u062d\u062f\u0648\u062f %{count} \u0633\u0627\u0644"},"over_x_years":{"one":"\u0628\u06cc\u0634 \u0627\u0632 \u06f1 \u0633\u0627\u0644","other":"\u0628\u06cc\u0634 \u0627\u0632 %{count} \u0633\u0627\u0644"},"almost_x_years":{"one":"\u062d\u062f\u0648\u062f \u06f1 \u0633\u0627\u0644","other":"\u062d\u062f\u0648\u062f %{count} \u0633\u0627\u0644"}},"prompts":{"year":"\u0633\u0627\u0644","month":"\u0645\u0627\u0647","day":"\u0631\u0648\u0632","hour":"\u0633\u0627\u0639\u062a","minute":"\u062f\u0642\u06cc\u0642\u0647","second":"\u062b\u0627\u0646\u06cc\u0647"}},"helpers":{"select":{"prompt":"\u0644\u0637\u0641\u0627 \u0627\u0646\u062a\u062e\u0627\u0628 \u06a9\u0646\u06cc\u062f"},"submit":{"create":"%{model} \u0627\u06cc\u062c\u0627\u062f","update":"%{model} \u0628\u0631\u0648\u0632","submit":"%{model} \u0630\u062e\u06cc\u0631\u0647"}},"errors":{"format":"%{attribute} %{message}","messages":{"inclusion":"\u062f\u0631 \u0644\u06cc\u0633\u062a \u0645\u0648\u062c\u0648\u062f \u0646\u06cc\u0633\u062a","exclusion":"\u0631\u0632\u0631\u0648 \u0627\u0633\u062a","invalid":"\u0646\u0627\u0645\u0639\u062a\u0628\u0631 \u0627\u0633\u062a","confirmation":"\u0628\u0627 \u062a\u0627\u06cc\u06cc\u062f \u0646\u0645\u06cc\u200c\u062e\u0648\u0627\u0646\u062f","accepted":"\u0628\u0627\u06cc\u062f \u067e\u0630\u06cc\u0631\u0641\u062a\u0647 \u0634\u0648\u062f","empty":"\u0646\u0645\u06cc\u200c\u062a\u0648\u0627\u0646\u062f \u062e\u0627\u0644\u06cc \u0628\u0627\u0634\u062f","blank":"\u0646\u0628\u0627\u06cc\u062f \u062e\u0627\u0644\u06cc \u0628\u0627\u0634\u062f","too_long":"\u0628\u0644\u0646\u062f \u0627\u0633\u062a (\u062d\u062f\u0627\u06a9\u062b\u0631 %{count} \u06a9\u0627\u0631\u0627\u06a9\u062a\u0631)","too_short":"\u06a9\u0648\u062a\u0627\u0647 \u0627\u0633\u062a (\u062d\u062f\u0627\u0642\u0644 %{count} \u06a9\u0627\u0631\u0627\u06a9\u062a\u0631)","wrong_length":"\u0646\u0627\u0627\u0646\u062f\u0627\u0632\u0647 \u0627\u0633\u062a (\u0628\u0627\u06cc\u062f %{count} \u06a9\u0627\u0631\u0627\u06a9\u062a\u0631 \u0628\u0627\u0634\u062f)","not_a_number":"\u0639\u062f\u062f \u0646\u06cc\u0633\u062a","not_an_integer":"\u0639\u062f\u062f \u0635\u062d\u06cc\u062d \u0646\u06cc\u0633\u062a","greater_than":"\u0628\u0627\u06cc\u062f \u0628\u0632\u0631\u06af\u062a\u0631 \u0627\u0632 %{count} \u0628\u0627\u0634\u062f","greater_than_or_equal_to":"\u0628\u0627\u06cc\u062f \u0628\u0632\u0631\u06af\u062a\u0631 \u06cc\u0627 \u0628\u0631\u0627\u0628\u0631 %{count} \u0628\u0627\u0634\u062f","equal_to":"\u0628\u0627\u06cc\u062f \u0628\u0631\u0627\u0628\u0631 %{count} \u0628\u0627\u0634\u062f","less_than":"\u0628\u0627\u06cc\u062f \u06a9\u0645\u062a\u0631 \u0627\u0632 %{count} \u0628\u0627\u0634\u062f","less_than_or_equal_to":"\u0628\u0627\u06cc\u062f \u06a9\u0645\u062a\u0631 \u06cc\u0627 \u0628\u0631\u0627\u0628\u0631 %{count} \u0628\u0627\u0634\u062f","odd":"\u0628\u0627\u06cc\u062f \u0641\u0631\u062f \u0628\u0627\u0634\u062f","even":"\u0628\u0627\u06cc\u062f \u0632\u0648\u062c \u0628\u0627\u0634\u062f"}},"activerecord":{"errors":{"template":{"header":{"one":"1 \u062e\u0637\u0627 \u062c\u0644\u0648\u06cc \u0630\u062e\u06cc\u0631\u0647 \u0627\u06cc\u0646 %{model} \u0631\u0627 \u06af\u0631\u0641\u062a","other":"%{count} \u062e\u0637\u0627 \u062c\u0644\u0648\u06cc \u0630\u062e\u06cc\u0631\u0647 \u0627\u06cc\u0646 %{model} \u0631\u0627 \u06af\u0631\u0641\u062a"},"body":"\u0645\u0648\u0627\u0631\u062f \u0632\u06cc\u0631 \u0645\u0634\u06a9\u0644 \u062f\u0627\u0634\u062a:"},"messages":{"taken":"\u067e\u06cc\u0634\u062a\u0631 \u06af\u0631\u0641\u062a\u0647 \u0634\u062f\u0647","record_invalid":"\u0631\u06a9\u0648\u0631\u062f \u0646\u0627\u0645\u0639\u062a\u0628\u0631 \u0627\u0633\u062a %{errors}","inclusion":"\u062f\u0631 \u0644\u06cc\u0633\u062a \u0645\u0648\u062c\u0648\u062f \u0646\u06cc\u0633\u062a","exclusion":"\u0631\u0632\u0631\u0648 \u0627\u0633\u062a","invalid":"\u0646\u0627\u0645\u0639\u062a\u0628\u0631 \u0627\u0633\u062a","confirmation":"\u0628\u0627 \u062a\u0627\u06cc\u06cc\u062f \u0646\u0645\u06cc\u200c\u062e\u0648\u0627\u0646\u062f","accepted":"\u0628\u0627\u06cc\u062f \u067e\u0630\u06cc\u0631\u0641\u062a\u0647 \u0634\u0648\u062f","empty":"\u0646\u0645\u06cc\u200c\u062a\u0648\u0627\u0646\u062f \u062e\u0627\u0644\u06cc \u0628\u0627\u0634\u062f","blank":"\u0646\u0628\u0627\u06cc\u062f \u062e\u0627\u0644\u06cc \u0628\u0627\u0634\u062f","too_long":"\u0628\u0644\u0646\u062f \u0627\u0633\u062a (\u062d\u062f\u0627\u06a9\u062b\u0631 %{count} \u06a9\u0627\u0631\u0627\u06a9\u062a\u0631)","too_short":"\u06a9\u0648\u062a\u0627\u0647 \u0627\u0633\u062a (\u062d\u062f\u0627\u0642\u0644 %{count} \u06a9\u0627\u0631\u0627\u06a9\u062a\u0631)","wrong_length":"\u0646\u0627\u0627\u0646\u062f\u0627\u0632\u0647 \u0627\u0633\u062a (\u0628\u0627\u06cc\u062f %{count} \u06a9\u0627\u0631\u0627\u06a9\u062a\u0631 \u0628\u0627\u0634\u062f)","not_a_number":"\u0639\u062f\u062f \u0646\u06cc\u0633\u062a","not_an_integer":"\u0639\u062f\u062f \u0635\u062d\u06cc\u062d \u0646\u06cc\u0633\u062a","greater_than":"\u0628\u0627\u06cc\u062f \u0628\u0632\u0631\u06af\u062a\u0631 \u0627\u0632 %{count} \u0628\u0627\u0634\u062f","greater_than_or_equal_to":"\u0628\u0627\u06cc\u062f \u0628\u0632\u0631\u06af\u062a\u0631 \u06cc\u0627 \u0628\u0631\u0627\u0628\u0631 %{count} \u0628\u0627\u0634\u062f","equal_to":"\u0628\u0627\u06cc\u062f \u0628\u0631\u0627\u0628\u0631 %{count} \u0628\u0627\u0634\u062f","less_than":"\u0628\u0627\u06cc\u062f \u06a9\u0645\u062a\u0631 \u0627\u0632 %{count} \u0628\u0627\u0634\u062f","less_than_or_equal_to":"\u0628\u0627\u06cc\u062f \u06a9\u0645\u062a\u0631 \u06cc\u0627 \u0628\u0631\u0627\u0628\u0631 %{count} \u0628\u0627\u0634\u062f","odd":"\u0628\u0627\u06cc\u062f \u0641\u0631\u062f \u0628\u0627\u0634\u062f","even":"\u0628\u0627\u06cc\u062f \u0632\u0648\u062c \u0628\u0627\u0634\u062f"},"full_messages":{"format":"%{attribute} %{message}"}}}},"fur":{"number":{"format":{"separator":",","delimiter":".","precision":3},"currency":{"format":{"format":"%n %u","unit":"\u20ac","separator":".","delimiter":",","precision":2}},"percentage":{"format":{"delimiter":""}},"precision":{"format":{"delimiter":""}},"human":{"format":{"delimiter":"","precision":1},"storage_units":{"format":"%n %u","units":{"byte":{"one":"Byte","other":"Byte"},"kb":"Kb","mb":"Mb","gb":"Gb","tb":"Tb"}}}},"date":{"formats":{"default":"%d-%m-%Y","short":"%d di %b","long":"%d di %B dal %Y"},"day_names":["domenie","lunis","martars","miercus","joibe","vinars","sabide"],"abbr_day_names":["dom","lun","mar","mie","joi","vin","sab"],"month_names":[null,"Zen\u00e2r","Fevr\u00e2r","Mar\u00e7","Avr\u00eel","Mai","Jugn","Lui","Avost","Setembar","Otubar","Novembar","Dicembar"],"abbr_month_names":[null,"Zen","Fev","Mar","Avr","Mai","Jug","Lui","Avo","Set","Otu","Nov","Dic"],"order":["day","month","year"]},"time":{"formats":{"default":"%a %d di %b dal %Y, %H:%M:%S %z","short":"%d di %b %H:%M","long":"%d di %B %Y %H:%M"},"am":"am","pm":"pm"},"datetime":{"distance_in_words":{"half_a_minute":"mie\u00e7 min\u00fbt","less_than_x_seconds":{"one":"mancul di un secont","other":"mancul di %{count} seconts"},"x_seconds":{"one":"1 secont","other":"%{count} seconts"},"less_than_x_minutes":{"one":"mancul di un min\u00fbt","other":"mancul di %{count} min\u00fbts"},"x_minutes":{"one":"1 min\u00fbt","other":"%{count} min\u00fbts"},"about_x_hours":{"one":"cirche une ore","other":"cirche %{count} oris"},"x_days":{"one":"1 zornade","other":"%{count} zornadis"},"about_x_months":{"one":"cirche un m\u00eas","other":"cirche %{count} m\u00eas"},"x_months":{"one":"1 m\u00eas","other":"%{count} m\u00eas"},"about_x_years":{"one":"cirche un an","other":"cirche %{count} agns"},"over_x_years":{"one":"plui di un an","other":"plui di %{count} agns"}},"prompts":{"year":"An","month":"M\u00eas","day":"D\u00ec","hour":"Ore","minute":"Min\u00fbt","second":"Seconts"}},"support":{"array":{"words_connector":", ","two_words_connector":" e ","last_word_connector":", e "}},"activerecord":{"errors":{"template":{"header":{"one":"No si pues salv\u00e2 chest %{model}: 1 er\u00f4r","other":"No si pues salv\u00e2 chest %{model}: %{count} er\u00f4rs."},"body":"Torne par plas\u00ea a control\u00e2 i cjamps ca sot:"},"messages":{"inclusion":"non \u00e8 includ\u00fbt te liste","exclusion":"al \u00e8 riserv\u00e2t","invalid":"nol \u00e8 valit","confirmation":"nol \u00e8 compagn de conferme","accepted":"al \u00e0 di jessi acet\u00e2t","empty":"nol pues jessi vueit","blank":"nol pues jessi lass\u00e2t in blanc","too_long":"al \u00e8 masse lunc (il massim al \u00e8 %{count} letaris)","too_short":"al \u00e8 masse curt (il minim al \u00e8 %{count} letaris)","wrong_length":"nol \u00e0 la lungjece juste (al \u00f2 di jessi di %{count} letaris)","taken":"al \u00e8 za dopr\u00e2t","not_a_number":"nol \u00e8 un numar","greater_than":"al \u00e0 di jessi plui grant di %{count}","greater_than_or_equal_to":"al \u00e0 di jessi plui grant o compagn di %{count}","equal_to":"al \u00e0 di jessi compagn di %{count}","less_than":"al \u00e0 di jessi mancul di %{count}","less_than_or_equal_to":"al \u00e0 di jessi mancul o compagn di %{count}","odd":"al \u00e0 di jessi dispar","even":"al \u00e0 di jessi p\u00e2r"}}}},"eo":{"date":{"formats":{"default":"%Y/%m/%d","short":"%e %b","long":"%e %B %Y"},"day_names":["diman\u0109o","lundo","mardo","merkredo","\u0135a\u016ddo","vendredo","sabato"],"abbr_day_names":["dim","lun","mar","mer","\u0135a\u016d","ven","sam"],"month_names":[null,"januaro","februaro","marto","aprilo","majo","junio","julio","a\u016dgusto","septembro","oktobro","novembro","decembro"],"abbr_month_names":[null,"jan.","feb.","mar.","apr.","majo","jun.","jul.","a\u016dg.","sep.","okt.","nov.","dec."],"order":["day","month","year"]},"time":{"formats":{"default":"%d %B %Y %H:%M:%S","short":"%d %b %H:%M","long":"%A %d %B %Y %H:%M"},"am":"am","pm":"pm"},"datetime":{"distance_in_words":{"half_a_minute":"duona minuto","less_than_x_seconds":{"zero":"malpli ol unu sekundo","one":"malpli ol unu sekundo","other":"malpli ol %{count} sekundoj"},"x_seconds":{"one":"1 sekundo","other":"%{count} sekundoj"},"less_than_x_minutes":{"zero":"malpli ol unu minuto","one":"malpli ol unu minuto","other":"malpli ol %{count} minutoj"},"x_minutes":{"one":"1 minuto","other":"%{count} minutoj"},"about_x_hours":{"one":"\u0109irka\u016d unu horo","other":"\u0109irka\u016d %{count} horoj"},"x_days":{"one":"1 tago","other":"%{count} tagoj"},"about_x_months":{"one":"\u0109irka\u016d unu monato","other":"\u0109irka\u016d %{count} monatoj"},"x_months":{"one":"1 monato","other":"%{count} monatoj"},"about_x_years":{"one":"\u0109irka\u016d uno jaro","other":"\u0109irka\u016d %{count} jaroj"},"over_x_years":{"one":"pli ol unu jaro","other":"pli ol %{count} jaroj"},"almost_x_years":{"one":"preska\u016d unu jaro","other":"preska\u016d %{count} jaroj"}},"prompts":{"year":"Jaro","month":"Monato","day":"Tago","hour":"Horo","minute":"Minuto","second":"Sekundo"}},"number":{"format":{"separator":",","delimiter":" ","precision":3,"significant":false,"strip_insignificant_zeros":false},"currency":{"format":{"format":"%n %u","unit":"\u20ac","separator":",","delimiter":" ","precision":2,"significant":false,"strip_insignificant_zeros":false}},"percentage":{"format":{"delimiter":""}},"precision":{"format":{"delimiter":""}},"human":{"format":{"delimiter":"","precision":2,"significant":true,"strip_insignificant_zeros":true},"storage_units":{"format":"%n %u","units":{"byte":{"one":"bitoko","other":"bitokoj"},"kb":"kb","mb":"Mb","gb":"Gb","tb":"Tb"}},"decimal_units":{"format":"%n %u","units":{"unit":"","thousand":"mil","million":"miliono","billion":"miliardo","trillion":"mil miliardoj","quadrillion":"miliono da miliardoj"}}}},"support":{"array":{"words_connector":", ","two_words_connector":" kaj ","last_word_connector":" kaj "},"select":{"prompt":"Bonvolu elekti"}},"helpers":{"select":{"prompt":"Bonvolu elekti"},"submit":{"create":"Krei %{model}","update":"Modifi tiun %{model}","submit":"Registri tiun %{model}"}},"errors":{"format":"%{attribute} %{message}","messages":{"inclusion":"ne estas inkluzivita de la listo","exclusion":"ne estas disponebla","invalid":"estas nevalida","confirmation":"ne kongruas kun la konfirmo","accepted":"devas esti akceptita","empty":"devas esti kompletigita","blank":"devas esti kompletigita","too_long":"estas tro longa (maksimume %{count} karekteroj)","too_short":"estas tro mallonga (minimume %{count} karakteroj)","wrong_length":"ne estas je \u011dusta longo (devas enhavi %{count} karakterojn)","not_a_number":"ne estas nombro","not_an_integer":"devas esti entjero","greater_than":"devas superi %{count}","greater_than_or_equal_to":"devas superi a\u016d egali %{count}","equal_to":"devas egali %{count}","less_than":"devas malsuperi %{count}","less_than_or_equal_to":"devas malsuperi a\u016d egali %{count}","odd":"devas esti nepara","even":"devas esti para"}},"attributes":{"created_at":"Kreita la","updated_at":"Modifita la"},"activerecord":{"errors":{"messages":{"taken":"ne estas disponebla","record_invalid":"Validado malsukcesis: %{errors}","inclusion":"ne estas inkluzivita de la listo","exclusion":"ne estas disponebla","invalid":"estas nevalida","confirmation":"ne kongruas kun la konfirmo","accepted":"devas esti akceptita","empty":"devas esti kompletigita","blank":"devas esti kompletigita","too_long":"estas tro longa (maksimume %{count} karekteroj)","too_short":"estas tro mallonga (minimume %{count} karakteroj)","wrong_length":"ne estas je \u011dusta longo (devas enhavi %{count} karakterojn)","not_a_number":"ne estas nombro","not_an_integer":"devas esti entjero","greater_than":"devas superi %{count}","greater_than_or_equal_to":"devas superi a\u016d egali %{count}","equal_to":"devas egali %{count}","less_than":"devas malsuperi %{count}","less_than_or_equal_to":"devas malsuperi a\u016d egali %{count}","odd":"devas esti nepara","even":"devas esti para"},"template":{"header":{"one":"Ne eblas registri tiun %{model}: 1 eraro","other":"Ne eblas registri tiun %{model}: %{count} eraroj"},"body":"Kontrolu la jenajn kampojn: "},"full_messages":{"format":"%{attribute} %{message}"}}}},"fr-CH":{"date":{"formats":{"default":"%d.%m.%Y","short":"%e %b","long":"%e %B %Y"},"day_names":["dimanche","lundi","mardi","mercredi","jeudi","vendredi","samedi"],"abbr_day_names":["dim","lun","mar","mer","jeu","ven","sam"],"month_names":[null,"janvier","f\u00e9vrier","mars","avril","mai","juin","juillet","ao\u00fbt","septembre","octobre","novembre","d\u00e9cembre"],"abbr_month_names":[null,"jan.","f\u00e9v.","mar.","avr.","mai","juin","juil.","ao\u00fbt","sept.","oct.","nov.","d\u00e9c."],"order":["day","month","year"]},"time":{"formats":{"default":"%d. %B %Y %H:%M","short":"%d. %b %H:%M","long":"%A, %d. %B %Y %H:%M:%S %Z"},"am":"am","pm":"pm"},"datetime":{"distance_in_words":{"half_a_minute":"une demi-minute","less_than_x_seconds":{"zero":"moins d'une seconde","one":"moins d'une\u00a0seconde","other":"moins de %{count}\u00a0secondes"},"x_seconds":{"one":"1\u00a0seconde","other":"%{count}\u00a0secondes"},"less_than_x_minutes":{"zero":"moins d'une\u00a0minute","one":"moins d'une\u00a0minute","other":"moins de %{count}\u00a0minutes"},"x_minutes":{"one":"1\u00a0minute","other":"%{count}\u00a0minutes"},"about_x_hours":{"one":"environ une heure","other":"environ %{count}\u00a0heures"},"x_days":{"one":"1\u00a0jour","other":"%{count}\u00a0jours"},"about_x_months":{"one":"environ un mois","other":"environ %{count}\u00a0mois"},"x_months":{"one":"1\u00a0mois","other":"%{count}\u00a0mois"},"about_x_years":{"one":"environ un an","other":"environ %{count}\u00a0ans"},"over_x_years":{"one":"plus d'un an","other":"plus de %{count}\u00a0ans"},"almost_x_years":{"one":"presqu'un an","other":"presque %{count} ans"}},"prompts":{"year":"Ann\u00e9e","month":"Mois","day":"Jour","hour":"Heure","minute":"Minute","second":"Seconde"}},"number":{"format":{"separator":".","delimiter":"'","precision":3,"significant":false,"strip_insignificant_zeros":false},"currency":{"format":{"format":"%n %u","unit":"CHF","separator":".","delimiter":"'","precision":2,"significant":false,"strip_insignificant_zeros":false}},"percentage":{"format":{"delimiter":""}},"precision":{"format":{"delimiter":""}},"human":{"format":{"delimiter":"","precision":2,"significant":true,"strip_insignificant_zeros":true},"storage_units":{"format":"%n %u","units":{"byte":{"one":"octet","other":"octets"},"kb":"ko","mb":"Mo","gb":"Go","tb":"To"}},"decimal_units":{"format":"%n %u","units":{"unit":"","thousand":"millier","million":"million","billion":"milliard","trillion":"billion","quadrillion":"million de milliards"}}}},"support":{"array":{"words_connector":", ","two_words_connector":" et ","last_word_connector":" et "},"select":{"prompt":"Veuillez s\u00e9lectionner"}},"helpers":{"select":{"prompt":"Veuillez s\u00e9lectionner"},"submit":{"create":"Cr\u00e9er un %{model}","update":"Modifier ce %{model}","submit":"Enregistrer ce %{model}"}},"errors":{"format":"Le %{attribute} %{message}","messages":{"inclusion":"n'est pas inclus(e) dans la liste","exclusion":"n'est pas disponible","invalid":"n'est pas valide","confirmation":"ne concorde pas avec la confirmation","accepted":"doit \u00eatre accept\u00e9(e)","empty":"doit \u00eatre rempli(e)","blank":"doit \u00eatre rempli(e)","too_long":{"one":"est trop long (pas plus d'un caract\u00e8re)","other":"est trop long (pas plus de %{count} caract\u00e8res)"},"too_short":{"one":"est trop court (au moins un caract\u00e8re)","other":"est trop court (au moins %{count} caract\u00e8res)"},"wrong_length":{"one":"ne fait pas la bonne longueur (doit comporter un seul caract\u00e8re)","other":"ne fait pas la bonne longueur (doit comporter %{count} caract\u00e8res)"},"not_a_number":"n'est pas un nombre","not_an_integer":"doit \u00eatre un nombre entier","greater_than":"doit \u00eatre sup\u00e9rieur \u00e0 %{count}","greater_than_or_equal_to":"doit \u00eatre sup\u00e9rieur ou \u00e9gal \u00e0 %{count}","equal_to":"doit \u00eatre \u00e9gal \u00e0 %{count}","less_than":"doit \u00eatre inf\u00e9rieur \u00e0 %{count}","less_than_or_equal_to":"doit \u00eatre inf\u00e9rieur ou \u00e9gal \u00e0 %{count}","odd":"doit \u00eatre impair","even":"doit \u00eatre pair"}},"attributes":{"created_at":"Cr\u00e9\u00e9 le","updated_at":"Modifi\u00e9 le"},"activerecord":{"errors":{"messages":{"taken":"n'est pas disponible","record_invalid":"La validation a \u00e9chou\u00e9 : %{errors}","inclusion":"n'est pas inclus(e) dans la liste","exclusion":"n'est pas disponible","invalid":"n'est pas valide","confirmation":"ne concorde pas avec la confirmation","accepted":"doit \u00eatre accept\u00e9(e)","empty":"doit \u00eatre rempli(e)","blank":"doit \u00eatre rempli(e)","too_long":{"one":"est trop long (pas plus d'un caract\u00e8re)","other":"est trop long (pas plus de %{count} caract\u00e8res)"},"too_short":{"one":"est trop court (au moins un caract\u00e8re)","other":"est trop court (au moins %{count} caract\u00e8res)"},"wrong_length":{"one":"ne fait pas la bonne longueur (doit comporter un seul caract\u00e8re)","other":"ne fait pas la bonne longueur (doit comporter %{count} caract\u00e8res)"},"not_a_number":"n'est pas un nombre","not_an_integer":"doit \u00eatre un nombre entier","greater_than":"doit \u00eatre sup\u00e9rieur \u00e0 %{count}","greater_than_or_equal_to":"doit \u00eatre sup\u00e9rieur ou \u00e9gal \u00e0 %{count}","equal_to":"doit \u00eatre \u00e9gal \u00e0 %{count}","less_than":"doit \u00eatre inf\u00e9rieur \u00e0 %{count}","less_than_or_equal_to":"doit \u00eatre inf\u00e9rieur ou \u00e9gal \u00e0 %{count}","odd":"doit \u00eatre impair","even":"doit \u00eatre pair"},"template":{"header":{"one":"Impossible d'enregistrer ce %{model} : 1 erreur","other":"Impossible d'enregistrer ce %{model} : %{count} erreurs"},"body":"Veuillez v\u00e9rifier les champs suivants\u00a0: "},"full_messages":{"format":"%{attribute} %{message}"}}}},"vi":{"number":{"format":{"separator":",","delimiter":".","precision":3},"currency":{"format":{"format":"%n %u","unit":"\u0111\u1ed3ng","separator":",","delimiter":".","precision":2}},"percentage":{"format":{"delimiter":""}},"precision":{"format":{"delimiter":""}},"human":{"format":{"delimiter":"","precision":1},"storage_units":{"format":"%n %u","units":{"byte":{"one":"Byte","other":"Byte"},"kb":"KB","mb":"MB","gb":"GB","tb":"TB"}}}},"datetime":{"distance_in_words":{"half_a_minute":"30 gi\u00e2y","less_than_x_seconds":{"one":"ch\u01b0a t\u1edbi 1 gi\u00e2y","other":"ch\u01b0a t\u1edbi %{count} gi\u00e2y"},"x_seconds":{"one":"1 gi\u00e2y","other":"%{count} gi\u00e2y"},"less_than_x_minutes":{"one":"ch\u01b0a t\u1edbi 1 ph\u00fat","other":"ch\u01b0a t\u1edbi %{count} ph\u00fat"},"x_minutes":{"one":"1 ph\u00fat","other":"%{count} ph\u00fat"},"about_x_hours":{"one":"kho\u1ea3ng 1 gi\u1edd","other":"kho\u1ea3ng %{count} gi\u1edd"},"x_days":{"one":"1 ng\u00e0y","other":"%{count} ng\u00e0y"},"about_x_months":{"one":"kho\u1ea3ng 1 th\u00e1ng","other":"kho\u1ea3ng %{count} th\u00e1ng"},"x_months":{"one":"1 th\u00e1ng","other":"%{count} th\u00e1ng"},"about_x_years":{"one":"kho\u1ea3ng 1 n\u0103m","other":"kho\u1ea3ng %{count} n\u0103m"},"over_x_years":{"one":"h\u01a1n 1 n\u0103m","other":"h\u01a1n %{count} n\u0103m"}},"prompts":{"year":"N\u0103m","month":"Th\u00e1ng","day":"Ng\u00e0y","hour":"Gi\u1edd","minute":"Ph\u00fat","second":"Gi\u00e2y"}},"activerecord":{"errors":{"template":{"header":{"one":"1 l\u1ed7i ng\u0103n kh\u00f4ng cho l\u01b0u %{model} n\u00e0y","other":"%{count} l\u1ed7i ng\u0103n kh\u00f4ng cho l\u01b0u %{model} n\u00e0y"},"body":"C\u00f3 l\u1ed7i v\u1edbi c\u00e1c m\u1ee5c sau:"},"messages":{"inclusion":"kh\u00f4ng c\u00f3 trong danh s\u00e1ch","exclusion":"\u0111\u00e3 \u0111\u01b0\u1ee3c gi\u00e0nh tr\u01b0\u1edbc","invalid":"kh\u00f4ng h\u1ee3p l\u1ec7","confirmation":"kh\u00f4ng kh\u1edbp v\u1edbi x\u00e1c nh\u1eadn","accepted":"ph\u1ea3i \u0111\u01b0\u1ee3c \u0111\u1ed3ng \u00fd","empty":"kh\u00f4ng th\u1ec3 r\u1ed7ng","blank":"kh\u00f4ng th\u1ec3 \u0111\u1ec3 tr\u1eafng","too_long":"qu\u00e1 d\u00e0i (t\u1ed1i \u0111a %{count} k\u00fd t\u1ef1)","too_short":"qu\u00e1 ng\u1eafn (t\u1ed1i thi\u1ec3u %{count} k\u00fd t\u1ef1)","wrong_length":"\u0111\u1ed9 d\u00e0i kh\u00f4ng \u0111\u00fang (ph\u1ea3i l\u00e0 %{count} k\u00fd t\u1ef1)","taken":"\u0111\u00e3 c\u00f3","not_a_number":"kh\u00f4ng ph\u1ea3i l\u00e0 s\u1ed1","greater_than":"ph\u1ea3i l\u1edbn h\u01a1n %{count}","greater_than_or_equal_to":"ph\u1ea3i l\u1edbn h\u01a1n ho\u1eb7c b\u1eb1ng %{count}","equal_to":"ph\u1ea3i b\u1eb1ng %{count}","less_than":"ph\u1ea3i nh\u1ecf h\u01a1n %{count}","less_than_or_equal_to":"ph\u1ea3i nh\u1ecf h\u01a1n ho\u1eb7c b\u1eb1ng %{count}","odd":"ph\u1ea3i l\u00e0 s\u1ed1 ch\u1eb5n","even":"ph\u1ea3i l\u00e0 s\u1ed1 l\u1ebb"}}},"date":{"formats":{"default":"%d-%m-%Y","short":"%d %b","long":"%d %B, %Y"},"day_names":["Ch\u1ee7 nh\u1eadt","Th\u1ee9 hai","Th\u1ee9 ba","Th\u1ee9 t\u01b0","Th\u1ee9 n\u0103m","Th\u1ee9 s\u00e1u","Th\u1ee9 b\u1ea3y"],"abbr_day_names":["Ch\u1ee7 nh\u1eadt","Th\u1ee9 hai","Th\u1ee9 ba","Th\u1ee9 t\u01b0","Th\u1ee9 n\u0103m","Th\u1ee9 s\u00e1u","Th\u1ee9 b\u1ea3y"],"month_names":[null,"Th\u00e1ng m\u1ed9t","Th\u00e1ng hai","Th\u00e1ng ba","Th\u00e1ng t\u01b0","Th\u00e1ng n\u0103m","Th\u00e1ng s\u00e1u","Th\u00e1ng b\u1ea3y","Th\u00e1ng t\u00e1m","Th\u00e1ng ch\u00edn","Th\u00e1ng m\u01b0\u1eddi","Th\u00e1ng m\u01b0\u1eddi m\u1ed9t","Th\u00e1ng m\u01b0\u1eddi hai"],"abbr_month_names":[null,"Th\u00e1ng m\u1ed9t","Th\u00e1ng hai","Th\u00e1ng ba","Th\u00e1ng t\u01b0","Th\u00e1ng n\u0103m","Th\u00e1ng s\u00e1u","Th\u00e1ng b\u1ea3y","Th\u00e1ng t\u00e1m","Th\u00e1ng ch\u00edn","Th\u00e1ng m\u01b0\u1eddi","Th\u00e1ng m\u01b0\u1eddi m\u1ed9t","Th\u00e1ng m\u01b0\u1eddi hai"],"order":["day","month","year"]},"time":{"formats":{"default":"%a, %d %b %Y %H:%M:%S %z","short":"%d %b %H:%M","long":"%d %B, %Y %H:%M"},"am":"s\u00e1ng","pm":"chi\u1ec1u"},"support":{"array":{"words_connector":", ","two_words_connector":" v\u00e0 ","last_word_connector":", v\u00e0 "}}},"es-MX":{"number":{"percentage":{"format":{"delimiter":","}},"currency":{"format":{"format":"%u%n","unit":"$","separator":".","delimiter":",","precision":2,"significant":false,"strip_insignificant_zeros":false}},"format":{"delimiter":",","precision":2,"significant":false,"strip_insignificant_zeros":false,"separator":"."},"human":{"format":{"delimiter":",","precision":3,"significant":true,"strip_insignificant_zeros":true},"storage_units":{"format":"%n %u","units":{"byte":{"one":"Byte","other":"Bytes"},"kb":"KB","mb":"MB","gb":"GB","tb":"TB"}},"decimal_units":{"format":"%n %u","units":{"unit":"","thousand":"mil","million":"mill\u00f3n","billion":"mil millones","trillion":"bill\u00f3n","quadrillion":"mil billones"}}},"precision":{"format":{"delimiter":","}}},"date":{"order":["day","month","year"],"abbr_day_names":["dom","lun","mar","mi\u00e9","jue","vie","s\u00e1b"],"abbr_month_names":[null,"ene","feb","mar","abr","may","jun","jul","ago","sep","oct","nov","dic"],"day_names":["domingo","lunes","martes","mi\u00e9rcoles","jueves","viernes","s\u00e1bado"],"month_names":[null,"enero","febrero","marzo","abril","mayo","junio","julio","agosto","septiembre","octubre","noviembre","diciembre"],"formats":{"short":"%d de %b","default":"%d/%m/%Y","long":"%A, %d de %B de %Y"}},"time":{"formats":{"short":"%d de %b a las %H:%M hrs","default":"%a, %d de %b de %Y a las %H:%M:%S %Z","long":"%A, %d de %B de %Y a las %I:%M %p"},"am":"am","pm":"pm"},"support":{"array":{"words_connector":", ","two_words_connector":" y ","last_word_connector":" y "},"select":{"prompt":"Por favor selecciona"}},"datetime":{"distance_in_words":{"half_a_minute":"medio minuto","less_than_x_seconds":{"one":"menos de 1 segundo","other":"menos de %{count} segundos"},"x_seconds":{"one":"1 segundo","other":"%{count} segundos"},"less_than_x_minutes":{"one":"menos de 1 minuto","other":"menos de %{count} minutos"},"x_minutes":{"one":"1 minuto","other":"%{count} minutos"},"about_x_hours":{"one":"cerca de 1 hora","other":"cerca de %{count} horas"},"x_days":{"one":"1 d\u00eda","other":"%{count} d\u00edas"},"about_x_months":{"one":"cerca de 1 mes","other":"cerca de %{count} meses"},"x_months":{"one":"1 mes","other":"%{count} meses"},"about_x_years":{"other":"cerca de %{count} a\u00f1os","one":"cerca de 1 a\u00f1o"},"over_x_years":{"one":"m\u00e1s de 1 a\u00f1o","other":"m\u00e1s de %{count} a\u00f1os"},"almost_x_years":{"one":"casi 1 a\u00f1o","other":"casi %{count} a\u00f1os"}},"prompts":{"year":"A\u00f1o","month":"Mes","day":"D\u00eda","hour":"Hora","minute":"Minuto","second":"Segundos"}},"helpers":{"select":{"prompt":"Por favor selecciona"},"submit":{"create":"Crear %{model}","update":"Actualizar %{model}","submit":"Guardar %{model}"}},"errors":{"format":"%{attribute} %{message}","messages":{"inclusion":"no est\u00e1 inclu\u00eddo en la lista","exclusion":"est\u00e1 reservado","invalid":"es inv\u00e1lido","confirmation":"no coincide con la confirmaci\u00f3n","blank":"no puede estar en blanco","empty":"no puede estar vac\u00edo","not_a_number":"no es un n\u00famero","not_an_integer":"debe ser un entero","less_than":"debe ser menor que %{count}","less_than_or_equal_to":"debe ser menor o igual que %{count}","greater_than":"debe ser mayor que %{count}","greater_than_or_equal_to":"debe ser mayor o igual que %{count}","too_short":{"one":"es demasiado corto (m\u00ednimo 1 caracter)","other":"es demasiado corto (m\u00ednimo %{count} caracteres)"},"too_long":{"one":"es demasiado largo (m\u00e1ximo 1 caracter)","other":"es demasiado largo (m\u00e1ximo %{count} caracteres)"},"equal_to":"debe ser igual a %{count}","wrong_length":{"one":"longitud err\u00f3nea (debe ser de 1 caracter)","other":"longitud err\u00f3nea (debe ser de %{count} caracteres)"},"accepted":"debe ser aceptado","even":"debe ser un n\u00famero par","odd":"debe ser un n\u00famero non"}},"activerecord":{"errors":{"template":{"header":{"one":"%{model} no pudo guardarse debido a 1 error","other":"%{model} no pudo guardarse debido a %{count} errores"},"body":"Revise que los siguientes campos sean v\u00e1lidos:"},"messages":{"taken":"ya ha sido tomado","record_invalid":"La validaci\u00f3n fall\u00f3: %{errors}","inclusion":"no est\u00e1 inclu\u00eddo en la lista","exclusion":"est\u00e1 reservado","invalid":"es inv\u00e1lido","confirmation":"no coincide con la confirmaci\u00f3n","blank":"no puede estar en blanco","empty":"no puede estar vac\u00edo","not_a_number":"no es un n\u00famero","not_an_integer":"debe ser un entero","less_than":"debe ser menor que %{count}","less_than_or_equal_to":"debe ser menor o igual que %{count}","greater_than":"debe ser mayor que %{count}","greater_than_or_equal_to":"debe ser mayor o igual que %{count}","too_short":{"one":"es demasiado corto (m\u00ednimo 1 caracter)","other":"es demasiado corto (m\u00ednimo %{count} caracteres)"},"too_long":{"one":"es demasiado largo (m\u00e1ximo 1 caracter)","other":"es demasiado largo (m\u00e1ximo %{count} caracteres)"},"equal_to":"debe ser igual a %{count}","wrong_length":{"one":"longitud err\u00f3nea (debe ser de 1 caracter)","other":"longitud err\u00f3nea (debe ser de %{count} caracteres)"},"accepted":"debe ser aceptado","even":"debe ser un n\u00famero par","odd":"debe ser un n\u00famero non"},"full_messages":{"format":"%{attribute} %{message}"}}}},"hsb":{"support":{"array":{"words_connector":", ","two_words_connector":" a ","last_word_connector":" a ","sentence_connector":"a","skip_last_comma":true}},"date":{"formats":{"default":"%d. %m. %Y","short":"%d %b","long":"%d. %B %Y"},"day_names":["njed\u017aela","p\u00f3nd\u017aela","wutora","srjeda","\u0161tw\u00f3rtk","pjatk","sobota"],"abbr_day_names":["Nj","P\u00f3","Wu","Sr","\u0160t","Pj","So"],"month_names":[null,"Januar","Februar","M\u011brc","Apryl","Meja","Junij","Julij","Awgust","September","Oktober","Nowember","December"],"abbr_month_names":[null,"jan","feb","m\u011br","apr","mej","jun","jul","awg","sep","okt","now","dec"],"order":["day","month","year"]},"time":{"formats":{"default":"%A, %d. %B %Y, %H:%M hod\u017a","short":"%d. %B, %H:%M hod\u017a.","long":"%A, %d. %B %Y, %H:%M hod\u017a."},"am":"dopo\u0142dnja","pm":"popo\u0142dnju"},"number":{"format":{"precision":3,"separator":",","delimiter":"."},"currency":{"format":{"unit":"\u20ac","precision":2,"format":"%n %u","separator":",","delimiter":" "}},"human":{"format":{"precision":1,"delimiter":""},"storage_units":{"format":"%n %u","units":{"byte":{"one":"bajt","two":"bajtaj","few":"bajty","other":"bajtow"},"kb":"KB","mb":"MB","gb":"GB","tb":"TB"}}},"percentage":{"format":{"delimiter":""}},"precision":{"format":{"delimiter":""}}},"datetime":{"distance_in_words":{"half_a_minute":"po\u0142 mje\u0144\u0161iny","less_than_x_seconds":{"one":"mjenje ha\u010d 1 sekundu","two":"mjenje ha\u010d %{count} sekundomaj","few":"mjenje ha\u010d %{count} sekundami","other":"mjenje ha\u010d %{count} sekundami"},"x_seconds":{"one":"1 sekundu","two":"%{count} sekundomaj","few":"%{count} sekundami","other":"%{count} sekundami"},"less_than_x_minutes":{"one":"mjenje ha\u010d 1 mje\u0144\u0161inu","two":"mjenje ha\u010d %{count} mje\u0144\u0161inomaj","few":"mjenje ha\u010d %{count} mje\u0144\u0161inami","other":"mjenje ha\u010d %{count} mje\u0144\u0161inami"},"x_minutes":{"one":"1 mje\u0144\u0161inu","two":"%{count} mje\u0144\u0161inomaj","few":"%{count} mje\u0144\u0161inami","other":"%{count} mje\u0144\u0161inami"},"about_x_hours":{"one":"n\u011bhd\u017ae 1 hod\u017ainu","two":"n\u011bhd\u017ae %{count} hod\u017ainomaj","few":"n\u011bhd\u017ae %{count} hod\u017ainami","other":"n\u011bhd\u017ae %{count} hod\u017ainami"},"x_days":{"one":"1 dnjom","two":"%{count} dnjomaj","few":"%{count} dnjemi","other":"%{count} dnjemi"},"about_x_months":{"one":"n\u011bhd\u017ae 1 m\u011bsacom","two":"n\u011bhd\u017ae %{count} m\u011bsacomaj","few":"n\u011bhd\u017ae %{count} m\u011bsacami","other":"n\u011bhd\u017ae %{count} m\u011bsacami"},"x_months":{"one":"1 m\u011bsacom","two":"%{count} m\u011bsacomaj","few":"%{count} m\u011bsacami","other":"%{count} m\u011bsacami"},"about_x_years":{"one":"n\u011bhd\u017ae 1 l\u011btom","two":"n\u011bhd\u017ae %{count} l\u011btomaj","few":"n\u011bhd\u017ae %{count} l\u011btami","other":"n\u011bhd\u017ae %{count} l\u011btami"},"over_x_years":{"one":"p\u0159ez 1 l\u011btom","two":"p\u0159ez %{count} l\u011btomaj","few":"p\u0159ez %{count} l\u011btami","other":"p\u0159ez %{count} l\u011btami"},"prompts":{"year":"L\u011bto","month":"M\u011bsac","day":"D\u017ae\u0144","hour":"Hod\u017aina","minute":"Mje\u0144\u0161ina","second":"Sekunda"}}},"activerecord":{"errors":{"messages":{"inclusion":"njeje p\u0142a\u0107iwa h\u00f3dnota","exclusion":"njesteji k dispoziciji","invalid":"njeje p\u0142a\u0107iwy","confirmation":"njebu wobkru\u0107ene","accepted":"dyrbi so wobkru\u0107i\u0107","empty":"njesm\u011b pr\u00f3zdny by\u0107","blank":"je tr\u011bbny","too_long":{"one":"je p\u0159edo\u0142hi (maks. 1 znamje\u0161ko)","two":"je p\u0159edo\u0142hi (maks. %{count} znamje\u0161ce)","few":"je p\u0159edo\u0142hi (maks. %{count} znamje\u0161ka)","other":"je p\u0159edo\u0142hi (maks. %{count} znamje\u0161kow)"},"too_short":{"one":"je p\u0159ekr\u00f3tki (min. 1 znamje\u0161ko)","two":"je p\u0159ekr\u00f3tki (min. %{count} znamje\u0161\u0107e)","few":"je p\u0159ekr\u00f3tki (min. %{count} znamje\u0161ka)","other":"je p\u0159ekr\u00f3tki (min. %{count} znamje\u0161kow)"},"wrong_length":{"one":"nima prawu do\u0142hos\u0107 (1 znamje\u0161ko wo\u010dakowane)","two":"nima prawu do\u0142hos\u0107 (%{count} znamje\u0161ce wo\u010dakowanej)","few":"nima prawu do\u0142hos\u0107 (%{count} znamje\u0161ka wo\u010dakowane)","other":"nima prawu do\u0142hos\u0107 (%{count} znamje\u0161kow wo\u010dakowanych)"},"taken":"je hi\u017eo w datowej bance","not_a_number":"njeje li\u010dba","greater_than":"dyrbi wjet\u0161i ha\u010d %{count} by\u0107","greater_than_or_equal_to":"dyrbi wjet\u0161i abo runja %{count} by\u0107","equal_to":"dyrbi runja %{count} by\u0107","less_than":"dyrbi mjenje ha\u010d %{count} by\u0107","less_than_or_equal_to":"dyrbi mjenje abo runja %{count} by\u0107","odd":"dyrbi njeruna li\u010dby by\u0107","even":"dyrbi runa li\u010dba by\u0107"},"template":{"header":{"one":"P\u0159i sk\u0142adowanju objekta %{model} je k zmylkej d\u00f3\u0161\u0142o a njeb\u011b m\u00f3\u017eno sk\u0142adowa\u0107","two":"P\u0159i sk\u0142adowanju objekta %{model} je k %{count} zmylkam d\u00f3\u0161\u0142o a njeb\u011b m\u00f3\u017eno sk\u0142adowa\u0107","few":"P\u0159i sk\u0142adowanju objekta %{model} je k %{count} zmylkam d\u00f3\u0161\u0142o a njeb\u011b m\u00f3\u017eno sk\u0142adowa\u0107","other":"P\u0159i sk\u0142adowanju objekta %{model} je k %{count} zmylkam d\u00f3\u0161\u0142o a njeb\u011b m\u00f3\u017eno sk\u0142adowa\u0107","body":"Pro\u0161u p\u0159epruwuj sl\u011bdowace pola:"}},"models":null}}},"az":{"date":{"formats":{"default":"%d.%m.%Y","short":"%d %b","long":"%d %B %Y"},"day_names":["Bazar","Bazar ert\u0259si","\u00c7\u0259r\u015f\u0259nb\u0259 ax\u015fam\u0131","\u00c7\u0259r\u015f\u0259nb\u0259","C\u00fcm\u0259 ax\u015fam\u0131","C\u00fcm\u0259","\u015e\u0259nb\u0259"],"abbr_day_names":["B.","B.E.","\u00c7.A.","\u00c7.","C.A.","C.","\u015e."],"month_names":[null,"Yanvar","Fevral","Mart","Aprel","May","\u0130yun","\u0130yul","Avqust","Sentyabr","Oktyabr","Noyabr","Dekabr"],"abbr_month_names":[null,"Yan","Fev","Mar","Apr","May","\u0130yn","\u0130yl","Avq","Sen","Okt","Noy","Dek"],"order":["day","month","year"]},"time":{"formats":{"default":"%a, %d %b %Y, %H:%M:%S %z","short":"%d %b, %H:%M","long":"%d %B %Y, %H:%M"},"am":"g\u00fcnortaya q\u0259d\u0259r","pm":"g\u00fcnortadan sonra"},"support":{"array":{"words_connector":", ","two_words_connector":" v\u0259 ","last_word_connector":" v\u0259 "},"select":{"prompt":"Se\u00e7in"}},"number":{"format":{"separator":".","delimiter":" ","precision":3,"significant":false,"strip_insignificant_zeros":false},"currency":{"format":{"format":"%n %u","unit":"AZN","separator":".","delimiter":" ","precision":2,"significant":false,"strip_insignificant_zeros":false}},"percentage":{"format":{"delimiter":""}},"precision":{"format":{"delimiter":""}},"human":{"format":{"delimiter":"","precision":1,"significant":false,"strip_insignificant_zeros":false},"storage_units":{"format":"%n %u","units":{"byte":{"one":"Bayt","other":"Bayt"},"kb":"KB","mb":"MB","gb":"GB","tb":"TB"}},"decimal_units":{"format":"%n %u","units":{"unit":"","thousand":"Min","million":"Milyon","billion":"Milyard","trillion":"Trilyon","quadrillion":"Katrilyon"}}}},"datetime":{"distance_in_words":{"half_a_minute":"yar\u0131m d\u0259qiq\u0259","less_than_x_seconds":{"one":"1 saniy\u0259d\u0259n az","other":"%{count} saniy\u0259d\u0259n az"},"x_seconds":{"one":"1 saniy\u0259","other":"%{count} saniy\u0259"},"less_than_x_minutes":{"one":"1 d\u0259qiq\u0259d\u0259n az","other":"%{count} d\u0259qiq\u0259d\u0259n az"},"x_minutes":{"one":"1 d\u0259qiq\u0259","other":"%{count} d\u0259qiq\u0259"},"about_x_hours":{"one":"t\u0259xmin\u0259n 1 saat","other":"t\u0259xmin\u0259n %{count} saat"},"x_days":{"one":"1 g\u00fcn","other":"%{count} g\u00fcn"},"about_x_months":{"one":"t\u0259xmin\u0259n 1 ay","other":"t\u0259xmin\u0259n %{count} ay"},"x_months":{"one":"1 ay","other":"%{count} ay"},"about_x_years":{"one":"t\u0259xmin\u0259n 1 il","other":"t\u0259xmin\u0259n %{count} il"},"over_x_years":{"one":"1 ild\u0259n \u00e7ox","other":"%{count} ild\u0259n \u00e7ox"},"almost_x_years":{"one":"t\u0259qrib\u0259n 1 il","other":"t\u0259qrib\u0259n %{count} il"}},"prompts":{"year":"\u0130l","month":"Ay","day":"G\u00fcn","hour":"Saat","minute":"D\u0259qiq\u0259","second":"Saniy\u0259"}},"helpers":{"select":{"prompt":"Se\u00e7in"},"submit":{"create":"%{model} yarat","update":"%{model} yenil\u0259","submit":"%{model} saxla"}},"errors":{"format":"%{attribute} %{message}","messages":{"inclusion":"siyahiy\u0259 daxil deyil","exclusion":"qorunur","invalid":"yaln\u0131\u015fd\u0131r","confirmation":"t\u0259sdiq\u0259 uygun deyil","accepted":"q\u0259bul olunmal\u0131d\u0131r","empty":"bo\u015f ola bilm\u0259z","blank":"bo\u015f ola bilm\u0259z","too_long":"\u00e7ox uzundur (%{count} simvoldan \u00e7ox olmal\u0131 deyil)","too_short":"\u00e7ox q\u0131sad\u0131r (%{count} simvoldan az olmal\u0131 deyil)","wrong_length":"uzunluqu s\u0259hvdir (%{count} simvol olmal\u0131d\u0131r)","not_a_number":"r\u0259q\u0259m deyil","not_an_integer":"tam r\u0259q\u0259m olmal\u0131d\u0131r","greater_than":"%{count}-d\u0259n b\u00f6y\u00fck olmal\u0131d\u0131r","greater_than_or_equal_to":"b\u00f6y\u00fck v\u0259 ya %{count}-\u0259 b\u0259rab\u0259r olmal\u0131d\u0131r","equal_to":"%{count}-\u0259 b\u0259rab\u0259r olmal\u0131d\u0131r","less_than":"%{count}-d\u0259n ki\u00e7ik olmal\u0131d\u0131r","less_than_or_equal_to":"ki\u00e7ik v\u0259 ya %{count}-\u0259 b\u0259rab\u0259r olmal\u0131d\u0131r","odd":"t\u0259k olmal\u0131d\u0131r","even":"c\u00fct olmal\u0131d\u0131r"}},"activerecord":{"errors":{"template":{"header":{"one":"%{model} saxlanmad\u0131: 1 s\u0259hv","other":"%{model} saxlanmad\u0131: %{count} s\u0259hv"},"body":"A\u015fa\u011f\u0131daki s\u0259hvl\u0259r \u00fcz\u0259 \u00e7\u0131xd\u0131:"},"messages":{"taken":"art\u0131q m\u00f6vcuddur","record_invalid":"Yoxlama u\u011fursuz oldu: %{errors}","inclusion":"siyahiy\u0259 daxil deyil","exclusion":"qorunur","invalid":"yaln\u0131\u015fd\u0131r","confirmation":"t\u0259sdiq\u0259 uygun deyil","accepted":"q\u0259bul olunmal\u0131d\u0131r","empty":"bo\u015f ola bilm\u0259z","blank":"bo\u015f ola bilm\u0259z","too_long":"\u00e7ox uzundur (%{count} simvoldan \u00e7ox olmal\u0131 deyil)","too_short":"\u00e7ox q\u0131sad\u0131r (%{count} simvoldan az olmal\u0131 deyil)","wrong_length":"uzunluqu s\u0259hvdir (%{count} simvol olmal\u0131d\u0131r)","not_a_number":"r\u0259q\u0259m deyil","not_an_integer":"tam r\u0259q\u0259m olmal\u0131d\u0131r","greater_than":"%{count}-d\u0259n b\u00f6y\u00fck olmal\u0131d\u0131r","greater_than_or_equal_to":"b\u00f6y\u00fck v\u0259 ya %{count}-\u0259 b\u0259rab\u0259r olmal\u0131d\u0131r","equal_to":"%{count}-\u0259 b\u0259rab\u0259r olmal\u0131d\u0131r","less_than":"%{count}-d\u0259n ki\u00e7ik olmal\u0131d\u0131r","less_than_or_equal_to":"ki\u00e7ik v\u0259 ya %{count}-\u0259 b\u0259rab\u0259r olmal\u0131d\u0131r","odd":"t\u0259k olmal\u0131d\u0131r","even":"c\u00fct olmal\u0131d\u0131r"},"full_messages":{"format":"%{attribute} %{message}"}}}},"en-US":{"date":{"formats":{"default":"%Y-%m-%d","short":"%b %d","long":"%B %d, %Y"},"day_names":["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"],"abbr_day_names":["Sun","Mon","Tue","Wed","Thu","Fri","Sat"],"month_names":[null,"January","February","March","April","May","June","July","August","September","October","November","December"],"abbr_month_names":[null,"Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"],"order":["year","month","day"]},"time":{"formats":{"default":"%a, %d %b %Y %H:%M:%S %z","short":"%d %b %H:%M","long":"%B %d, %Y %H:%M"},"am":"am","pm":"pm"},"support":{"array":{"words_connector":", ","two_words_connector":" and ","last_word_connector":", and "},"select":{"prompt":"Please select"}},"number":{"format":{"separator":".","delimiter":",","precision":3,"significant":false,"strip_insignificant_zeros":false},"currency":{"format":{"format":"%u%n","unit":"$","separator":".","delimiter":",","precision":2,"significant":false,"strip_insignificant_zeros":false}},"percentage":{"format":{"delimiter":""}},"precision":{"format":{"delimiter":""}},"human":{"format":{"delimiter":"","precision":3,"significant":true,"strip_insignificant_zeros":true},"storage_units":{"format":"%n %u","units":{"byte":{"one":"Byte","other":"Bytes"},"kb":"KB","mb":"MB","gb":"GB","tb":"TB"}},"decimal_units":{"format":"%n %u","units":{"unit":"","thousand":"Thousand","million":"Million","billion":"Billion","trillion":"Trillion","quadrillion":"Quadrillion"}}}},"datetime":{"distance_in_words":{"half_a_minute":"half a minute","less_than_x_seconds":{"one":"less than 1 second","other":"less than %{count} seconds"},"x_seconds":{"one":"1 second","other":"%{count} seconds"},"less_than_x_minutes":{"one":"less than a minute","other":"less than %{count} minutes"},"x_minutes":{"one":"1 minute","other":"%{count} minutes"},"about_x_hours":{"one":"about 1 hour","other":"about %{count} hours"},"x_days":{"one":"1 day","other":"%{count} days"},"about_x_months":{"one":"about 1 month","other":"about %{count} months"},"x_months":{"one":"1 month","other":"%{count} months"},"about_x_years":{"one":"about 1 year","other":"about %{count} years"},"over_x_years":{"one":"over 1 year","other":"over %{count} years"},"almost_x_years":{"one":"almost 1 year","other":"almost %{count} years"}},"prompts":{"year":"Year","month":"Month","day":"Day","hour":"Hour","minute":"Minute","second":"Seconds"}},"helpers":{"select":{"prompt":"Please select"},"submit":{"create":"Create %{model}","update":"Update %{model}","submit":"Save %{model}"}},"errors":{"format":"%{attribute} %{message}","messages":{"inclusion":"is not included in the list","exclusion":"is reserved","invalid":"is invalid","confirmation":"doesn't match confirmation","accepted":"must be accepted","empty":"can't be empty","blank":"can't be blank","too_long":{"one":"is too long (maximum is 1 character)","other":"is too long (maximum is %{count} characters)"},"too_short":{"one":"is too short (minimum is 1 character)","other":"is too short (minimum is %{count} characters)"},"wrong_length":{"one":"is the wrong length (should be 1 character)","other":"is the wrong length (should be %{count} characters)"},"not_a_number":"is not a number","not_an_integer":"must be an integer","greater_than":"must be greater than %{count}","greater_than_or_equal_to":"must be greater than or equal to %{count}","equal_to":"must be equal to %{count}","less_than":"must be less than %{count}","less_than_or_equal_to":"must be less than or equal to %{count}","odd":"must be odd","even":"must be even"}},"activerecord":{"errors":{"template":{"header":{"one":"1 error prohibited this %{model} from being saved","other":"%{count} errors prohibited this %{model} from being saved"},"body":"There were problems with the following fields:"},"messages":{"taken":"has already been taken","record_invalid":"Validation failed: %{errors}","inclusion":"is not included in the list","exclusion":"is reserved","invalid":"is invalid","confirmation":"doesn't match confirmation","accepted":"must be accepted","empty":"can't be empty","blank":"can't be blank","too_long":{"one":"is too long (maximum is 1 character)","other":"is too long (maximum is %{count} characters)"},"too_short":{"one":"is too short (minimum is 1 character)","other":"is too short (minimum is %{count} characters)"},"wrong_length":{"one":"is the wrong length (should be 1 character)","other":"is the wrong length (should be %{count} characters)"},"not_a_number":"is not a number","not_an_integer":"must be an integer","greater_than":"must be greater than %{count}","greater_than_or_equal_to":"must be greater than or equal to %{count}","equal_to":"must be equal to %{count}","less_than":"must be less than %{count}","less_than_or_equal_to":"must be less than or equal to %{count}","odd":"must be odd","even":"must be even"},"full_messages":{"format":"%{attribute} %{message}"}}}},"en-GB":{"date":{"formats":{"default":"%d-%m-%Y","short":"%d %b","long":"%d %B, %Y"},"day_names":["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"],"abbr_day_names":["Sun","Mon","Tue","Wed","Thu","Fri","Sat"],"month_names":[null,"January","February","March","April","May","June","July","August","September","October","November","December"],"abbr_month_names":[null,"Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"],"order":["day","month","year"]},"time":{"formats":{"default":"%a, %d %b %Y %H:%M:%S %z","short":"%d %b %H:%M","long":"%d %B, %Y %H:%M"},"am":"am","pm":"pm"},"support":{"array":{"words_connector":", ","two_words_connector":" and ","last_word_connector":", and "},"select":{"prompt":"Please select"}},"number":{"format":{"separator":".","delimiter":",","precision":3,"significant":false,"strip_insignificant_zeros":false},"currency":{"format":{"format":"%u%n","unit":"\u00a3","separator":".","delimiter":",","precision":2,"significant":false,"strip_insignificant_zeros":false}},"percentage":{"format":{"delimiter":""}},"precision":{"format":{"delimiter":""}},"human":{"format":{"delimiter":"","precision":3,"significant":true,"strip_insignificant_zeros":true},"storage_units":{"format":"%n %u","units":{"byte":{"one":"Byte","other":"Bytes"},"kb":"KB","mb":"MB","gb":"GB","tb":"TB"}},"decimal_units":{"format":"%n %u","units":{"unit":"","thousand":"Thousand","million":"Million","billion":"Billion","trillion":"Trillion","quadrillion":"Quadrillion"}}}},"datetime":{"distance_in_words":{"half_a_minute":"half a minute","less_than_x_seconds":{"one":"less than 1 second","other":"less than %{count} seconds"},"x_seconds":{"one":"1 second","other":"%{count} seconds"},"less_than_x_minutes":{"one":"less than a minute","other":"less than %{count} minutes"},"x_minutes":{"one":"1 minute","other":"%{count} minutes"},"about_x_hours":{"one":"about 1 hour","other":"about %{count} hours"},"x_days":{"one":"1 day","other":"%{count} days"},"about_x_months":{"one":"about 1 month","other":"about %{count} months"},"x_months":{"one":"1 month","other":"%{count} months"},"about_x_years":{"one":"about 1 year","other":"about %{count} years"},"over_x_years":{"one":"over 1 year","other":"over %{count} years"},"almost_x_years":{"one":"almost 1 year","other":"almost %{count} years"}},"prompts":{"year":"Year","month":"Month","day":"Day","hour":"Hour","minute":"Minute","second":"Seconds"}},"helpers":{"select":{"prompt":"Please select"},"submit":{"create":"Create %{model}","update":"Update %{model}","submit":"Save %{model}"}},"errors":{"format":"%{attribute} %{message}","messages":{"inclusion":"is not included in the list","exclusion":"is reserved","invalid":"is invalid","confirmation":"doesn't match confirmation","accepted":"must be accepted","empty":"can't be empty","blank":"can't be blank","too_long":{"one":"is too long (maximum is 1 character)","other":"is too long (maximum is %{count} characters)"},"too_short":{"one":"is too short (minimum is 1 character)","other":"is too short (minimum is %{count} characters)"},"wrong_length":{"one":"is the wrong length (should be 1 character)","other":"is the wrong length (should be %{count} characters)"},"not_a_number":"is not a number","not_an_integer":"must be an integer","greater_than":"must be greater than %{count}","greater_than_or_equal_to":"must be greater than or equal to %{count}","equal_to":"must be equal to %{count}","less_than":"must be less than %{count}","less_than_or_equal_to":"must be less than or equal to %{count}","odd":"must be odd","even":"must be even"}},"activerecord":{"errors":{"template":{"header":{"one":"1 error prohibited this %{model} from being saved","other":"%{count} errors prohibited this %{model} from being saved"},"body":"There were problems with the following fields:"},"messages":{"taken":"has already been taken","record_invalid":"Validation failed: %{errors}","inclusion":"is not included in the list","exclusion":"is reserved","invalid":"is invalid","confirmation":"doesn't match confirmation","accepted":"must be accepted","empty":"can't be empty","blank":"can't be blank","too_long":{"one":"is too long (maximum is 1 character)","other":"is too long (maximum is %{count} characters)"},"too_short":{"one":"is too short (minimum is 1 character)","other":"is too short (minimum is %{count} characters)"},"wrong_length":{"one":"is the wrong length (should be 1 character)","other":"is the wrong length (should be %{count} characters)"},"not_a_number":"is not a number","not_an_integer":"must be an integer","greater_than":"must be greater than %{count}","greater_than_or_equal_to":"must be greater than or equal to %{count}","equal_to":"must be equal to %{count}","less_than":"must be less than %{count}","less_than_or_equal_to":"must be less than or equal to %{count}","odd":"must be odd","even":"must be even"},"full_messages":{"format":"%{attribute} %{message}"}}}},"zh-TW":{"date":{"formats":{"default":"%Y-%m-%d","short":"%b%d\u65e5","long":"%Y\u5e74%b%d\u65e5"},"day_names":["\u661f\u671f\u65e5","\u661f\u671f\u4e00","\u661f\u671f\u4e8c","\u661f\u671f\u4e09","\u661f\u671f\u56db","\u661f\u671f\u4e94","\u661f\u671f\u516d"],"abbr_day_names":["\u65e5","\u4e00","\u4e8c","\u4e09","\u56db","\u4e94","\u516d"],"month_names":[null,"\u4e00\u6708","\u4e8c\u6708","\u4e09\u6708","\u56db\u6708","\u4e94\u6708","\u516d\u6708","\u4e03\u6708","\u516b\u6708","\u4e5d\u6708","\u5341\u6708","\u5341\u4e00\u6708","\u5341\u4e8c\u6708"],"abbr_month_names":[null,"1\u6708","2\u6708","3\u6708","4\u6708","5\u6708","6\u6708","7\u6708","8\u6708","9\u6708","10\u6708","11\u6708","12\u6708"],"order":["year","month","day"]},"time":{"formats":{"default":"%Y\u5e74%b%d\u65e5 %A %H:%M:%S %Z","short":"%b%d\u65e5 %H:%M","long":"%Y\u5e74%b%d\u65e5 %H:%M"},"am":"\u4e0a\u5348","pm":"\u4e0b\u5348"},"datetime":{"distance_in_words":{"half_a_minute":"\u534a\u5206\u9418","less_than_x_seconds":{"one":"\u4e0d\u5230\u4e00\u79d2","other":"\u4e0d\u5230 %{count} \u79d2"},"x_seconds":{"one":"\u4e00\u79d2","other":"%{count} \u79d2"},"less_than_x_minutes":{"one":"\u4e0d\u5230\u4e00\u5206\u9418","other":"\u4e0d\u5230 %{count} \u5206\u9418"},"x_minutes":{"one":"\u4e00\u5206\u9418","other":"%{count} \u5206\u9418"},"about_x_hours":{"one":"\u5927\u7d04\u4e00\u5c0f\u6642","other":"\u5927\u7d04 %{count} \u5c0f\u6642"},"x_days":{"one":"\u4e00\u5929","other":"%{count} \u5929"},"about_x_months":{"one":"\u5927\u7d04\u4e00\u500b\u6708","other":"\u5927\u7d04 %{count} \u500b\u6708"},"x_months":{"one":"\u4e00\u500b\u6708","other":"%{count} \u500b\u6708"},"about_x_years":{"one":"\u5927\u7d04\u4e00\u5e74","other":"\u5927\u7d04 %{count} \u5e74"},"over_x_years":{"one":"\u4e00\u5e74\u591a","other":"%{count} \u5e74\u591a"},"almost_x_years":{"one":"\u63a5\u8fd1\u4e00\u5e74","other":"\u63a5\u8fd1 %{count} \u5e74"}},"prompts":{"year":"\u5e74","month":"\u6708","day":"\u65e5","hour":"\u6642","minute":"\u5206","second":"\u79d2"}},"number":{"format":{"separator":".","delimiter":",","precision":3,"significant":false,"strip_insignificant_zeros":false},"currency":{"format":{"format":"%u %n","unit":"NT$","separator":".","delimiter":",","precision":2,"significant":false,"strip_insignificant_zeros":false}},"percentage":{"format":{"delimiter":""}},"precision":{"format":{"delimiter":""}},"human":{"format":{"delimiter":"","precision":1,"significant":false,"strip_insignificant_zeros":false},"storage_units":{"format":"%n %u","units":{"byte":{"one":"Byte","other":"Bytes"},"kb":"KB","mb":"MB","gb":"GB","tb":"TB"}},"decimal_units":{"format":"%n %u","units":{"atto":"\u6e3a","femto":"\u98db","pico":"\u6f20","nano":"\u5948","micro":"\u5fae","mili":"\u6beb","centi":"\u5398","deci":"\u5206","unit":"","ten":{"one":"\u5341","other":"\u5341"},"hundred":"\u767e","thousand":"\u5343","million":"\u767e\u842c","billion":"\u5341\u5104","trillion":"\u5146","quadrillion":"\u5343\u5146"}}}},"support":{"array":{"words_connector":", ","two_words_connector":" \u548c ","last_word_connector":", \u548c "},"select":{"prompt":"\u8acb\u9078\u64c7"}},"errors":{"format":"%{attribute} %{message}","messages":{"inclusion":"\u6c92\u6709\u5305\u542b\u5728\u5217\u8868\u4e2d","exclusion":"\u662f\u88ab\u4fdd\u7559\u7684\u95dc\u9375\u5b57","invalid":"\u662f\u7121\u6548\u7684","confirmation":"\u4e0d\u7b26\u5408\u78ba\u8a8d\u503c","accepted":"\u5fc5\u9808\u662f\u53ef\u88ab\u63a5\u53d7\u7684","empty":"\u4e0d\u80fd\u7559\u7a7a","blank":"\u4e0d\u80fd\u662f\u7a7a\u767d\u5b57\u5143","too_long":"\u904e\u9577\uff08\u6700\u9577\u662f %{count} \u500b\u5b57\uff09","too_short":"\u904e\u77ed\uff08\u6700\u77ed\u662f %{count} \u500b\u5b57\uff09","wrong_length":"\u5b57\u6578\u932f\u8aa4\uff08\u5fc5\u9808\u662f %{count} \u500b\u5b57\uff09","not_a_number":"\u4e0d\u662f\u6578\u5b57","not_an_integer":"\u5fc5\u9808\u662f\u6574\u6578","greater_than":"\u5fc5\u9808\u5927\u65bc %{count}","greater_than_or_equal_to":"\u5fc5\u9808\u5927\u65bc\u6216\u7b49\u65bc %{count}","equal_to":"\u5fc5\u9808\u7b49\u65bc %{count}","less_than":"\u5fc5\u9808\u5c0f\u65bc %{count}","less_than_or_equal_to":"\u5fc5\u9808\u5c0f\u65bc\u6216\u7b49\u65bc %{count}","odd":"\u5fc5\u9808\u662f\u5947\u6578","even":"\u5fc5\u9808\u662f\u5076\u6578","taken":"\u5df2\u7d93\u88ab\u4f7f\u7528","record_invalid":"\u6821\u9a57\u5931\u6557: %{errors}"},"template":{"header":{"one":"\u6709 1 \u500b\u932f\u8aa4\u767c\u751f\u4f7f\u5f97\u300c%{model}\u300d\u7121\u6cd5\u88ab\u5132\u5b58\u3002","other":"\u6709 %{count} \u500b\u932f\u8aa4\u767c\u751f\u4f7f\u5f97\u300c%{model}\u300d\u7121\u6cd5\u88ab\u5132\u5b58\u3002"},"body":"\u4ee5\u4e0b\u6b04\u4f4d\u767c\u751f\u554f\u984c\uff1a"}},"activerecord":{"errors":{"messages":{"inclusion":"\u6c92\u6709\u5305\u542b\u5728\u5217\u8868\u4e2d","exclusion":"\u662f\u88ab\u4fdd\u7559\u7684\u95dc\u9375\u5b57","invalid":"\u662f\u7121\u6548\u7684","confirmation":"\u4e0d\u7b26\u5408\u78ba\u8a8d\u503c","accepted":"\u5fc5\u9808\u662f\u53ef\u88ab\u63a5\u53d7\u7684","empty":"\u4e0d\u80fd\u7559\u7a7a","blank":"\u4e0d\u80fd\u662f\u7a7a\u767d\u5b57\u5143","too_long":"\u904e\u9577\uff08\u6700\u9577\u662f %{count} \u500b\u5b57\uff09","too_short":"\u904e\u77ed\uff08\u6700\u77ed\u662f %{count} \u500b\u5b57\uff09","wrong_length":"\u5b57\u6578\u932f\u8aa4\uff08\u5fc5\u9808\u662f %{count} \u500b\u5b57\uff09","not_a_number":"\u4e0d\u662f\u6578\u5b57","not_an_integer":"\u5fc5\u9808\u662f\u6574\u6578","greater_than":"\u5fc5\u9808\u5927\u65bc %{count}","greater_than_or_equal_to":"\u5fc5\u9808\u5927\u65bc\u6216\u7b49\u65bc %{count}","equal_to":"\u5fc5\u9808\u7b49\u65bc %{count}","less_than":"\u5fc5\u9808\u5c0f\u65bc %{count}","less_than_or_equal_to":"\u5fc5\u9808\u5c0f\u65bc\u6216\u7b49\u65bc %{count}","odd":"\u5fc5\u9808\u662f\u5947\u6578","even":"\u5fc5\u9808\u662f\u5076\u6578","taken":"\u5df2\u7d93\u88ab\u4f7f\u7528","record_invalid":"\u6821\u9a57\u5931\u6557: %{errors}"},"template":{"header":{"one":"\u6709 1 \u500b\u932f\u8aa4\u767c\u751f\u4f7f\u5f97\u300c%{model}\u300d\u7121\u6cd5\u88ab\u5132\u5b58\u3002","other":"\u6709 %{count} \u500b\u932f\u8aa4\u767c\u751f\u4f7f\u5f97\u300c%{model}\u300d\u7121\u6cd5\u88ab\u5132\u5b58\u3002"},"body":"\u4ee5\u4e0b\u6b04\u4f4d\u767c\u751f\u554f\u984c\uff1a"},"full_messages":{"format":"%{attribute} %{message}"}}},"helpers":{"select":{"prompt":"\u8acb\u9078\u64c7"},"submit":{"create":"\u65b0\u589e%{model}","update":"\u66f4\u65b0%{model}","submit":"\u5132\u5b58%{model}"}}},"cy":{"date":{"formats":{"default":"%d-%m-%Y","short":"%b %d","long":"%B %d, %Y"},"day_names":["Dydd Sul","Dydd Llun","Dydd Mawrth","Dydd Mercher","Dydd Iau","Dydd Gwener","Dydd Sadwrn"],"abbr_day_names":["Sul","Llun","Maw","Mer","Iau","Gwe","Sad"],"month_names":[null,"mis Ionawr","mis Chwefror","mis Mawrth","mis Ebrill","mis Mai","mis Mehefin","mis Gorffennaf","mis Awst","mis Medi","mis Hydref","mis Tachwedd","mis Rhagfyr"],"abbr_month_names":[null,"Ion","Chw","Maw","Ebr","Mai","Meh","Gor","Awst","Med","Hyd","Tach","Rha"],"order":["year","month","day"]},"time":{"formats":{"default":"%a, %d %b %Y %H:%M:%S %z","short":"%d %b %H:%M","long":"%B %d, %Y %H:%M"},"am":"yb","pm":"yh"},"support":{"array":{"words_connector":", ","two_words_connector":" a ","last_word_connector":", a "},"select":{"prompt":"Dewiswch"}},"number":{"format":{"separator":".","delimiter":",","precision":3,"significant":false,"strip_insignificant_zeros":false},"currency":{"format":{"format":"%u%n","unit":"\u00a3","separator":".","delimiter":",","precision":2,"significant":false,"strip_insignificant_zeros":false}},"percentage":{"format":{"delimiter":""}},"precision":{"format":{"delimiter":""}},"human":{"format":{"delimiter":"","precision":3,"significant":true,"strip_insignificant_zeros":true},"storage_units":{"format":"%n %u","units":{"byte":{"one":"Byte","other":"Bytes"},"kb":"KB","mb":"MB","gb":"GB","tb":"TB"}},"decimal_units":{"format":"%n %u","units":{"unit":"","thousand":"Mil","million":"Miliwn","billion":"Biliwn","trillion":"Triliwn","quadrillion":"Cwadriliwn"}}}},"datetime":{"distance_in_words":{"half_a_minute":"hanner munud","less_than_x_seconds":{"one":"llai nag eiliad","other":"llai na %{count} eiliad"},"x_seconds":{"one":"1 eiliad","other":"%{count} o eiliadau"},"less_than_x_minutes":{"one":"llai na munud","other":"llai na %{count} munud"},"x_minutes":{"one":"1 munud","other":"%{count} o funudau"},"about_x_hours":{"one":"tuag awr","other":"tua %{count} awr"},"x_days":{"one":"1 diwrnod","other":"%{count} diwrnod"},"about_x_months":{"one":"tua mis","other":"tua %{count} mis"},"x_months":{"one":"1 mis","other":"%{count} mis"},"about_x_years":{"one":"tua blwyddyn","other":"tua %{count} blynedd"},"over_x_years":{"one":"dros flwyddyn","other":"dros %{count} blynedd"},"almost_x_years":{"one":"bron yn flwyddyn","other":"bron yn %{count} blynedd"}},"prompts":{"year":"Blwyddyn","month":"Mis","day":"Diwrnod","hour":"Awr","minute":"Munud","second":"Eiliad"}},"helpers":{"select":{"prompt":"Dewiswch"},"submit":{"create":"Creu %{model}","update":"Diweddaru %{model}","submit":"Cadw %{model}"}},"errors":{"format":"%{attribute} %{message}","messages":{"inclusion":"heb fod yn y rhestr","exclusion":"wedi cadw","invalid":"heb fod yn nheilwng","confirmation":"heb fod yn gyfateb","accepted":"angen ei dderbyn","empty":"methu bod yn wag","blank":"methu bod yn wag","too_long":"yn rhy hir (cewch %{count} llythyren ar y fwyaf)","too_short":"yn rhy fyr (rhaid am o leiaf %{count} llythyren)","wrong_length":"gyda maint anghywir o lythrennau (dylai fod yn %{count} llythyren)","not_a_number":"heb fod yn rhif","not_an_integer":"heb fod yn rhif llawn","greater_than":"angen bod yn fwy na %{count}","greater_than_or_equal_to":"angen bod yr un maint neu fwy na %{count}","equal_to":"angen bod yn %{count}","less_than":"angen bod yn llai na %{count}","less_than_or_equal_to":"angen bod yr un maint neu lai na %{count}","odd":"rhaid bod yn odrif","even":"rhaid bod yn eilrif"}},"activerecord":{"errors":{"template":{"header":{"one":"Atalwyd y %{model} hwn rhag ei gadw gan 1 nam","other":"Atalwyd y %{model} hwn rhag ei gadw gan %{count} nam"},"body":"Cafwyd broblemau gyda'r meysydd canlynol:"},"messages":{"taken":"wedi'i gymryd yn barod","record_invalid":"Gwirio wedi methu: %{errors}","inclusion":"heb fod yn y rhestr","exclusion":"wedi cadw","invalid":"heb fod yn nheilwng","confirmation":"heb fod yn gyfateb","accepted":"angen ei dderbyn","empty":"methu bod yn wag","blank":"methu bod yn wag","too_long":"yn rhy hir (cewch %{count} llythyren ar y fwyaf)","too_short":"yn rhy fyr (rhaid am o leiaf %{count} llythyren)","wrong_length":"gyda maint anghywir o lythrennau (dylai fod yn %{count} llythyren)","not_a_number":"heb fod yn rhif","not_an_integer":"heb fod yn rhif llawn","greater_than":"angen bod yn fwy na %{count}","greater_than_or_equal_to":"angen bod yr un maint neu fwy na %{count}","equal_to":"angen bod yn %{count}","less_than":"angen bod yn llai na %{count}","less_than_or_equal_to":"angen bod yr un maint neu lai na %{count}","odd":"rhaid bod yn odrif","even":"rhaid bod yn eilrif"},"full_messages":{"format":"%{attribute} %{message}"}}}},"hu":{"date":{"formats":{"default":"%Y.%m.%d.","short":"%b %e.","long":"%Y. %B %e."},"day_names":["vas\u00e1rnap","h\u00e9tf\u0151","kedd","szerda","cs\u00fct\u00f6rt\u00f6k","p\u00e9ntek","szombat"],"abbr_day_names":["v.","h.","k.","sze.","cs.","p.","szo."],"month_names":[null,"janu\u00e1r","febru\u00e1r","m\u00e1rcius","\u00e1prilis","m\u00e1jus","j\u00fanius","j\u00falius","augusztus","szeptember","okt\u00f3ber","november","december"],"abbr_month_names":[null,"jan.","febr.","m\u00e1rc.","\u00e1pr.","m\u00e1j.","j\u00fan.","j\u00fal.","aug.","szept.","okt.","nov.","dec."],"order":["year","month","day"]},"time":{"formats":{"default":"%Y. %b %e., %H:%M","short":"%b %e., %H:%M","long":"%Y. %B %e., %A, %H:%M"},"am":"de.","pm":"du."},"support":{"array":{"words_connector":", ","two_words_connector":" \u00e9s ","last_word_connector":" \u00e9s "},"select":{"prompt":"V\u00e1lasszon"}},"number":{"format":{"precision":2,"separator":",","delimiter":" ","significant":true,"strip_insignificant_zeros":true},"currency":{"format":{"unit":"Ft","precision":0,"format":"%n %u","separator":",","delimiter":"","significant":true,"strip_insignificant_zeros":true}},"percentage":{"format":{"delimiter":""}},"precision":{"format":{"delimiter":""}},"human":{"format":{"delimiter":"","precision":1,"significant":true,"strip_insignificant_zeros":true},"storage_units":{"format":"%n %u","units":{"byte":{"one":"b\u00e1jt","other":"b\u00e1jt"},"kb":"KB","mb":"MB","gb":"GB","tb":"TB"}},"decimal_units":{"format":"%n %u","units":{"unit":"","thousand":"Ezer","million":"Milli\u00f3","billion":"Milli\u00e1rd","trillion":"Trilli\u00f3","quadrillion":"Kvadrilli\u00f3"}}}},"datetime":{"distance_in_words":{"half_a_minute":"f\u00e9l perc","less_than_x_seconds":{"one":"kevesebb, mint 1 m\u00e1sodperc","other":"kevesebb, mint %{count} m\u00e1sodperc"},"x_seconds":{"one":"1 m\u00e1sodperc","other":"%{count} m\u00e1sodperc"},"less_than_x_minutes":{"one":"kevesebb, mint 1 perc","other":"kevesebb, mint %{count} perc"},"x_minutes":{"one":"1 perc","other":"%{count} perc"},"about_x_hours":{"one":"kb 1 \u00f3ra","other":"kb %{count} \u00f3ra"},"x_days":{"one":"1 nap","other":"%{count} nap"},"about_x_months":{"one":"kb 1 h\u00f3nap","other":"kb %{count} h\u00f3nap"},"x_months":{"one":"1 h\u00f3nap","other":"%{count} h\u00f3nap"},"about_x_years":{"one":"kb 1 \u00e9v","other":"kb %{count} \u00e9v"},"over_x_years":{"one":"t\u00f6bb, mint 1 \u00e9v","other":"t\u00f6bb, mint %{count} \u00e9v"},"almost_x_years":{"one":"majdnem 1 \u00e9v","other":"majdnem %{count} \u00e9v"}},"prompts":{"year":"\u00c9v","month":"H\u00f3nap","day":"Nap","hour":"\u00d3ra","minute":"Perc","second":"M\u00e1sodperc"}},"helpers":{"select":{"prompt":"V\u00e1lasszon"},"submit":{"create":"\u00daj %{model}","update":"%{model} M\u00f3dos\u00edt\u00e1sa","submit":"%{model} Ment\u00e9se"}},"errors":{"format":"%{attribute} %{message}","messages":{"inclusion":"nincs a list\u00e1ban","exclusion":"nem el\u00e9rhet\u0151","invalid":"nem megfelel\u0151","confirmation":"nem egyezik","accepted":"nincs elfogadva","empty":"nincs megadva","blank":"nincs megadva","too_long":"t\u00fal hossz\u00fa (nem lehet t\u00f6bb %{count} karaktern\u00e9l)","too_short":"t\u00fal r\u00f6vid (legal\u00e1bb %{count} karakter kell legyen)","wrong_length":"nem megfelel\u0151 hossz\u00fas\u00e1g\u00fa (%{count} karakter sz\u00fcks\u00e9ges)","not_a_number":"nem sz\u00e1m","not_an_integer":"eg\u00e9sz sz\u00e1mnak kell lennie","greater_than":"nagyobb kell legyen, mint %{count}","greater_than_or_equal_to":"legal\u00e1bb %{count} kell legyen","equal_to":"pontosan %{count} kell legyen","less_than":"kevesebb, mint %{count} kell legyen","less_than_or_equal_to":"legfeljebb %{count} lehet","odd":"p\u00e1ratlan kell legyen","even":"p\u00e1ros kell legyen"}},"activerecord":{"errors":{"template":{"header":{"one":"1 hiba miatt nem menthet\u0151 a k\u00f6vetkez\u0151: %{model}","other":"%{count} hiba miatt nem menthet\u0151 a k\u00f6vetkez\u0151: %{model}"},"body":"Probl\u00e9m\u00e1s mez\u0151k:"},"messages":{"taken":"m\u00e1r foglalt","record_invalid":"Sikertelen valid\u00e1l\u00e1s %{errors}","inclusion":"nincs a list\u00e1ban","exclusion":"nem el\u00e9rhet\u0151","invalid":"nem megfelel\u0151","confirmation":"nem egyezik","accepted":"nincs elfogadva","empty":"nincs megadva","blank":"nincs megadva","too_long":"t\u00fal hossz\u00fa (nem lehet t\u00f6bb %{count} karaktern\u00e9l)","too_short":"t\u00fal r\u00f6vid (legal\u00e1bb %{count} karakter kell legyen)","wrong_length":"nem megfelel\u0151 hossz\u00fas\u00e1g\u00fa (%{count} karakter sz\u00fcks\u00e9ges)","not_a_number":"nem sz\u00e1m","not_an_integer":"eg\u00e9sz sz\u00e1mnak kell lennie","greater_than":"nagyobb kell legyen, mint %{count}","greater_than_or_equal_to":"legal\u00e1bb %{count} kell legyen","equal_to":"pontosan %{count} kell legyen","less_than":"kevesebb, mint %{count} kell legyen","less_than_or_equal_to":"legfeljebb %{count} lehet","odd":"p\u00e1ratlan kell legyen","even":"p\u00e1ros kell legyen"},"full_messages":{"format":"%{attribute} %{message}"}}}},"de-CH":{"date":{"formats":{"default":"%d.%m.%Y","short":"%e. %b","long":"%e. %B %Y","only_day":"%e"},"day_names":["Sonntag","Montag","Dienstag","Mittwoch","Donnerstag","Freitag","Samstag"],"abbr_day_names":["So","Mo","Di","Mi","Do","Fr","Sa"],"month_names":[null,"Januar","Februar","M\u00e4rz","April","Mai","Juni","Juli","August","September","Oktober","November","Dezember"],"abbr_month_names":[null,"Jan","Feb","M\u00e4r","Apr","Mai","Jun","Jul","Aug","Sep","Okt","Nov","Dez"],"order":["day","month","year"]},"time":{"formats":{"default":"%A, %d. %B %Y, %H:%M Uhr","short":"%d. %B, %H:%M Uhr","long":"%A, %d. %B %Y, %H:%M Uhr","time":"%H:%M"},"am":"vormittags","pm":"nachmittags"},"datetime":{"distance_in_words":{"half_a_minute":"eine halbe Minute","less_than_x_seconds":{"one":"weniger als eine Sekunde","other":"weniger als %{count} Sekunden"},"x_seconds":{"one":"eine Sekunde","other":"%{count} Sekunden"},"less_than_x_minutes":{"one":"weniger als eine Minute","other":"weniger als %{count} Minuten"},"x_minutes":{"one":"eine Minute","other":"%{count} Minuten"},"about_x_hours":{"one":"etwa eine Stunde","other":"etwa %{count} Stunden"},"x_days":{"one":"ein Tag","other":"%{count} Tage"},"about_x_months":{"one":"etwa ein Monat","other":"etwa %{count} Monate"},"x_months":{"one":"ein Monat","other":"%{count} Monate"},"almost_x_years":{"one":"fast ein Jahr","other":"fast %{count} Jahre"},"about_x_years":{"one":"etwa ein Jahr","other":"etwa %{count} Jahre"},"over_x_years":{"one":"mehr als ein Jahr","other":"mehr als %{count} Jahre"}},"prompts":{"second":"Sekunden","minute":"Minuten","hour":"Stunden","day":"Tag","month":"Monat","year":"Jahr"}},"number":{"format":{"precision":2,"separator":".","delimiter":"'","significant":false,"strip_insignificant_zeros":false},"currency":{"format":{"unit":"SFr.","format":"%u %n","separator":".","delimiter":"'","precision":2,"significant":false,"strip_insignificant_zeros":false}},"percentage":{"format":{"delimiter":""}},"precision":{"format":{"delimiter":""}},"human":{"format":{"delimiter":"","precision":1,"significant":true,"strip_insignificant_zeros":true},"storage_units":{"format":"%n %u","units":{"byte":{"one":"Byte","other":"Bytes"},"kb":"KB","mb":"MB","gb":"GB","tb":"TB"}},"decimal_units":{"format":"%n %u","units":{"unit":"","thousand":"Tausend","million":"Millionen","billion":{"one":"Milliarde","others":"Milliarden"},"trillion":"Billionen","quadrillion":{"one":"Billiarde","others":"Billiarden"}}}}},"support":{"array":{"words_connector":", ","two_words_connector":" und ","last_word_connector":" und "},"select":{"prompt":"Bitte w\u00e4hlen:"}},"helpers":{"select":{"prompt":"Bitte w\u00e4hlen"},"submit":{"create":"%{model} erstellen","update":"%{model} aktualisieren","submit":"%{model} speichern"}},"errors":{"format":"%{attribute} %{message}","messages":{"inclusion":"ist kein g\u00fcltiger Wert","exclusion":"ist nicht verf\u00fcgbar","invalid":"ist nicht g\u00fcltig","confirmation":"stimmt nicht mit der Best\u00e4tigung \u00fcberein","accepted":"muss akzeptiert werden","empty":"muss ausgef\u00fcllt werden","blank":"muss ausgef\u00fcllt werden","too_long":"ist zu lang (nicht mehr als %{count} Zeichen)","too_short":"ist zu kurz (nicht weniger als %{count} Zeichen)","wrong_length":"hat die falsche L\u00e4nge (muss genau %{count} Zeichen haben)","not_a_number":"ist keine Zahl","greater_than":"muss gr\u00f6sser als %{count} sein","greater_than_or_equal_to":"muss gr\u00f6sser oder gleich %{count} sein","equal_to":"muss genau %{count} sein","less_than":"muss kleiner als %{count} sein","less_than_or_equal_to":"muss kleiner oder gleich %{count} sein","odd":"muss ungerade sein","even":"muss gerade sein","not_an_integer":"muss ganzzahlig sein"},"template":{"header":{"one":"Konnte %{model} nicht speichern: ein Fehler.","other":"Konnte %{model} nicht speichern: %{count} Fehler."},"body":"Bitte \u00fcberpr\u00fcfen Sie die folgenden Felder:"}},"activerecord":{"errors":{"messages":{"taken":"ist bereits vergeben","record_invalid":"G\u00fcltigkeitspr\u00fcfung ist fehlgeschlagen: %{errors}","inclusion":"ist kein g\u00fcltiger Wert","exclusion":"ist nicht verf\u00fcgbar","invalid":"ist nicht g\u00fcltig","confirmation":"stimmt nicht mit der Best\u00e4tigung \u00fcberein","accepted":"muss akzeptiert werden","empty":"muss ausgef\u00fcllt werden","blank":"muss ausgef\u00fcllt werden","too_long":"ist zu lang (nicht mehr als %{count} Zeichen)","too_short":"ist zu kurz (nicht weniger als %{count} Zeichen)","wrong_length":"hat die falsche L\u00e4nge (muss genau %{count} Zeichen haben)","not_a_number":"ist keine Zahl","greater_than":"muss gr\u00f6sser als %{count} sein","greater_than_or_equal_to":"muss gr\u00f6sser oder gleich %{count} sein","equal_to":"muss genau %{count} sein","less_than":"muss kleiner als %{count} sein","less_than_or_equal_to":"muss kleiner oder gleich %{count} sein","odd":"muss ungerade sein","even":"muss gerade sein","not_an_integer":"muss ganzzahlig sein"},"template":{"header":{"one":"Konnte %{model} nicht speichern: ein Fehler.","other":"Konnte %{model} nicht speichern: %{count} Fehler."},"body":"Bitte \u00fcberpr\u00fcfen Sie die folgenden Felder:"},"full_messages":{"format":"%{attribute} %{message}"}}}},"fr":{"date":{"formats":{"default":"%d/%m/%Y","short":"%e %b","long":"%e %B %Y"},"day_names":["dimanche","lundi","mardi","mercredi","jeudi","vendredi","samedi"],"abbr_day_names":["dim","lun","mar","mer","jeu","ven","sam"],"month_names":[null,"janvier","f\u00e9vrier","mars","avril","mai","juin","juillet","ao\u00fbt","septembre","octobre","novembre","d\u00e9cembre"],"abbr_month_names":[null,"jan.","f\u00e9v.","mar.","avr.","mai","juin","juil.","ao\u00fbt","sept.","oct.","nov.","d\u00e9c."],"order":["day","month","year"]},"time":{"formats":{"default":"%d %B %Y %H:%M:%S","short":"%d %b %H:%M","long":"%A %d %B %Y %H:%M"},"am":"am","pm":"pm"},"datetime":{"distance_in_words":{"half_a_minute":"une demi-minute","less_than_x_seconds":{"zero":"moins d'une seconde","one":"moins d'une\u00a0seconde","other":"moins de %{count}\u00a0secondes"},"x_seconds":{"one":"1\u00a0seconde","other":"%{count}\u00a0secondes"},"less_than_x_minutes":{"zero":"moins d'une\u00a0minute","one":"moins d'une\u00a0minute","other":"moins de %{count}\u00a0minutes"},"x_minutes":{"one":"1\u00a0minute","other":"%{count}\u00a0minutes"},"about_x_hours":{"one":"environ une heure","other":"environ %{count}\u00a0heures"},"x_days":{"one":"1\u00a0jour","other":"%{count}\u00a0jours"},"about_x_months":{"one":"environ un mois","other":"environ %{count}\u00a0mois"},"x_months":{"one":"1\u00a0mois","other":"%{count}\u00a0mois"},"about_x_years":{"one":"environ un an","other":"environ %{count}\u00a0ans"},"over_x_years":{"one":"plus d'un an","other":"plus de %{count}\u00a0ans"},"almost_x_years":{"one":"presqu'un an","other":"presque %{count} ans"}},"prompts":{"year":"Ann\u00e9e","month":"Mois","day":"Jour","hour":"Heure","minute":"Minute","second":"Seconde"}},"number":{"format":{"separator":",","delimiter":" ","precision":3,"significant":false,"strip_insignificant_zeros":false},"currency":{"format":{"format":"%n %u","unit":"\u20ac","separator":",","delimiter":" ","precision":2,"significant":false,"strip_insignificant_zeros":false}},"percentage":{"format":{"delimiter":""}},"precision":{"format":{"delimiter":""}},"human":{"format":{"delimiter":"","precision":2,"significant":true,"strip_insignificant_zeros":true},"storage_units":{"format":"%n %u","units":{"byte":{"one":"octet","other":"octets"},"kb":"ko","mb":"Mo","gb":"Go","tb":"To"}},"decimal_units":{"format":"%n %u","units":{"unit":"","thousand":"millier","million":"million","billion":"milliard","trillion":"billion","quadrillion":"million de milliards"}}}},"support":{"array":{"words_connector":", ","two_words_connector":" et ","last_word_connector":" et "},"select":{"prompt":"Veuillez s\u00e9lectionner"}},"helpers":{"select":{"prompt":"Veuillez s\u00e9lectionner"},"submit":{"create":"Cr\u00e9er un(e) %{model}","update":"Modifier ce(tte) %{model}","submit":"Enregistrer ce(tte) %{model}"}},"attributes":{"created_at":"Cr\u00e9\u00e9 le","updated_at":"Modifi\u00e9 le"},"errors":{"format":"Le %{attribute} %{message}","messages":{"inclusion":"n'est pas inclus(e) dans la liste","exclusion":"n'est pas disponible","invalid":"n'est pas valide","confirmation":"ne concorde pas avec la confirmation","accepted":"doit \u00eatre accept\u00e9(e)","empty":"doit \u00eatre rempli(e)","blank":"doit \u00eatre rempli(e)","too_long":{"one":"est trop long (pas plus d'un caract\u00e8re)","other":"est trop long (pas plus de %{count} caract\u00e8res)"},"too_short":{"one":"est trop court (au moins un caract\u00e8re)","other":"est trop court (au moins %{count} caract\u00e8res)"},"wrong_length":{"one":"ne fait pas la bonne longueur (doit comporter un seul caract\u00e8re)","other":"ne fait pas la bonne longueur (doit comporter %{count} caract\u00e8res)"},"not_a_number":"n'est pas un nombre","not_an_integer":"doit \u00eatre un nombre entier","greater_than":"doit \u00eatre sup\u00e9rieur \u00e0 %{count}","greater_than_or_equal_to":"doit \u00eatre sup\u00e9rieur ou \u00e9gal \u00e0 %{count}","equal_to":"doit \u00eatre \u00e9gal \u00e0 %{count}","less_than":"doit \u00eatre inf\u00e9rieur \u00e0 %{count}","less_than_or_equal_to":"doit \u00eatre inf\u00e9rieur ou \u00e9gal \u00e0 %{count}","odd":"doit \u00eatre impair","even":"doit \u00eatre pair"},"template":{"header":{"one":"Impossible d'enregistrer ce(tte) %{model} : 1 erreur","other":"Impossible d'enregistrer ce(tte) %{model} : %{count} erreurs"},"body":"Veuillez v\u00e9rifier les champs suivants\u00a0: "}},"activerecord":{"errors":{"messages":{"taken":"n'est pas disponible","record_invalid":"La validation a \u00e9chou\u00e9 : %{errors}","inclusion":"n'est pas inclus(e) dans la liste","exclusion":"n'est pas disponible","invalid":"n'est pas valide","confirmation":"ne concorde pas avec la confirmation","accepted":"doit \u00eatre accept\u00e9(e)","empty":"doit \u00eatre rempli(e)","blank":"doit \u00eatre rempli(e)","too_long":{"one":"est trop long (pas plus d'un caract\u00e8re)","other":"est trop long (pas plus de %{count} caract\u00e8res)"},"too_short":{"one":"est trop court (au moins un caract\u00e8re)","other":"est trop court (au moins %{count} caract\u00e8res)"},"wrong_length":{"one":"ne fait pas la bonne longueur (doit comporter un seul caract\u00e8re)","other":"ne fait pas la bonne longueur (doit comporter %{count} caract\u00e8res)"},"not_a_number":"n'est pas un nombre","not_an_integer":"doit \u00eatre un nombre entier","greater_than":"doit \u00eatre sup\u00e9rieur \u00e0 %{count}","greater_than_or_equal_to":"doit \u00eatre sup\u00e9rieur ou \u00e9gal \u00e0 %{count}","equal_to":"doit \u00eatre \u00e9gal \u00e0 %{count}","less_than":"doit \u00eatre inf\u00e9rieur \u00e0 %{count}","less_than_or_equal_to":"doit \u00eatre inf\u00e9rieur ou \u00e9gal \u00e0 %{count}","odd":"doit \u00eatre impair","even":"doit \u00eatre pair"},"template":{"header":{"one":"Impossible d'enregistrer ce(tte) %{model} : 1 erreur","other":"Impossible d'enregistrer ce(tte) %{model} : %{count} erreurs"},"body":"Veuillez v\u00e9rifier les champs suivants\u00a0: "},"full_messages":{"format":"%{attribute} %{message}"}}}},"sr-Latn":{"date":{"formats":{"default":"%d/%m/%Y","short":"%e %b","long":"%B %e, %Y","only_day":"%e"},"day_names":["Nedelja","Ponedeljak","Utorak","Sreda","\u010cetvrtak","Petak","Subota"],"abbr_day_names":["Ned","Pon","Uto","Sre","\u010cet","Pet","Sub"],"month_names":[null,"Januar","Februar","Mart","April","Maj","Jun","Jul","Avgust","Septembar","Oktobar","Novembar","Decembar"],"abbr_month_names":[null,"Jan","Feb","Mar","Apr","Maj","Jun","Jul","Avg","Sep","Okt","Nov","Dec"],"order":["day","month","year"]},"time":{"formats":{"default":"%a %b %d %H:%M:%S %Z %Y","time":"%H:%M","short":"%d %b %H:%M","long":"%B %d, %Y %H:%M","only_second":"%S","datetime":{"formats":{"default":"%Y-%m-%dT%H:%M:%S%Z"}},"am":"AM","pm":"PM"}},"datetime":{"distance_in_words":{"half_a_minute":"pola minute","less_than_x_seconds":{"zero":"manje od 1 sekunde","one":"manje od 1 sekund","few":"manje od %{count} sekunde","other":"manje od %{count} sekundi"},"x_seconds":{"one":"1 sekunda","few":"%{count} sekunde","other":"%{count} sekundi"},"less_than_x_minutes":{"zero":"manje od minuta","one":"manje od 1 minut","other":"manje od %{count} minuta"},"x_minutes":{"one":"1 minut","other":"%{count} minuta"},"about_x_hours":{"one":"oko 1 sat","few":"oko %{count} sata","other":"oko %{count} sati"},"x_days":{"one":"1 dan","other":"%{count} dana"},"about_x_months":{"one":"oko 1 mesec","few":"oko %{count} meseca","other":"oko %{count} meseci"},"x_months":{"one":"1 mesec","few":"%{count} meseca","other":"%{count} meseci"},"about_x_years":{"one":"oko 1 godine","other":"oko %{count} godine"},"over_x_years":{"one":"preko 1 godine","other":"preko %{count} godine"}}},"number":{"format":{"precision":3,"separator":",","delimiter":"."},"currency":{"format":{"unit":"DIN","precision":2,"format":"%n %u"}}},"support":{"array":{"sentence_connector":"i"}},"activerecord":{"errors":{"template":{"header":{"one":"Nisam uspeo sa\u010duvati %{model}: 1 gre\u0161ka","few":"Nisam uspeo sa\u010duvati %{model}: %{count} gre\u0161ke.","other":"Nisam uspeo sa\u010duvati %{model}: %{count} gre\u0161ki."},"body":"Molim Vas proverite slede\u0107a polja:"},"messages":{"inclusion":"nije u listi","exclusion":"nije dostupno","invalid":"nije ispravan","confirmation":"se ne sla\u017ee sa svojom potvrdom","accepted":"mora biti prihva\u0107en","empty":"mora biti dat","blank":"mora biti dat","too_long":"je preduga\u010dak (ne vi\u0161e od %{count} karaktera)","too_short":"je prekratak (ne manje od %{count} karaktera)","wrong_length":"nije odgovaraju\u0107e du\u017eine (mora imati %{count} karaktera)","taken":"je zauzeto","not_a_number":"nije broj","greater_than":"mora biti ve\u0107e od %{count}","greater_than_or_equal_to":"mora biti ve\u0107e ili jednako %{count}","equal_to":"mora biti jednako %{count}","less_than":"mora biti manje od %{count}","less_than_or_equal_to":"mora biti manje ili jednako %{count}","odd":"mora biti neparno","even":"mora biti parno"}}}},"lv":{"date":{"formats":{"default":"%d.%m.%Y.","short":"%e. %B","long":"%Y. gada %e. %B"},"day_names":["sv\u0113tdiena","pirmdiena","otrdiena","tre\u0161diena","ceturtdiena","piektdiena","sestdiena"],"abbr_day_names":["Sv.","P.","O.","T.","C.","Pk.","S."],"month_names":[null,"janv\u0101r\u012b","febru\u0101r\u012b","mart\u0101","apr\u012bl\u012b","maij\u0101","j\u016bnij\u0101","j\u016blij\u0101","august\u0101","septembr\u012b","oktobr\u012b","novembr\u012b","decembr\u012b"],"abbr_month_names":[null,"Janv","Febr","Marts","Apr","Maijs","J\u016bn","J\u016bl","Aug","Sept","Okt","Nov","Dec"],"order":["year","month","day"]},"time":{"formats":{"default":"%Y. gada %e. %B, %H:%M","short":"%d.%m.%Y., %H:%M","long":"%Y. gada %e. %B, %H:%M:%S"},"am":"priek\u0161pusdiena","pm":"p\u0113cpusdiena"},"datetime":{"distance_in_words":{"half_a_minute":"pusmin\u016bte","less_than_x_seconds":{"one":"maz\u0101k par vienu sekundi","other":"maz\u0101k par %{count} sekund\u0113m"},"x_seconds":{"one":"1 sekunde","other":"%{count} sekundes"},"less_than_x_minutes":{"one":"maz\u0101k par vienu min\u016bti","other":"maz\u0101k par %{count} min\u016bt\u0113m"},"x_minutes":{"one":"1 min\u016bte","other":"%{count} min\u016btes"},"about_x_hours":{"one":"apm\u0113ram 1 stunda","other":"apm\u0113ram %{count} stundas"},"x_days":{"one":"1 diena","other":"%{count} dienas"},"about_x_months":{"one":"apm\u0113ram 1 m\u0113nesis","other":"apm\u0113ram %{count} m\u0113ne\u0161i"},"x_months":{"one":"1 m\u0113nesis","other":"%{count} m\u0113ne\u0161i"},"about_x_years":{"one":"apm\u0113ram 1 gads","other":"apm\u0113ram %{count} gadi"},"over_x_years":{"one":"vair\u0101k k\u0101 gads","other":"vair\u0101k k\u0101 %{count} gadi"},"almost_x_years":{"one":"gandr\u012bz 1 gads","other":"gandr\u012bz %{count} gadi"}},"prompts":{"second":"sekunde","minute":"min\u016bte","hour":"stunda","day":"diena","month":"m\u0113nesis","year":"gads"}},"number":{"format":{"precision":2,"separator":",","delimiter":".","significant":false,"strip_insignificant_zeros":false},"currency":{"format":{"unit":"LVL","format":"%u %n","separator":",","delimiter":".","precision":2,"significant":false,"strip_insignificant_zeros":false}},"percentage":{"format":{"delimiter":""}},"precision":{"format":{"delimiter":""}},"human":{"format":{"delimiter":"","precision":1,"significant":false,"strip_insignificant_zeros":false},"storage_units":{"format":"%n %u","units":{"byte":{"one":"Baits","other":"Baiti"},"kb":"KB","mb":"MB","gb":"GB","tb":"TB"}},"decimal_units":{"format":"%n %u","units":{"unit":"","thousand":"T\u016bkstotis","million":"Miljons","billion":"Biljons","trillion":"Triljons","quadrillion":"Kvadriljons"}}}},"support":{"array":{"words_connector":", ","two_words_connector":" un ","last_word_connector":" un "},"select":{"prompt":"L\u016bdzu izv\u0113lies"}},"helpers":{"select":{"prompt":"L\u016bdzu izv\u0113lies"},"submit":{"create":"Izveidot %{model}","update":"Atjaunin\u0101t %{model}","submit":"Saglab\u0101t %{model}"}},"errors":{"format":"%{attribute} %{message}","messages":{"inclusion":"nav iek\u013cauts sarakst\u0101","exclusion":"nav pieejams","invalid":"nav der\u012bgs","confirmation":"nesakr\u012bt ar apstiprin\u0101jumu","accepted":"ir j\u0101piekr\u012bt","empty":"ir j\u0101b\u016bt aizpild\u012btam","blank":"ir j\u0101b\u016bt aizpild\u012btam","too_long":"ir par garu (maksimums ir %{count} z\u012bmes)","too_short":"ir par \u012bsu (minimums ir %{count} z\u012bmes)","wrong_length":"ir nepareizs garums (j\u0101b\u016bt %{count} z\u012bm\u0113m)","taken":"ir jau aiz\u0146emts","not_a_number":"nav skaitlis","not_an_integer":"ir j\u0101b\u016bt veselam skaitlim","greater_than":"ir j\u0101b\u016bt liel\u0101kam par %{count}","greater_than_or_equal_to":"ir j\u0101b\u016bt liel\u0101kam vai vien\u0101dam ar %{count}","equal_to":"ir j\u0101b\u016bt vien\u0101dam ar %{count}","less_than":"ir j\u0101b\u016bt maz\u0101kam par %{count}","less_than_or_equal_to":"ir j\u0101b\u016bt maz\u0101kam vai vien\u0101dam ar %{count}","odd":"ir j\u0101b\u016bt nep\u0101ra skaitlim","even":"ir j\u0101b\u016bt p\u0101ra skaitlim"}},"activerecord":{"errors":{"template":{"header":{"one":"D\u0113\u013c 1 k\u013c\u016bdas \u0161is %{model} netika saglab\u0101ts","other":"D\u0113\u013c %{count} k\u013c\u016bd\u0101m \u0161is %{model} netika saglab\u0101ts"},"body":"Probl\u0113mas ir \u0161ajos ievades laukos:"},"messages":{"taken":"ir jau aiz\u0146emts","record_invalid":"P\u0101rbaude neizdev\u0101s: %{errors}","inclusion":"nav iek\u013cauts sarakst\u0101","exclusion":"nav pieejams","invalid":"nav der\u012bgs","confirmation":"nesakr\u012bt ar apstiprin\u0101jumu","accepted":"ir j\u0101piekr\u012bt","empty":"ir j\u0101b\u016bt aizpild\u012btam","blank":"ir j\u0101b\u016bt aizpild\u012btam","too_long":"ir par garu (maksimums ir %{count} z\u012bmes)","too_short":"ir par \u012bsu (minimums ir %{count} z\u012bmes)","wrong_length":"ir nepareizs garums (j\u0101b\u016bt %{count} z\u012bm\u0113m)","not_a_number":"nav skaitlis","not_an_integer":"ir j\u0101b\u016bt veselam skaitlim","greater_than":"ir j\u0101b\u016bt liel\u0101kam par %{count}","greater_than_or_equal_to":"ir j\u0101b\u016bt liel\u0101kam vai vien\u0101dam ar %{count}","equal_to":"ir j\u0101b\u016bt vien\u0101dam ar %{count}","less_than":"ir j\u0101b\u016bt maz\u0101kam par %{count}","less_than_or_equal_to":"ir j\u0101b\u016bt maz\u0101kam vai vien\u0101dam ar %{count}","odd":"ir j\u0101b\u016bt nep\u0101ra skaitlim","even":"ir j\u0101b\u016bt p\u0101ra skaitlim"},"full_messages":{"format":"%{attribute} %{message}"}}}},"dsb":{"support":{"array":{"words_connector":", ","two_words_connector":" a ","last_word_connector":" a ","sentence_connector":"a","skip_last_comma":true}},"date":{"formats":{"default":"%d. %m. %Y","short":"%d %b","long":"%d. %B %Y"},"day_names":["nje\u017aela","p\u00f3nje\u017aele","wa\u0142tora","srjoda","stw\u00f3rtk","p\u011btk","sobota"],"abbr_day_names":["Nj","P\u00f3","Wu","Sr","St","P\u011b","So"],"month_names":[null,"Januar","Februar","M\u011brc","Apryl","Maj","Junij","Julij","Awgust","September","Oktober","Nowember","December"],"abbr_month_names":[null,"jan","feb","m\u011br","apr","maj","jun","jul","awg","sep","okt","now","dec"],"order":["day","month","year"]},"time":{"formats":{"default":"%A, %d. %B %Y, %H:%M hod\u017a","short":"%d. %B, %H:%M hod\u017a.","long":"%A, %d. %B %Y, %H:%M hod\u017a."},"am":"dopo\u0142dnja","pm":"w\u00f3tpo\u0142dnja"},"number":{"format":{"precision":3,"separator":",","delimiter":"."},"currency":{"format":{"unit":"\u20ac","precision":2,"format":"%n %u","separator":",","delimiter":" "}},"human":{"format":{"precision":1,"delimiter":""},"storage_units":{"format":"%n %u","units":{"byte":{"one":"bajt","two":"bajta","few":"bajty","other":"bajtow"},"kb":"KB","mb":"MB","gb":"GB","tb":"TB"}}},"percentage":{"format":{"delimiter":""}},"precision":{"format":{"delimiter":""}}},"datetime":{"distance_in_words":{"half_a_minute":"po\u0142 minuty","less_than_x_seconds":{"one":"1 sekundu","two":"%{count} sekundoma","few":"%{count} sekundami","other":"%{count} sekundami","x_seconds":null},"less_than_x_minutes":{"one":"mjenjej ako 1 minutu","two":"mjenjej ako %{count} minutoma","few":"mjenjej ako %{count} minutami","other":"mjenjej ako %{count} minutami"},"x_minutes":{"one":"1 minutu","two":"%{count} minutoma","few":"%{count} minutami","other":"%{count} minutami"},"about_x_hours":{"one":"n\u011b\u017ai 1 g\u00f3\u017ainu","two":"n\u011b\u017ai %{count} g\u00f3\u017ainoma","few":"n\u011b\u017ai %{count} g\u00f3\u017ainami","other":"n\u011b\u017ai %{count} g\u00f3\u017ainami"},"x_days":{"one":"1 dnjom","two":"%{count} dnjoma","few":"%{count} dnjami","other":"%{count} dnjami"},"about_x_months":{"one":"n\u011b\u017ai 1 mjasecom","two":"n\u011b\u017ai %{count} mjasecoma","few":"n\u011b\u017ai %{count} mjasecami","other":"n\u011b\u017ai %{count} mjasecami"},"x_months":{"one":"1 mjasecom","two":"%{count} mjasecoma","few":"%{count} mjasecami","other":"%{count} mjasecami"},"about_x_years":{"one":"n\u011b\u017ai 1 l\u011btom","two":"n\u011b\u017ai %{count} l\u011btoma","few":"n\u011b\u017ai %{count} l\u011btami","other":"n\u011b\u017ai %{count} l\u011btami"},"over_x_years":{"one":"w\u011bcej ako 1 l\u011btom","two":"w\u011bcej ako %{count} l\u011btoma","few":"w\u011bcej ako %{count} l\u011btami","other":"w\u011bcej ako %{count} l\u011btami"},"prompts":{"year":"L\u011bto","month":"Mjasec","day":"\u0179e\u0144","hour":"G\u00f3\u017aina","minute":"Minuta","second":"Sekunda"}}},"activerecord":{"errors":{"messages":{"inclusion":"njejo p\u0142a\u015biwa g\u00f3dnota","exclusion":"njestoj k dispoziciji","invalid":"njejo p\u0142a\u015biwy","confirmation":"njejo se wobk\u0161u\u015bi\u0142o","accepted":"musy se wobk\u0161u\u015bi\u015b","empty":"njesm\u011bjo prozny by\u015b","blank":"jo tr\u011bbny","too_long":{"one":"jo p\u015bed\u0142ujki (maks. 1 znamje\u0161ko)","two":"jo p\u015bed\u0142ujki (maks. %{count} znamje\u0161ce)","few":"jo p\u015bed\u0142ujki (maks. %{count} znamje\u0161ka)","other":"jo p\u015bed\u0142ujki (maks. %{count} znamje\u0161kow)"},"too_short":{"one":"jo p\u0159ekrotki (min. 1 znamje\u0161ko)","two":"jo p\u0159ekrotki (min. %{count} znamje\u0161\u0107e)","few":"jo p\u0159ekrotki (min. %{count} znamje\u0161ka)","other":"jo p\u0159ekrotki (min. %{count} znamje\u0161kow)"},"wrong_length":{"one":"njama p\u0161awu d\u0142ujkos\u0107 (1 znamje\u0161ko w\u00f3cakane)","two":"njama p\u0161awu d\u0142ujkos\u0107 (%{count} znamje\u0161ce w\u00f3cakanej)","few":"njama p\u0161awu d\u0142ujkos\u0107 (%{count} znamje\u0161ka w\u00f3cakane)","other":"njama p\u0161awu d\u0142ujkos\u0107 (%{count} znamje\u0161kow w\u00f3cakanych)"},"taken":"jo ju\u017eo w datowej bance","not_a_number":"njejo licba","greater_than":"musy w\u011bt\u0161y ako %{count} by\u015b","greater_than_or_equal_to":"musy w\u011bt\u0161y abo jadnak %{count} by\u0107","equal_to":"musy jadnak %{count} by\u015b","less_than":"musy mje\u0144\u0161y ako %{count} by\u015b","less_than_or_equal_to":"musy mje\u0144\u0161y abo jadnak %{count} by\u015b","odd":"musy njerowna licba by\u015b","even":"musy rowna licba by\u015b"},"template":{"header":{"one":"P\u015bi sk\u0142adowanju objekta %{model} jo k zm\u00f3lce doj\u0161\u0142o a njejo by\u0142o m\u00f3\u017eno sk\u0142adowa\u015b","two":"P\u015bi sk\u0142adowanju objekta %{model} jo k %{count} zm\u00f3lkam doj\u0161\u0142o a njejo by\u0142o m\u00f3\u017eno sk\u0142adowa\u015b","few":"P\u015bi sk\u0142adowanju objekta %{model} jo k %{count} zm\u00f3lkam doj\u0161\u0142o a njejo by\u0142o m\u00f3\u017eno sk\u0142adowa\u015b","other":"P\u015bi sk\u0142adowanju objekta %{model} jo k %{count} zm\u00f3lkam doj\u0161\u0142o a njejo by\u0142o m\u00f3\u017eno sk\u0142adowa\u015b"},"body":"P\u0161osym p\u015begl\u011bdaj sl\u011bdujuce p\u00f3la:"},"models":null}}},"fi":{"date":{"formats":{"default":"%e. %Bta %Y","long":"%A %e. %Bta %Y","short":"%e.%m.%Y"},"day_names":["sunnuntai","maanantai","tiistai","keskiviikko","torstai","perjantai","lauantai"],"abbr_day_names":["su","ma","ti","ke","to","pe","la"],"month_names":[null,"tammikuu","helmikuu","maaliskuu","huhtikuu","toukokuu","kes\u00e4kuu","hein\u00e4kuu","elokuu","syyskuu","lokakuu","marraskuu","joulukuu"],"abbr_month_names":[null,"tammi","helmi","maalis","huhti","touko","kes\u00e4","hein\u00e4","elo","syys","loka","marras","joulu"],"order":["day","month","year"]},"time":{"formats":{"default":"%A %e. %Bta %Y %H:%M:%S %z","short":"%e.%m. %H.%M","long":"%e. %Bta %Y %H.%M"},"am":"aamup\u00e4iv\u00e4","pm":"iltap\u00e4iv\u00e4"},"support":{"array":{"words_connector":", ","two_words_connector":" ja ","last_word_connector":" ja "},"select":{"prompt":"Valitse"}},"number":{"format":{"separator":".","delimiter":",","precision":3,"significant":false,"strip_insignificant_zeros":false},"currency":{"format":{"format":"%n %u","unit":"\u20ac","separator":",","delimiter":".","precision":2,"significant":false,"strip_insignificant_zeros":false}},"percentage":{"format":{"delimiter":""}},"precision":{"format":{"delimiter":""}},"human":{"format":{"delimiter":"","precision":3,"significant":true,"strip_insignificant_zeros":true},"storage_units":{"format":"%n %u","units":{"byte":{"one":"tavu","other":"tavua"},"kb":"kB","mb":"MB","gb":"GB","tb":"TB"}},"decimal_units":{"format":"%n %u","units":{"unit":"","thousand":"Tuhatta","million":"Euroa","billion":"Miljardia","trillion":"Biljoona","quadrillion":"Kvadriljoona"}}}},"datetime":{"distance_in_words":{"half_a_minute":"puoli minuuttia","less_than_x_seconds":{"one":"alle sekunti","other":"alle %{count} sekuntia"},"x_seconds":{"one":"sekunti","other":"%{count} sekuntia"},"less_than_x_minutes":{"one":"alle minuutti","other":"alle %{count} minuuttia"},"x_minutes":{"one":"minuutti","other":"%{count} minuuttia"},"about_x_hours":{"one":"noin tunti","other":"noin %{count} tuntia"},"x_days":{"one":"p\u00e4iv\u00e4","other":"%{count} p\u00e4iv\u00e4\u00e4"},"about_x_months":{"one":"noin kuukausi","other":"noin %{count} kuukautta"},"x_months":{"one":"kuukausi","other":"%{count} kuukautta"},"about_x_years":{"one":"vuosi","other":"noin %{count} vuotta"},"over_x_years":{"one":"yli vuosi","other":"yli %{count} vuotta"},"almost_x_years":{"one":"melkein yksi vuosi","other":"melkein %{count} vuotta"}},"prompts":{"year":"Vuosi","month":"Kuukausi","day":"P\u00e4iv\u00e4","hour":"Tunti","minute":"Minuutti","second":"Sekunti"}},"helpers":{"select":{"prompt":"Valitse"},"submit":{"create":"Luo %{model}","update":"P\u00e4ivit\u00e4 %{model}","submit":"Tallenna %{model}"}},"errors":{"format":"%{attribute} %{message}","messages":{"inclusion":"ei l\u00f6ydy listasta","exclusion":"on varattu","invalid":"on kelvoton","confirmation":"ei vastaa varmennusta","accepted":"t\u00e4ytyy olla hyv\u00e4ksytty","empty":"ei voi olla tyhj\u00e4","blank":"ei voi olla sis\u00e4ll\u00f6t\u00f6n","too_long":"on liian pitk\u00e4 (saa olla enint\u00e4\u00e4n %{count} merkki\u00e4)","too_short":"on liian lyhyt (oltava v\u00e4hint\u00e4\u00e4n %{count} merkki\u00e4)","wrong_length":"on v\u00e4\u00e4r\u00e4n pituinen (t\u00e4ytyy olla t\u00e4sm\u00e4lleen %{count} merkki\u00e4)","not_an_integer":"on kokonaisluku","not_a_number":"ei ole luku","greater_than":"t\u00e4ytyy olla suurempi kuin %{count}","greater_than_or_equal_to":"t\u00e4ytyy olla suurempi tai yht\u00e4 suuri kuin %{count}","equal_to":"t\u00e4ytyy olla yht\u00e4 suuri kuin %{count}","less_than":"t\u00e4ytyy olla pienempi kuin %{count}","less_than_or_equal_to":"t\u00e4ytyy olla pienempi tai yht\u00e4 suuri kuin %{count}","odd":"t\u00e4ytyy olla pariton","even":"t\u00e4ytyy olla parillinen"}},"activerecord":{"errors":{"template":{"header":{"one":"Virhe sy\u00f6tteess\u00e4 esti mallin %{model} tallentamisen","other":"%{count} virhett\u00e4 esti mallin %{model} tallentamisen"},"body":"Seuraavat kent\u00e4t aiheuttivat ongelmia:"},"messages":{"taken":"on jo k\u00e4yt\u00f6ss\u00e4","record_invalid":"Validointi ep\u00e4onnistui: %{errors}","inclusion":"ei l\u00f6ydy listasta","exclusion":"on varattu","invalid":"on kelvoton","confirmation":"ei vastaa varmennusta","accepted":"t\u00e4ytyy olla hyv\u00e4ksytty","empty":"ei voi olla tyhj\u00e4","blank":"ei voi olla sis\u00e4ll\u00f6t\u00f6n","too_long":"on liian pitk\u00e4 (saa olla enint\u00e4\u00e4n %{count} merkki\u00e4)","too_short":"on liian lyhyt (oltava v\u00e4hint\u00e4\u00e4n %{count} merkki\u00e4)","wrong_length":"on v\u00e4\u00e4r\u00e4n pituinen (t\u00e4ytyy olla t\u00e4sm\u00e4lleen %{count} merkki\u00e4)","not_an_integer":"on kokonaisluku","not_a_number":"ei ole luku","greater_than":"t\u00e4ytyy olla suurempi kuin %{count}","greater_than_or_equal_to":"t\u00e4ytyy olla suurempi tai yht\u00e4 suuri kuin %{count}","equal_to":"t\u00e4ytyy olla yht\u00e4 suuri kuin %{count}","less_than":"t\u00e4ytyy olla pienempi kuin %{count}","less_than_or_equal_to":"t\u00e4ytyy olla pienempi tai yht\u00e4 suuri kuin %{count}","odd":"t\u00e4ytyy olla pariton","even":"t\u00e4ytyy olla parillinen"},"full_messages":{"format":"%{attribute} %{message}"}}}},"it":{"number":{"format":{"delimiter":",","precision":2,"significant":false,"strip_insignificant_zeros":false,"separator":"."},"currency":{"format":{"format":"%n %u","unit":"\u20ac","separator":".","delimiter":",","precision":2,"significant":false,"strip_insignificant_zeros":false}},"percentage":{"format":{"delimiter":""}},"precision":{"format":{"delimiter":""}},"human":{"format":{"delimiter":"","precision":1,"significant":true,"strip_insignificant_zeros":true},"storage_units":{"format":"%n %u","units":{"byte":{"one":"Byte","other":"Byte"},"kb":"Kb","mb":"Mb","gb":"Gb","tb":"Tb"}},"decimal_units":{"format":"%n %u","units":{"unit":"","thousand":"Mila","million":"Milioni","billion":"Miliardi","trillion":"Bilioni","quadrillion":"Biliardi"}}}},"date":{"formats":{"default":"%d-%m-%Y","short":"%d %b","long":"%d %B %Y"},"day_names":["Domenica","Luned\u00ec","Marted\u00ec","Mercoled\u00ec","Gioved\u00ec","Venerd\u00ec","Sabato"],"abbr_day_names":["Dom","Lun","Mar","Mer","Gio","Ven","Sab"],"month_names":[null,"Gennaio","Febbraio","Marzo","Aprile","Maggio","Giugno","Luglio","Agosto","Settembre","Ottobre","Novembre","Dicembre"],"abbr_month_names":[null,"Gen","Feb","Mar","Apr","Mag","Giu","Lug","Ago","Set","Ott","Nov","Dic"],"order":["day","month","year"]},"time":{"formats":{"default":"%a %d %b %Y, %H:%M:%S %z","short":"%d %b %H:%M","long":"%d %B %Y %H:%M"},"am":"am","pm":"pm"},"datetime":{"distance_in_words":{"half_a_minute":"mezzo minuto","less_than_x_seconds":{"one":"meno di un secondo","other":"meno di %{count} secondi"},"x_seconds":{"one":"1 secondo","other":"%{count} secondi"},"less_than_x_minutes":{"one":"meno di un minuto","other":"meno di %{count} minuti"},"x_minutes":{"one":"1 minuto","other":"%{count} minuti"},"about_x_hours":{"one":"circa un'ora","other":"circa %{count} ore"},"x_days":{"one":"1 giorno","other":"%{count} giorni"},"about_x_months":{"one":"circa un mese","other":"circa %{count} mesi"},"x_months":{"one":"1 mese","other":"%{count} mesi"},"about_x_years":{"one":"circa un anno","other":"circa %{count} anni"},"over_x_years":{"one":"oltre un anno","other":"oltre %{count} anni"},"almost_x_years":{"one":"circa 1 anno","other":"circa %{count} anni"}},"prompts":{"year":"Anno","month":"Mese","day":"Giorno","hour":"Ora","minute":"Minuto","second":"Secondi"}},"support":{"array":{"words_connector":", ","two_words_connector":" e ","last_word_connector":" e "},"select":{"prompt":"Per favore, seleziona"}},"helpers":{"select":{"prompt":"Per favore, seleziona"},"submit":{"create":"Crea %{model}","update":"Aggiorna %{model}","submit":"Invia %{model}"}},"errors":{"format":"%{attribute} %{message}","messages":{"inclusion":"non \u00e8 incluso nella lista","exclusion":"\u00e8 riservato","invalid":"non \u00e8 valido","confirmation":"non coincide con la conferma","accepted":"deve essere accettata","empty":"non pu\u00f2 essere vuoto","blank":"non pu\u00f2 essere lasciato in bianco","too_long":{"one":"\u00e8 troppo lungo (il massimo \u00e8 1 carattere)","other":"\u00e8 troppo lungo (il massimo \u00e8 %{count} caratteri)"},"too_short":{"one":"\u00e8 troppo corto (il minimo \u00e8 1 carattere)","other":"\u00e8 troppo corto (il minimo \u00e8 %{count} caratteri)"},"wrong_length":{"one":"\u00e8 della lunghezza sbagliata (deve essere di 1 carattere)","other":"\u00e8 della lunghezza sbagliata (deve essere di %{count} caratteri)"},"not_a_number":"non \u00e8 un numero","not_an_integer":"non \u00e8 un intero","greater_than":"deve essere superiore a %{count}","greater_than_or_equal_to":"deve essere superiore o uguale a %{count}","equal_to":"deve essere uguale a %{count}","less_than":"deve essere meno di %{count}","less_than_or_equal_to":"deve essere meno o uguale a %{count}","odd":"deve essere dispari","even":"deve essere pari","taken":"\u00e8 gi\u00e0 in uso","record_invalid":"Validazione fallita: %{errors}"}},"activerecord":{"errors":{"template":{"header":{"one":"Non posso salvare questo %{model}: 1 errore","other":"Non posso salvare questo %{model}: %{count} errori."},"body":"Per favore ricontrolla i seguenti campi:"},"messages":{"inclusion":"non \u00e8 incluso nella lista","exclusion":"\u00e8 riservato","invalid":"non \u00e8 valido","confirmation":"non coincide con la conferma","accepted":"deve essere accettata","empty":"non pu\u00f2 essere vuoto","blank":"non pu\u00f2 essere lasciato in bianco","too_long":{"one":"\u00e8 troppo lungo (il massimo \u00e8 1 carattere)","other":"\u00e8 troppo lungo (il massimo \u00e8 %{count} caratteri)"},"too_short":{"one":"\u00e8 troppo corto (il minimo \u00e8 1 carattere)","other":"\u00e8 troppo corto (il minimo \u00e8 %{count} caratteri)"},"wrong_length":{"one":"\u00e8 della lunghezza sbagliata (deve essere di 1 carattere)","other":"\u00e8 della lunghezza sbagliata (deve essere di %{count} caratteri)"},"not_a_number":"non \u00e8 un numero","not_an_integer":"non \u00e8 un intero","greater_than":"deve essere superiore a %{count}","greater_than_or_equal_to":"deve essere superiore o uguale a %{count}","equal_to":"deve essere uguale a %{count}","less_than":"deve essere meno di %{count}","less_than_or_equal_to":"deve essere meno o uguale a %{count}","odd":"deve essere dispari","even":"deve essere pari","taken":"\u00e8 gi\u00e0 in uso","record_invalid":"Validazione fallita: %{errors}"},"full_messages":{"format":"%{attribute} %{message}"}}}},"bs":{"date":{"formats":{"default":"%d.%m.%Y.","short":"%e. %b. %Y.","long":"%e. %B %Y."},"day_names":["nedjelja","ponedjeljak","utorak","srijeda","\u010detvrtak","petak"],"abbr_day_names":["ned","pon","uto","sri","\u010det","pet","sub"],"month_names":["januar","februar","mart","april","maj","juni","juli","august","septembar","oktobar","novembar","decembar"],"abbr_month_names":["jan","feb","mar","apr","maj","jun","jul","aug","sep","okt","nov","dec"],"order":["day","month","year"]},"time":{"formats":{"default":"%H:%M:%S","short":"%d. %b %Y. %H:%M","long":"%d. %B %Y. - %H:%M:%S"},"am":"","pm":""},"support":{"array":{"words_connector":", ","two_words_connector":" i ","last_word_connector":" i "},"select":{"prompt":"Molimo odaberite"}},"number":{"format":{"separator":",","delimiter":".","precision":3,"significant":false,"strip_insignificant_zeros":true},"currency":{"format":{"format":"%n%u","unit":"KM","separator":",","delimiter":".","precision":2,"significant":false,"strip_insignificant_zeros":true}},"percentage":{"format":{"delimiter":","}},"precision":{"format":{"delimiter":""}},"human":{"format":{"delimiter":",","precision":0,"significant":true,"strip_insignificant_zeros":true},"storage_units":{"format":"%n %u","units":{"byte":{"one":"bajt","few":"bajta","many":"bajtova","other":"bajtova"},"kb":"KB","mb":"MB","gb":"GB","tb":"TB"}},"decimal_units":{"format":"%n %u","units":{"unit":"","thousand":{"one":"hiljada","few":"hiljade","many":"hiljada","other":"hiljada"},"million":{"one":"milion","few":"miliona","many":"miliona","other":"miliona"},"billion":{"one":"milijarda","few":"milijarde","many":"milijardi","other":"milijardi"},"trillion":{"one":"bilion","few":"biliona","many":"biliona","other":"biliona"},"quadrillion":{"one":"bilijarda","few":"bilijarde","many":"bilijardi","other":"bilijardi"}}}}},"datetime":{"distance_in_words":{"half_a_minute":"pola minute","less_than_x_seconds":{"one":"manje od sekunde","few":"manje od %{count} sekunde","many":"manje od %{count} sekundi"},"x_seconds":{"one":"1 sekund","few":"%{count} sekunde","many":"%{count} sekundi","other":"%{count} sekundi"},"less_than_x_minutes":{"one":"manje od minute","few":"manje od %{count} minute","many":"manje od %{count} minuta","other":"manje od %{count} minuta"},"x_minutes":{"one":"1 minut","few":"%{count} minute","many":"%{count} minuta","other":"%{count} minuta"},"about_x_hours":{"one":"oko sat","few":"oko %{count} sata","many":"oko %{count} sati","other":"oko %{count} sati"},"x_days":{"one":"1 dan","few":"%{count} dana","many":"%{count} dana","other":"%{count} dana"},"about_x_days":{"one":"oko dan","few":"oko %{count} dana","many":"oko %{count} dana","other":"oko %{count} dana"},"x_months":{"one":"1 mjesec","few":"%{count} mjeseca","many":"%{count} mjeseci","other":"%{count} mjeseci"},"about_x_months":{"one":"oko mjesec","few":"oko %{count} mjeseca","many":"oko %{count} mjeseci","other":"oko %{count} mjeseci"},"x_years":{"one":"1 godina","few":"%{count} godine","many":"%{count} godina","other":"%{count} godina"},"about_x_years":{"one":"oko godine","few":"oko %{count} godine","many":"oko %{count} godina","other":"oko %{count} godina"},"over_x_years":{"one":"preko godine","few":"preko %{count} godine","many":"preko %{count} godina","other":"preko %{count} godina"},"almost_x_years":{"one":"skoro 1 godina","few":"skoro %{count} godine","many":"skoro %{count} godina","other":"skoro %{count} godina"}},"prompts":{"year":"godina","month":"mjesec","day":"dan","hour":"sat","minute":"minut","second":"sekundi"}},"helpers":{"select":{"prompt":"Molimo odaberite"},"submit":{"create":"Kreiraj %{model}","update":"Osvije\u017ei %{model}","submit":"Sa\u010duvaj %{model}"}},"errors":{"format":"%{attribute} %{message}","messages":{"inclusion":"nije uklju\u010deno u listu","exclusion":"je rezervisano","invalid":"nije validno","confirmation":"se ne poklapa sa potvrdom","accepted":"mora biti prihva\u0107eno","empty":"ne smije biti prazno","blank":"ne smije biti prazno","too_long":"je predugo (maksimalno je dozvoljeno %{count} karaktera)","too_short":"je prekratko (predvi\u0111eno je minimalno %{count} karaktera)","wrong_length":"je pogre\u0161ne du\u017eine (trebalo bi biti ta\u010dno %{count} karaktera)","not_a_number":"nije broj","not_an_integer":"mora biti cijeli broj","greater_than":"mora biti ve\u0107e od %{count}","greater_than_or_equal_to":"mora biti ve\u0107e ili jednako %{count}","equal_to":"mora biti %{count}","less_than":"mora biti manje od %{count}","less_than_or_equal_to":"mora biti manje ili jednako %{count}","odd":"mora biti neparno","even":"mora biti parno"}},"activerecord":{"errors":{"template":{"header":{"one":"1 gre\u0161ka je sprije\u010dila da se ovaj %{model} snimi","few":"%{count} gre\u0161ke su sprije\u010dile da se ovaj %{model} snimi","many":"%{count} gre\u0161aka je sprije\u010dilo da se ovaj %{model} snimi","other":"%{count} gre\u0161aka je sprije\u010dilo da se ovaj %{model} snimi"},"body":"Desili su se problemi sa slijede\u0107im poljima:"},"messages":{"taken":"je ve\u0107 zauzet","record_invalid":"Validacija nije uspjela: %{errors}","inclusion":"nije uklju\u010deno u listu","exclusion":"je rezervisano","invalid":"nije validno","confirmation":"se ne poklapa sa potvrdom","accepted":"mora biti prihva\u0107eno","empty":"ne smije biti prazno","blank":"ne smije biti prazno","too_long":"je predugo (maksimalno je dozvoljeno %{count} karaktera)","too_short":"je prekratko (predvi\u0111eno je minimalno %{count} karaktera)","wrong_length":"je pogre\u0161ne du\u017eine (trebalo bi biti ta\u010dno %{count} karaktera)","not_a_number":"nije broj","not_an_integer":"mora biti cijeli broj","greater_than":"mora biti ve\u0107e od %{count}","greater_than_or_equal_to":"mora biti ve\u0107e ili jednako %{count}","equal_to":"mora biti %{count}","less_than":"mora biti manje od %{count}","less_than_or_equal_to":"mora biti manje ili jednako %{count}","odd":"mora biti neparno","even":"mora biti parno"},"full_messages":{"format":"%{attribute} %{message}"}},"models":{"user":"korisnik"},"attributes":{"user":{"login":"prijava"}}}},"da":{"date":{"formats":{"default":"%d.%m.%Y","short":"%e. %b %Y","long":"%e. %B %Y"},"day_names":["s\u00f8ndag","mandag","tirsdag","onsdag","torsdag","fredag","l\u00f8rdag"],"abbr_day_names":["s\u00f8n","man","tir","ons","tor","fre","l\u00f8r"],"month_names":[null,"januar","februar","marts","april","maj","juni","juli","august","september","oktober","november","december"],"abbr_month_names":[null,"jan","feb","mar","apr","maj","jun","jul","aug","sep","okt","nov","dec"],"order":["day","month","year"]},"time":{"formats":{"default":"%e. %B %Y, %H.%M","short":"%e. %b %Y, %H.%M","long":"%A d. %e. %B %Y, %H.%M"},"am":"","pm":""},"support":{"array":{"words_connector":", ","two_words_connector":" og ","last_word_connector":" og "},"select":{"prompt":"V\u00e6lg..."}},"number":{"format":{"separator":",","delimiter":".","precision":3,"significant":false,"strip_insignificant_zeros":false},"currency":{"format":{"format":"%u %n","unit":"DKK","separator":",","delimiter":".","precision":2,"significant":false,"strip_insignificant_zeros":false}},"percentage":{"format":{"delimiter":""}},"precision":{"format":{"delimiter":""}},"human":{"format":{"delimiter":"","precision":3,"significant":true,"strip_insignificant_zeros":true},"storage_units":{"format":"%n %u","units":{"byte":{"one":"Byte","other":"Bytes"},"kb":"KB","mb":"MB","gb":"GB","tb":"TB"}},"decimal_units":{"format":"%n %u","units":{"unit":"","thousand":"Tusind","million":"Million","billion":"Milliard","trillion":"Billion","quadrillion":"Billiard"}}}},"datetime":{"distance_in_words":{"half_a_minute":"et halvt minut","less_than_x_seconds":{"one":"mindre end et sekund","other":"mindre end %{count} sekunder"},"x_seconds":{"one":"et sekund","other":"%{count} sekunder"},"less_than_x_minutes":{"one":"mindre end et minut","other":"mindre end %{count} minutter"},"x_minutes":{"one":"et minut","other":"%{count} minutter"},"about_x_hours":{"one":"cirka en time","other":"cirka %{count} timer"},"x_days":{"one":"en dag","other":"%{count} dage"},"about_x_months":{"one":"cirka en m\u00e5ned","other":"cirka %{count} m\u00e5neder"},"x_months":{"one":"en m\u00e5ned","other":"%{count} m\u00e5neder"},"about_x_years":{"one":"cirka et \u00e5r","other":"cirka %{count} \u00e5r"},"over_x_years":{"one":"mere end et \u00e5r","other":"mere end %{count} \u00e5r"},"almost_x_years":{"one":"n\u00e6sten et \u00e5r","other":"n\u00e6sten %{count} \u00e5r"}},"prompts":{"year":"\u00c5r","month":"M\u00e5ned","day":"Dag","hour":"Time","minute":"Minut","second":"Sekund"}},"helpers":{"select":{"prompt":"V\u00e6lg..."},"submit":{"create":"Opret %{model}","update":"Opdater %{model}","submit":"Gem %{model}"}},"errors":{"format":"%{attribute} %{message}","messages":{"inclusion":"er ikke p\u00e5 listen","exclusion":"er reserveret","invalid":"er ikke gyldig","confirmation":"stemmer ikke overens med bekr\u00e6ftelse","accepted":"skal accepteres","empty":"m\u00e5 ikke udelades","blank":"skal udfyldes","too_long":"er for lang (h\u00f8jest %{count} tegn)","too_short":"er for kort (mindst %{count} tegn)","wrong_length":"har forkert l\u00e6ngde (skulle v\u00e6re %{count} tegn)","not_a_number":"er ikke et tal","not_an_integer":"er ikke et heltal","greater_than":"skal v\u00e6re st\u00f8rre end %{count}","greater_than_or_equal_to":"skal v\u00e6re st\u00f8rre end, eller lig med, %{count}","equal_to":"skal v\u00e6re %{count}","less_than":"skal v\u00e6re mindre end %{count}","less_than_or_equal_to":"skal v\u00e6re mindre end, eller lig med, %{count}","odd":"skal v\u00e6re et ulige tal","even":"skal v\u00e6re et lige tal"}},"activerecord":{"errors":{"template":{"header":{"one":"En fejl forhindrede %{model} i at blive gemt","other":"%{count} fejl forhindrede %{model} i at blive gemt"},"body":"Der var problemer med f\u00f8lgende felter:"},"messages":{"taken":"er allerede brugt","record_invalid":"Godkendelse gik galt: %{errors}","inclusion":"er ikke p\u00e5 listen","exclusion":"er reserveret","invalid":"er ikke gyldig","confirmation":"stemmer ikke overens med bekr\u00e6ftelse","accepted":"skal accepteres","empty":"m\u00e5 ikke udelades","blank":"skal udfyldes","too_long":"er for lang (h\u00f8jest %{count} tegn)","too_short":"er for kort (mindst %{count} tegn)","wrong_length":"har forkert l\u00e6ngde (skulle v\u00e6re %{count} tegn)","not_a_number":"er ikke et tal","not_an_integer":"er ikke et heltal","greater_than":"skal v\u00e6re st\u00f8rre end %{count}","greater_than_or_equal_to":"skal v\u00e6re st\u00f8rre end, eller lig med, %{count}","equal_to":"skal v\u00e6re %{count}","less_than":"skal v\u00e6re mindre end %{count}","less_than_or_equal_to":"skal v\u00e6re mindre end, eller lig med, %{count}","odd":"skal v\u00e6re et ulige tal","even":"skal v\u00e6re et lige tal"},"full_messages":{"format":"%{attribute} %{message}"}}}},"en-AU":{"date":{"formats":{"default":"%d-%m-%Y","short":"%b %d","long":"%B %d, %Y"},"day_names":["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"],"abbr_day_names":["Sun","Mon","Tue","Wed","Thu","Fri","Sat"],"month_names":[null,"January","February","March","April","May","June","July","August","September","October","November","December"],"abbr_month_names":[null,"Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"],"order":["year","month","day"]},"time":{"formats":{"default":"%a, %d %b %Y %H:%M:%S %z","short":"%d %b %H:%M","long":"%B %d, %Y %H:%M"},"am":"am","pm":"pm"},"support":{"array":{"words_connector":", ","two_words_connector":" and ","last_word_connector":", and "},"select":{"prompt":"Please select"}},"number":{"format":{"separator":".","delimiter":",","precision":3,"significant":false,"strip_insignificant_zeros":false},"currency":{"format":{"format":"%u%n","unit":"$","separator":".","delimiter":",","precision":2,"significant":false,"strip_insignificant_zeros":false}},"percentage":{"format":{"delimiter":""}},"precision":{"format":{"delimiter":""}},"human":{"format":{"delimiter":"","precision":3,"significant":true,"strip_insignificant_zeros":true},"storage_units":{"format":"%n %u","units":{"byte":{"one":"Byte","other":"Bytes"},"kb":"KB","mb":"MB","gb":"GB","tb":"TB"}},"decimal_units":{"format":"%n %u","units":{"unit":"","thousand":"Thousand","million":"Million","billion":"Billion","trillion":"Trillion","quadrillion":"Quadrillion"}}}},"datetime":{"distance_in_words":{"half_a_minute":"half a minute","less_than_x_seconds":{"one":"less than 1 second","other":"less than %{count} seconds"},"x_seconds":{"one":"1 second","other":"%{count} seconds"},"less_than_x_minutes":{"one":"less than a minute","other":"less than %{count} minutes"},"x_minutes":{"one":"1 minute","other":"%{count} minutes"},"about_x_hours":{"one":"about 1 hour","other":"about %{count} hours"},"x_days":{"one":"1 day","other":"%{count} days"},"about_x_months":{"one":"about 1 month","other":"about %{count} months"},"x_months":{"one":"1 month","other":"%{count} months"},"about_x_years":{"one":"about 1 year","other":"about %{count} years"},"over_x_years":{"one":"over 1 year","other":"over %{count} years"},"almost_x_years":{"one":"almost 1 year","other":"almost %{count} years"}},"prompts":{"year":"Year","month":"Month","day":"Day","hour":"Hour","minute":"Minute","second":"Seconds"}},"helpers":{"select":{"prompt":"Please select"},"submit":{"create":"Create %{model}","update":"Update %{model}","submit":"Save %{model}"}},"errors":{"format":"%{attribute} %{message}","messages":{"inclusion":"is not included in the list","exclusion":"is reserved","invalid":"is invalid","confirmation":"doesn't match confirmation","accepted":"must be accepted","empty":"can't be empty","blank":"can't be blank","too_long":{"one":"is too long (maximum is 1 character)","other":"is too long (maximum is %{count} characters)"},"too_short":{"one":"is too short (minimum is 1 character)","other":"is too short (minimum is %{count} characters)"},"wrong_length":{"one":"is the wrong length (should be 1 character)","other":"is the wrong length (should be %{count} characters)"},"not_a_number":"is not a number","not_an_integer":"must be an integer","greater_than":"must be greater than %{count}","greater_than_or_equal_to":"must be greater than or equal to %{count}","equal_to":"must be equal to %{count}","less_than":"must be less than %{count}","less_than_or_equal_to":"must be less than or equal to %{count}","odd":"must be odd","even":"must be even"}},"activerecord":{"errors":{"template":{"header":{"one":"1 error prohibited this %{model} from being saved","other":"%{count} errors prohibited this %{model} from being saved"},"body":"There were problems with the following fields:"},"messages":{"taken":"has already been taken","record_invalid":"Validation failed: %{errors}","inclusion":"is not included in the list","exclusion":"is reserved","invalid":"is invalid","confirmation":"doesn't match confirmation","accepted":"must be accepted","empty":"can't be empty","blank":"can't be blank","too_long":{"one":"is too long (maximum is 1 character)","other":"is too long (maximum is %{count} characters)"},"too_short":{"one":"is too short (minimum is 1 character)","other":"is too short (minimum is %{count} characters)"},"wrong_length":{"one":"is the wrong length (should be 1 character)","other":"is the wrong length (should be %{count} characters)"},"not_a_number":"is not a number","not_an_integer":"must be an integer","greater_than":"must be greater than %{count}","greater_than_or_equal_to":"must be greater than or equal to %{count}","equal_to":"must be equal to %{count}","less_than":"must be less than %{count}","less_than_or_equal_to":"must be less than or equal to %{count}","odd":"must be odd","even":"must be even"},"full_messages":{"format":"%{attribute} %{message}"}}}},"nn":{"support":{"array":{"sentence_connector":"og"}},"date":{"formats":{"default":"%d.%m.%Y","short":"%e. %b","long":"%e. %B %Y"},"day_names":["sundag","m\u00e5ndag","tysdag","onsdag","torsdag","fredag","laurdag"],"abbr_day_names":["sun","m\u00e5n","tys","ons","tor","fre","lau"],"month_names":[null,"januar","februar","mars","april","mai","juni","juli","august","september","oktober","november","desember"],"abbr_month_names":[null,"jan","feb","mar","apr","mai","jun","jul","aug","sep","okt","nov","des"],"order":["day","month","year"]},"time":{"formats":{"default":"%A, %e. %B %Y, %H:%M","time":"%H:%M","short":"%e. %B, %H:%M","long":"%A, %e. %B %Y, %H:%M"},"am":"","pm":""},"datetime":{"distance_in_words":{"half_a_minute":"eit halvt minutt","less_than_x_seconds":{"one":"mindre enn 1 sekund","other":"mindre enn %{count} sekund"},"x_seconds":{"one":"1 sekund","other":"%{count} sekund"},"less_than_x_minutes":{"one":"mindre enn 1 minutt","other":"mindre enn %{count} minutt"},"x_minutes":{"one":"1 minutt","other":"%{count} minutt"},"about_x_hours":{"one":"rundt 1 time","other":"rundt %{count} timar"},"x_days":{"one":"1 dag","other":"%{count} dagar"},"about_x_months":{"one":"rundt 1 m\u00e5nad","other":"rundt %{count} m\u00e5nader"},"x_months":{"one":"1 m\u00e5nad","other":"%{count} m\u00e5nader"},"about_x_years":{"one":"rundt 1 \u00e5r","other":"rundt %{count} \u00e5r"},"over_x_years":{"one":"over 1 \u00e5r","other":"over %{count} \u00e5r"}}},"number":{"format":{"precision":2,"separator":".","delimiter":","},"currency":{"format":{"unit":"kr","format":"%n %u"}},"precision":{"format":{"delimiter":"","precision":4}}},"activerecord":{"errors":{"template":{"header":"kunne ikkje lagra %{model} grunna %{count} feil.","body":"det oppstod problem i f\u00f8lgjande felt:"},"messages":{"inclusion":"er ikkje inkludert i lista","exclusion":"er reservert","invalid":"er ugyldig","confirmation":"er ikkje stadfesta","accepted":"m\u00e5 vera akseptert","empty":"kan ikkje vera tom","blank":"kan ikkje vera blank","too_long":"er for lang (maksimum %{count} teikn)","too_short":"er for kort (minimum %{count} teikn)","wrong_length":"har feil lengde (maksimum %{count} teikn)","taken":"er allerie i bruk","not_a_number":"er ikkje eit tal","greater_than":"m\u00e5 vera st\u00f8rre enn %{count}","greater_than_or_equal_to":"m\u00e5 vera st\u00f8rre enn eller lik %{count}","equal_to":"m\u00e5 vera lik %{count}","less_than":"m\u00e5 vera mindre enn %{count}","less_than_or_equal_to":"m\u00e5 vera mindre enn eller lik %{count}","odd":"m\u00e5 vera oddetal","even":"m\u00e5 vera partal"}}}},"gsw-CH":{"date":{"formats":{"default":"%d.%m.%Y","short":"%e. %b","long":"%e. %B %Y","only_day":"%e"},"day_names":["Sunntig","M\u00e4ntig","Ziischtig","Mittwuch","Dunnschtig","Friitig","Samschtig"],"abbr_day_names":["Su","M\u00e4","Zi","Mi","Du","Fr","Sa"],"month_names":[null,"Januar","Februar","M\u00e4rz","April","Mai","Juni","Juli","Auguscht","Sept\u00e4mber","Oktober","Nov\u00e4mber","Dez\u00e4mber"],"abbr_month_names":[null,"Jan","Feb","M\u00e4r","Apr","Mai","Jun","Jul","Aug","Sep","Okt","Nov","Dez"],"order":["day","month","year"]},"time":{"formats":{"default":"%A, %d. %B %Y, %H:%M","short":"%d. %B, %H:%M","long":"%A, %d. %B %Y, %H:%M","time":"%H:%M"},"am":"am Vormittaag","pm":"am Namitaag"},"datetime":{"distance_in_words":{"half_a_minute":"\u00e4 halbi Minuut\u00e4","less_than_x_seconds":{"one":"weniger als \u00e4 Sekund\u00e4","other":"weniger als %{count} Sekund\u00e4"},"x_seconds":{"one":"\u00e4 Sekunde","other":"%{count} Sekunde"},"less_than_x_minutes":{"one":"weniger als \u00e4 Minuut\u00e4","other":"weniger als %{count} Minuut\u00e4"},"x_minutes":{"one":"\u00e4 Minut\u00e4","other":"%{count} Minut\u00e4"},"about_x_hours":{"one":"\u00f6ppe n\u00e4 Schtund","other":"\u00f6ppe n\u00e4 %{count} Schtund"},"x_days":{"one":"\u00e4n Taag","other":"%{count} Taag"},"about_x_months":{"one":"\u00f6ppe \u00e4n Mon\u00e4t","other":"\u00f6ppe %{count} M\u00f6net"},"x_months":{"one":"\u00e4n Mon\u00e4t","other":"%{count} M\u00f6net"},"almost_x_years":{"one":"fascht \u00e4s Jaar","other":"fascht %{count} Jaar"},"about_x_years":{"one":"\u00f6ppe n\u00e4s Jaar","other":"\u00f6ppe %{count} Jaar"},"over_x_years":{"one":"meh als \u00e4s Jaar","other":"meh als %{count} Jaar"}},"prompts":{"second":"Sekund\u00e4","minute":"Minut\u00e4","hour":"Schtund","day":"Taag","month":"Mon\u00e4t","year":"Jaar"}},"number":{"format":{"precision":2,"separator":".","delimiter":"'","significant":false,"strip_insignificant_zeros":false},"currency":{"format":{"unit":"SFr.","format":"%u %n","separator":".","delimiter":"'","precision":2,"significant":false,"strip_insignificant_zeros":false}},"percentage":{"format":{"delimiter":"'"}},"precision":{"format":{"delimiter":""}},"human":{"format":{"delimiter":"","precision":1,"significant":true,"strip_insignificant_zeros":true},"storage_units":{"format":"%n %u","units":{"byte":{"one":"Byte","other":"Bytes"},"kb":"KB","mb":"MB","gb":"GB","tb":"TB"}},"decimal_units":{"format":"%n %u","units":{"unit":"","thousand":"Tuusig","million":"Milioon","billion":"Bilioon","trillion":"Trilioon","quadrillion":"Quadrilioon"}}}},"support":{"array":{"words_connector":", ","two_words_connector":" und ","last_word_connector":" und "},"select":{"prompt":"Bitte w\u00e4\u00e4le:"}},"helpers":{"select":{"prompt":"Bitte w\u00e4\u00e4le"},"submit":{"create":"%{model} erschtele","update":"%{model} \u00e4ndere","submit":"%{model} schpeichere"}},"errors":{"format":"%{attribute} %{message}","messages":{"inclusion":"isch k\u00e4n g\u00fcltige Wert","exclusion":"isch n\u00f6d ume","invalid":"isch n\u00f6d g\u00fcltig","confirmation":"isch n\u00f6d gliich wie'd Bescht\u00e4tigung","accepted":"mues akzeptiert werd\u00e4","empty":"mues uusgf\u00fcllt werd\u00e4","blank":"mues uusgf\u00fcllt werd\u00e4","too_long":"isch z'lang (n\u00f6d mee als %{count} Zeiche)","too_short":"isch z'churz (n\u00f6d weniger als %{count} Zeiche)","wrong_length":"h\u00e4t di falsch L\u00e4ngi (mues genau %{count} Zeiche haa)","not_a_number":"isch k\u00e4 Nummer\u00e4","not_an_integer":"isch k\u00e4 Zaal","greater_than":"mues gr\u00f6sser als %{count} sii","greater_than_or_equal_to":"mues gr\u00f6sser oder gliich wi %{count} sii","equal_to":"mues genau %{count} sii","less_than":"mues chliiner als %{count} sii","less_than_or_equal_to":"mues chliiner oder gliich %{count} sii","odd":"mues ungraad sii","even":"mues graad sii"}},"activerecord":{"errors":{"template":{"header":{"one":"Han's %{model} n\u00f6d schpeichere ch\u00f6nne: \u00e4n Fehler.","other":"Han's %{model} n\u00e4d schpeichere ch\u00f6nne: %{count} Fehler."},"body":"Bitte \u00fcberpr\u00fcefed Si die Felder:"},"messages":{"taken":"isch bereits verg\u00e4\u00e4","record_invalid":"G\u00fcltigkeitspr\u00fcefig h\u00e4t fehlgschlage: %{errors}","inclusion":"isch k\u00e4n g\u00fcltige Wert","exclusion":"isch n\u00f6d ume","invalid":"isch n\u00f6d g\u00fcltig","confirmation":"isch n\u00f6d gliich wie'd Bescht\u00e4tigung","accepted":"mues akzeptiert werd\u00e4","empty":"mues uusgf\u00fcllt werd\u00e4","blank":"mues uusgf\u00fcllt werd\u00e4","too_long":"isch z'lang (n\u00f6d mee als %{count} Zeiche)","too_short":"isch z'churz (n\u00f6d weniger als %{count} Zeiche)","wrong_length":"h\u00e4t di falsch L\u00e4ngi (mues genau %{count} Zeiche haa)","not_a_number":"isch k\u00e4 Nummer\u00e4","not_an_integer":"isch k\u00e4 Zaal","greater_than":"mues gr\u00f6sser als %{count} sii","greater_than_or_equal_to":"mues gr\u00f6sser oder gliich wi %{count} sii","equal_to":"mues genau %{count} sii","less_than":"mues chliiner als %{count} sii","less_than_or_equal_to":"mues chliiner oder gliich %{count} sii","odd":"mues ungraad sii","even":"mues graad sii"},"full_messages":{"format":"%{attribute} %{message}"}}}},"es-CL":{"date":{"formats":{"default":"%d/%m/%Y","short":"%d de %b","long":"%A %d de %B de %Y"},"day_names":["domingo","lunes","martes","mi\u00e9rcoles","jueves","viernes","s\u00e1bado"],"abbr_day_names":["dom","lun","mar","mi\u00e9","jue","vie","s\u00e1b"],"month_names":[null,"enero","febrero","marzo","abril","mayo","junio","julio","agosto","septiembre","octubre","noviembre","diciembre"],"abbr_month_names":[null,"ene","feb","mar","abr","may","jun","jul","ago","sep","oct","nov","dic"],"order":["day","month","year"]},"time":{"formats":{"default":"%A, %d de %B de %Y %H:%M:%S %z","short":"%d de %b %H:%M","long":"%A %d de %B de %Y %H:%M"},"am":"am","pm":"pm"},"support":{"array":{"words_connector":", ","two_words_connector":" y ","last_word_connector":", y "},"select":{"prompt":"Por favor seleccione"}},"number":{"format":{"separator":",","delimiter":".","precision":3,"significant":false,"strip_insignificant_zeros":false},"currency":{"format":{"format":"%u %n","unit":"$","separator":",","delimiter":".","precision":0,"significant":false,"strip_insignificant_zeros":false}},"percentage":{"format":{"delimiter":""}},"precision":{"format":{"delimiter":""}},"human":{"format":{"delimiter":"","precision":1,"significant":true,"strip_insignificant_zeros":true},"storage_units":{"format":"%n %u","units":{"byte":{"one":"Byte","other":"Bytes"},"kb":"KB","mb":"MB","gb":"GB","tb":"TB"}},"decimal_units":{"format":"%n %u","units":{"unit":"","thousand":"mil","million":"mill\u00f3n","billion":"mil millones","trillion":"bill\u00f3n","quadrillion":"mil billones"}}}},"datetime":{"distance_in_words":{"half_a_minute":"medio minuto","less_than_x_seconds":{"one":"menos de 1 segundo","other":"menos de %{count} segundos"},"x_seconds":{"one":"1 segundo","other":"%{count} segundos"},"less_than_x_minutes":{"one":"menos de 1 minuto","other":"menos de %{count} minutos"},"x_minutes":{"one":"1 minuto","other":"%{count} minutos"},"about_x_hours":{"one":"alrededor de 1 hora","other":"alrededor de %{count} horas"},"x_days":{"one":"1 d\u00eda","other":"%{count} d\u00edas"},"about_x_months":{"one":"alrededor de 1 mes","other":"alrededor de %{count} meses"},"x_months":{"one":"1 mes","other":"%{count} meses"},"about_x_years":{"one":"alrededor de 1 a\u00f1o","other":"alrededor de %{count} a\u00f1os"},"over_x_years":{"one":"m\u00e1s de 1 a\u00f1o","other":"m\u00e1s de %{count} a\u00f1os"},"almost_x_years":{"one":"casi 1 a\u00f1o","other":"casi %{count} a\u00f1os"}},"prompts":{"year":"A\u00f1o","month":"Mes","day":"D\u00eda","hour":"Hora","minute":"Minutos","second":"Segundos"}},"helpers":{"select":{"prompt":"Por favor seleccione"},"submit":{"create":"Crear %{model}","update":"Actualizar %{model}","submit":"Guardar %{model}"}},"errors":{"format":"%{attribute} %{message}","messages":{"inclusion":"no est\u00e1 incluido en la lista","exclusion":"est\u00e1 reservado","invalid":"no es v\u00e1lido","confirmation":"no coincide con la confirmaci\u00f3n","accepted":"debe ser aceptado","empty":"no puede estar vac\u00edo","blank":"no puede estar en blanco","too_long":"es demasiado largo (%{count} caracteres m\u00e1ximo)","too_short":"es demasiado corto (%{count} caracteres m\u00ednimo)","wrong_length":"no tiene la longitud correcta (%{count} caracteres exactos)","not_a_number":"no es un n\u00famero","not_an_integer":"debe ser un entero","greater_than":"debe ser mayor que %{count}","greater_than_or_equal_to":"debe ser mayor que o igual a %{count}","equal_to":"debe ser igual a %{count}","less_than":"debe ser menor que %{count}","less_than_or_equal_to":"debe ser menor que o igual a %{count}","odd":"debe ser impar","even":"debe ser par"}},"activerecord":{"errors":{"template":{"header":{"one":"No se pudo guardar este/a %{model} porque se encontr\u00f3 1 error","other":"No se pudo guardar este/a %{model} porque se encontraron %{count} errores"},"body":"Se encontraron problemas con los siguientes campos:"},"messages":{"taken":"ya est\u00e1 en uso","record_invalid":"La validaci\u00f3n fall\u00f3: %{errors}","inclusion":"no est\u00e1 incluido en la lista","exclusion":"est\u00e1 reservado","invalid":"no es v\u00e1lido","confirmation":"no coincide con la confirmaci\u00f3n","accepted":"debe ser aceptado","empty":"no puede estar vac\u00edo","blank":"no puede estar en blanco","too_long":"es demasiado largo (%{count} caracteres m\u00e1ximo)","too_short":"es demasiado corto (%{count} caracteres m\u00ednimo)","wrong_length":"no tiene la longitud correcta (%{count} caracteres exactos)","not_a_number":"no es un n\u00famero","not_an_integer":"debe ser un entero","greater_than":"debe ser mayor que %{count}","greater_than_or_equal_to":"debe ser mayor que o igual a %{count}","equal_to":"debe ser igual a %{count}","less_than":"debe ser menor que %{count}","less_than_or_equal_to":"debe ser menor que o igual a %{count}","odd":"debe ser impar","even":"debe ser par"},"full_messages":{"format":"%{attribute} %{message}"}}}},"zh-CN":{"date":{"formats":{"default":"%Y-%m-%d","short":"%b%d\u65e5","long":"%Y\u5e74%b%d\u65e5"},"day_names":["\u661f\u671f\u65e5","\u661f\u671f\u4e00","\u661f\u671f\u4e8c","\u661f\u671f\u4e09","\u661f\u671f\u56db","\u661f\u671f\u4e94","\u661f\u671f\u516d"],"abbr_day_names":["\u65e5","\u4e00","\u4e8c","\u4e09","\u56db","\u4e94","\u516d"],"month_names":[null,"\u4e00\u6708","\u4e8c\u6708","\u4e09\u6708","\u56db\u6708","\u4e94\u6708","\u516d\u6708","\u4e03\u6708","\u516b\u6708","\u4e5d\u6708","\u5341\u6708","\u5341\u4e00\u6708","\u5341\u4e8c\u6708"],"abbr_month_names":[null,"1\u6708","2\u6708","3\u6708","4\u6708","5\u6708","6\u6708","7\u6708","8\u6708","9\u6708","10\u6708","11\u6708","12\u6708"],"order":["year","month","day"]},"time":{"formats":{"default":"%Y\u5e74%b%d\u65e5 %A %H:%M:%S %Z","short":"%b%d\u65e5 %H:%M","long":"%Y\u5e74%b%d\u65e5 %H:%M"},"am":"\u4e0a\u5348","pm":"\u4e0b\u5348"},"datetime":{"distance_in_words":{"half_a_minute":"\u534a\u5206\u949f","less_than_x_seconds":{"one":"\u4e0d\u5230\u4e00\u79d2","other":"\u4e0d\u5230 %{count} \u79d2"},"x_seconds":{"one":"\u4e00\u79d2","other":"%{count} \u79d2"},"less_than_x_minutes":{"one":"\u4e0d\u5230\u4e00\u5206\u949f","other":"\u4e0d\u5230 %{count} \u5206\u949f"},"x_minutes":{"one":"\u4e00\u5206\u949f","other":"%{count} \u5206\u949f"},"about_x_hours":{"one":"\u5927\u7ea6\u4e00\u5c0f\u65f6","other":"\u5927\u7ea6 %{count} \u5c0f\u65f6"},"x_days":{"one":"\u4e00\u5929","other":"%{count} \u5929"},"about_x_months":{"one":"\u5927\u7ea6\u4e00\u4e2a\u6708","other":"\u5927\u7ea6 %{count} \u4e2a\u6708"},"x_months":{"one":"\u4e00\u4e2a\u6708","other":"%{count} \u4e2a\u6708"},"about_x_years":{"one":"\u5927\u7ea6\u4e00\u5e74","other":"\u5927\u7ea6 %{count} \u5e74"},"over_x_years":{"one":"\u4e00\u5e74\u591a","other":"%{count} \u5e74\u591a"},"almost_x_years":{"one":"\u63a5\u8fd1\u4e00\u5e74","other":"\u63a5\u8fd1 %{count} \u5e74"}},"prompts":{"year":"\u5e74","month":"\u6708","day":"\u65e5","hour":"\u65f6","minute":"\u5206","second":"\u79d2"}},"number":{"format":{"separator":".","delimiter":",","precision":3,"significant":false,"strip_insignificant_zeros":false},"currency":{"format":{"format":"%u %n","unit":"CN\u00a5","separator":".","delimiter":",","precision":2,"significant":false,"strip_insignificant_zeros":false}},"percentage":{"format":{"delimiter":""}},"precision":{"format":{"delimiter":""}},"human":{"format":{"delimiter":"","precision":1,"significant":false,"strip_insignificant_zeros":false},"storage_units":{"format":"%n %u","units":{"byte":{"one":"Byte","other":"Bytes"},"kb":"KB","mb":"MB","gb":"GB","tb":"TB"}},"decimal_units":{"format":"%n %u","units":{"atto":"\u6e3a","femto":"\u98de","pico":"\u6f20","nano":"\u5948","micro":"\u5fae","mili":"\u6beb","centi":"\u5398","deci":"\u5206","unit":"","ten":{"one":"\u5341","other":"\u5341"},"hundred":"\u767e","thousand":"\u5343","million":"\u767e\u4e07","billion":"\u5341\u4ebf","trillion":"\u5146","quadrillion":"\u5343\u5146"}}}},"support":{"array":{"words_connector":", ","two_words_connector":" \u548c ","last_word_connector":", \u548c "},"select":{"prompt":"\u8bf7\u9009\u62e9"}},"errors":{"format":"%{attribute} %{message}","messages":{"inclusion":"\u4e0d\u5305\u542b\u4e8e\u5217\u8868\u4e2d","exclusion":"\u662f\u4fdd\u7559\u5173\u952e\u5b57","invalid":"\u662f\u65e0\u6548\u7684","confirmation":"\u4e0e\u786e\u8ba4\u503c\u4e0d\u5339\u914d","accepted":"\u5fc5\u987b\u662f\u53ef\u88ab\u63a5\u53d7\u7684","empty":"\u4e0d\u80fd\u7559\u7a7a","blank":"\u4e0d\u80fd\u4e3a\u7a7a\u5b57\u7b26","too_long":"\u8fc7\u957f\uff08\u6700\u957f\u4e3a %{count} \u4e2a\u5b57\u7b26\uff09","too_short":"\u8fc7\u77ed\uff08\u6700\u77ed\u4e3a %{count} \u4e2a\u5b57\u7b26\uff09","wrong_length":"\u957f\u5ea6\u975e\u6cd5\uff08\u5fc5\u987b\u4e3a %{count} \u4e2a\u5b57\u7b26\uff09","not_a_number":"\u4e0d\u662f\u6570\u5b57","not_an_integer":"\u5fc5\u987b\u662f\u6574\u6570","greater_than":"\u5fc5\u987b\u5927\u4e8e %{count}","greater_than_or_equal_to":"\u5fc5\u987b\u5927\u4e8e\u6216\u7b49\u4e8e %{count}","equal_to":"\u5fc5\u987b\u7b49\u4e8e %{count}","less_than":"\u5fc5\u987b\u5c0f\u4e8e %{count}","less_than_or_equal_to":"\u5fc5\u987b\u5c0f\u4e8e\u6216\u7b49\u4e8e %{count}","odd":"\u5fc5\u987b\u4e3a\u5355\u6570","even":"\u5fc5\u987b\u4e3a\u53cc\u6570","taken":"\u5df2\u7ecf\u88ab\u4f7f\u7528","record_invalid":"\u9a8c\u8bc1\u5931\u8d25: %{errors}"},"template":{"header":{"one":"\u6709 1 \u4e2a\u9519\u8bef\u53d1\u751f\u5bfc\u81f4\u300c%{model}\u300d\u65e0\u6cd5\u88ab\u4fdd\u5b58\u3002","other":"\u6709 %{count} \u4e2a\u9519\u8bef\u53d1\u751f\u5bfc\u81f4\u300c%{model}\u300d\u65e0\u6cd5\u88ab\u4fdd\u5b58\u3002"},"body":"\u5982\u4e0b\u5b57\u6bb5\u51fa\u73b0\u9519\u8bef\uff1a"}},"activerecord":{"errors":{"full_messages":{"format":"%{attribute} %{message}"},"messages":{"inclusion":"\u4e0d\u5305\u542b\u4e8e\u5217\u8868\u4e2d","exclusion":"\u662f\u4fdd\u7559\u5173\u952e\u5b57","invalid":"\u662f\u65e0\u6548\u7684","confirmation":"\u4e0e\u786e\u8ba4\u503c\u4e0d\u5339\u914d","accepted":"\u5fc5\u987b\u662f\u53ef\u88ab\u63a5\u53d7\u7684","empty":"\u4e0d\u80fd\u7559\u7a7a","blank":"\u4e0d\u80fd\u4e3a\u7a7a\u5b57\u7b26","too_long":"\u8fc7\u957f\uff08\u6700\u957f\u4e3a %{count} \u4e2a\u5b57\u7b26\uff09","too_short":"\u8fc7\u77ed\uff08\u6700\u77ed\u4e3a %{count} \u4e2a\u5b57\u7b26\uff09","wrong_length":"\u957f\u5ea6\u975e\u6cd5\uff08\u5fc5\u987b\u4e3a %{count} \u4e2a\u5b57\u7b26\uff09","not_a_number":"\u4e0d\u662f\u6570\u5b57","not_an_integer":"\u5fc5\u987b\u662f\u6574\u6570","greater_than":"\u5fc5\u987b\u5927\u4e8e %{count}","greater_than_or_equal_to":"\u5fc5\u987b\u5927\u4e8e\u6216\u7b49\u4e8e %{count}","equal_to":"\u5fc5\u987b\u7b49\u4e8e %{count}","less_than":"\u5fc5\u987b\u5c0f\u4e8e %{count}","less_than_or_equal_to":"\u5fc5\u987b\u5c0f\u4e8e\u6216\u7b49\u4e8e %{count}","odd":"\u5fc5\u987b\u4e3a\u5355\u6570","even":"\u5fc5\u987b\u4e3a\u53cc\u6570","taken":"\u5df2\u7ecf\u88ab\u4f7f\u7528","record_invalid":"\u9a8c\u8bc1\u5931\u8d25: %{errors}"},"template":{"header":{"one":"\u6709 1 \u4e2a\u9519\u8bef\u53d1\u751f\u5bfc\u81f4\u300c%{model}\u300d\u65e0\u6cd5\u88ab\u4fdd\u5b58\u3002","other":"\u6709 %{count} \u4e2a\u9519\u8bef\u53d1\u751f\u5bfc\u81f4\u300c%{model}\u300d\u65e0\u6cd5\u88ab\u4fdd\u5b58\u3002"},"body":"\u5982\u4e0b\u5b57\u6bb5\u51fa\u73b0\u9519\u8bef\uff1a"}},"enums":{"activity":{"action":{"created_repository":"\u521b\u5efa\u4e86\u9879\u76ee","destroyed_repository":"\u5220\u9664\u4e86\u9879\u76ee","followed_user":"\u5173\u6ce8\u4e86\u7528\u6237","unfollowed_user":"\u53d6\u6d88\u5173\u6ce8\u4e86\u7528\u6237","watched_repository":"\u5173\u6ce8\u4e86\u9879\u76ee","unwatched_repository":"\u53d6\u6d88\u5173\u6ce8\u4e86\u9879\u76ee","forked_repository":"\u62f7\u8d1d\u4e86\u9879\u76ee"}},"message":{"category":{"system_notification":"\u7cfb\u7edf\u901a\u77e5","member_mailbox":"\u4e2a\u4eba\u90ae\u4ef6"},"is_readed":{"true":"\u5df2\u8bfb","false":"\u672a\u8bfb"}},"repository":{"visibility":{"public_repo":"\u516c\u6709","private_repo":"\u79c1\u6709"}},"user":{"gender":{"male":"\u7537","female":"\u5973"}}},"models":{"activity":"\u6d3b\u52a8","category":"\u8303\u7574","comment":"\u8bc4\u8bba","issue":"\u95ee\u9898","message":"\u4fe1\u606f","repository":"\u5e93","repo_file":"RepoFile","role":"\u4f5c\u7528","setting_user_notification":"SettingUserNotification","target_follower":"TargetFollower","user":"\u7528\u6237"},"attributes":{"activity":{"id":"id","user_id":"\u7528\u6237id","user_name":"\u7528\u6237\u540d","action":"\u884c\u52a8","target_id":"\u76ee\u6807id","target_type":"\u76ee\u6807\u7c7b\u578b","created_at":"\u521b\u5efa\u5728","updated_at":"\u53ca\u65f6\u66f4\u65b0,"},"category":{"id":"id","ancestry":"\u7956\u5148","name":"\u540d\u5b57","code":"\u4ee3\u7801","created_at":"\u521b\u5efa\u5728","updated_at":"\u53ca\u65f6\u66f4\u65b0,","repositories_count":"\u5e93\u6570"},"comment":{"id":"id","commentable_id":"commentable id","commentable_type":"commentable\u7c7b\u578b","user_id":"\u7528\u6237id","content":"\u5185\u5bb9","created_at":"\u521b\u5efa\u5728","updated_at":"\u53ca\u65f6\u66f4\u65b0,"},"issue":{"id":"id","user_id":"\u7528\u6237id","repository_id":"\u5e93id","title":"\u6807\u9898","content":"\u5185\u5bb9","state":"\u72b6\u6001","number_with_repo":"\u6570\u5b57\u548c\u56de\u8d2d","created_at":"\u521b\u5efa\u5728","updated_at":"\u53ca\u65f6\u66f4\u65b0,","comments_count":"\u8bc4\u8bba\u6570"},"message":{"id":"id","sender_id":"\u53d1\u9001\u8005\u8eab\u4efd","receiver_id":"\u63a5\u6536\u673aid","category":"\u8303\u7574","subject":"\u4e3b\u4f53","content":"\u5185\u5bb9","ancestry":"\u7956\u5148","is_readed":"\u662f\u8bfb\u5230\u54ea\u513f\u4e86","target_id":"\u76ee\u6807id","target_type":"\u76ee\u6807\u7c7b\u578b","created_at":"\u521b\u5efa\u5728","updated_at":"\u53ca\u65f6\u66f4\u65b0,"},"repository":{"id":"id","user_id":"\u7528\u6237id","category_id":"\u7c7b\u522bid","ancestry":"\u7956\u5148","deleted":"\u5220\u9664","name":"\u540d\u5b57","describtion":"\u8bf4\u660e","visibility":"\u80fd\u89c1\u5ea6","features":"\u7279\u5f81","created_at":"\u521b\u5efa\u5728","updated_at":"\u53ca\u65f6\u66f4\u65b0,","watchers_count":"\u89c2\u5bdf\u8005\u6570","repo_files_count":"\u56de\u8d2d\u6863\u6848\u7684\u8ba1\u6570","issues_count":"\u95ee\u9898\u6570","comments_count":"\u8bc4\u8bba\u6570","forks_count":"\u53c9\u6570"},"repo_file":{"id":"id","repository_id":"\u5e93id","repo_file":"\u56de\u8d2d\u6587\u4ef6","created_at":"\u521b\u5efa\u5728","updated_at":"\u53ca\u65f6\u66f4\u65b0,"},"role":{"id":"id","name":"\u540d\u5b57","code":"\u4ee3\u7801","describtion":"\u8bf4\u660e","created_at":"\u521b\u5efa\u5728","updated_at":"\u53ca\u65f6\u66f4\u65b0,"},"setting_user_notification":{"id":"id","user_id":"\u7528\u6237id","user_followed":"\u7528\u6237\u8ddf\u8e2a","code_watched":"\u4ee3\u7801\u770b\u7740","code_forked":"\u4ee3\u7801\u53c9","created_at":"\u521b\u5efa\u5728","updated_at":"\u53ca\u65f6\u66f4\u65b0,"},"target_follower":{"id":"id","follower_id":"\u4ece\u52a8\u4ef6id","follower_type":"\u8ffd\u968f\u8005\u7c7b\u578b","target_id":"\u76ee\u6807id","target_type":"\u76ee\u6807\u7c7b\u578b","created_at":"\u521b\u5efa\u5728","updated_at":"\u53ca\u65f6\u66f4\u65b0,"},"user":{"id":"id","username":"\u7528\u6237\u540d","email":"\u7535\u5b50\u90ae\u4ef6","crypted_password":"crypted\u5bc6\u7801","salt":"\u76d0","created_at":"\u521b\u5efa\u5728","updated_at":"\u53ca\u65f6\u66f4\u65b0,","remember_me_token":"\u8bb0\u5f97\u6211\u8868\u793a","remember_me_token_expires_at":"\u8bb0\u5f97\u6211\u5c06\u5728\u8c61\u5f81","reset_password_token":"\u91cd\u7f6e\u5bc6\u7801\u8868\u5f81","reset_password_token_expires_at":"\u91cd\u7f6e\u5bc6\u7801\u5c06\u5728\u8c61\u5f81","reset_password_email_sent_at":"\u91cd\u7f6e\u5bc6\u7801\u90ae\u4ef6","last_login_at":"\u6700\u540e\u767b\u5f55\u5728","last_logout_at":"\u5728\u53bb\u5e74\u767b\u51fa","last_activity_at":"\u6700\u540e\u4e00\u4e2a\u6d3b\u52a8","failed_logins_count":"\u767b\u5f55\u5931\u8d25\u6570","lock_expires_at":"\u9501\u5c06\u5728","activation_state":"\u6fc0\u6d3b\u72b6\u6001","activation_token":"\u6fc0\u6d3b\u4ee4\u724c","activation_token_expires_at":"\u6fc0\u6d3b\u4ee4\u724c\u5c06\u5728","is_super_admin":"\u8d85\u7ea7\u7ba1\u7406\u5458","name":"\u540d\u5b57","gender":"\u6027\u522b","site":"\u7f51\u7ad9","company":"\u516c\u53f8","location":"\u4f4d\u7f6e","state":"\u72b6\u6001","repositories_count":"\u5e93\u6570","issues_count":"\u95ee\u9898\u6570","comments_count":"\u8bc4\u8bba\u6570","sent_messages_count":"\u53d1\u9001\u4fe1\u606f\u8ba1\u6570","received_messages_count":"\u6536\u5230\u6d88\u606f\u6570","followers_count":"\u8ffd\u968f\u8005\u6570","watching_repositories_count":"\u770b\u5e93\u6570","following_users_count":"\u4e1c\u839e\u5e02\u7528\u6237\u6570","unread_system_notifications_count":"\u8ba1\u6570\u7cfb\u7edf\u901a\u77e5\u672a\u8bfb","unread_member_mailboxs_count":"mailboxs\u672a\u8bfb\u7684\u6210\u5458\u6570"}}},"helpers":{"select":{"prompt":"\u8bf7\u9009\u62e9"},"submit":{"create":"\u65b0\u589e%{model}","update":"\u66f4\u65b0%{model}","submit":"\u50a8\u5b58%{model}"}},"flash":{"actions":{"create":{"success":"%{resource_name}\u521b\u5efa\u6210\u529f."},"update":{"success":"%{resource_name}\u66f4\u65b0\u6210\u529f."},"destroy":{"success":"%{resource_name}\u5220\u9664\u6210\u529f.","error":"%{resource_name}\u5220\u9664\u5931\u8d25."}},"messages":{"reply":{"success":"%{resource_name}\u56de\u590d\u6210\u529f."}},"sessions":{"create":{"success":"\u767b\u5165\u6210\u529f.","error":"\u767b\u5165\u5931\u8d25."},"destroy":{"success":"\u767b\u51fa\u6210\u529f."}},"users":{"create":{"success":"\u6ce8\u518c\u6210\u529f,\u8bf7\u67e5\u770b\u60a8\u7684\u7535\u5b50\u90ae\u4ef6\u6309\u64cd\u4f5c\u6fc0\u6d3b\u8d26\u6237."},"update":{"success":"\u4e2a\u4eba\u8d44\u6599\u66f4\u65b0\u6210\u529f."},"activate":{"success":"\u8d26\u6237\u5df2\u6fc0\u6d3b\uff0c\u8bf7\u767b\u5f55."},"password_update":{"success":"\u5bc6\u7801\u66f4\u65b0\u6210\u529f\uff0c\u8bf7\u91cd\u65b0\u767b\u5f55."}}},"simple_form":{"yes":"\u662f","no":"\u5426","required":{"text":"\u5fc5\u586b","mark":"*"},"error_notification":{"default_message":"\u53d1\u751f\u9519\u8bef\uff0c\u4fdd\u5b58\u5931\u8d25\uff01"},"hints":{"user":{"username":"\u552f\u4e00"}}},"web":{"topbar":{"sign_in":"\u767b\u5165","sign_up":"\u6ce8\u518c","forget_password":"\u5fd8\u8bb0\u5bc6\u7801?","sign_out":"\u767b\u51fa","dashboard":"\u63a7\u5236\u9762\u677f","inbox":"\u6536\u4ef6\u7bb1","profile_center":"\u4e2a\u4eba\u4e2d\u5fc3","user_page":"\u8d26\u6237\u9996\u9875","repositories":"\u9879\u76ee"},"page":{"follow_user":"\u5173\u6ce8","unfollow_user":"\u53d6\u6d88\u5173\u6ce8","user_followers":"\u88ab\u5173\u6ce8\u6570","user_public_repositories":"\u5171\u4eab\u9879\u76ee\u6570\u91cf","user_private_repositories":"\u79c1\u6709\u9879\u76ee\u6570\u91cf","following":"\u4ed6/\u5979\u5173\u6ce8\u6709%{following_users_count}\u4e2a\u4eba\u3001\u5173\u6ce8\u6709%{watching_repositories_count}\u4e2a\u9879\u76ee","watch_repository":"\u5173\u6ce8","unwatch_repository":"\u53d6\u6d88\u5173\u6ce8","repository_watchers":"\u88ab\u5173\u6ce8\u6570","fork_repository":"\u62f7\u8d1d","repository_forks":"\u88ab\u62f7\u8d1d\u6570","send_email":"\u53d1\u90ae\u4ef6","send_message":"\u53d1\u6d88\u606f","reply":"\u56de\u590d","select_files":"\u70b9\u51fb\u9009\u62e9\u6587\u4ef6","start_upload":"\u5f00\u59cb\u4e0a\u4f20","stop_upload":"\u53d6\u6d88\u4e0a\u4f20"},"activity":{"at":"\u5728%{ago}\u524d"}},"show":"\u67e5\u770b","edit":"\u7f16\u8f91","delete":"\u5220\u9664","confirm":"\u786e\u5b9a\u6267\u884c\u6b64\u64cd\u4f5c?","delete_confirm":"\u786e\u5b9a\u8981\u6267\u884c\u5220\u9664\u64cd\u4f5c\u5417?","back_to":"\u8fd4\u56de","view_all":"\u67e5\u770b\u5168\u90e8","select_options":"\u8bf7\u9009\u62e9\u4e00\u4e2a\u9009\u9879","add":"\u6dfb\u52a0","remove":"\u5220\u9664"},"id":{"locale":{"native_name":"Bahasa Indonesia","address_separator":" "},"date":{"formats":{"default":"%d %B %Y","long":"%A, %d %B %Y","short":"%d.%m.%Y"},"day_names":["Minggu","Senin","Selasa","Rabu","Kamis","Jum'at","Sabtu"],"abbr_day_names":["Min","Sen","Sel","Rab","Kam","Jum","Sab"],"month_names":[null,"Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"],"abbr_month_names":[null,"Jan","Feb","Mar","Apr","Mei","Jun","Jul","Agu","Sep","Okt","Nov","Des"],"order":["day","month","year"]},"time":{"formats":{"default":"%a, %d %b %Y %H.%M.%S %z","numeric":"%d-%b-%y %H:%M","short":"%d %b %H.%M","long":"%d %B %Y %H.%M","time":"%H:%M"},"am":"am","pm":"pm"},"support":{"select":{"prompt":"Silahkan pilih"},"array":{"sentence_connector":"dan","skip_last_comma":true,"words_connector":", ","two_words_connector":", ","last_word_connector":" dan "}},"number":{"format":{"separator":",","delimiter":".","precision":3,"significant":false,"strip_insignificant_zeros":false},"currency":{"format":{"format":"%u%n","unit":"Rp","separator":",","delimiter":".","precision":2,"significant":false,"strip_insignificant_zeros":false}},"percentage":{"format":{"delimiter":""}},"precision":{"format":{"delimiter":""}},"human":{"format":{"delimiter":"","precision":3,"significant":true,"strip_insignificant_zeros":true},"storage_units":{"format":"%n %u","units":{"byte":{"one":"Byte","other":"Byte"},"kb":"KB","mb":"MB","gb":"GB","tb":"TB"}},"decimal_units":{"format":"%n %u","units":{"unit":"","thousand":"Ribu","million":"Juta","billion":"Miliar","trillion":"Triliun","quadrillion":"Quadriliun"}}}},"datetime":{"distance_in_words":{"half_a_minute":"setengah menit","less_than_x_seconds":{"zero":"kurang dari 1 detik","one":"kurang dari 1 detik","other":"kurang dari %{count} detik"},"x_seconds":{"one":"satu detik","other":"%{count} detik"},"less_than_x_minutes":{"zero":"kurang dari 1 menit","one":"kurang dari 1 menit","other":"kurang dari  %{count} menit"},"x_minutes":{"one":"satu menit","other":"%{count} menit"},"about_x_hours":{"one":"sekitar satu jam","other":"sekitar %{count} jam"},"x_days":{"one":"sehari","other":"%{count} hari"},"about_x_months":{"one":"sekitar sebulan","other":"sekitar %{count} bulan"},"x_months":{"one":"sebulan","other":"%{count} bulan"},"about_x_years":{"one":"setahun","other":"noin %{count} tahun"},"over_x_years":{"one":"lebih dari setahun","other":"lebih dari %{count} tahun"},"almost_x_years":{"one":"hampir setahun","other":"hampir %{count} tahun"}},"prompts":{"year":"Tahun","month":"Bulan","day":"Hari","hour":"Jam","minute":"Menit","second":"Detik"}},"helpers":{"select":{"prompt":"Silahkan pilih"},"submit":{"create":"Buat %{model}","update":"Update %{model}","submit":"Simpan %{model}"}},"errors":{"format":"%{attribute} %{message}","messages":{"inclusion":"tak termasuk dalam daftar","exclusion":"dipakai","invalid":"tidak valid","confirmation":"tidak sesuai dengan konfirmasi","accepted":"harus diterima","empty":"tidak boleh kosong","blank":"tidak boleh kosong","too_long":"terlalu panjang (maksimum adalah %{count} karakter)","too_short":"terlalu pendek (minimum adalah %{count} karakter)","wrong_length":"tidak sesuai dengan jumlah karakter yg di butuhkan (seharusnya %{count} karakter)","not_a_number":"bukan angka","not_an_integer":"harus angka","greater_than":"harus lebih besar dari %{count}","greater_than_or_equal_to":"harus lebih besar atau sama dengan %{count}","equal_to":"harus sama dengan %{count}","less_than":"harus kurang dari %{count}","less_than_or_equal_to":"harus kurang atau sama dengan %{count}","odd":"harus ganjil","even":"harus genap"}},"activerecord":{"errors":{"template":{"header":{"one":"1 kesalahan mengakibatkan %{model} ini tidak bisa disimpan","other":"%{count} kesalahan mengakibatkan %{model} ini tidak bisa disimpan"},"body":"Ada masalah dengan field berikut:"},"messages":{"inclusion":"tidak termasuk","exclusion":"sudah digunakan","invalid":"tidak valid","confirmation":"tidak sesuai dengan konfirmasi","accepted":"harus diterima","empty":"tidak bisa kosong","blank":"tidak bisa kosong","too_long":"terlalu panjang (maksimum %{count} karakter)","too_short":"terlalu pendek (minimum %{count} karakter)","wrong_length":"jumlah karakter salah (seharusnya %{count} karakter)","taken":"sudah digunakan","not_a_number":"bukan angka","greater_than":"harus lebih besar dari %{count}","greater_than_or_equal_to":"harus sama atau lebih besar dari %{count}","equal_to":"harus sama dengan %{count}","less_than":"harus lebih kecil dari %{count}","less_than_or_equal_to":"harus sama atau lebih kecil dari %{count}","odd":"harus ganjil","even":"harus genap","record_invalid":"Verifikasi gagal: %{errors}"},"full_messages":{"format":"%{attribute} %{message}"}}}},"hi":{"date":{"formats":{"default":"%d-%m-%Y","short":"%b %d","long":"%B %d, %Y"},"day_names":["\u0930\u0935\u093f\u0935\u093e\u0930","\u0938\u094b\u092e\u0935\u093e\u0930","\u092e\u0902\u0917\u0932\u0935\u093e\u0930","\u092c\u0941\u0927\u0935\u093e\u0930","\u0917\u0941\u0930\u0941\u0935\u093e\u0930","\u0936\u0941\u0915\u094d\u0930\u0935\u093e\u0930","\u0936\u0928\u093f\u0935\u093e\u0930"],"abbr_day_names":["\u0930\u0935\u093f","\u0938\u094b\u092e","\u092e\u0902\u0917\u0932","\u092c\u0941\u0927","\u0917\u0941\u0930\u0941","\u0936\u0941\u0915\u094d\u0930","\u0936\u0928\u093f"],"month_names":[null,"\u091c\u0928\u0935\u0930\u0940","\u092b\u0930\u0935\u0930\u0940","\u092e\u093e\u0930\u094d\u091a","\u0905\u092a\u094d\u0930\u0948\u0932","\u092e\u0908","\u091c\u0942\u0928","\u091c\u0941\u0932\u093e\u0908","\u0905\u0917\u0938\u094d\u0924","\u0938\u093f\u0924\u0902\u092c\u0930","\u0905\u0915\u094d\u091f\u0942\u092c\u0930","\u0928\u0935\u0902\u092c\u0930","\u0926\u093f\u0938\u0902\u092c\u0930"],"abbr_month_names":[null,"\u091c\u0928","\u092b\u0930","\u092e\u093e\u0930\u094d\u091a","\u0905\u092a\u094d\u0930\u0948","\u092e\u0908","\u091c\u0942\u0928","\u091c\u0941\u0932\u093e","\u0905\u0917","\u0938\u093f\u0924\u0902","\u0905\u0915\u094d\u091f\u0942","\u0928\u0935\u0902","\u0926\u093f\u0938"],"order":["day","month","year"]},"time":{"formats":{"default":"%a, %d %b %Y %H:%M:%S %z","short":"%d %b %H:%M","long":"%B %d, %Y %H:%M"},"am":"\u092a\u0942\u0930\u094d\u0935\u093e\u0939\u094d\u0928","pm":"\u0905\u092a\u0930\u093e\u0939\u094d\u0928"},"support":{"array":{"words_connector":", ","two_words_connector":" \u0914\u0930 ","last_word_connector":", \u0914\u0930 "},"select":{"prompt":"\u0915\u0943\u092a\u092f\u093e \u091a\u0941\u0928\u0947\u0902"}},"number":{"format":{"separator":".","delimiter":",","precision":3,"significant":false,"strip_insignificant_zeros":false},"currency":{"format":{"format":"%u%n","unit":"$","separator":".","delimiter":",","precision":2,"significant":false,"strip_insignificant_zeros":false}},"percentage":{"format":{"delimiter":""}},"precision":{"format":{"delimiter":""}},"human":{"format":{"delimiter":"","precision":3,"significant":true,"strip_insignificant_zeros":true},"storage_units":{"format":"%n %u","units":{"byte":{"one":"Byte","other":"Bytes"},"kb":"KB","mb":"MB","gb":"GB","tb":"TB"}},"decimal_units":{"format":"%n %u","units":{"unit":"","thousand":"\u0939\u091c\u093c\u093e\u0930","million":"\u0926\u0938 \u0915\u0930\u094b\u0921\u093c","billion":"\u0905\u0930\u092c","trillion":"\u0916\u0930\u092c","quadrillion":"\u0915\u0930\u094b\u0921\u093c \u0936\u0902\u0916"}}}},"datetime":{"distance_in_words":{"half_a_minute":"\u090f\u0915 \u0906\u0927\u093e \u092e\u093f\u0928\u091f","less_than_x_seconds":{"one":"\u090f\u0915 \u0938\u0947\u0915\u0947\u0902\u0921 \u0938\u0947 \u0915\u092e","other":"%{count}  \u0938\u0947\u0915\u0947\u0902\u0921 \u0938\u0947 \u0915\u092e"},"x_seconds":{"one":"\u090f\u0915 \u0938\u0947\u0915\u0947\u0902\u0921","other":"%{count} \u0938\u0947\u0915\u0947\u0902\u0921"},"less_than_x_minutes":{"one":"\u090f\u0915 \u092e\u093f\u0928\u091f \u0938\u0947 \u0915\u092e","other":"%{count} \u092e\u093f\u0928\u091f \u0938\u0947 \u0915\u092e"},"x_minutes":{"one":"\u090f\u0915 \u092e\u093f\u0928\u091f","other":"%{count} \u092e\u093f\u0928\u091f"},"about_x_hours":{"one":"\u0932\u0917\u092d\u0917 \u090f\u0915 \u0918\u0902\u091f\u093e","other":"\u0932\u0917\u092d\u0917 %{count} \u0918\u0902\u091f\u093e"},"x_days":{"one":"\u090f\u0915 \u0926\u093f\u0928","other":"%{count} \u0926\u093f\u0928"},"about_x_months":{"one":"\u0932\u0917\u092d\u0917 1 \u092e\u0939\u0940\u0928\u093e","other":"\u0932\u0917\u092d\u0917 %{count} \u092e\u0939\u0940\u0928\u093e"},"x_months":{"one":"\u090f\u0915 \u092e\u0939\u0940\u0928\u093e","other":"%{count} \u092e\u0939\u0940\u0928\u093e"},"about_x_years":{"one":"\u0932\u0917\u092d\u0917 1 \u0938\u093e\u0932","other":"\u0932\u0917\u092d\u0917 %{count} \u0938\u093e\u0932"},"over_x_years":{"one":"\u090f\u0915 \u0938\u093e\u0932 \u0915\u0947 \u090a\u092a\u0930","other":"%{count} \u0938\u093e\u0932 \u0938\u0947 \u0905\u0927\u093f\u0915"},"almost_x_years":{"one":"\u0932\u0917\u092d\u0917 \u090f\u0915 \u0938\u093e\u0932","other":"\u0932\u0917\u092d\u0917 %{count} \u0938\u093e\u0932"}},"prompts":{"year":"\u0935\u0930\u094d\u0937","month":"\u092e\u093e\u0939","day":"\u0926\u093f\u0928","hour":"\u0918\u0902\u091f\u093e","minute":"\u092e\u093f\u0928\u091f","second":"\u0938\u0947\u0915\u0947\u0902\u0921"}},"helpers":{"select":{"prompt":"\u0915\u0943\u092a\u092f\u093e \u091a\u0941\u0928\u0947\u0902"},"submit":{"create":"%{model} \u092c\u0928\u093e\u090f\u0901","update":"%{model} \u0905\u0926\u094d\u092f\u0924\u0928","submit":"%{model} \u0938\u094c\u0902\u092a\u0947\u0902"}},"errors":{"format":"%{attribute} %{message}","messages":{"inclusion":"\u0938\u0942\u091a\u0940 \u092e\u0947\u0902 \u0936\u093e\u092e\u093f\u0932 \u0928\u0939\u0940\u0902 \u0939\u0948","exclusion":"\u0906\u0930\u0915\u094d\u0937\u093f\u0924 \u0939\u0948","invalid":"\u0905\u0935\u0948\u0927 \u0939\u0948","confirmation":"\u092a\u0941\u0937\u094d\u091f\u093f\u0915\u0930\u0923 \u092e\u0947\u0932 \u0928\u0939\u0940\u0902 \u0916\u093e\u0924\u093e","accepted":"\u0938\u094d\u0935\u0940\u0915\u093e\u0930 \u0915\u093f\u092f\u093e \u091c\u093e\u0928\u093e \u091c\u0930\u0942\u0930\u0940","empty":"\u0930\u093f\u0915\u094d\u0924 \u0928\u0939\u0940\u0902 \u0930\u0939 \u0938\u0915\u0924\u093e \u0939\u0948","blank":"\u0916\u093e\u0932\u0940 \u0928\u0939\u0940\u0902 \u0930\u0939 \u0938\u0915\u0924\u093e \u0939\u0948","too_long":"\u0905\u0924\u094d\u092f\u0927\u093f\u0915 \u0932\u0902\u092c\u093e \u0939\u0948 (\u0905\u0927\u093f\u0915\u0924\u092e %{count} \u0935\u0930\u094d\u0923 \u0939\u0948\u0902)","too_short":"\u0905\u0924\u094d\u092f\u0927\u093f\u0915 \u091b\u094b\u091f\u093e \u0939\u0948 (\u0928\u094d\u092f\u0942\u0928\u0924\u092e %{count} \u0935\u0930\u094d\u0923 \u0939\u0948\u0902)","wrong_length":"\u0917\u0932\u0924 \u0932\u0902\u092c\u093e\u0908 \u0939\u0948 (%{count} \u0935\u0930\u094d\u0923 \u092f\u0941\u0915\u094d\u0924 \u0939\u094b\u0928\u093e \u091a\u093e\u0939\u093f\u090f)","not_a_number":"\u0915\u094b\u0908 \u0938\u0902\u0916\u094d\u092f\u093e \u0928\u0939\u0940\u0902 \u0939\u0948","not_an_integer":"\u090f\u0915 \u092a\u0942\u0930\u094d\u0923\u093e\u0902\u0915 \u0939\u094b\u0928\u093e \u091a\u093e\u0939\u093f\u090f","greater_than":"%{count} \u0938\u0947 \u0905\u0927\u093f\u0915 \u0939\u094b\u0928\u093e \u091a\u093e\u0939\u093f\u090f","greater_than_or_equal_to":"%{count} \u0938\u0947 \u092c\u0921\u093c\u093e \u092f\u093e \u092c\u0930\u093e\u092c\u0930 \u0939\u094b\u0928\u093e \u0906\u0935\u0936\u094d\u092f\u0915 \u0939\u0948","equal_to":"%{count} \u0915\u0947 \u0932\u093f\u090f \u092c\u0930\u093e\u092c\u0930 \u0939\u094b\u0928\u093e \u091a\u093e\u0939\u093f\u090f","less_than":"%{count} \u0938\u0947 \u0915\u092e \u0939\u094b\u0928\u093e \u091a\u093e\u0939\u093f\u090f","less_than_or_equal_to":"%{count} \u0938\u0947 \u0915\u092e \u092f\u093e \u092c\u0930\u093e\u092c\u0930 \u0939\u094b\u0928\u093e \u0906\u0935\u0936\u094d\u092f\u0915 \u0939\u0948","odd":"\u0935\u093f\u0938\u092e \u0939\u094b\u0928\u093e \u091a\u093e\u0939\u093f\u090f","even":"\u0938\u092e \u0939\u094b\u0928\u093e \u091a\u093e\u0939\u093f\u090f"}},"activerecord":{"errors":{"template":{"header":{"one":"\u0907\u0938 %{model} \u0915\u094b \u0938\u0939\u0947\u091c\u0947 \u091c\u093e\u0928\u093e \u090f\u0915 \u0924\u094d\u0930\u0941\u091f\u093f \u0915\u0947 \u0915\u093e\u0930\u0923 \u0928\u0939\u0940\u0902 \u0939\u0941\u0906","other":"\u0907\u0938 %{model} \u0915\u094b \u0938\u0939\u0947\u091c\u0947 \u091c\u093e\u0928\u093e %{count} \u0924\u094d\u0930\u0941\u091f\u093f \u0915\u0947 \u0915\u093e\u0930\u0923 \u0928\u0939\u0940\u0902 \u0939\u0941\u0906"},"body":"\u0928\u093f\u092e\u094d\u0928\u0932\u093f\u0916\u093f\u0924 \u0915\u094d\u0937\u0947\u0924\u094d\u0930\u094b\u0902 \u0915\u0947 \u0938\u093e\u0925 \u0938\u092e\u0938\u094d\u092f\u093e \u0925\u0940:"},"messages":{"taken":"\u092a\u0939\u0932\u0947 \u0939\u0940 \u0932\u0947 \u0932\u093f\u092f\u093e \u0917\u092f\u093e \u0939\u0948","record_invalid":"\u0938\u0924\u094d\u092f\u093e\u092a\u0928 \u0935\u093f\u092b\u0932: %{errors}","inclusion":"\u0938\u0942\u091a\u0940 \u092e\u0947\u0902 \u0936\u093e\u092e\u093f\u0932 \u0928\u0939\u0940\u0902 \u0939\u0948","exclusion":"\u0906\u0930\u0915\u094d\u0937\u093f\u0924 \u0939\u0948","invalid":"\u0905\u0935\u0948\u0927 \u0939\u0948","confirmation":"\u092a\u0941\u0937\u094d\u091f\u093f\u0915\u0930\u0923 \u092e\u0947\u0932 \u0928\u0939\u0940\u0902 \u0916\u093e\u0924\u093e","accepted":"\u0938\u094d\u0935\u0940\u0915\u093e\u0930 \u0915\u093f\u092f\u093e \u091c\u093e\u0928\u093e \u091c\u0930\u0942\u0930\u0940","empty":"\u0930\u093f\u0915\u094d\u0924 \u0928\u0939\u0940\u0902 \u0930\u0939 \u0938\u0915\u0924\u093e \u0939\u0948","blank":"\u0916\u093e\u0932\u0940 \u0928\u0939\u0940\u0902 \u0930\u0939 \u0938\u0915\u0924\u093e \u0939\u0948","too_long":"\u0905\u0924\u094d\u092f\u0927\u093f\u0915 \u0932\u0902\u092c\u093e \u0939\u0948 (\u0905\u0927\u093f\u0915\u0924\u092e %{count} \u0935\u0930\u094d\u0923 \u0939\u0948\u0902)","too_short":"\u0905\u0924\u094d\u092f\u0927\u093f\u0915 \u091b\u094b\u091f\u093e \u0939\u0948 (\u0928\u094d\u092f\u0942\u0928\u0924\u092e %{count} \u0935\u0930\u094d\u0923 \u0939\u0948\u0902)","wrong_length":"\u0917\u0932\u0924 \u0932\u0902\u092c\u093e\u0908 \u0939\u0948 (%{count} \u0935\u0930\u094d\u0923 \u092f\u0941\u0915\u094d\u0924 \u0939\u094b\u0928\u093e \u091a\u093e\u0939\u093f\u090f)","not_a_number":"\u0915\u094b\u0908 \u0938\u0902\u0916\u094d\u092f\u093e \u0928\u0939\u0940\u0902 \u0939\u0948","not_an_integer":"\u090f\u0915 \u092a\u0942\u0930\u094d\u0923\u093e\u0902\u0915 \u0939\u094b\u0928\u093e \u091a\u093e\u0939\u093f\u090f","greater_than":"%{count} \u0938\u0947 \u0905\u0927\u093f\u0915 \u0939\u094b\u0928\u093e \u091a\u093e\u0939\u093f\u090f","greater_than_or_equal_to":"%{count} \u0938\u0947 \u092c\u0921\u093c\u093e \u092f\u093e \u092c\u0930\u093e\u092c\u0930 \u0939\u094b\u0928\u093e \u0906\u0935\u0936\u094d\u092f\u0915 \u0939\u0948","equal_to":"%{count} \u0915\u0947 \u0932\u093f\u090f \u092c\u0930\u093e\u092c\u0930 \u0939\u094b\u0928\u093e \u091a\u093e\u0939\u093f\u090f","less_than":"%{count} \u0938\u0947 \u0915\u092e \u0939\u094b\u0928\u093e \u091a\u093e\u0939\u093f\u090f","less_than_or_equal_to":"%{count} \u0938\u0947 \u0915\u092e \u092f\u093e \u092c\u0930\u093e\u092c\u0930 \u0939\u094b\u0928\u093e \u0906\u0935\u0936\u094d\u092f\u0915 \u0939\u0948","odd":"\u0935\u093f\u0938\u092e \u0939\u094b\u0928\u093e \u091a\u093e\u0939\u093f\u090f","even":"\u0938\u092e \u0939\u094b\u0928\u093e \u091a\u093e\u0939\u093f\u090f"},"full_messages":{"format":"%{attribute} %{message}"}}}},"pl":{"date":{"formats":{"default":"%d-%m-%Y","short":"%d %b","long":"%B %d, %Y"},"day_names":["niedziela","poniedzia\u0142ek","wtorek","\u015broda","czwartek","pi\u0105tek","sobota"],"abbr_day_names":["nie","pon","wto","\u015bro","czw","pia","sob"],"month_names":[null,"stycze\u0144","luty","marzec","kwiecie\u0144","maj","czerwiec","lipiec","sierpie\u0144","wrzesie\u0144","pa\u017adziernik","listopad","grudzie\u0144"],"abbr_month_names":[null,"sty","lut","mar","kwi","maj","cze","lip","sie","wrz","pa\u017a","lis","gru"],"order":["day","month","year"]},"time":{"formats":{"default":"%a, %d %b %Y %H:%M:%S %z","short":"%d %b %H:%M","long":"%B %d, %Y %H:%M"},"am":"przed po\u0142udniem","pm":"po po\u0142udniu"},"support":{"array":{"words_connector":", ","two_words_connector":" i ","last_word_connector":" oraz "},"select":{"prompt":"Prosz\u0119 wybra\u0107"}},"number":{"format":{"separator":",","delimiter":" ","precision":3,"significant":false,"strip_insignificant_zeros":false},"currency":{"format":{"format":"%u %n","unit":"PLN","separator":",","delimiter":" ","precision":2,"significant":false,"strip_insignificant_zeros":true}},"percentage":{"format":{"delimiter":""}},"precision":{"format":{"delimiter":""}},"human":{"format":{"delimiter":"","precision":3,"significant":true,"strip_insignificant_zeros":true},"storage_units":{"format":"%n %u","units":{"byte":{"one":"bajt","other":"bajty"},"kb":"KB","mb":"MB","gb":"GB","tb":"TB"}},"decimal_units":{"format":"%n %u","units":{"unit":"","thousand":"Tysi\u0105c","million":"Milion","billion":"Miliard","trillion":"Bilion","quadrillion":"Biliard"}}}},"datetime":{"distance_in_words":{"half_a_minute":"p\u00f3\u0142 minuty","less_than_x_seconds":{"one":"mniej ni\u017c sekund\u0119","few":"mniej ni\u017c %{count} sekundy","other":"mniej ni\u017c %{count} sekund"},"x_seconds":{"one":"1 sekunda","few":"%{count} sekundy","other":"%{count} sekund"},"less_than_x_minutes":{"one":"mniej ni\u017c minut\u0119","few":"mniej ni\u017c %{count} minuty","other":"mniej ni\u017c %{count} minut"},"x_minutes":{"one":"1 minuta","few":"%{count} minuty","other":"%{count} minut"},"about_x_hours":{"one":"oko\u0142o godziny","few":"oko\u0142o %{count} godziny","other":"oko\u0142o %{count} godzin"},"x_days":{"one":"1 dzie\u0144","few":"%{count} dni","other":"%{count} dni"},"about_x_months":{"one":"oko\u0142o miesi\u0105ca","few":"oko\u0142o %{count} miesi\u0105ce","other":"oko\u0142o %{count} miesi\u0119cy"},"x_months":{"one":"1 miesi\u0105c","few":"%{count} miesi\u0105ce","other":"%{count} miesi\u0119cy"},"about_x_years":{"one":"oko\u0142o rok","few":"oko\u0142o %{count} lata","other":"oko\u0142o %{count} lat"},"over_x_years":{"one":"ponad rok","few":"ponad %{count} lata","other":"ponad %{count} lat"},"almost_x_years":{"one":"prawie rok","few":"prawie %{count} lata","other":"prawie %{count} lat"}},"prompts":{"year":"Rok","month":"Miesi\u0105c","day":"Dzie\u0144","hour":"Godzina","minute":"Minuta","second":"Sekundy"}},"helpers":{"select":{"prompt":"Prosz\u0119 wybra\u0107"},"submit":{"create":"Utw\u00f3rz %{model}","update":"Aktualizuj %{model}","submit":"Zapisz %{model}"}},"errors":{"format":"%{attribute} %{message}","messages":{"inclusion":"nie znajduje si\u0119 na li\u015bcie dopuszczalnych warto\u015bci","exclusion":"jest zarezerwowane","invalid":"jest nieprawid\u0142owe","confirmation":"nie zgadza si\u0119 z potwierdzeniem","accepted":"musi zosta\u0107 zaakceptowane","empty":"nie mo\u017ce by\u0107 puste","blank":"nie mo\u017ce by\u0107 puste","too_long":"jest za d\u0142ugie (maksymalnie %{count} znak\u00f3w)","too_short":"jest za kr\u00f3tkie (przynajmniej %{count} znak\u00f3w)","wrong_length":"ma nieprawid\u0142ow\u0105 d\u0142ugo\u015b\u0107 (powinna wynosi\u0107 %{count} znak\u00f3w)","not_a_number":"nie jest liczb\u0105","not_an_integer":"musi by\u0107 liczb\u0105 ca\u0142kowit\u0105","greater_than":"musi by\u0107 wi\u0119ksze od %{count}","greater_than_or_equal_to":"musi by\u0107 wi\u0119ksze lub r\u00f3wne %{count}","equal_to":"musi by\u0107 r\u00f3wne %{count}","less_than":"musi by\u0107 mniejsze od %{count}","less_than_or_equal_to":"musi by\u0107 mniejsze lub r\u00f3wne %{count}","odd":"musi by\u0107 nieparzyste","even":"musi by\u0107 parzyste"}},"activerecord":{"errors":{"template":{"header":{"one":"%{model} nie zosta\u0142 zachowany z powodu jednego b\u0142\u0119du","other":"%{model} nie zosta\u0142 zachowany z powodu %{count} b\u0142\u0119d\u00f3w"},"body":"B\u0142\u0119dy dotycz\u0105 nast\u0119puj\u0105cych p\u00f3l:"},"messages":{"taken":"zosta\u0142o ju\u017c zaj\u0119te","record_invalid":"Negatywne sprawdzenie poprawno\u015bci: %{errors}","inclusion":"nie znajduje si\u0119 na li\u015bcie dopuszczalnych warto\u015bci","exclusion":"jest zarezerwowane","invalid":"jest nieprawid\u0142owe","confirmation":"nie zgadza si\u0119 z potwierdzeniem","accepted":"musi zosta\u0107 zaakceptowane","empty":"nie mo\u017ce by\u0107 puste","blank":"nie mo\u017ce by\u0107 puste","too_long":"jest za d\u0142ugie (maksymalnie %{count} znak\u00f3w)","too_short":"jest za kr\u00f3tkie (przynajmniej %{count} znak\u00f3w)","wrong_length":"ma nieprawid\u0142ow\u0105 d\u0142ugo\u015b\u0107 (powinna wynosi\u0107 %{count} znak\u00f3w)","not_a_number":"nie jest liczb\u0105","not_an_integer":"musi by\u0107 liczb\u0105 ca\u0142kowit\u0105","greater_than":"musi by\u0107 wi\u0119ksze od %{count}","greater_than_or_equal_to":"musi by\u0107 wi\u0119ksze lub r\u00f3wne %{count}","equal_to":"musi by\u0107 r\u00f3wne %{count}","less_than":"musi by\u0107 mniejsze od %{count}","less_than_or_equal_to":"musi by\u0107 mniejsze lub r\u00f3wne %{count}","odd":"musi by\u0107 nieparzyste","even":"musi by\u0107 parzyste"},"full_messages":{"format":"%{attribute} %{message}"}}}},"tr":{"locale":{"native_name":"T\u00fcrk\u00e7e","address_separator":" "},"date":{"formats":{"default":"%d.%m.%Y","numeric":"%d.%m.%Y","short":"%e %b","long":"%e %B %Y, %A","only_day":"%e"},"day_names":["Pazar","Pazartesi","Sal\u0131","\u00c7ar\u015famba","Per\u015fembe","Cuma","Cumartesi"],"abbr_day_names":["Pzr","Pzt","Sal","\u00c7r\u015f","Pr\u015f","Cum","Cts"],"month_names":[null,"Ocak","\u015eubat","Mart","Nisan","May\u0131s","Haziran","Temmuz","A\u011fustos","Eyl\u00fcl","Ekim","Kas\u0131m","Aral\u0131k"],"abbr_month_names":[null,"Oca","\u015eub","Mar","Nis","May","Haz","Tem","A\u011fu","Eyl","Eki","Kas","Ara"],"order":["day","month","year"]},"time":{"formats":{"default":"%a %d.%b.%y %H:%M","numeric":"%d.%b.%y %H:%M","short":"%e %B, %H:%M","long":"%e %B %Y, %A, %H:%M","time":"%H:%M"},"am":"\u00f6\u011fleden \u00f6nce","pm":"\u00f6\u011fleden sonra"},"datetime":{"distance_in_words":{"half_a_minute":"yar\u0131m dakika","less_than_x_seconds":{"zero":"1 saniyeden az","one":"1 saniyeden az","other":"%{count} saniyeden az"},"x_seconds":{"one":"1 saniye","other":"%{count} saniye"},"less_than_x_minutes":{"zero":"1 dakikadan az","one":"1 dakikadan az","other":"%{count} dakikadan az"},"x_minutes":{"one":"1 dakika","other":"%{count} dakika"},"about_x_hours":{"one":"yakla\u015f\u0131k 1 saat","other":"yakla\u015f\u0131k %{count} saat"},"x_days":{"one":"1 g\u00fcn","other":"%{count} g\u00fcn"},"about_x_months":{"one":"yakla\u015f\u0131k 1 ay","other":"yakla\u015f\u0131k %{count} ay"},"x_months":{"one":"1 ay","other":"%{count} ay"},"about_x_years":{"one":"yakla\u015f\u0131k 1 y\u0131l","other":"yakla\u015f\u0131k %{count} y\u0131l"},"over_x_years":{"one":"1 y\u0131ldan fazla","other":"%{count} y\u0131ldan fazla"},"almost_x_years":{"one":"neredeyse 1 y\u0131l","other":"neredeyse %{count} y\u0131l"}}},"number":{"format":{"precision":2,"separator":",","delimiter":"."},"currency":{"format":{"unit":"TL","format":"%n %u","separator":",","delimiter":".","precision":2}},"percentage":{"format":{"delimiter":".","separator":",","precision":2}},"precision":{"format":{"delimiter":".","separator":","}},"human":{"format":{"delimiter":".","separator":",","precision":2}}},"support":{"select":{"prompt":"L\u00fctfen se\u00e7iniz"},"array":{"sentence_connector":"ve","skip_last_comma":true,"words_connector":", ","two_words_connector":" ve ","last_word_connector":" ve "}},"activerecord":{"errors":{"template":{"header":{"one":"%{model} giri\u015fi kaydedilemedi: 1 hata.","other":"%{model} giri\u015fi kadedilemedi: %{count} hata."},"body":"L\u00fctfen a\u015fa\u011f\u0131daki hatalar\u0131 d\u00fczeltiniz:"},"messages":{"inclusion":"kabul edilen bir kelime de\u011fil","exclusion":"kullan\u0131lamaz","invalid":"ge\u00e7ersiz","confirmation":"teyidiyle uyu\u015fmamakta","accepted":"kabul edilmeli","empty":"doldurulmal\u0131","blank":"doldurulmal\u0131","too_long":"\u00e7ok uzun (en fazla %{count} karakter)","too_short":"\u00e7ok k\u0131sa (en az %{count} karakter)","wrong_length":"yanl\u0131\u015f uzunlukta (tam olarak %{count} karakter olmal\u0131)","taken":"hali haz\u0131rda kullan\u0131lmakta","not_a_number":"ge\u00e7erli bir say\u0131 de\u011fil","greater_than":"%{count} say\u0131s\u0131ndan b\u00fcy\u00fck olmal\u0131","greater_than_or_equal_to":"%{count} say\u0131s\u0131na e\u015fit veya b\u00fcy\u00fck olmal\u0131","equal_to":"tam olarak %{count} olmal\u0131","less_than":"%{count} say\u0131s\u0131ndan k\u00fc\u00e7\u00fck olmal\u0131","less_than_or_equal_to":"%{count} say\u0131s\u0131na e\u015fit veya k\u00fc\u00e7\u00fck olmal\u0131","odd":"tek olmal\u0131","even":"\u00e7ift olmal\u0131","record_invalid":"Do\u011frulama ba\u015far\u0131s\u0131z oldu: %{errors}"}}}},"sr":{"date":{"formats":{"default":"%d/%m/%Y","short":"%e %b","long":"%B %e, %Y","only_day":"%e"},"day_names":["\u041d\u0435\u0434\u0435\u0459\u0430","\u041f\u043e\u043d\u0435\u0434\u0435\u0459\u0430\u043a","\u0423\u0442\u043e\u0440\u0430\u043a","\u0421\u0440\u0435\u0434\u0430","\u0427\u0435\u0442\u0432\u0440\u0442\u0430\u043a","\u041f\u0435\u0442\u0430\u043a","\u0421\u0443\u0431\u043e\u0442\u0430"],"abbr_day_names":["\u041d\u0435\u0434","\u041f\u043e\u043d","\u0423\u0442\u043e","\u0421\u0440\u0435","\u0427\u0435\u0442","\u041f\u0435\u0442","\u0421\u0443\u0431"],"month_names":[null,"\u0408\u0430\u043d\u0443\u0430\u0440","\u0424\u0430\u0431\u0440\u0443\u0430\u0440","\u041c\u0430\u0440\u0442","\u0410\u043f\u0440\u0438\u043b","\u041c\u0430\u0458","\u0408\u0443\u043d","\u0408\u0443\u043b","\u0410\u0432\u0433\u0443\u0441\u0442","\u0421\u0435\u043f\u0442\u0435\u043c\u0431\u0430\u0440","\u041e\u043a\u0442\u043e\u0431\u0430\u0440","\u041d\u043e\u0432\u0435\u043c\u0431\u0430\u0440","\u0414\u0435\u0446\u0435\u043c\u0431\u0430\u0440"],"abbr_month_names":[null,"\u0408\u0430\u043d","\u0424\u0435\u0431","\u041c\u0430\u0440","\u0410\u043f\u0440","\u041c\u0430\u0458","\u0408\u0443\u043d","\u0408\u0443\u043b","\u0410\u0432\u0433","\u0421\u0435\u043f","\u041e\u043a\u0442","\u041d\u043e\u0432","\u0414\u0435\u0446"],"order":["day","month","year"]},"time":{"formats":{"default":"%a %b %d %H:%M:%S %Z %Y","time":"%H:%M","short":"%d %b %H:%M","long":"%B %d, %Y %H:%M","only_second":"%S","datetime":{"formats":{"default":"%Y-%m-%dT%H:%M:%S%Z"}},"am":"\u0410\u041c","pm":"\u041f\u041c"}},"datetime":{"distance_in_words":{"half_a_minute":"\u043f\u043e\u043b\u0430 \u043c\u0438\u043d\u0443\u0442\u0435","less_than_x_seconds":{"zero":"\u043c\u0430\u045a\u0435 \u043e\u0434 1 \u0441\u0435\u043a\u0443\u043d\u0434\u0435","one":"\u043c\u0430\u045a\u0435 \u043e\u0434 1 \u0441\u0435\u043a\u0443\u043d\u0434","few":"\u043c\u0430\u045a\u0435 \u043e\u0434 %{count} \u0441\u0435\u043a\u0443\u043d\u0434\u0435","other":"\u043c\u0430\u045a\u0435 \u043e\u0434 %{count} \u0441\u0435\u043a\u0443\u043d\u0434\u0438"},"x_seconds":{"one":"1 \u0441\u0435\u043a\u0443\u043d\u0434\u0430","few":"%{count} \u0441\u0435\u043a\u0443\u043d\u0434\u0435","other":"%{count} \u0441\u0435\u043a\u0443\u043d\u0434\u0438"},"less_than_x_minutes":{"zero":"\u043c\u0430\u045a\u0435 \u043e\u0434 \u043c\u0438\u043d\u0443\u0442\u0430","one":"\u043c\u0430\u045a\u0435 \u043e\u0434 1 \u043c\u0438\u043d\u0443\u0442","other":"\u043c\u0430\u045a\u0435 \u043e\u0434 %{count} \u043c\u0438\u043d\u0443\u0442\u0430"},"x_minutes":{"one":"1 \u043c\u0438\u043d\u0443\u0442","other":"%{count} \u043c\u0438\u043d\u0443\u0442\u0430"},"about_x_hours":{"one":"\u043e\u043a\u043e 1 \u0441\u0430\u0442","few":"\u043e\u043a\u043e %{count} \u0441\u0430\u0442\u0430","other":"\u043e\u043a\u043e %{count} \u0441\u0430\u0442\u0438"},"x_days":{"one":"1 \u0434\u0430\u043d","other":"%{count} \u0434\u0430\u043d\u0430"},"about_x_months":{"one":"\u043e\u043a\u043e 1 \u043c\u0435\u0441\u0435\u0446","few":"\u043e\u043a\u043e %{count} \u043c\u0435\u0441\u0435\u0446\u0430","other":"\u043e\u043a\u043e %{count} \u043c\u0435\u0441\u0435\u0446\u0438"},"x_months":{"one":"1 \u043c\u0435\u0441\u0435\u0446","few":"%{count} \u043c\u0435\u0441\u0435\u0446\u0430","other":"%{count} \u043c\u0435\u0441\u0435\u0446\u0438"},"about_x_years":{"one":"\u043e\u043a\u043e 1 \u0433\u043e\u0434\u0438\u043d\u0435","other":"\u043e\u043a\u043e %{count} \u0433\u043e\u0434\u0438\u043d\u0435"},"over_x_years":{"one":"\u043f\u0440\u0435\u043a\u043e 1 \u0433\u043e\u0434\u0438\u043d\u0435","other":"\u043f\u0440\u0435\u043a\u043e %{count} \u0433\u043e\u0434\u0438\u043d\u0435"}}},"number":{"format":{"precision":3,"separator":",","delimiter":"."},"currency":{"format":{"unit":"\u0414\u0418\u041d","precision":2,"format":"%n %u"}}},"support":{"array":{"sentence_connector":"\u0438"}},"activerecord":{"errors":{"template":{"header":{"one":"\u041d\u0438\u0441\u0430\u043c \u0443\u0441\u043f\u0435\u043e \u0441\u0430\u0447\u0443\u0432\u0430\u0442\u0438 %{model}: 1 \u0433\u0440\u0435\u0448\u043a\u0430.","few":"\u041d\u0438\u0441\u0430\u043c \u0443\u0441\u043f\u0435\u043e \u0441\u0430\u0447\u0443\u0432\u0430\u0442\u0438 %{model}: %{count} \u0433\u0440\u0435\u0448\u043a\u0435.","other":"\u041d\u0438\u0441\u0430\u043c \u0443\u0441\u043f\u0435\u043e \u0441\u0430\u0447\u0443\u0432\u0430\u0442\u0438 %{model}: %{count} \u0433\u0440\u0435\u0448\u043a\u0438."},"body":"\u041c\u043e\u043b\u0438\u043c \u0412\u0430\u0441 \u0434\u0430 \u043f\u0440\u043e\u0432\u0435\u0440\u0438\u0442\u0435 \u0441\u043b\u0435\u0434\u0435\u045b\u0430 \u043f\u043e\u0459\u0430:"},"messages":{"inclusion":"\u043d\u0438\u0458\u0435 \u0443 \u043b\u0438\u0441\u0442\u0438","exclusion":"\u043d\u0438\u0458\u0435 \u0434\u043e\u0441\u0442\u0443\u043f\u043d\u043e","invalid":"\u043d\u0438\u0458\u0435 \u0438\u0441\u043f\u0440\u0430\u0432\u0430\u043d","confirmation":"\u0441\u0435 \u043d\u0435 \u0441\u043b\u0430\u0436\u0435 \u0441\u0430 \u0441\u0432\u043e\u0458\u043e\u043c \u043f\u043e\u0442\u0432\u0440\u0434\u043e\u043c","accepted":"\u043c\u043e\u0440\u0430 \u0431\u0438\u0442\u0438 \u043f\u0440\u0438\u0445\u0432\u0430\u045b\u0435\u043d\u043e","empty":"\u043c\u043e\u0440\u0430 \u0431\u0438\u0442\u0438 \u0434\u0430\u0442","blank":"\u043c\u043e\u0440\u0430 \u0431\u0438\u0442\u0438 \u0434\u0430\u0442","too_long":"\u0458\u0435 \u043f\u0440\u0435\u0434\u0443\u0433\u0430\u0447\u0430\u043a (\u043d\u0435 \u0432\u0438\u0448\u0435 \u043e\u0434 %{count} \u043a\u0430\u0440\u0430\u043a\u0442\u0435\u0440\u0430)","too_short":"\u0458\u0435 \u043f\u0440\u0435\u043a\u0440\u0430\u0442\u0430\u043a (\u043d\u0435 \u043c\u0430\u045a\u0435 \u043e\u0434 %{count} \u043a\u0430\u0440\u0430\u043a\u0442\u0435\u0440\u0430)","wrong_length":"\u043d\u0438\u0458\u0435 \u043e\u0434\u0433\u043e\u0432\u0430\u0440\u0430\u0458\u0443\u045b\u0435 \u0434\u0443\u0436\u0438\u043d\u0435 (\u043c\u043e\u0440\u0430 \u0438\u043c\u0430\u0442\u0438 %{count} \u043a\u0430\u0440\u0430\u043a\u0442\u0435\u0440\u0430)","taken":"\u0458\u0435 \u0437\u0430\u0443\u0437\u0435\u0442\u043e","not_a_number":"\u043d\u0438\u0458\u0435 \u0431\u0440\u043e\u0458","greater_than":"\u043c\u043e\u0440\u0430 \u0431\u0438\u0442\u0438 \u0432\u0435\u045b\u0435 \u043e\u0434 %{count}","greater_than_or_equal_to":"\u043c\u043e\u0440\u0430 \u0431\u0438\u0442\u0438 \u0432\u0435\u045b\u0435 \u0438\u043b\u0438 \u0458\u0435\u0434\u043d\u0430\u043a\u043e %{count}","equal_to":"\u043a\u043e\u0440\u0430 \u0431\u0438\u0442\u0438 \u0458\u0435\u0434\u043d\u0430\u043a\u043e %{count}","less_than":"\u043c\u043e\u0440\u0430 \u0431\u0438\u0442\u0438 \u043c\u0430\u045a\u0435 \u043e\u0434 %{count}","less_than_or_equal_to":"\u043c\u043e\u0440\u0430 \u0431\u0438\u0442\u0438 \u043c\u0430\u045a\u0435 \u0438\u043b\u0438 \u0458\u0435\u0434\u043d\u0430\u043a\u043e %{count}","odd":"\u043c\u043e\u0440\u0430 \u0431\u0438\u0442\u0438 \u043d\u0435\u043f\u0430\u0440\u043d\u043e","even":"\u043c\u043e\u0440\u0430 \u0431\u0438\u0442\u0438 \u043f\u0430\u0440\u043d\u043e"}}}},"pt-BR":{"date":{"formats":{"default":"%d/%m/%Y","short":"%d de %B","long":"%d de %B de %Y"},"day_names":["Domingo","Segunda","Ter\u00e7a","Quarta","Quinta","Sexta","S\u00e1bado"],"abbr_day_names":["Dom","Seg","Ter","Qua","Qui","Sex","S\u00e1b"],"month_names":[null,"Janeiro","Fevereiro","Mar\u00e7o","Abril","Maio","Junho","Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"],"abbr_month_names":[null,"Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"],"order":["day","month","year"]},"time":{"formats":{"default":"%A, %d de %B de %Y, %H:%M h","short":"%d/%m, %H:%M h","long":"%A, %d de %B de %Y, %H:%M h"},"am":"","pm":""},"support":{"array":{"words_connector":", ","two_words_connector":" e ","last_word_connector":" e "},"select":{"prompt":"Por favor selecione"}},"number":{"format":{"separator":",","delimiter":".","precision":3,"significant":false,"strip_insignificant_zeros":false},"currency":{"format":{"format":"%u %n","unit":"R$","separator":",","delimiter":".","precision":2,"significant":false,"strip_insignificant_zeros":false}},"percentage":{"format":{"delimiter":"."}},"precision":{"format":{"delimiter":"."}},"human":{"format":{"delimiter":".","precision":2,"significant":true,"strip_insignificant_zeros":true},"storage_units":{"format":"%n %u","units":{"byte":{"one":"Byte","other":"Bytes"},"kb":"KB","mb":"MB","gb":"GB","tb":"TB"}},"decimal_units":{"format":"%n %u","units":{"unit":"","thousand":"mil","million":{"one":"milh\u00e3o","other":"milh\u00f5es"},"billion":{"one":"bilh\u00e3o","other":"bilh\u00f5es"},"trillion":{"one":"trilh\u00e3o","other":"trilh\u00f5es"},"quadrillion":{"one":"quatrilh\u00e3o","other":"quatrilh\u00f5es"}}}}},"datetime":{"distance_in_words":{"half_a_minute":"meio minuto","less_than_x_seconds":{"one":"menos de 1 segundo","other":"menos de %{count} segundos"},"x_seconds":{"one":"1 segundo","other":"%{count} segundos"},"less_than_x_minutes":{"one":"menos de um minuto","other":"menos de %{count} minutos"},"x_minutes":{"one":"1 minuto","other":"%{count} minutos"},"about_x_hours":{"one":"aproximadamente 1 hora","other":"aproximadamente %{count} horas"},"x_days":{"one":"1 dia","other":"%{count} dias"},"about_x_months":{"one":"aproximadamente 1 m\u00eas","other":"aproximadamente %{count} meses"},"x_months":{"one":"1 m\u00eas","other":"%{count} meses"},"about_x_years":{"one":"aproximadamente 1 ano","other":"aproximadamente %{count} anos"},"over_x_years":{"one":"mais de 1 ano","other":"mais de %{count} anos"},"almost_x_years":{"one":"quase 1 ano","other":"quase %{count} anos"}},"prompts":{"year":"Ano","month":"M\u00eas","day":"Dia","hour":"Hora","minute":"Minuto","second":"Segundo"}},"helpers":{"select":{"prompt":"Por favor selecione"},"submit":{"create":"Criar %{model}","update":"Atualizar %{model}","submit":"Salvar %{model}"}},"errors":{"format":"%{attribute} %{message}","template":{"header":{"one":"N\u00e3o foi poss\u00edvel gravar %{model}: 1 erro","other":"N\u00e3o foi poss\u00edvel gravar %{model}: %{count} erros."},"body":"Por favor, verifique o(s) seguinte(s) campo(s):"},"messages":{"inclusion":"n\u00e3o est\u00e1 inclu\u00eddo na lista","exclusion":"n\u00e3o est\u00e1 dispon\u00edvel","invalid":"n\u00e3o \u00e9 v\u00e1lido","confirmation":"n\u00e3o est\u00e1 de acordo com a confirma\u00e7\u00e3o","accepted":"deve ser aceito","empty":"n\u00e3o pode ficar vazio","blank":"n\u00e3o pode ficar em branco","too_long":"\u00e9 muito longo (m\u00e1ximo: %{count} caracteres)","too_short":"\u00e9 muito curto (m\u00ednimo: %{count} caracteres)","wrong_length":"n\u00e3o possui o tamanho esperado (%{count} caracteres)","not_a_number":"n\u00e3o \u00e9 um n\u00famero","not_an_integer":"n\u00e3o \u00e9 um n\u00famero inteiro","greater_than":"deve ser maior que %{count}","greater_than_or_equal_to":"deve ser maior ou igual a %{count}","equal_to":"deve ser igual a %{count}","less_than":"deve ser menor que %{count}","less_than_or_equal_to":"deve ser menor ou igual a %{count}","odd":"deve ser \u00edmpar","even":"deve ser par"}},"activerecord":{"errors":{"template":{"header":{"one":"N\u00e3o foi poss\u00edvel gravar %{model}: 1 erro","other":"N\u00e3o foi poss\u00edvel gravar %{model}: %{count} erros."},"body":"Por favor, verifique o(s) seguinte(s) campo(s):"},"messages":{"taken":"j\u00e1 est\u00e1 em uso","record_invalid":"A valida\u00e7\u00e3o falhou: %{errors}","inclusion":"n\u00e3o est\u00e1 inclu\u00eddo na lista","exclusion":"n\u00e3o est\u00e1 dispon\u00edvel","invalid":"n\u00e3o \u00e9 v\u00e1lido","confirmation":"n\u00e3o est\u00e1 de acordo com a confirma\u00e7\u00e3o","accepted":"deve ser aceito","empty":"n\u00e3o pode ficar vazio","blank":"n\u00e3o pode ficar em branco","too_long":"\u00e9 muito longo (m\u00e1ximo: %{count} caracteres)","too_short":"\u00e9 muito curto (m\u00ednimo: %{count} caracteres)","wrong_length":"n\u00e3o possui o tamanho esperado (%{count} caracteres)","not_a_number":"n\u00e3o \u00e9 um n\u00famero","not_an_integer":"n\u00e3o \u00e9 um n\u00famero inteiro","greater_than":"deve ser maior que %{count}","greater_than_or_equal_to":"deve ser maior ou igual a %{count}","equal_to":"deve ser igual a %{count}","less_than":"deve ser menor que %{count}","less_than_or_equal_to":"deve ser menor ou igual a %{count}","odd":"deve ser \u00edmpar","even":"deve ser par"},"full_messages":{"format":"%{attribute} %{message}"}}}},"sv-SE":{"number":{"format":{"separator":",","delimiter":"\u00a0","precision":2,"significant":false,"strip_insignificant_zeros":false},"currency":{"format":{"format":"%n %u","negative_format":"-%n %u","unit":"kr"}},"percentage":{"format":{"delimiter":""}},"precision":{"format":{"delimiter":""}},"human":{"format":{"delimiter":"","precision":1},"storage_units":{"format":"%n %u","units":{"byte":{"one":"Byte","other":"Bytes"},"kb":"KB","mb":"MB","gb":"GB","tb":"TB"}},"decimal_units":{"format":"%n %u","units":{"unit":"","thousand":"Tusen","million":"Miljon","billion":"Miljard","trillion":"Biljon","quadrillion":"Biljard"}}}},"datetime":{"distance_in_words":{"half_a_minute":"en halv minut","less_than_x_seconds":{"one":"mindre \u00e4n en sekund","other":"mindre \u00e4n %{count} sekunder"},"x_seconds":{"one":"en sekund","other":"%{count} sekunder"},"less_than_x_minutes":{"one":"mindre \u00e4n en minut","other":"mindre \u00e4n %{count} minuter"},"x_minutes":{"one":"en minut","other":"%{count} minuter"},"about_x_hours":{"one":"ungef\u00e4r en timme","other":"ungef\u00e4r %{count} timmar"},"x_days":{"one":"en dag","other":"%{count} dagar"},"about_x_months":{"one":"ungef\u00e4r en m\u00e5nad","other":"ungef\u00e4r %{count} m\u00e5nader"},"x_months":{"one":"en m\u00e5nad","other":"%{count} m\u00e5nader"},"about_x_years":{"one":"ungef\u00e4r ett \u00e5r","other":"ungef\u00e4r %{count} \u00e5r"},"over_x_years":{"one":"mer \u00e4n ett \u00e5r","other":"mer \u00e4n %{count} \u00e5r"},"almost_x_years":{"one":"n\u00e4stan ett \u00e5r","other":"n\u00e4stan %{count} \u00e5r"}},"prompts":{"year":"\u00c5r","month":"M\u00e5nad","day":"Dag","hour":"Timme","minute":"Minut","second":"Sekund"}},"helpers":{"select":{"prompt":"V\u00e4lj"},"submit":{"create":"Skapa %{model}","update":"\u00c4ndra %{model}","submit":"Spara %{model}"}},"errors":{"format":"%{attribute} %{message}","messages":{"inclusion":"finns inte i listan","exclusion":"\u00e4r reserverat","invalid":"har fel format","confirmation":"st\u00e4mmer inte \u00f6verens","accepted":"m\u00e5ste vara accepterad","empty":"f\u00e5r ej vara tom","blank":"m\u00e5ste anges","too_long":"\u00e4r f\u00f6r l\u00e5ng (maximum \u00e4r %{count} tecken)","too_short":"\u00e4r f\u00f6r kort (minimum \u00e4r %{count} tecken)","wrong_length":"har fel l\u00e4ngd (ska vara %{count} tecken)","taken":"har redan tagits","not_a_number":"\u00e4r inte ett nummer","not_an_integer":"m\u00e5ste vara ett heltal","greater_than":"m\u00e5ste vara st\u00f6rre \u00e4n %{count}","greater_than_or_equal_to":"m\u00e5ste vara st\u00f6rre \u00e4n eller lika med %{count}","equal_to":"m\u00e5ste vara samma som","less_than":"m\u00e5ste vara mindre \u00e4n %{count}","less_than_or_equal_to":"m\u00e5ste vara mindre \u00e4n eller lika med %{count}","odd":"m\u00e5ste vara udda","even":"m\u00e5ste vara j\u00e4mnt","record_invalid":"Ett fel uppstod: %{errors}","not_saved":"Kunde inte sparas"}},"activerecord":{"errors":{"template":{"header":{"one":"Ett fel f\u00f6rhindrade denna %{model} fr\u00e5n att sparas","other":"%{count} fel f\u00f6rhindrade denna %{model} fr\u00e5n att sparas"},"body":"Det var problem med f\u00f6ljande f\u00e4lt:"},"messages":{"taken":"har redan tagits","record_invalid":"Ett fel uppstod: %{errors}","inclusion":"finns inte i listan","exclusion":"\u00e4r reserverat","invalid":"har fel format","confirmation":"st\u00e4mmer inte \u00f6verens","accepted":"m\u00e5ste vara accepterad","empty":"f\u00e5r ej vara tom","blank":"m\u00e5ste anges","too_long":"\u00e4r f\u00f6r l\u00e5ng (maximum \u00e4r %{count} tecken)","too_short":"\u00e4r f\u00f6r kort (minimum \u00e4r %{count} tecken)","wrong_length":"har fel l\u00e4ngd (ska vara %{count} tecken)","not_a_number":"\u00e4r inte ett nummer","not_an_integer":"m\u00e5ste vara ett heltal","greater_than":"m\u00e5ste vara st\u00f6rre \u00e4n %{count}","greater_than_or_equal_to":"m\u00e5ste vara st\u00f6rre \u00e4n eller lika med %{count}","equal_to":"m\u00e5ste vara samma som","less_than":"m\u00e5ste vara mindre \u00e4n %{count}","less_than_or_equal_to":"m\u00e5ste vara mindre \u00e4n eller lika med %{count}","odd":"m\u00e5ste vara udda","even":"m\u00e5ste vara j\u00e4mnt","not_saved":"Kunde inte sparas"},"full_messages":{"format":"%{attribute} %{message}"}}},"date":{"formats":{"default":"%Y-%m-%d","short":"%e %b","long":"%e %B %Y"},"day_names":["s\u00f6ndag","m\u00e5ndag","tisdag","onsdag","torsdag","fredag","l\u00f6rdag"],"abbr_day_names":["s\u00f6n","m\u00e5n","tis","ons","tor","fre","l\u00f6r"],"month_names":[null,"januari","februari","mars","april","maj","juni","juli","augusti","september","oktober","november","december"],"abbr_month_names":[null,"jan","feb","mar","apr","maj","jun","jul","aug","sep","okt","nov","dec"],"order":["day","month","year"]},"time":{"formats":{"default":"%a, %e %b %Y %H:%M:%S %z","short":"%e %b %H:%M","long":"%e %B %Y %H:%M"},"am":"","pm":""},"support":{"array":{"words_connector":", ","two_words_connector":" och ","last_word_connector":" och "},"select":{"prompt":"V\u00e4lj"}}},"uk":{"number":{"format":{"separator":",","delimiter":" ","precision":3,"significant":false,"strip_insignificant_zeros":false},"currency":{"format":{"format":"%n %u","unit":"\u0433\u0440\u043d.","separator":",","delimiter":" ","precision":2,"significant":false,"strip_insignificant_zeros":false}},"percentage":{"format":{"delimiter":""}},"precision":{"format":{"delimiter":""}},"human":{"format":{"delimiter":"","precision":1,"significant":false,"strip_insignificant_zeros":false},"storage_units":{"format":"%n %u","units":{"byte":{"one":"\u0431\u0430\u0439\u0442","few":"\u0431\u0430\u0439\u0442\u0438","many":"\u0431\u0430\u0439\u0442\u0456\u0432","other":"\u0431\u0430\u0439\u0442\u0443"},"kb":"\u043a\u0411","mb":"\u041c\u0411","gb":"\u0413\u0411","tb":"\u0422\u0411"}},"decimal_units":{"format":"%n %u","units":{"unit":"","thousand":{"one":"\u0422\u0438\u0441\u044f\u0447\u0430","few":"\u0422\u0438\u0441\u044f\u0447","many":"\u0422\u0438\u0441\u044f\u0447","other":"\u0422\u0438\u0441\u044f\u0447"},"million":{"one":"\u041c\u0456\u043b\u044c\u0439\u043e\u043d","few":"\u041c\u0456\u043b\u044c\u0439\u043e\u043d\u0456\u0432","many":"\u041c\u0456\u043b\u044c\u0439\u043e\u043d\u0456\u0432","other":"\u041c\u0456\u043b\u044c\u0439\u043e\u043d\u0456\u0432"},"billion":{"one":"\u041c\u0456\u043b\u044c\u044f\u0440\u0434","few":"\u041c\u0456\u043b\u044c\u044f\u0440\u0434\u0456\u0432","many":"\u041c\u0456\u043b\u044c\u044f\u0440\u0434\u0456\u0432","other":"\u041c\u0456\u043b\u044c\u044f\u0440\u0434\u0456\u0432"},"trillion":{"one":"\u0422\u0440\u0438\u043b\u044c\u0439\u043e\u043d","few":"\u0422\u0440\u0438\u043b\u044c\u0439\u043e\u043d\u0456\u0432","many":"\u0422\u0440\u0438\u043b\u044c\u0439\u043e\u043d\u0456\u0432","other":"\u0422\u0440\u0438\u043b\u044c\u0439\u043e\u043d\u0456\u0432"},"quadrillion":{"one":"\u041a\u043a\u0432\u0430\u0434\u0440\u0438\u043b\u044c\u0439\u043e\u043d","few":"\u041a\u0432\u0430\u0434\u0440\u0438\u043b\u044c\u0439\u043e\u043d\u0456\u0432","many":"\u041a\u0432\u0430\u0434\u0440\u0438\u043b\u044c\u0439\u043e\u043d\u0456\u0432","other":"\u041a\u0432\u0430\u0434\u0440\u0438\u043b\u044c\u0439\u043e\u043d\u0456\u0432"}}}}},"datetime":{"distance_in_words":{"half_a_minute":"\u043f\u0456\u0432\u0445\u0432\u0438\u043b\u0438\u043d\u0438","less_than_x_seconds":{"one":"\u043c\u0435\u043d\u0448\u0435 %{count} \u0441\u0435\u043a\u0443\u043d\u0434\u0438","few":"\u043c\u0435\u043d\u0448\u0435 %{count} \u0441\u0435\u043a\u0443\u043d\u0434","many":"\u043c\u0435\u043d\u0448\u0435 %{count} \u0441\u0435\u043a\u0443\u043d\u0434","other":"\u043c\u0435\u043d\u0448\u0435 %{count} \u0441\u0435\u043a\u0443\u043d\u0434\u0438"},"x_seconds":{"one":"%{count} \u0441\u0435\u043a\u0443\u043d\u0434\u0430","few":"%{count} \u0441\u0435\u043a\u0443\u043d\u0434\u0438","many":"%{count} \u0441\u0435\u043a\u0443\u043d\u0434","other":"%{count} \u0441\u0435\u043a\u0443\u043d\u0434\u0438"},"less_than_x_minutes":{"one":"\u043c\u0435\u043d\u0448\u0435 %{count} \u0445\u0432\u0438\u043b\u0438\u043d\u0438","few":"\u043c\u0435\u043d\u0448\u0435 %{count} \u0445\u0432\u0438\u043b\u0438\u043d","many":"\u043c\u0435\u043d\u0448\u0435 %{count} \u0445\u0432\u0438\u043b\u0438\u043d","other":"\u043c\u0435\u043d\u0448\u0435 %{count} \u0445\u0432\u0438\u043b\u0438\u043d\u0438"},"x_minutes":{"one":"%{count} \u0445\u0432\u0438\u043b\u0438\u043d\u0430","few":"%{count} \u0445\u0432\u0438\u043b\u0438\u043d\u0438","many":"%{count} \u0445\u0432\u0438\u043b\u0438\u043d","other":"%{count} \u0445\u0432\u0438\u043b\u0438\u043d\u0438"},"about_x_hours":{"one":"\u0431\u043b\u0438\u0437\u044c\u043a\u043e %{count} \u0433\u043e\u0434\u0438\u043d\u0430","few":"\u0431\u043b\u0438\u0437\u044c\u043a\u043e %{count} \u0433\u043e\u0434\u0438\u043d\u0438","many":"\u0431\u043b\u0438\u0437\u044c\u043a\u043e %{count} \u0433\u043e\u0434\u0438\u043d","other":"\u0431\u043b\u0438\u0437\u044c\u043a\u043e %{count} \u0433\u043e\u0434\u0438\u043d\u0438"},"x_days":{"one":"%{count} \u0434\u0435\u043d\u044c","few":"%{count} \u0434\u043d\u0456","many":"%{count} \u0434\u043d\u0456\u0432","other":"%{count} \u0434\u043d\u044f"},"about_x_months":{"one":"\u0431\u043b\u0438\u0437\u044c\u043a\u043e %{count} \u043c\u0456\u0441\u044f\u0446\u044f","few":"\u0431\u043b\u0438\u0437\u044c\u043a\u043e %{count} \u043c\u0456\u0441\u044f\u0446\u0456\u0432","many":"\u0431\u043b\u0438\u0437\u044c\u043a\u043e %{count} \u043c\u0456\u0441\u044f\u0446\u0456\u0432","other":"\u0431\u043b\u0438\u0437\u044c\u043a\u043e %{count} \u043c\u0456\u0441\u044f\u0446\u044f"},"x_months":{"one":"%{count} \u043c\u0456\u0441\u044f\u0446\u044c","few":"%{count} \u043c\u0456\u0441\u044f\u0446\u0456","many":"%{count} \u043c\u0456\u0441\u044f\u0446\u0456\u0432","other":"%{count} \u043c\u0456\u0441\u044f\u0446\u044f"},"about_x_years":{"one":"\u0431\u043b\u0438\u0437\u044c\u043a\u043e %{count} \u0440\u043e\u043a\u0443","few":"\u0431\u043b\u0438\u0437\u044c\u043a\u043e %{count} \u0440\u043e\u043a\u0456\u0432","many":"\u0431\u043b\u0438\u0437\u044c\u043a\u043e %{count} \u0440\u043e\u043a\u0456\u0432","other":"\u0431\u043b\u0438\u0437\u044c\u043a\u043e %{count} \u0440\u043e\u043a\u0443"},"over_x_years":{"one":"\u0431\u0456\u043b\u044c\u0448\u0435 %{count} \u0440\u043e\u043a\u0443","few":"\u0431\u0456\u043b\u044c\u0448\u0435 %{count} \u0440\u043e\u043a\u0456\u0432","many":"\u0431\u0456\u043b\u044c\u0448\u0435 %{count} \u0440\u043e\u043a\u0456\u0432","other":"\u0431\u0456\u043b\u044c\u0448\u0435 %{count} \u0440\u043e\u043a\u0443"},"almost_x_years":{"one":"\u043c\u0430\u0439\u0436\u0435 %{count} \u0440\u043e\u043a\u0438","few":"\u043c\u0430\u0439\u0436\u0435 %{count} \u0440\u043e\u043a\u0456\u0432","many":"\u043c\u0430\u0439\u0436\u0435 %{count} \u0440\u043e\u043a\u0456\u0432","other":"\u043c\u0430\u0439\u0436\u0435 %{count} \u0440\u043e\u043a\u0456\u0432"}},"prompts":{"year":"\u0420\u0456\u043a","month":"\u041c\u0456\u0441\u044f\u0446\u044c","day":"\u0414\u0435\u043d\u044c","hour":"\u0413\u043e\u0434\u0438\u043d\u0430","minute":"\u0425\u0432\u0438\u043b\u0438\u043d\u0430","second":"\u0421\u0435\u043a\u0443\u043d\u0434\u0430"}},"helpers":{"select":{"prompt":"\u041e\u0431\u0435\u0440\u0456\u0442\u044c: "},"submit":{"create":"\u0421\u0442\u0432\u043e\u0440\u0438\u0442\u0438 %{model}","update":"\u0417\u0431\u0435\u0440\u0435\u0433\u0442\u0438 %{model}","submit":"\u0417\u0431\u0435\u0440\u0435\u0433\u0442\u0438 %{model}"}},"errors":{"format":"%{attribute} %{message}","messages":{"inclusion":"\u043d\u0435 \u0432\u043a\u043b\u044e\u0447\u0435\u043d\u043e \u0434\u043e \u043f\u0435\u0440\u0435\u043b\u0456\u043a\u0443","exclusion":"\u0437\u0430\u0440\u0435\u0437\u0435\u0440\u0432\u043e\u0432\u0430\u043d\u043e","invalid":"\u043d\u0435\u0434\u0456\u0439\u0441\u043d\u0438\u0439","confirmation":"\u043d\u0435 \u0437\u0431\u0456\u0433\u0430\u0454\u0442\u044c\u0441\u044f \u0437 \u043f\u0456\u0434\u0442\u0432\u0435\u0440\u0434\u0436\u0435\u043d\u043d\u044f\u043c","accepted":"\u043c\u0430\u0454 \u0431\u0443\u0442\u0438 \u043f\u0440\u0438\u0439\u043d\u044f\u0442\u0438\u0439","empty":"\u043d\u0435 \u043c\u043e\u0436\u0435 \u0431\u0443\u0442\u0438 \u043f\u043e\u0440\u043e\u0436\u043d\u0456\u043c","blank":"\u043d\u0435 \u043c\u043e\u0436\u0435 \u0431\u0443\u0442\u0438 \u043f\u0443\u0441\u0442\u0438\u043c","too_long":{"one":"\u0437\u0430\u043d\u0430\u0434\u0442\u043e \u0434\u043e\u0432\u0433\u0438\u0439 (\u043c\u0430\u043a\u0441\u0438\u043c\u0443\u043c %{count} \u0437\u043d\u0430\u043a)","few":"\u0437\u0430\u043d\u0430\u0434\u0442\u043e \u0434\u043e\u0432\u0433\u0438\u0439 (\u043c\u0430\u043a\u0441\u0438\u043c\u0443\u043c %{count} \u0437\u043d\u0430\u043a\u0438)","many":"\u0437\u0430\u043d\u0430\u0434\u0442\u043e \u0434\u043e\u0432\u0433\u0438\u0439 (\u043c\u0430\u043a\u0441\u0438\u043c\u0443\u043c %{count} \u0437\u043d\u0430\u043a\u0456\u0432)","other":"\u0437\u0430\u043d\u0430\u0434\u0442\u043e \u0434\u043e\u0432\u0433\u0438\u0439 (\u043c\u0430\u043a\u0441\u0438\u043c\u0443\u043c %{count} \u0437\u043d\u0430\u043a\u0443)"},"too_short":{"one":"\u0437\u0430\u043d\u0430\u0434\u0442\u043e \u043a\u043e\u0440\u043e\u0442\u043a\u0438\u0439 (\u043c\u0456\u043d\u0456\u043c\u0443\u043c %{count} \u0437\u043d\u0430\u043a)","few":"\u0437\u0430\u043d\u0430\u0434\u0442\u043e \u043a\u043e\u0440\u043e\u0442\u043a\u0438\u0439 (\u043c\u0456\u043d\u0456\u043c\u0443\u043c %{count} \u0437\u043d\u0430\u043a\u0438)","many":"\u0437\u0430\u043d\u0430\u0434\u0442\u043e \u043a\u043e\u0440\u043e\u0442\u043a\u0438\u0439 (\u043c\u0456\u043d\u0456\u043c\u0443\u043c %{count} \u0437\u043d\u0430\u043a\u0456\u0432)","other":"\u0437\u0430\u043d\u0430\u0434\u0442\u043e \u043a\u043e\u0440\u043e\u0442\u043a\u0438\u0439 (\u043c\u0456\u043d\u0456\u043c\u0443\u043c %{count} \u0437\u043d\u0430\u043a\u0443)"},"wrong_length":{"one":"\u043d\u0435\u043f\u0440\u0430\u0432\u0438\u043b\u044c\u043d\u0430 \u0434\u043e\u0432\u0436\u0438\u043d\u0430 (\u043c\u0430\u0454 \u0431\u0443\u0442\u0438 %{count} \u0437\u043d\u0430\u043a)","few":"\u043d\u0435\u043f\u0440\u0430\u0432\u0438\u043b\u044c\u043d\u0430 \u0434\u043e\u0432\u0436\u0438\u043d\u0430 (\u043c\u0430\u0454 \u0431\u0443\u0442\u0438 %{count} \u0437\u043d\u0430\u043a\u0438)","many":"\u043d\u0435\u043f\u0440\u0430\u0432\u0438\u043b\u044c\u043d\u0430 \u0434\u043e\u0432\u0436\u0438\u043d\u0430 (\u043c\u0430\u0454 \u0431\u0443\u0442\u0438 %{count} \u0437\u043d\u0430\u043a\u0456\u0432)","other":"\u043d\u0435\u043f\u0440\u0430\u0432\u0438\u043b\u044c\u043d\u0430 \u0434\u043e\u0432\u0436\u0438\u043d\u0430 (\u043c\u0430\u0454 \u0431\u0443\u0442\u0438 %{count} \u0437\u043d\u0430\u043a\u0443)"},"taken":"\u0432\u0436\u0435 \u0437\u0430\u0439\u043d\u044f\u0442\u0438\u0439","not_a_number":"\u043d\u0435 \u0447\u0438\u0441\u043b\u043e","not_an_integer":"\u043d\u0435 \u044d \u0446\u0456\u043b\u0438\u043c \u0447\u0438\u0441\u043b\u043e\u043c","greater_than":"\u043c\u0430\u0454 \u0431\u0443\u0442\u0438 \u0431\u0456\u043b\u044c\u0448\u0435 \u043d\u0456\u0436 %{count}","greater_than_or_equal_to":"\u043c\u0430\u0454 \u0431\u0443\u0442\u0438 \u0431\u0456\u043b\u044c\u0448\u0435 \u043d\u0456\u0436 \u0430\u0431\u043e \u0434\u043e\u0440\u0456\u0432\u043d\u044e\u0432\u0430\u0442\u0438 %{count}","equal_to":"\u043c\u0430\u0454 \u0434\u043e\u0440\u0456\u0432\u043d\u044e\u0432\u0430\u0442\u0438 %{count}","less_than":"\u043c\u0430\u0454 \u0431\u0443\u0442\u0438 \u043c\u0435\u043d\u0448\u0435 \u043d\u0456\u0436 %{count}","less_than_or_equal_to":"\u043c\u0430\u0454 \u0431\u0443\u0442\u0438 \u043c\u0435\u043d\u0448\u0435 \u043d\u0456\u0436 \u0430\u0431\u043e \u0434\u043e\u0440\u0456\u0432\u043d\u044e\u0432\u0430\u0442\u0438 %{count}","odd":"\u043c\u0430\u0454 \u0431\u0443\u0442\u0438 \u043d\u0435\u043f\u0430\u0440\u043d\u0438\u043c","even":"\u043c\u0430\u0454 \u0431\u0443\u0442\u0438 \u043f\u0430\u0440\u043d\u0438\u043c","record_invalid":"\u0412\u0438\u043d\u0438\u043a\u043b\u0438 \u043f\u043e\u043c\u0438\u043b\u043a\u0438: %{errors}"}},"activerecord":{"errors":{"template":{"header":{"one":"%{model} \u043d\u0435 \u0437\u0431\u0435\u0440\u0435\u0436\u0435\u043d\u043e \u0447\u0435\u0440\u0435\u0437 %{count} \u043f\u043e\u043c\u0438\u043b\u043a\u0443","few":"%{model} \u043d\u0435 \u0437\u0431\u0435\u0440\u0435\u0436\u0435\u043d\u043e \u0447\u0435\u0440\u0435\u0437 %{count} \u043f\u043e\u043c\u0438\u043b\u043a\u0438","many":"%{model} \u043d\u0435 \u0437\u0431\u0435\u0440\u0435\u0436\u0435\u043d\u043e \u0447\u0435\u0440\u0435\u0437 %{count} \u043f\u043e\u043c\u0438\u043b\u043e\u043a","other":"%{model} \u043d\u0435 \u0437\u0431\u0435\u0440\u0435\u0436\u0435\u043d\u043e \u0447\u0435\u0440\u0435\u0437 %{count} \u043f\u043e\u043c\u0438\u043b\u043a\u0438"},"body":"\u041f\u043e\u043c\u0438\u043b\u043a\u0438 \u0432\u0438\u044f\u0432\u043b\u0435\u043d\u043e \u0432 \u0442\u0430\u043a\u0438\u0445 \u043f\u043e\u043b\u044f\u0445:"},"full_messages":{"format":"%{attribute} %{message}"},"messages":{"inclusion":"\u043d\u0435 \u0432\u043a\u043b\u044e\u0447\u0435\u043d\u043e \u0434\u043e \u043f\u0435\u0440\u0435\u043b\u0456\u043a\u0443","exclusion":"\u0437\u0430\u0440\u0435\u0437\u0435\u0440\u0432\u043e\u0432\u0430\u043d\u043e","invalid":"\u043d\u0435\u0434\u0456\u0439\u0441\u043d\u0438\u0439","confirmation":"\u043d\u0435 \u0437\u0431\u0456\u0433\u0430\u0454\u0442\u044c\u0441\u044f \u0437 \u043f\u0456\u0434\u0442\u0432\u0435\u0440\u0434\u0436\u0435\u043d\u043d\u044f\u043c","accepted":"\u043c\u0430\u0454 \u0431\u0443\u0442\u0438 \u043f\u0440\u0438\u0439\u043d\u044f\u0442\u0438\u0439","empty":"\u043d\u0435 \u043c\u043e\u0436\u0435 \u0431\u0443\u0442\u0438 \u043f\u043e\u0440\u043e\u0436\u043d\u0456\u043c","blank":"\u043d\u0435 \u043c\u043e\u0436\u0435 \u0431\u0443\u0442\u0438 \u043f\u0443\u0441\u0442\u0438\u043c","too_long":{"one":"\u0437\u0430\u043d\u0430\u0434\u0442\u043e \u0434\u043e\u0432\u0433\u0438\u0439 (\u043c\u0430\u043a\u0441\u0438\u043c\u0443\u043c %{count} \u0437\u043d\u0430\u043a)","few":"\u0437\u0430\u043d\u0430\u0434\u0442\u043e \u0434\u043e\u0432\u0433\u0438\u0439 (\u043c\u0430\u043a\u0441\u0438\u043c\u0443\u043c %{count} \u0437\u043d\u0430\u043a\u0438)","many":"\u0437\u0430\u043d\u0430\u0434\u0442\u043e \u0434\u043e\u0432\u0433\u0438\u0439 (\u043c\u0430\u043a\u0441\u0438\u043c\u0443\u043c %{count} \u0437\u043d\u0430\u043a\u0456\u0432)","other":"\u0437\u0430\u043d\u0430\u0434\u0442\u043e \u0434\u043e\u0432\u0433\u0438\u0439 (\u043c\u0430\u043a\u0441\u0438\u043c\u0443\u043c %{count} \u0437\u043d\u0430\u043a\u0443)"},"too_short":{"one":"\u0437\u0430\u043d\u0430\u0434\u0442\u043e \u043a\u043e\u0440\u043e\u0442\u043a\u0438\u0439 (\u043c\u0456\u043d\u0456\u043c\u0443\u043c %{count} \u0437\u043d\u0430\u043a)","few":"\u0437\u0430\u043d\u0430\u0434\u0442\u043e \u043a\u043e\u0440\u043e\u0442\u043a\u0438\u0439 (\u043c\u0456\u043d\u0456\u043c\u0443\u043c %{count} \u0437\u043d\u0430\u043a\u0438)","many":"\u0437\u0430\u043d\u0430\u0434\u0442\u043e \u043a\u043e\u0440\u043e\u0442\u043a\u0438\u0439 (\u043c\u0456\u043d\u0456\u043c\u0443\u043c %{count} \u0437\u043d\u0430\u043a\u0456\u0432)","other":"\u0437\u0430\u043d\u0430\u0434\u0442\u043e \u043a\u043e\u0440\u043e\u0442\u043a\u0438\u0439 (\u043c\u0456\u043d\u0456\u043c\u0443\u043c %{count} \u0437\u043d\u0430\u043a\u0443)"},"wrong_length":{"one":"\u043d\u0435\u043f\u0440\u0430\u0432\u0438\u043b\u044c\u043d\u0430 \u0434\u043e\u0432\u0436\u0438\u043d\u0430 (\u043c\u0430\u0454 \u0431\u0443\u0442\u0438 %{count} \u0437\u043d\u0430\u043a)","few":"\u043d\u0435\u043f\u0440\u0430\u0432\u0438\u043b\u044c\u043d\u0430 \u0434\u043e\u0432\u0436\u0438\u043d\u0430 (\u043c\u0430\u0454 \u0431\u0443\u0442\u0438 %{count} \u0437\u043d\u0430\u043a\u0438)","many":"\u043d\u0435\u043f\u0440\u0430\u0432\u0438\u043b\u044c\u043d\u0430 \u0434\u043e\u0432\u0436\u0438\u043d\u0430 (\u043c\u0430\u0454 \u0431\u0443\u0442\u0438 %{count} \u0437\u043d\u0430\u043a\u0456\u0432)","other":"\u043d\u0435\u043f\u0440\u0430\u0432\u0438\u043b\u044c\u043d\u0430 \u0434\u043e\u0432\u0436\u0438\u043d\u0430 (\u043c\u0430\u0454 \u0431\u0443\u0442\u0438 %{count} \u0437\u043d\u0430\u043a\u0443)"},"taken":"\u0432\u0436\u0435 \u0437\u0430\u0439\u043d\u044f\u0442\u0438\u0439","not_a_number":"\u043d\u0435 \u0447\u0438\u0441\u043b\u043e","greater_than":"\u043c\u0430\u0454 \u0431\u0443\u0442\u0438 \u0431\u0456\u043b\u044c\u0448\u0435 \u043d\u0456\u0436 %{count}","greater_than_or_equal_to":"\u043c\u0430\u0454 \u0431\u0443\u0442\u0438 \u0431\u0456\u043b\u044c\u0448\u0435 \u043d\u0456\u0436 \u0430\u0431\u043e \u0434\u043e\u0440\u0456\u0432\u043d\u044e\u0432\u0430\u0442\u0438 %{count}","equal_to":"\u043c\u0430\u0454 \u0434\u043e\u0440\u0456\u0432\u043d\u044e\u0432\u0430\u0442\u0438 %{count}","less_than":"\u043c\u0430\u0454 \u0431\u0443\u0442\u0438 \u043c\u0435\u043d\u0448\u0435 \u043d\u0456\u0436 %{count}","less_than_or_equal_to":"\u043c\u0430\u0454 \u0431\u0443\u0442\u0438 \u043c\u0435\u043d\u0448\u0435 \u043d\u0456\u0436 \u0430\u0431\u043e \u0434\u043e\u0440\u0456\u0432\u043d\u044e\u0432\u0430\u0442\u0438 %{count}","odd":"\u043c\u0430\u0454 \u0431\u0443\u0442\u0438 \u043d\u0435\u043f\u0430\u0440\u043d\u0438\u043c","even":"\u043c\u0430\u0454 \u0431\u0443\u0442\u0438 \u043f\u0430\u0440\u043d\u0438\u043c","record_invalid":"\u0412\u0438\u043d\u0438\u043a\u043b\u0438 \u043f\u043e\u043c\u0438\u043b\u043a\u0438: %{errors}"}}},"date":{"formats":{"default":"%d.%m.%Y","short":"%d %b","long":"%d %B %Y"},"day_names":["\u043d\u0435\u0434\u0456\u043b\u044f","\u043f\u043e\u043d\u0435\u0434\u0456\u043b\u043e\u043a","\u0432\u0456\u0432\u0442\u043e\u0440\u043e\u043a","\u0441\u0435\u0440\u0435\u0434\u0430","\u0447\u0435\u0442\u0432\u0435\u0440","\u043f'\u044f\u0442\u043d\u0438\u0446\u044f","\u0441\u0443\u0431\u043e\u0442\u0430"],"abbr_day_names":["\u043d\u0434.","\u043f\u043d.","\u0432\u0442.","\u0441\u0440.","\u0447\u0442.","\u043f\u0442.","\u0441\u0431."],"month_names":[null,"\u0421\u0456\u0447\u0435\u043d\u044c","\u041b\u044e\u0442\u0438\u0439","\u0411\u0435\u0440\u0435\u0437\u0435\u043d\u044c","\u041a\u0432\u0456\u0442\u0435\u043d\u044c","\u0422\u0440\u0430\u0432\u0435\u043d\u044c","\u0427\u0435\u0440\u0432\u0435\u043d\u044c","\u041b\u0438\u043f\u0435\u043d\u044c","\u0421\u0435\u0440\u043f\u0435\u043d\u044c","\u0412\u0435\u0440\u0435\u0441\u0435\u043d\u044c","\u0416\u043e\u0432\u0442\u0435\u043d\u044c","\u041b\u0438\u0441\u0442\u043e\u043f\u0430\u0434","\u0413\u0440\u0443\u0434\u0435\u043d\u044c"],"abbr_month_names":[null,"\u0441\u0456\u0447.","\u043b\u044e\u0442.","\u0431\u0435\u0440.","\u043a\u0432\u0456\u0442.","\u0442\u0440\u0430\u0432.","\u0447\u0435\u0440\u0432.","\u043b\u0438\u043f.","\u0441\u0435\u0440\u043f.","\u0432\u0435\u0440.","\u0436\u043e\u0432\u0442.","\u043b\u0438\u0441\u0442.","\u0433\u0440\u0443\u0434."],"order":["day","month","year"]},"time":{"formats":{"default":"%a, %d %b %Y, %H:%M:%S %z","short":"%d %b, %H:%M","long":"%d %B %Y, %H:%M"},"am":"\u0434\u043e \u043f\u043e\u043b\u0443\u0434\u043d\u044f","pm":"\u043f\u043e \u043f\u043e\u043b\u0443\u0434\u043d\u0456"},"support":{"select":{"prompt":"\u041e\u0431\u0435\u0440\u0456\u0442\u044c:"},"array":{"sentence_connector":"\u0456","skip_last_comma":true,"words_connector":", ","two_words_connector":" \u0456 ","last_word_connector":" \u0442\u0430 "}}},"eu":{"date":{"formats":{"default":"%Y/%m/%e","short":"%b %e","long":"%Y(e)ko %Bk %e"},"day_names":["Igandea","Astelehena","Asteartea","Asteazkena","Osteguna","Ostirala","Larunbata"],"abbr_day_names":["Igan","Astel","Astear","Asteaz","Oste","Osti","Lar"],"month_names":[null,"Urtarrila","Otsaila","Martxoa","Apirila","Maiatza","Ekaina","Uztaila","Abuztua","Iraila","Urria","Azaroa","Abendua"],"abbr_month_names":[null,"Urt","Ots","Mar","Api","Mai","Eka","Uzt","Abu","Ira","Urr","Aza","Aben"],"order":["year","month","day"]},"time":{"formats":{"default":"%A, %Y(e)ko %Bren %e %H:%M:%S %z","short":"%b %e, %H:%M","long":"%Y(e)ko %Bren %e,  %H:%M"},"am":"am","pm":"pm"},"support":{"array":{"words_connector":", ","two_words_connector":" eta ","last_word_connector":" eta "},"select":{"prompt":"Aukeratu mesedez"}},"number":{"format":{"separator":",","delimiter":".","precision":3,"significant":false,"strip_insignificant_zeros":false},"currency":{"format":{"format":"%n %u","unit":"\u20ac","separator":",","delimiter":".","precision":2,"significant":false,"strip_insignificant_zeros":false}},"percentage":{"format":{"delimiter":""}},"precision":{"format":{"delimiter":""}},"human":{"format":{"delimiter":"","precision":3,"significant":true,"strip_insignificant_zeros":true},"storage_units":{"format":"%n %u","units":{"byte":{"one":"Byte","other":"Byte"},"kb":"KB","mb":"MB","gb":"GB","tb":"TB"}},"decimal_units":{"format":"%n %u","units":{"unit":"","thousand":"Mila","million":"Milioi","billion":"Mila milioi","trillion":"Trilioi","quadrillion":"Kuatrilioi"}}}},"datetime":{"distance_in_words":{"half_a_minute":"minutu erdi","less_than_x_seconds":{"one":"segundu bat baino gutxiago","other":"%{count} segundu baino gutxiago"},"x_seconds":{"one":"segundu bat","other":"%{count} segundu"},"less_than_x_minutes":{"one":"1 minutu bat baino gutxiago","other":"%{count} minutu baino gutxiago"},"x_minutes":{"one":"minutu bat","other":"%{count} minutu"},"about_x_hours":{"one":"ordu bat inguru","other":"%{count} ordu inguru"},"x_days":{"one":"egun bat","other":"%{count} egun"},"about_x_months":{"one":"hilabete bat inguru","other":"%{count} hilabete inguru"},"x_months":{"one":"hilabete bat","other":"%{count} hilabete"},"about_x_years":{"one":"urte bat inguru","other":"%{count} urte inguru"},"over_x_years":{"one":"urte bat baino gehiago","other":"%{count} urte baino gehiago"},"almost_x_years":{"one":"ia urte bat","other":"ia %{count} urte"}},"prompts":{"year":"Urte","month":"Hilabete","day":"Egun","hour":"Ordu","minute":"Minutu","second":"Segundu"}},"helpers":{"select":{"prompt":"Mesedez, aukeratu"},"submit":{"create":"%{model}a eratu","update":"%{model}a eguneratu","submit":"%{model}a gorde"}},"errors":{"format":"%{attribute} %{message}","messages":{"inclusion":"ez da zerrendako aukera bat","exclusion":"erreserbatuta dago","invalid":"ez da zuzena","confirmation":"ez dator bat konfirmazioarekin","accepted":"onartuta izan behar da","empty":"ezin da hutsik egon","blank":"ezin da zuriz utzi","too_long":"luzeegia da (%{count} karaktere gehienez)","too_short":"laburregia da (%{count} karaktere gutxienez)","wrong_length":"ez du luzeera zuzena (%{count} karaktere izan behar ditu)","not_a_number":"ez da zenbaki bat","not_an_integer":"zenbaki osoa izan behar da","greater_than":"%{count} baino handiagoa izan behar da","greater_than_or_equal_to":"%{count} baino handiago edo berdin izan behar da","equal_to":"%{count} izan behar da","less_than":"%{count} baino txikiago izan behar da","less_than_or_equal_to":"%{count} baino txikiago edo berdin izan behar da","odd":"bakoitia izan behar du","even":"bikoitia izan behar du"}},"activerecord":{"errors":{"template":{"header":{"one":"Errore batek ezinezkoa egin du {{model}} hau gordetzea","other":"{{count}} errorek ezinezkoa egiten dute {{model}} hau gordetzea"},"body":"Arazoak egon dira ondoko eremuekin:"},"messages":{"taken":"hartuta dago","record_invalid":"Balioztatze arazoa: %{errors}","inclusion":"ez da zerrendako aukera bat","exclusion":"erreserbatuta dago","invalid":"ez da zuzena","confirmation":"ez dator bat konfirmazioarekin","accepted":"onartuta izan behar da","empty":"ezin da hutsik egon","blank":"ezin da zuriz utzi","too_long":"luzeegia da (%{count} karaktere gehienez)","too_short":"laburregia da (%{count} karaktere gutxienez)","wrong_length":"ez du luzeera zuzena (%{count} karaktere izan behar ditu)","not_a_number":"ez da zenbaki bat","not_an_integer":"zenbaki osoa izan behar da","greater_than":"%{count} baino handiagoa izan behar da","greater_than_or_equal_to":"%{count} baino handiago edo berdin izan behar da","equal_to":"%{count} izan behar da","less_than":"%{count} baino txikiago izan behar da","less_than_or_equal_to":"%{count} baino txikiago edo berdin izan behar da","odd":"bakoitia izan behar du","even":"bikoitia izan behar du"},"full_messages":{"format":"%{attribute} %{message}"}}}},"rm":{"date":{"formats":{"default":"%d.%m.%Y","short":"%e. %b","long":"%e. %B %Y"},"day_names":["dumengia","glindesdi","mardi","mesemna","gievgia","venderdi","sonda"],"abbr_day_names":["du","gli","ma","me","gie","ve","so"],"month_names":[null,"schaner","favrer","mars","avrigl","matg","zercladur","fanadur","avust","settember","october","november","december"],"abbr_month_names":[null,"schan","favr","mars","avr","matg","zercl","fan","avust","sett","oct","nov","dec"],"order":["day","month","year"]},"time":{"formats":{"default":"%A, %d. %B %Y, %H:%M Uhr","short":"%d. %B, %H:%M Uhr","long":"%A, %d. %B %Y, %H:%M Uhr"},"am":"avantmezdi","pm":"suentermezdi"},"datetime":{"distance_in_words":{"half_a_minute":"ina mesa minuta","less_than_x_seconds":{"one":"main ch\u2019ina secunda","other":"main che %{count} secundas"},"x_seconds":{"one":"ina secunda","other":"%{count} secundas"},"less_than_x_minutes":{"one":"main ch\u2019ina minuta","other":"main che %{count} minutas"},"x_minutes":{"one":"1 minuta","other":"%{count} minutas"},"about_x_hours":{"one":"circa in'ura","other":"circa %{count} uras"},"x_days":{"one":"in di","other":"%{count} dis"},"about_x_months":{"one":"circa in mais","other":"circa %{count} mais"},"x_months":{"one":"in mais","other":"%{count} mais"},"about_x_years":{"one":"circa in onn","other":"circa %{count} onns"},"over_x_years":{"one":"dapli ch'in onn","other":"dapli che %{count} onns"}},"prompts":{"second":"secundas","minute":"minutas","hour":"uras","day":"dis","month":"mais","year":"onns"}},"number":{"format":{"precision":2,"separator":".","delimiter":"'"},"currency":{"format":{"precision":2,"separator":".","delimiter":"'","unit":"CHF","format":"%n %u"}},"percentage":{"format":{"delimiter":""}},"precision":{"format":{"delimiter":""}},"human":{"format":{"delimiter":"","precision":1},"storage_units":{"format":"%n %u","units":{"byte":{"one":"byte","other":"bytes"},"kb":"KB","mb":"MB","gb":"GB","tb":"TB"}}}},"support":{"array":{"words_connector":", ","two_words_connector":" e ","last_word_connector":" e "}},"activerecord":{"errors":{"template":{"header":{"one":"Betg pussaivel da memorisar quest %{model}: 1 errur.","other":"Betg pussaivel da memorisar quest %{model}: %{count} errurs."},"body":"Faschai usch\u00e8 bain e controllai ils suandants champs:"},"messages":{"inclusion":"n'\u00e8 betg sin la glista","exclusion":"na stat betg a disposiziun","invalid":"n'\u00e8 betg valid","confirmation":"na correspunda betg al champ da conferma","accepted":"sto vegnir accept\u00e0","empty":"sto vegnir emplen\u00ec ora","blank":"sto vegnir emplen\u00ec ora","too_long":"\u00e8 memia lung (betg dapli che %{count} caracters)","too_short":"\u00e8 memia curt (betg pli pauc che %{count} caracters)","wrong_length":"ha la fallida lunghezza (sto avair %{count} caracters)","taken":"\u00e8 gia occup\u00e0","not_a_number":"\u00e8 betg in dumber","greater_than":"sto esser pli grond che %{count}","greater_than_or_equal_to":"sto esser pli grond u medem sco %{count}","equal_to":"sto esser exact %{count}","less_than":"sto esser pli pitschen che %{count}","less_than_or_equal_to":"sto esser pli pitschen u medem sco %{count}","odd":"sto esser sp\u00e8r","even":"sto esser p\u00e8r"}}}},"mn":{"date":{"formats":{"default":"%Y-%m-%d","short":"%y-%m-%d","long":"%Y %B %d"},"day_names":["\u041d\u044f\u043c","\u0414\u0430\u0432\u0430\u0430","\u041c\u044f\u0433\u043c\u0430\u0440","\u041b\u0445\u0430\u0433\u0432\u0430","\u041f\u04af\u0440\u044d\u0432","\u0411\u0430\u0430\u0441\u0430\u043d","\u0411\u044f\u043c\u0431\u0430"],"abbr_day_names":["\u041d\u044f","\u0414\u0430","\u041c\u044f","\u041b\u0445","\u041f\u04af","\u0411\u0430","\u0411\u044f"],"month_names":[null,"1 \u0441\u0430\u0440","2 \u0441\u0430\u0440","3 \u0441\u0430\u0440","4 \u0441\u0430\u0440","5 \u0441\u0430\u0440","6 \u0441\u0430\u0440","7 \u0441\u0430\u0440","8 \u0441\u0430\u0440","9 \u0441\u0430\u0440","10 \u0441\u0430\u0440","11 \u0441\u0430\u0440","12 \u0441\u0430\u0440"],"abbr_month_names":[null,"1 \u0441\u0430\u0440","2 \u0441\u0430\u0440","3 \u0441\u0430\u0440","4 \u0441\u0430\u0440","5 \u0441\u0430\u0440","6 \u0441\u0430\u0440","7 \u0441\u0430\u0440","8 \u0441\u0430\u0440","9 \u0441\u0430\u0440","10 \u0441\u0430\u0440","11 \u0441\u0430\u0440","12 \u0441\u0430\u0440"],"order":["year","month","day"]},"time":{"formats":{"default":"%Y-%m-%d %H:%M","short":"%y-%m-%d","long":"%Y %B %d, %H:%M:%S"},"am":"\u04e9\u0433\u043b\u04e9\u04e9","pm":"\u043e\u0440\u043e\u0439"},"number":{"format":{"separator":".","delimiter":" ","precision":3},"currency":{"format":{"format":"%n %u","unit":"\u0442\u04e9\u0433.","separator":".","delimiter":" ","precision":2}},"percentage":{"format":{"delimiter":""}},"precision":{"format":{"delimiter":""}},"human":{"format":{"delimiter":"","precision":1},"storage_units":{"format":"%n %u","units":{"byte":{"one":"\u0411\u0430\u0439\u0442","other":"\u0411\u0430\u0439\u0442"},"kb":"\u041a\u0411","mb":"\u041c\u0411","gb":"\u0413\u0411","tb":"\u0422\u0411"}}}},"datetime":{"distance_in_words":{"half_a_minute":"\u0445\u0430\u0433\u0430\u0441 \u043c\u0438\u043d\u0443\u0442","less_than_x_seconds":{"one":"%{count} \u0441\u0435\u043a\u0443\u043d\u0434\u044d\u044d\u0441 \u0431\u0430\u0433\u0430","other":"%{count} \u0441\u0435\u043a\u0443\u043d\u0434\u044d\u044d\u0441 \u0431\u0430\u0433\u0430"},"x_seconds":{"one":"%{count} \u0441\u0435\u043a\u0443\u043d\u0434","other":"%{count} \u0441\u0435\u043a\u0443\u043d\u0434"},"less_than_x_minutes":{"one":"%{count} \u043c\u0438\u043d\u0443\u0442\u0430\u0430\u0441 \u0431\u0430\u0433\u0430","other":"%{count} \u043c\u0438\u043d\u0443\u0442\u0430\u0430\u0441 \u0431\u0430\u0433\u0430"},"x_minutes":{"one":"%{count} \u043c\u0438\u043d\u0443\u0442","other":"%{count} \u043c\u0438\u043d\u0443\u0442"},"about_x_hours":{"one":"%{count} \u0446\u0430\u0433 \u043e\u0440\u0447\u0438\u043c","other":"%{count} \u0446\u0430\u0433 \u043e\u0440\u0447\u0438\u043c"},"x_days":{"one":"%{count} \u04e9\u0434\u04e9\u0440","other":"%{count} \u04e9\u0434\u04e9\u0440"},"about_x_months":{"one":"%{count} \u0441\u0430\u0440 \u043e\u0440\u0447\u0438\u043c","other":"%{count} \u0441\u0430\u0440 \u043e\u0440\u0447\u0438\u043c"},"x_months":{"one":"%{count} \u0441\u0430\u0440","other":"%{count} \u0441\u0430\u0440"},"about_x_years":{"one":"%{count} \u0436\u0438\u043b \u043e\u0440\u0447\u0438\u043c","other":"%{count} \u0436\u0438\u043b \u043e\u0440\u0447\u0438\u043c"},"almost_x_years":{"one":"\u0431\u0430\u0440\u0430\u0433 %{count} \u0436\u0438\u043b","other":"\u0431\u0430\u0440\u0430\u0433 %{count} \u0436\u0438\u043b"},"over_x_years":{"one":"%{count} \u0436\u0438\u043b\u044d\u044d\u0441 \u0438\u043b\u04af\u04af","other":"%{count} \u0436\u0438\u043b\u044d\u044d\u0441 \u0438\u043b\u04af\u04af"}},"prompts":{"year":"\u0416\u0438\u043b","month":"\u0421\u0430\u0440","day":"\u04e8\u0434\u04e9\u0440","hour":"\u0426\u0430\u0433","minute":"\u041c\u0438\u043d\u0443\u0442","second":"\u0421\u0435\u043a\u0443\u043d\u0434"}},"errors":{"messages":{"inclusion":"\u0436\u0430\u0433\u0441\u0430\u0430\u043b\u0442\u0430\u0434 \u0430\u043b\u0433\u0430 \u0431\u0430\u0439\u043d\u0430","exclusion":"\u0431\u043e\u043b \u0430\u0448\u0438\u0433\u043b\u0430\u0445\u0430\u0434 \u0445\u043e\u0440\u0438\u043e\u0442\u043e\u0439","invalid":"\u0431\u0443\u0440\u0443\u0443 \u0431\u0430\u0439\u043d\u0430","confirmation":"\u0430\u0434\u0438\u043b\u0433\u04af\u0439 \u0431\u0430\u0439\u043d\u0430","accepted":"\u0445\u04af\u043b\u044d\u044d\u043d \u0437\u04e9\u0432\u0448\u04e9\u04e9\u0440\u04e9\u0433\u0434\u0441\u04e9\u043d \u0431\u0430\u0439\u0445 \u0451\u0441\u0442\u043e\u0439","empty":"\u0431\u0430\u0439\u0445\u0433\u04af\u0439 \u0431\u0430\u0439\u0436 \u0431\u043e\u043b\u043e\u0445\u0433\u04af\u0439","blank":"\u0445\u043e\u043e\u0441\u043e\u043d \u0431\u0430\u0439\u0436 \u0431\u043e\u043b\u043e\u0445\u0433\u04af\u0439","too_long":"\u0445\u044d\u0442 \u0443\u0440\u0442 \u0431\u0430\u0439\u043d\u0430 (\u0445\u0430\u043c\u0433\u0438\u0439\u043d \u0443\u0440\u0442\u0434\u0430\u0430 %{count} \u0442\u044d\u043c\u0434\u044d\u0433\u0442)","too_short":"\u0445\u044d\u0442 \u0431\u043e\u0433\u0438\u043d\u043e \u0431\u0430\u0439\u043d\u0430 (\u0445\u0430\u043c\u0433\u0438\u0439\u043d \u0431\u0430\u0433\u0430\u0434\u0430\u0430 %{count} \u0442\u044d\u043c\u0434\u044d\u0433\u0442)","wrong_length":"\u0443\u0440\u0442 \u043d\u044c \u0431\u0443\u0440\u0443\u0443 \u0431\u0430\u0439\u043d\u0430 (%{count} \u0442\u044d\u043c\u0434\u044d\u0433\u0442 \u0431\u0430\u0439\u0445 \u0451\u0441\u0442\u043e\u0439)","taken":"\u0430\u043b\u044c \u0445\u044d\u0434\u0438\u0439\u043d \u0430\u0432\u0447\u0438\u0445\u0441\u0430\u043d \u0431\u0430\u0439\u043d\u0430","not_a_number":"\u0442\u043e\u043e \u0431\u0438\u0448 \u0431\u0430\u0439\u043d\u0430","not_an_integer":"\u0431\u04af\u0445\u044d\u043b \u0442\u043e\u043e \u0431\u0430\u0439\u0445 \u0451\u0441\u0442\u043e\u0439","greater_than":"%{count}-\u0441 \u0438\u0445 \u0431\u0430\u0439\u0445 \u0451\u0441\u0442\u043e\u0439","greater_than_or_equal_to":"%{count}-\u0441 \u0438\u0445 \u044e\u043c\u0443\u0443 \u0442\u044d\u043d\u0446\u04af\u04af \u0431\u0430\u0439\u0445 \u0451\u0441\u0442\u043e\u0439","equal_to":"%{count}-\u0442\u044d\u0439 \u0442\u044d\u043d\u0446\u04af\u04af \u0431\u0430\u0439\u0445 \u0451\u0441\u0442\u043e\u0439","less_than":"%{count}-\u0441 \u0431\u0430\u0433\u0430 \u0431\u0430\u0439\u0445 \u0451\u0441\u0442\u043e\u0439","less_than_or_equal_to":"%{count}-\u0441 \u0431\u0430\u0433\u0430 \u044e\u043c\u0443\u0443 \u0442\u044d\u043d\u0446\u04af\u04af \u0431\u0430\u0439\u0445 \u0451\u0441\u0442\u043e\u0439","odd":"\u0441\u043e\u043d\u0433\u043e\u0439 \u0431\u0430\u0439\u0445 \u0451\u0441\u0442\u043e\u0439","even":"\u0442\u044d\u0433\u0448 \u0431\u0430\u0439\u0445 \u0451\u0441\u0442\u043e\u0439","record_invalid":"\u0428\u0430\u043b\u0433\u0430\u043b\u0442 \u0430\u043c\u0436\u0438\u043b\u0442\u0433\u04af\u0439: %{errors}"},"template":{"header":{"one":"1 \u0430\u043b\u0434\u0430\u0430 \u0433\u0430\u0440\u0441\u0430\u043d \u0442\u0443\u043b %{model} \u0445\u0430\u0434\u0433\u0430\u043b\u0430\u0433\u0434\u0430\u0445\u0433\u04af\u0439 \u0431\u0430\u0439\u043d\u0430","other":"%{count} \u0430\u043b\u0434\u0430\u0430 \u0433\u0430\u0440\u0441\u0430\u043d \u0442\u0443\u043b %{model} \u0445\u0430\u0434\u0433\u0430\u043b\u0430\u0433\u0434\u0430\u0445\u0433\u04af\u0439 \u0431\u0430\u0439\u043d\u0430"},"body":"\u0414\u0430\u0440\u0430\u0430\u0445 %{count} \u0445\u044d\u0441\u044d\u0433\u0442 \u0430\u043b\u0434\u0430\u0430 \u0433\u0430\u0440\u043b\u0430\u0430:"}},"activerecord":{"errors":{"messages":{"inclusion":"\u0436\u0430\u0433\u0441\u0430\u0430\u043b\u0442\u0430\u0434 \u0430\u043b\u0433\u0430 \u0431\u0430\u0439\u043d\u0430","exclusion":"\u0431\u043e\u043b \u0430\u0448\u0438\u0433\u043b\u0430\u0445\u0430\u0434 \u0445\u043e\u0440\u0438\u043e\u0442\u043e\u0439","invalid":"\u0431\u0443\u0440\u0443\u0443 \u0431\u0430\u0439\u043d\u0430","confirmation":"\u0430\u0434\u0438\u043b\u0433\u04af\u0439 \u0431\u0430\u0439\u043d\u0430","accepted":"\u0445\u04af\u043b\u044d\u044d\u043d \u0437\u04e9\u0432\u0448\u04e9\u04e9\u0440\u04e9\u0433\u0434\u0441\u04e9\u043d \u0431\u0430\u0439\u0445 \u0451\u0441\u0442\u043e\u0439","empty":"\u0431\u0430\u0439\u0445\u0433\u04af\u0439 \u0431\u0430\u0439\u0436 \u0431\u043e\u043b\u043e\u0445\u0433\u04af\u0439","blank":"\u0445\u043e\u043e\u0441\u043e\u043d \u0431\u0430\u0439\u0436 \u0431\u043e\u043b\u043e\u0445\u0433\u04af\u0439","too_long":"\u0445\u044d\u0442 \u0443\u0440\u0442 \u0431\u0430\u0439\u043d\u0430 (\u0445\u0430\u043c\u0433\u0438\u0439\u043d \u0443\u0440\u0442\u0434\u0430\u0430 %{count} \u0442\u044d\u043c\u0434\u044d\u0433\u0442)","too_short":"\u0445\u044d\u0442 \u0431\u043e\u0433\u0438\u043d\u043e \u0431\u0430\u0439\u043d\u0430 (\u0445\u0430\u043c\u0433\u0438\u0439\u043d \u0431\u0430\u0433\u0430\u0434\u0430\u0430 %{count} \u0442\u044d\u043c\u0434\u044d\u0433\u0442)","wrong_length":"\u0443\u0440\u0442 \u043d\u044c \u0431\u0443\u0440\u0443\u0443 \u0431\u0430\u0439\u043d\u0430 (%{count} \u0442\u044d\u043c\u0434\u044d\u0433\u0442 \u0431\u0430\u0439\u0445 \u0451\u0441\u0442\u043e\u0439)","taken":"\u0430\u043b\u044c \u0445\u044d\u0434\u0438\u0439\u043d \u0430\u0432\u0447\u0438\u0445\u0441\u0430\u043d \u0431\u0430\u0439\u043d\u0430","not_a_number":"\u0442\u043e\u043e \u0431\u0438\u0448 \u0431\u0430\u0439\u043d\u0430","not_an_integer":"\u0431\u04af\u0445\u044d\u043b \u0442\u043e\u043e \u0431\u0430\u0439\u0445 \u0451\u0441\u0442\u043e\u0439","greater_than":"%{count}-\u0441 \u0438\u0445 \u0431\u0430\u0439\u0445 \u0451\u0441\u0442\u043e\u0439","greater_than_or_equal_to":"%{count}-\u0441 \u0438\u0445 \u044e\u043c\u0443\u0443 \u0442\u044d\u043d\u0446\u04af\u04af \u0431\u0430\u0439\u0445 \u0451\u0441\u0442\u043e\u0439","equal_to":"%{count}-\u0442\u044d\u0439 \u0442\u044d\u043d\u0446\u04af\u04af \u0431\u0430\u0439\u0445 \u0451\u0441\u0442\u043e\u0439","less_than":"%{count}-\u0441 \u0431\u0430\u0433\u0430 \u0431\u0430\u0439\u0445 \u0451\u0441\u0442\u043e\u0439","less_than_or_equal_to":"%{count}-\u0441 \u0431\u0430\u0433\u0430 \u044e\u043c\u0443\u0443 \u0442\u044d\u043d\u0446\u04af\u04af \u0431\u0430\u0439\u0445 \u0451\u0441\u0442\u043e\u0439","odd":"\u0441\u043e\u043d\u0433\u043e\u0439 \u0431\u0430\u0439\u0445 \u0451\u0441\u0442\u043e\u0439","even":"\u0442\u044d\u0433\u0448 \u0431\u0430\u0439\u0445 \u0451\u0441\u0442\u043e\u0439","record_invalid":"\u0428\u0430\u043b\u0433\u0430\u043b\u0442 \u0430\u043c\u0436\u0438\u043b\u0442\u0433\u04af\u0439: %{errors}"},"template":{"header":{"one":"1 \u0430\u043b\u0434\u0430\u0430 \u0433\u0430\u0440\u0441\u0430\u043d \u0442\u0443\u043b %{model} \u0445\u0430\u0434\u0433\u0430\u043b\u0430\u0433\u0434\u0430\u0445\u0433\u04af\u0439 \u0431\u0430\u0439\u043d\u0430","other":"%{count} \u0430\u043b\u0434\u0430\u0430 \u0433\u0430\u0440\u0441\u0430\u043d \u0442\u0443\u043b %{model} \u0445\u0430\u0434\u0433\u0430\u043b\u0430\u0433\u0434\u0430\u0445\u0433\u04af\u0439 \u0431\u0430\u0439\u043d\u0430"},"body":"\u0414\u0430\u0440\u0430\u0430\u0445 %{count} \u0445\u044d\u0441\u044d\u0433\u0442 \u0430\u043b\u0434\u0430\u0430 \u0433\u0430\u0440\u043b\u0430\u0430:"}}},"support":{"array":{"words_connector":", ","two_words_connector":" \u0431\u043e\u043b\u043e\u043d ","last_word_connector":" \u0431\u043e\u043b\u043e\u043d "},"select":{"prompt":"\u0421\u043e\u043d\u0433\u043e\u043d\u043e \u0443\u0443"}}},"lo":{"number":{"format":{"separator":".","delimiter":",","precision":3},"currency":{"format":{"format":"%n %u","unit":"Kip","separator":".","delimiter":",","precision":2}},"percentage":{"format":{"delimiter":""}},"precision":{"format":{"delimiter":""}},"human":{"format":{"delimiter":"","precision":1},"storage_units":{"format":"%n %u","units":{"byte":{"one":"Byte","other":"Bytes"},"kb":"KB","mb":"MB","gb":"GB","tb":"TB"}}}},"datetime":{"distance_in_words":{"half_a_minute":"\u0ec0\u0e84\u0eb4\u0ec8\u0e87\u0e99\u0eb2\u0e97\u0eb5 ","less_than_x_seconds":{"one":"\u0e99\u0ec9\u0ead\u0e8d\u0e81\u0ea7\u0ec8\u0eb2 1 \u0ea7\u0eb4\u0e99\u0eb2\u0e97\u0eb5 ","other":"\u0e99\u0ec9\u0ead\u0e8d\u0e81\u0ea7\u0ec8\u0eb2 %{count} \u0ea7\u0eb4\u0e99\u0eb2\u0e97\u0eb5 "},"x_seconds":{"one":"1 \u0ea7\u0eb4\u0e99\u0eb2\u0e97\u0eb5 ","other":"%{count} \u0ea7\u0eb4\u0e99\u0eb2\u0e97\u0eb5 "},"less_than_x_minutes":{"one":"\u0e99\u0ec9\u0ead\u0e8d\u0e81\u0ea7\u0ec8\u0eb2 1 \u0e99\u0eb2\u0e97\u0eb5 ","other":"\u0e99\u0ec9\u0ead\u0e8d\u0e81\u0ea7\u0ec8\u0eb2 %{count} \u0e99\u0eb2\u0e97\u0eb5 "},"x_minutes":{"one":"1 \u0e99\u0eb2\u0e97\u0eb5 ","other":"%{count} \u0e99\u0eb2\u0e97\u0eb5 "},"about_x_hours":{"one":"\u0e9b\u0eb0\u0ea1\u0eb2\u0e99 1 \u0e8a\u0ebb\u0ec8\u0ea7\u0ec2\u0ea1\u0e87","other":"\u0e9b\u0eb0\u0ea1\u0eb2\u0e99 %{count} \u0e8a\u0ebb\u0ec8\u0ea7\u0ec2\u0ea1\u0e87"},"x_days":{"one":"1 \u0ea1\u0eb7\u0ec9 ","other":"%{count} \u0ea1\u0eb7\u0ec9 "},"about_x_months":{"one":"\u0e9b\u0eb0\u0ea1\u0eb2\u0e99 1 \u0ec0\u0e94\u0eb7\u0ead\u0e99","other":"\u0e9b\u0eb0\u0ea1\u0eb2\u0e99 %{count} \u0ec0\u0e94\u0eb7\u0ead\u0e99"},"x_months":{"one":"1 \u0ec0\u0e94\u0eb7\u0ead\u0e99","other":"%{count} \u0ec0\u0e94\u0eb7\u0ead\u0e99"},"about_x_years":{"one":"\u0e9b\u0eb0\u0ea1\u0eb2\u0e99 1 \u0e9b\u0eb5 ","other":"\u0e9b\u0eb0\u0ea1\u0eb2\u0e99 %{count} \u0e9b\u0eb5 "},"over_x_years":{"one":"\u0eab\u0ebc\u0eb2\u0e8d\u0e81\u0ea7\u0ec8\u0eb2 1 \u0e9b\u0eb5 ","other":"\u0eab\u0ebc\u0eb2\u0e8d\u0e81\u0ea7\u0ec8\u0eb2 %{count} \u0e9b\u0eb5 "}},"prompts":{"year":"\u0e9b\u0eb5","month":"\u0ec0\u0e94\u0eb7\u0ead\u0e99","day":"\u0ea7\u0eb1\u0e99","hour":"\u0e8a\u0ebb\u0ec8\u0ea7\u0ec2\u0ea1\u0e87","minute":"\u0e99\u0eb2\u0e97\u0eb5","second":"\u0ea7\u0eb4\u0e99\u0eb2\u0e97\u0eb5"}},"activerecord":{"errors":{"template":{"header":{"one":"\u0e9a\u0ecd\u0ec8\u0eaa\u0eb2\u0ea1\u0eb2\u0e94\u0e9a\u0eb1\u0e99\u0e97\u0eb6\u0e81 %{model} \u0ec4\u0e94\u0ec9\u0ec0\u0e99\u0eb7\u0ec8\u0ead\u0e87\u0e88\u0eb2\u0e81\u0ec0\u0e81\u0eb5\u0e94\u0e82\u0ecd\u0ec9\u0e9c\u0eb4\u0e94\u0e9e\u0eb2\u0e94","other":"\u0e9a\u0ecd\u0ec8\u0eaa\u0eb2\u0ea1\u0eb2\u0e94\u0e9a\u0eb1\u0e99\u0e97\u0eb6\u0e81 %{model} \u0ec4\u0e94\u0ec9\u0ec0\u0e99\u0eb7\u0ec8\u0ead\u0e87\u0e88\u0eb2\u0e81 \u0ec0\u0e81\u0eb5\u0e94 %{count} \u0e82\u0ecd\u0ec9\u0e9c\u0eb4\u0e94\u0e9e\u0eb2\u0e94"},"body":"\u0e81\u0eb0\u0ea5\u0eb8\u0e99\u0eb2\u0e81\u0ea7\u0e94\u0eaa\u0ead\u0e9a\u0e82\u0ecd\u0ec9\u0ea1\u0eb9\u0e99\u0ec3\u0e99\u0eab\u0ec9\u0ead\u0e87\u0e95\u0ecd\u0ec8\u0ec4\u0e9b\u0e99\u0eb5\u0ec9 :"},"messages":{"inclusion":"\u0e9a\u0ecd\u0ec8\u0ec4\u0e94\u0ec9\u0eae\u0ea7\u0ea1\u0ea2\u0eb9\u0ec8\u0ec3\u0e99\u0e9a\u0eb1\u0e99\u0e8a\u0eb5\u0ea5\u0eb2\u0e8d\u0e81\u0eb2\u0e99","exclusion":"\u0ea1\u0eb5\u0e81\u0eb2\u0e99\u0e88\u0ead\u0e87\u0ec4\u0ea7\u0ec9\u0ec1\u0ea5\u0ec9\u0ea7","invalid":"\u0e9a\u0ecd\u0ec8\u0e96\u0eb7\u0e81","confirmation":"\u0e9a\u0ecd\u0ec8\u0e96\u0eb7\u0e81\u0e81\u0eb1\u0e9a\u0e81\u0eb2\u0e99\u0ea2\u0eb7\u0e99\u0ea2\u0eb1\u0e99","accepted":"\u0e95\u0ec9\u0ead\u0e87\u0e8d\u0ead\u0ea1\u0eae\u0eb1\u0e9a","empty":"\u0ea7\u0ec8\u0eb2\u0e87\u0ec4\u0ea7\u0ec9\u0e9a\u0ecd\u0ec8\u0ec4\u0e94\u0ec9","blank":"\u0ec0\u0e9b\u0ebb\u0ec8\u0eb2\u0e9a\u0ecd\u0ec8\u0ec4\u0e94\u0ec9","too_long":"\u0e8d\u0eb2\u0ea7\u0ec2\u0e9e\u0e94 (\u0eaa\u0eb9\u0e87\u0eaa\u0eb8\u0e94\u0e84\u0eb7 %{count} \u0e95\u0ebb\u0ea7\u0ead\u0eb1\u0e81\u0eaa\u0ead\u0e99)","too_short":"\u0eaa\u0eb1\u0ec9\u0e99\u0ec2\u0e9e\u0e94 (\u0e95\u0eb3\u0ec8\u0eaa\u0eb8\u0e94\u0e84\u0eb7 %{count} \u0e95\u0ebb\u0ea7\u0ead\u0eb1\u0e81\u0eaa\u0ead\u0e99)","wrong_length":"\u0e84\u0ea7\u0eb2\u0ea1\u0e8d\u0eb2\u0ea7\u0e9c\u0eb4\u0e94 (\u0e84\u0ea7\u0e99\u0e88\u0eb0\u0ec0\u0e9b\u0eb1\u0e99 %{count} \u0e95\u0ebb\u0ea7\u0ead\u0eb1\u0e81\u0eaa\u0ead\u0e99)","taken":"\u0eae\u0eb1\u0e9a\u0ec0\u0ead\u0ebb\u0eb2\u0ec4\u0e9b\u0ec1\u0ea5\u0ec9\u0ea7","not_a_number":"\u0e9a\u0ecd\u0ec8\u0ec1\u0ea1\u0ec8\u0e99\u0e95\u0ebb\u0ea7\u0ec0\u0ea5\u0e81","greater_than":"\u0e95\u0ec9\u0ead\u0e87\u0eaa\u0eb9\u0e87\u0e81\u0ea7\u0ec8\u0eb2 %{count}","greater_than_or_equal_to":"\u0e95\u0ec9\u0ead\u0e87\u0eaa\u0eb9\u0e87\u0e81\u0ea7\u0ec8\u0eb2 \u0eab\u0ebc\u0eb7 \u0ec0\u0e97\u0ebb\u0ec8\u0eb2\u0e81\u0eb1\u0e9a %{count}","equal_to":"\u0e95\u0ec9\u0ead\u0e87\u0ec0\u0e97\u0ebb\u0ec8\u0eb2\u0e81\u0eb1\u0e9a %{count}","less_than":"\u0e95\u0ec9\u0ead\u0e87\u0e95\u0eb3\u0ec8\u0e81\u0ea7\u0ec8\u0eb2 %{count}","less_than_or_equal_to":"\u0e95\u0ec9\u0ead\u0e87\u0e95\u0eb3\u0ec8\u0e81\u0ea7\u0ec8\u0eb2 \u0eab\u0ebc\u0eb7 \u0ec0\u0e97\u0ebb\u0ec8\u0eb2\u0e81\u0eb1\u0e9a %{count}","odd":"\u0e95\u0ec9\u0ead\u0e87\u0ec0\u0e9b\u0eb1\u0e99\u0ec0\u0ea5\u0e81\u0e84\u0eb5\u0e81","even":"\u0e95\u0ec9\u0ead\u0e87\u0ec0\u0e9b\u0eb1\u0e99\u0ec0\u0ea5\u0e81\u0e84\u0eb9\u0ec8","record_invalid":"\u0e81\u0eb2\u0e99\u0ea2\u0eb7\u0e99\u0ea2\u0eb1\u0e99\u0e9a\u0ecd\u0ec8\u0eaa\u0eb3\u0ec0\u0ea5\u0eb1\u0e94 : %{errors}"}}},"date":{"formats":{"default":"%d-%m-%Y","short":"%e %b","long":"%e %B %Y"},"day_names":["\u0ead\u0eb2\u0e97\u0eb4\u0e94","\u0e88\u0eb1\u0e99","\u0ead\u0eb1\u0e87\u0e84\u0eb2\u0e99","\u0e9e\u0eb8\u0e94","\u0e9e\u0eb0\u0eab\u0eb1\u0e94","\u0eaa\u0eb8\u0e81","\u0ec0\u0eaa\u0ebb\u0eb2"],"abbr_day_names":["","","","","","",""],"month_names":[null,"\u0ea1\u0eb1\u0e87\u0e81\u0ead\u0e99","\u0e81\u0eb8\u0ea1\u0e9e\u0eb2","\u0ea1\u0eb5\u0e99\u0eb2","\u0ec0\u0ea1\u0eaa\u0eb2","\u0e9e\u0eb6\u0e94\u0eaa\u0eb0\u0e9e\u0eb2","\u0ea1\u0eb4\u0e96\u0eb8\u0e99\u0eb2","\u0e81\u0ecd\u0ea5\u0eb0\u0e81\u0ebb\u0e94","\u0eaa\u0eb4\u0e87\u0eab\u0eb2","\u0e81\u0eb1\u0e99\u0e8d\u0eb2","\u0e95\u0eb8\u0ea5\u0eb2","\u0e9e\u0eb0\u0e88\u0eb4\u0e81","\u0e97\u0eb1\u0e99\u0ea7\u0eb2"],"abbr_month_names":[null,"","","","","","","","","","","",""],"order":["day","month","year"]},"time":{"formats":{"default":"%a %d %b %Y %H:%M:%S %z","short":"%d %b %H:%M \u0e19.","long":"%d %B %Y %H:%M \u0e19."},"am":"","pm":""},"support":{"array":{"words_connector":", ","two_words_connector":"\u0ec1\u0ea5\u0eb0 ","last_word_connector":", \u0ec1\u0ea5\u0eb0 "},"select":{"prompt":"\u0e42\u0e1b\u0e23\u0e14\u0e40\u0e25\u0e37\u0e2d\u0e01"}}},"gl-ES":{"number":{"format":{"separator":",","delimiter":".","precision":2},"currency":{"format":{"format":"%n %u","unit":"\u20ac","separator":",","delimiter":".","precision":2}},"percentage":{"format":{"delimiter":""}},"precision":{"format":{"delimiter":""}},"human":{"format":{"delimiter":"","precision":1},"storage_units":{"format":"%n %u","units":{"byte":{"one":"Byte","other":"Bytes"},"kb":"KB","mb":"MB","gb":"GB","tb":"TB"}}}},"date":{"formats":{"default":"%e/%m/%Y","short":"%e %b","long":"%A %e de %B de %Y"},"day_names":["Domingo","Luns","Martes","M\u00e9rcores","Xoves","Venres","S\u00e1bado"],"abbr_day_names":["Dom","Lun","Mar","Mer","Xov","Ven","Sab"],"month_names":[null,"Xaneiro","Febreiro","Marzo","Abril","Maio","Xu\u00f1o","Xullo","Agosto","Setembro","Outubro","Novembro","Decembro"],"abbr_month_names":[null,"Xan","Feb","Mar","Abr","Mai","Xu\u00f1","Xul","Ago","Set","Out","Nov","Dec"],"order":["day","month","year"]},"time":{"formats":{"default":"%A, %e de %B de %Y \u00e1s %H:%M","time":"%H:%M","short":"%e/%m, %H:%M","long":"%A %e de %B de %Y \u00e1s %H:%M"},"am":"","pm":""},"datetime":{"distance_in_words":{"half_a_minute":"medio minuto","less_than_x_seconds":{"zero":"menos dun segundo","one":"1 segundo","few":"poucos segundos","other":"%{count} segundos"},"x_seconds":{"one":"1 segundo","other":"%{count} segundos"},"less_than_x_minutes":{"zero":"menos dun minuto","one":"1 minuto","other":"%{count} minutos"},"x_minutes":{"one":"1 minuto","other":"%{count} minuto"},"about_x_hours":{"one":"aproximadamente unha hora","other":"%{count} horas"},"x_days":{"one":"1 d\u00eda","other":"%{count} d\u00edas"},"x_weeks":{"one":"1 semana","other":"%{count} semanas"},"about_x_months":{"one":"aproximadamente 1 mes","other":"%{count} meses"},"x_months":{"one":"1 mes","other":"%{count} meses"},"about_x_years":{"one":"aproximadamente 1 ano","other":"%{count} anos"},"over_x_years":{"one":"m\u00e1is dun ano","other":"%{count} anos"},"now":"agora","today":"hoxe","tomorrow":"ma\u00f1\u00e1","in":"dentro de"}},"support":{"array":{"words_connector":", ","two_words_connector":" e ","last_word_connector":" e "}},"activerecord":{"models":null,"attributes":null,"errors":{"template":{"header":{"one":"1 erro evitou que se poidese gardar o %{model}","other":"%{count} erros evitaron que se poidese gardar o %{model}"},"body":"Atop\u00e1ronse os seguintes problemas:"},"messages":{"inclusion":"non est\u00e1 incluido na lista","exclusion":"xa existe","invalid":"non \u00e9 v\u00e1lido","confirmation":"non coincide coa confirmaci\u00f3n","accepted":"debe ser aceptado","empty":"non pode estar valeiro","blank":"non pode estar en blanco","too_long":"\u00e9 demasiado longo (non m\u00e1is de %{count} car\u00e1cteres)","too_short":"\u00e9 demasiado curto (non menos de %{count} car\u00e1cteres)","wrong_length":"non ten a lonxitude correcta (debe ser de %{count} car\u00e1cteres)","taken":"non est\u00e1 dispo\u00f1ible","not_a_number":"non \u00e9 un n\u00famero","greater_than":"debe ser maior que %{count}","greater_than_or_equal_to":"debe ser maior ou igual que %{count}","equal_to":"debe ser igual a %{count}","less_than":"debe ser menor que %{count}","less_than_or_equal_to":"debe ser menor ou igual que %{count}","odd":"debe ser par","even":"debe ser impar"}}}},"sk":{"date":{"formats":{"default":"%d.%m.%Y","short":"%d %b","long":"%d. %B %Y"},"day_names":["Nede\u013ea","Pondelok","Utorok","Streda","\u0160tvrtok","Piatok","Sobota"],"abbr_day_names":["Ne","Po","Ut","St","\u0160t","Pi","So"],"month_names":[null,"Janu\u00e1r","Febru\u00e1r","Marec","Apr\u00edl","M\u00e1j","J\u00fan","J\u00fal","August","September","Okt\u00f3ber","November","December"],"abbr_month_names":[null,"Jan","Feb","Mar","Apr","M\u00e1j","J\u00fan","J\u00fal","Aug","Sep","Okt","Nov","Dec"],"order":["day","month","year"]},"time":{"formats":{"default":"%a %d. %B %Y %H:%M %z","short":"%d.%m. %H:%M","long":"%A %d. %B %Y %H:%M"},"am":"dopoludnia","pm":"popoludn\u00ed"},"support":{"array":{"words_connector":", ","two_words_connector":" a ","last_word_connector":" a "},"select":{"prompt":"Pros\u00edm vyberte si"}},"number":{"format":{"precision":3,"separator":",","delimiter":" ","significant":false,"strip_insignificant_zeros":false},"currency":{"format":{"unit":"\u20ac","precision":2,"format":"%n %u","separator":",","delimiter":" ","significant":false,"strip_insignificant_zeros":false}},"percentage":{"format":{"delimiter":" "}},"precision":{"format":{"delimiter":""}},"human":{"format":{"precision":1,"delimiter":"","significant":false,"strip_insignificant_zeros":false},"storage_units":{"format":"%n %u","units":{"byte":{"other":"B","one":"B"},"kb":"KB","mb":"MB","gb":"GB","tb":"TB"}},"decimal_units":{"format":"%n %u","units":{"unit":"","thousand":"Tis\u00edc","million":"Mili\u00f3n","billion":"Miliarda","trillion":"Bili\u00f3n","quadrillion":"Biliarda"}}}},"datetime":{"prompts":{"second":"Sekunda","minute":"Min\u00fata","hour":"Hodina","day":"De\u0148","month":"Mesiac","year":"Rok"},"distance_in_words":{"half_a_minute":"pol min\u00fatou","less_than_x_seconds":{"one":"asi pred sekundou","other":"asi pred %{count} sekundami"},"x_seconds":{"one":"sekundou","other":"%{count} sekundami"},"less_than_x_minutes":{"one":"pred necelou min\u00fatou","other":"pred ani nie %{count} min\u00fatami"},"x_minutes":{"one":"min\u00fatou","other":"%{count} min\u00fatami"},"about_x_hours":{"one":"asi hodinou","other":"asi %{count} hodinami"},"x_days":{"one":"24 hodinami","other":"%{count} d\u0148ami"},"about_x_months":{"one":"asi mesiacom","other":"asi %{count} mesiacmi"},"x_months":{"one":"mesiacom","other":"%{count} mesiacmi"},"about_x_years":{"one":"asi rokom","other":"asi %{count} rokmi"},"over_x_years":{"one":"pred viac ako rokom","other":"viac ako %{count} rokmi"},"almost_x_years":{"one":"takmer pred rokom","other":"takmer pred %{count} rokmi"}}},"helpers":{"select":{"prompt":"Pros\u00edm vyberte si"},"submit":{"create":"Vytvori\u0165 %{model}","update":"Aktualizova\u0165 %{model}","submit":"Ulo\u017ei\u0165 %{model}"}},"errors":{"format":"%{attribute} %{message}","messages":{"inclusion":"nie je v zozname povolen\u00fdch hodn\u00f4t","exclusion":"je vyhraden\u00e9 pre in\u00fd \u00fa\u010del","invalid":"nie je platn\u00e1 hodnota","confirmation":"nebolo potvrden\u00e9","accepted":"mus\u00ed by\u0165 potvrden\u00e9","empty":"nesmie by\u0165 pr\u00e1zdny/e","blank":"je povinn\u00e1 polo\u017eka","too_long":"je pr\u00edli\u0161 dlh\u00e1/\u00fd (max. %{count} znakov)","too_short":"je pr\u00edli\u0161 kr\u00e1tky/a (min. %{count} znakov)","wrong_length":"nem\u00e1 spr\u00e1vnu d\u013a\u017eku (o\u010dak\u00e1va sa %{count} znakov)","taken":"sa u\u017e nach\u00e1dza v datab\u00e1ze","not_a_number":"nie je \u010d\u00edslo","not_an_integer":"mus\u00ed by\u0165 cel\u00e9 \u010d\u00edslo","greater_than":"mus\u00ed by\u0165 v\u00e4\u010d\u0161ie ako %{count}","greater_than_or_equal_to":"mus\u00ed by\u0165 v\u00e4\u010d\u0161ie alebo rovn\u00e9 %{count}","equal_to":"sa mus\u00ed rovna\u0165 %{count}","less_than":"mus\u00ed by\u0165 men\u0161ie ako %{count}","less_than_or_equal_to":"mus\u00ed by\u0165 men\u0161ie alebo rovn\u00e9 %{count}","odd":"mus\u00ed by\u0165 nep\u00e1rne \u010d\u00edslo","even":"mus\u00ed by\u0165 p\u00e1rne \u010d\u00edslo"},"template":{"header":{"one":"Pri ukladan\u00ed objektu %{model} do\u0161lo k chyb\u00e1m a nebolo ho mo\u017en\u00e9 ulo\u017ei\u0165","other":"Pri ukladan\u00ed objektu %{model} do\u0161lo k %{count} chyb\u00e1m a nebolo ho mo\u017en\u00e9 ulo\u017ei\u0165"},"body":"Nasleduj\u00face polia obsahuj\u00fa chybne vyplnen\u00e9 \u00fadaje:"}},"activerecord":{"errors":{"messages":{"taken":"sa u\u017e nach\u00e1dza v datab\u00e1ze","record_invalid":"Valid\u00e1cia ne\u00faspe\u0161n\u00e1: %{errors}","inclusion":"nie je v zozname povolen\u00fdch hodn\u00f4t","exclusion":"je vyhraden\u00e9 pre in\u00fd \u00fa\u010del","invalid":"nie je platn\u00e1 hodnota","confirmation":"nebolo potvrden\u00e9","accepted":"mus\u00ed by\u0165 potvrden\u00e9","empty":"nesmie by\u0165 pr\u00e1zdny/e","blank":"je povinn\u00e1 polo\u017eka","too_long":"je pr\u00edli\u0161 dlh\u00e1/\u00fd (max. %{count} znakov)","too_short":"je pr\u00edli\u0161 kr\u00e1tky/a (min. %{count} znakov)","wrong_length":"nem\u00e1 spr\u00e1vnu d\u013a\u017eku (o\u010dak\u00e1va sa %{count} znakov)","not_a_number":"nie je \u010d\u00edslo","not_an_integer":"mus\u00ed by\u0165 cel\u00e9 \u010d\u00edslo","greater_than":"mus\u00ed by\u0165 v\u00e4\u010d\u0161ie ako %{count}","greater_than_or_equal_to":"mus\u00ed by\u0165 v\u00e4\u010d\u0161ie alebo rovn\u00e9 %{count}","equal_to":"sa mus\u00ed rovna\u0165 %{count}","less_than":"mus\u00ed by\u0165 men\u0161ie ako %{count}","less_than_or_equal_to":"mus\u00ed by\u0165 men\u0161ie alebo rovn\u00e9 %{count}","odd":"mus\u00ed by\u0165 nep\u00e1rne \u010d\u00edslo","even":"mus\u00ed by\u0165 p\u00e1rne \u010d\u00edslo"},"template":{"header":{"one":"Pri ukladan\u00ed objektu %{model} do\u0161lo k chyb\u00e1m a nebolo ho mo\u017en\u00e9 ulo\u017ei\u0165","other":"Pri ukladan\u00ed objektu %{model} do\u0161lo k %{count} chyb\u00e1m a nebolo ho mo\u017en\u00e9 ulo\u017ei\u0165"},"body":"Nasleduj\u00face polia obsahuj\u00fa chybne vyplnen\u00e9 \u00fadaje:"},"full_messages":{"format":"%{attribute} %{message}"}}}},"hr":{"date":{"formats":{"default":"%d/%m/%Y","short":"%e %b","long":"%B %e, %Y","only_day":"%e"},"day_names":["Nedjelja","Ponedjeljak","Utorak","Srijeda","\u010cetvrtak","Petak","Subota"],"abbr_day_names":["Ned","Pon","Uto","Sre","\u010cet","Pet","Sub"],"month_names":[null,"Sije\u010danj","Velja\u010da","O\u017eujak","Travanj","Svibanj","Lipanj","Srpanj","Kolovoz","Rujan","Listopad","Studeni","Prosinac"],"abbr_month_names":[null,"Sij","Vel","O\u017eu","Tra","Svi","Lip","Srp","Kol","Ruj","Lis","Stu","Pro"],"order":["day","month","year"]},"time":{"formats":{"default":"%a %b %d %H:%M:%S %Z %Y","time":"%H:%M","short":"%d %b %H:%M","long":"%B %d, %Y %H:%M","only_second":"%S","datetime":{"formats":{"default":"%Y-%m-%dT%H:%M:%S%Z"}},"am":"AM","pm":"PM"}},"datetime":{"distance_in_words":{"half_a_minute":"pola minute","less_than_x_seconds":{"zero":"manje od 1 sekunde","one":"manje od 1 sekunde","few":"manje od %{count} sekunde","other":"manje od %{count} sekundi"},"x_seconds":{"one":"1 sekunda","few":"%{count} sekunde","other":"%{count} sekundi"},"less_than_x_minutes":{"zero":"manje od minute","one":"manje od 1 minute","other":"manje od %{count} minuta"},"x_minutes":{"one":"1 minuta","other":"%{count} minuta-e"},"about_x_hours":{"one":"oko 1 sat","few":"oko %{count} sata","other":"oko %{count} sati"},"x_days":{"one":"1 dan","other":"%{count} dana"},"about_x_months":{"one":"oko 1 mjesec","few":"oko %{count} mjeseca","other":"oko %{count} mjeseci"},"x_months":{"one":"1 mjesec","few":"%{count} mjeseca","other":"%{count} mjeseci"},"about_x_years":{"one":"oko 1 godine","other":"oko %{count} godine"},"over_x_years":{"one":"preko 1 godine","other":"preko %{count} godine"}}},"number":{"format":{"precision":3,"separator":",","delimiter":"."},"currency":{"format":{"unit":"Kn","precision":2,"format":"%n %u"}}},"support":{"array":{"sentence_connector":"i"}},"activerecord":{"errors":{"template":{"header":{"one":"Nisam uspio spremiti %{model}: 1 gre\u0161ka","few":"Nisam uspio spremiti %{model}: %{count} gre\u0161ke.","other":"Nisam uspio spremiti %{model}: %{count} gre\u0161ki."},"body":"Molim Vas provjerite slijede\u0107a polja:"},"messages":{"inclusion":"nije u listi","exclusion":"nije dostupno","invalid":"nije ispravan","confirmation":"se ne sla\u017ee sa svojom potvrdom","accepted":"mora biti prihva\u0107en","empty":"mora biti ispunjen","blank":"mora biti ispunjen","too_long":"je preduga\u010dak (ne vi\u0161e od %{count} karaktera)","too_short":"je prekratak (ne manje od %{count} karaktera)","wrong_length":"nije odgovaraju\u0107e du\u017eine (mora imati %{count} karaktera)","taken":"je zauzeto","not_a_number":"nije broj","greater_than":"mora biti ve\u0107e od %{count}","greater_than_or_equal_to":"mora biti ve\u0107e ili jednako %{count}","equal_to":"mora biti jednako %{count}","less_than":"mora biti manje od %{count}","less_than_or_equal_to":"mora biti manje ili jednako %{count}","odd":"mora biti neparno","even":"mora biti parno"}}}},"ar":{"date":{"formats":{"default":"%Y-%m-%d","short":"%e %b","long":"%B %e, %Y"},"day_names":["\u0627\u0644\u0623\u062d\u062f","\u0627\u0644\u0625\u062b\u0646\u064a\u0646","\u0627\u0644\u062b\u0644\u0627\u062b\u0627\u0621","\u0627\u0644\u0623\u0631\u0628\u0639\u0627\u0621","\u0627\u0644\u062e\u0645\u064a\u0633","\u0627\u0644\u062c\u0645\u0639\u0629","\u0627\u0644\u0633\u0628\u062a"],"abbr_day_names":["\u0627\u0644\u0623\u062d\u062f","\u0627\u0644\u0625\u062b\u0646\u064a\u0646","\u0627\u0644\u062b\u0644\u0627\u062b\u0627\u0621","\u0627\u0644\u0623\u0631\u0628\u0639\u0627\u0621","\u0627\u0644\u062e\u0645\u064a\u0633","\u0627\u0644\u062c\u0645\u0639\u0629","\u0627\u0644\u0633\u0628\u062a"],"month_names":[null,"\u064a\u0646\u0627\u064a\u0631","\u0641\u0628\u0631\u0627\u064a\u0631","\u0645\u0627\u0631\u0633","\u0627\u0628\u0631\u064a\u0644","\u0645\u0627\u064a\u0648","\u064a\u0648\u0646\u064a\u0648","\u064a\u0648\u0644\u064a\u0648","\u0627\u063a\u0633\u0637\u0633","\u0633\u0628\u062a\u0645\u0628\u0631","\u0627\u0643\u062a\u0648\u0628\u0631","\u0646\u0648\u0641\u0645\u0628\u0631","\u062f\u064a\u0633\u0645\u0628\u0631"],"abbr_month_names":[null,"\u064a\u0646\u0627\u064a\u0631","\u0641\u0628\u0631\u0627\u064a\u0631","\u0645\u0627\u0631\u0633","\u0627\u0628\u0631\u064a\u0644","\u0645\u0627\u064a\u0648","\u064a\u0648\u0646\u064a\u0648","\u064a\u0648\u0644\u064a\u0648","\u0627\u063a\u0633\u0637\u0633","\u0633\u0628\u062a\u0645\u0628\u0631","\u0627\u0643\u062a\u0648\u0628\u0631","\u0646\u0648\u0641\u0645\u0628\u0631","\u062f\u064a\u0633\u0645\u0628\u0631"],"order":["day","month","year"]},"time":{"formats":{"default":"%a %b %d %H:%M:%S %Z %Y","short":"%d %b %H:%M","long":"%B %d, %Y %H:%M","only_second":"%S"},"am":"\u0635\u0628\u0627\u062d\u0627","pm":"\u0645\u0633\u0627\u0621\u0627"},"support":{"array":{"sentence_connector":"\u0648","words_connector":", ","two_words_connector":" \u0648 ","last_word_connector":", \u0648 ","skip_last_comma":false},"select":{"prompt":"\u0627\u0644\u0631\u062c\u0627\u0621 \u0627\u062e\u062a\u064a\u0627\u0631"}},"number":{"format":{"separator":".","delimiter":",","precision":3,"significant":false,"strip_insignificant_zeros":false},"currency":{"format":{"format":"%u%n","unit":"$","separator":".","delimiter":",","precision":2,"significant":false,"strip_insignificant_zeros":false}},"percentage":{"format":{"delimiter":""}},"precision":{"format":{"delimiter":""}},"human":{"format":{"delimiter":"","precision":3,"significant":true,"strip_insignificant_zeros":true},"storage_units":{"format":"%n %u","units":{"byte":{"one":"Byte","other":"Bytes"},"kb":"KB","mb":"MB","gb":"GB","tb":"TB"}},"decimal_units":{"format":"%n %u","units":{"unit":"","thousand":"\u0623\u0644\u0641","million":"\u0645\u0644\u064a\u0648\u0646","billion":"\u0645\u0644\u064a\u0627\u0631","trillion":"\u062a\u0631\u064a\u0644\u064a\u0648\u0646","quadrillion":"\u0627\u0644\u0643\u062f\u0631\u064a\u0644\u064a\u0648\u0646 \u0631\u0642\u0645"}}}},"datetime":{"distance_in_words":{"half_a_minute":"\u0646\u0635\u0641 \u062f\u0642\u064a\u0642\u0629","less_than_x_seconds":{"one":"\u0623\u0642\u0644 \u0645\u0646 \u062b\u0627\u0646\u064a\u0629","other":"%{count} \u062b\u0648\u0627\u0646"},"x_seconds":{"one":"\u062b\u0627\u0646\u064a\u0629 \u0648\u0627\u062d\u062f\u0629","other":"%{count} \u062b\u0648\u0627\u0646"},"less_than_x_minutes":{"one":"\u0623\u0642\u0644 \u0645\u0646 \u062f\u0642\u064a\u0642\u0629","other":"%{count} \u062f\u0642\u0627\u0626\u0642"},"x_minutes":{"one":"\u062f\u0642\u064a\u0642\u0629 \u0648\u0627\u062d\u062f\u0629","other":"%{count} \u062f\u0642\u0627\u0626\u0642"},"about_x_hours":{"one":"\u062d\u0648\u0627\u0644\u064a \u0633\u0627\u0639\u0629 \u0648\u0627\u062d\u062f\u0629","other":"%{count} \u0633\u0627\u0639\u0627\u062a"},"x_days":{"one":"\u064a\u0648\u0645 \u0648\u0627\u062d\u062f","other":"%{count} \u0623\u064a\u0627\u0645"},"about_x_months":{"one":"\u062d\u0648\u0627\u0644\u064a \u0634\u0647\u0631 \u0648\u0627\u062d\u062f","other":"%{count} \u0623\u0634\u0647\u0631"},"x_months":{"one":"\u0634\u0647\u0631 \u0648\u0627\u062d\u062f","other":"%{count} \u0623\u0634\u0647\u0631"},"about_x_years":{"one":"\u062d\u0648\u0627\u0644\u064a \u0633\u0646\u0629","other":"%{count} \u0633\u0646\u0648\u0627\u062a"},"over_x_years":{"one":"\u0623\u0643\u062b\u0631 \u0645\u0646 \u0633\u0646\u0629","other":"%{count} \u0633\u0646\u0648\u0627\u062a"},"almost_x_years":{"one":"\u062a\u0642\u0631\u064a\u0628\u0627 \u0633\u0646\u0629 \u0648\u0627\u062d\u062f\u0629","other":"\u0645\u0627 \u064a\u0642\u0631\u0628 \u0645\u0646 %{count} \u0633\u0646\u0629"}},"prompts":{"year":"\u0627\u0644\u0633\u0646\u0629","month":"\u0627\u0644\u0634\u0647\u0631","day":"\u0627\u0644\u064a\u0648\u0645","hour":"\u0633\u0627\u0639\u0629","minute":"\u062f\u0642\u064a\u0642\u0629","second":"\u062b\u0627\u0646\u064a\u0629"}},"helpers":{"select":{"prompt":"\u0627\u0644\u0631\u062c\u0627\u0621 \u0627\u062e\u062a\u064a\u0627\u0631"},"submit":{"create":"%{model} \u0625\u0646\u0634\u0627\u0621","update":"%{model} \u0646\u0645\u0648\u0630\u062c","submit":"%{model} \u062d\u0641\u0638"}},"errors":{"format":"%{attribute} %{message}","messages":{"inclusion":"\u0644\u064a\u0633 \u062e\u064a\u0627\u0631\u0627 \u0645\u0642\u0628\u0648\u0644\u0627","exclusion":"\u0645\u062d\u062c\u0648\u0632","invalid":"\u063a\u064a\u0631 \u0645\u0639\u0631\u0641 \u0623\u0648 \u0645\u062d\u062f\u062f","confirmation":"\u0644\u0627 \u062a\u062a\u0648\u0627\u0641\u0642 \u0645\u0639 \u0627\u0644\u062a\u0623\u0643\u064a\u062f","accepted":"\u064a\u062c\u0628 \u0623\u0646 \u062a\u0642\u0628\u0644","empty":"\u0641\u0627\u0631\u063a\u060c \u064a\u0631\u062c\u0649 \u0645\u0644\u0621 \u0627\u0644\u062d\u0642\u0644","blank":"\u0641\u0627\u0631\u063a\u060c \u064a\u0631\u062c\u0649 \u0645\u0644\u0621 \u0627\u0644\u062d\u0642\u0644","too_long":"\u0623\u0637\u0648\u0644 \u0645\u0646 \u0627\u0644\u0644\u0627\u0632\u0645 (\u0627\u0644\u062d\u062f \u0627\u0644\u0623\u0642\u0635\u0649 \u0647\u0648 %{count})","too_short":"\u0623\u0642\u0635\u0631 \u0645\u0646 \u0627\u0644\u0644\u0627\u0632\u0645 (\u0627\u0644\u062d\u062f \u0627\u0644\u0623\u062f\u0646\u0649 \u0647\u0648 %{count})","wrong_length":"\u0628\u0637\u0648\u0644 \u063a\u064a\u0631 \u0645\u0646\u0627\u0633\u0628 (\u064a\u062c\u0628 \u0623\u0646 \u064a\u0643\u0648\u0646 %{count})","not_an_integer":"\u064a\u062c\u0628 \u0623\u0646 \u064a\u0643\u0648\u0646 \u0635\u062d\u064a\u062d\u0627","not_a_number":"\u0644\u064a\u0633 \u0631\u0642\u0645\u0627","greater_than":"\u064a\u062c\u0628 \u0623\u0646 \u064a\u0643\u0648\u0646 \u0623\u0643\u0628\u0631 \u0645\u0646 %{count}","greater_than_or_equal_to":"\u064a\u062c\u0628 \u0623\u0646 \u064a\u0643\u0648\u0646 \u0623\u0643\u0628\u0631 \u0645\u0646 \u0623\u0648 \u064a\u0633\u0627\u0648\u064a %{count}","equal_to":"\u064a\u062c\u0628 \u0623\u0646 \u064a\u0633\u0627\u0648\u064a %{count}","less_than":"\u064a\u062c\u0628 \u0623\u0646 \u064a\u0643\u0648\u0646 \u0623\u0635\u063a\u0631 \u0645\u0646 %{count}","less_than_or_equal_to":"\u064a\u062c\u0628 \u0623\u0646 \u064a\u0643\u0648\u0646 \u0623\u0635\u063a\u0631 \u0645\u0646 \u0623\u0648 \u064a\u0633\u0627\u0648\u064a %{count}","odd":"\u064a\u062c\u0628 \u0623\u0646 \u064a\u0643\u0648\u0646 \u0641\u0631\u062f\u064a","even":"\u064a\u062c\u0628 \u0623\u0646 \u064a\u0643\u0648\u0646 \u0632\u0648\u062c\u064a"}},"activerecord":{"errors":{"template":{"header":{"one":"\u0644\u064a\u0633 \u0628\u0627\u0644\u0627\u0645\u0643\u0627\u0646 \u062d\u0641\u0638 %{model}: \u062e\u0637\u0623 \u0648\u0627\u062d\u062f.","other":"\u0644\u064a\u0633 \u0628\u0627\u0644\u0627\u0645\u0643\u0627\u0646 \u062d\u0641\u0638 %{model}: %{count} \u0623\u062e\u0637\u0627\u0621."},"body":"\u064a\u0631\u062c\u0649 \u0627\u0644\u062a\u062d\u0642\u0642 \u0645\u0646 \u0627\u0644\u062d\u0642\u0648\u0644 \u0627\u0644\u062a\u0627\u0644\u064a\u0629:"},"messages":{"taken":"\u063a\u064a\u0631 \u0645\u062a\u0648\u0641\u0631 (\u0645\u0633\u062a\u062e\u062f\u0645)","record_invalid":"%{errors} \u0641\u0634\u0644 \u0627\u0644\u062a\u062d\u0642\u0642 \u0645\u0646 \u0635\u062d\u0629","inclusion":"\u0644\u064a\u0633 \u062e\u064a\u0627\u0631\u0627 \u0645\u0642\u0628\u0648\u0644\u0627","exclusion":"\u0645\u062d\u062c\u0648\u0632","invalid":"\u063a\u064a\u0631 \u0645\u0639\u0631\u0641 \u0623\u0648 \u0645\u062d\u062f\u062f","confirmation":"\u0644\u0627 \u062a\u062a\u0648\u0627\u0641\u0642 \u0645\u0639 \u0627\u0644\u062a\u0623\u0643\u064a\u062f","accepted":"\u064a\u062c\u0628 \u0623\u0646 \u062a\u0642\u0628\u0644","empty":"\u0641\u0627\u0631\u063a\u060c \u064a\u0631\u062c\u0649 \u0645\u0644\u0621 \u0627\u0644\u062d\u0642\u0644","blank":"\u0641\u0627\u0631\u063a\u060c \u064a\u0631\u062c\u0649 \u0645\u0644\u0621 \u0627\u0644\u062d\u0642\u0644","too_long":"\u0623\u0637\u0648\u0644 \u0645\u0646 \u0627\u0644\u0644\u0627\u0632\u0645 (\u0627\u0644\u062d\u062f \u0627\u0644\u0623\u0642\u0635\u0649 \u0647\u0648 %{count})","too_short":"\u0623\u0642\u0635\u0631 \u0645\u0646 \u0627\u0644\u0644\u0627\u0632\u0645 (\u0627\u0644\u062d\u062f \u0627\u0644\u0623\u062f\u0646\u0649 \u0647\u0648 %{count})","wrong_length":"\u0628\u0637\u0648\u0644 \u063a\u064a\u0631 \u0645\u0646\u0627\u0633\u0628 (\u064a\u062c\u0628 \u0623\u0646 \u064a\u0643\u0648\u0646 %{count})","not_an_integer":"\u064a\u062c\u0628 \u0623\u0646 \u064a\u0643\u0648\u0646 \u0635\u062d\u064a\u062d\u0627","not_a_number":"\u0644\u064a\u0633 \u0631\u0642\u0645\u0627","greater_than":"\u064a\u062c\u0628 \u0623\u0646 \u064a\u0643\u0648\u0646 \u0623\u0643\u0628\u0631 \u0645\u0646 %{count}","greater_than_or_equal_to":"\u064a\u062c\u0628 \u0623\u0646 \u064a\u0643\u0648\u0646 \u0623\u0643\u0628\u0631 \u0645\u0646 \u0623\u0648 \u064a\u0633\u0627\u0648\u064a %{count}","equal_to":"\u064a\u062c\u0628 \u0623\u0646 \u064a\u0633\u0627\u0648\u064a %{count}","less_than":"\u064a\u062c\u0628 \u0623\u0646 \u064a\u0643\u0648\u0646 \u0623\u0635\u063a\u0631 \u0645\u0646 %{count}","less_than_or_equal_to":"\u064a\u062c\u0628 \u0623\u0646 \u064a\u0643\u0648\u0646 \u0623\u0635\u063a\u0631 \u0645\u0646 \u0623\u0648 \u064a\u0633\u0627\u0648\u064a %{count}","odd":"\u064a\u062c\u0628 \u0623\u0646 \u064a\u0643\u0648\u0646 \u0641\u0631\u062f\u064a","even":"\u064a\u062c\u0628 \u0623\u0646 \u064a\u0643\u0648\u0646 \u0632\u0648\u062c\u064a"},"full_messages":{"format":"%{attribute} %{message}"}}}},"ko":{"date":{"formats":{"default":"%Y/%m/%d","short":"%m/%d","long":"%Y\ub144 %m\uc6d4 %d\uc77c (%a)"},"day_names":["\uc77c\uc694\uc77c","\uc6d4\uc694\uc77c","\ud654\uc694\uc77c","\uc218\uc694\uc77c","\ubaa9\uc694\uc77c","\uae08\uc694\uc77c","\ud1a0\uc694\uc77c"],"abbr_day_names":["\uc77c","\uc6d4","\ud654","\uc218","\ubaa9","\uae08","\ud1a0"],"month_names":[null,"1\uc6d4","2\uc6d4","3\uc6d4","4\uc6d4","5\uc6d4","6\uc6d4","7\uc6d4","8\uc6d4","9\uc6d4","10\uc6d4","11\uc6d4","12\uc6d4"],"abbr_month_names":[null,"1\uc6d4","2\uc6d4","3\uc6d4","4\uc6d4","5\uc6d4","6\uc6d4","7\uc6d4","8\uc6d4","9\uc6d4","10\uc6d4","11\uc6d4","12\uc6d4"],"order":["year","month","day"]},"time":{"formats":{"default":"%Y/%m/%d %H:%M:%S","short":"%y/%m/%d %H:%M","long":"%Y\ub144 %B\uc6d4 %d\uc77c, %H\uc2dc %M\ubd84 %S\ucd08 %Z"},"am":"\uc624\uc804","pm":"\uc624\ud6c4"},"support":{"array":{"sentence_connector":", ","skip_last_comma":true,"words_connector":", ","two_words_connector":"\uc640(\uacfc) ","last_word_connector":", "},"select":{"prompt":"\uc120\ud0dd\ud574 \uc8fc\uc138\uc694"}},"number":{"format":{"separator":".","delimiter":",","precision":3,"significant":false,"strip_insignificant_zeros":false},"currency":{"format":{"format":"%n%u","unit":"\uc6d0","separator":".","delimiter":",","precision":0,"significant":false,"strip_insignificant_zeros":false}},"percentage":{"format":{"delimiter":""}},"precision":{"format":{"delimiter":""}},"human":{"format":{"delimiter":"","precision":3,"significant":true,"strip_insignificant_zeros":true},"storage_units":{"format":"%n%u","units":{"byte":"\ubc14\uc774\ud2b8","kb":"\ud0ac\ub85c\ubc14\uc774\ud2b8","mb":"\uba54\uac00\ubc14\uc774\ud2b8","gb":"\uae30\uac00\ubc14\uc774\ud2b8","tb":"\ud14c\ub77c\ubc14\uc774\ud2b8"}},"decimal_units":{"format":"%n%u","units":{"unit":"","thousand":"\ucc9c","million":"\ubc31\ub9cc","billion":"\uc2ed\uc5b5","trillion":"\uc870","quadrillion":"\uacbd"}}}},"datetime":{"distance_in_words":{"half_a_minute":"30\ucd08","less_than_x_seconds":{"one":"\uc77c \ucd08 \uc774\ud558","other":"%{count}\ucd08 \uc774\ud558"},"x_seconds":{"one":"\uc77c \ucd08","other":"%{count}\ucd08"},"less_than_x_minutes":{"one":"\uc77c \ubd84 \uc774\ud558","other":"%{count}\ubd84 \uc774\ud558"},"x_minutes":{"one":"\uc77c \ubd84","other":"%{count}\ubd84"},"about_x_hours":{"one":"\uc57d \ud55c \uc2dc\uac04","other":"\uc57d %{count}\uc2dc\uac04"},"x_days":{"one":"\ud558\ub8e8","other":"%{count}\uc77c"},"about_x_months":{"one":"\uc57d \ud55c \ub2ec","other":"\uc57d %{count}\ub2ec"},"x_months":{"one":"\ud55c \ub2ec","other":"%{count}\ub2ec"},"about_x_years":{"one":"\uc57d \uc77c \ub144","other":"\uc57d %{count}\ub144"},"over_x_years":{"one":"\uc77c \ub144 \uc774\uc0c1","other":"%{count}\ub144 \uc774\uc0c1"},"almost_x_years":{"one":"\uc77c \ub144 \uc774\ud558","other":"%{count}\ub144 \uc774\ud558"}},"prompts":{"year":"\ub144","month":"\uc6d4","day":"\uc77c","hour":"\uc2dc","minute":"\ubd84","second":"\ucd08"}},"helpers":{"select":{"prompt":"\uc120\ud0dd\ud574\uc8fc\uc138\uc694"},"submit":{"create":"\ub4f1\ub85d","update":"\uac31\uc2e0","submit":"\uc81c\ucd9c"}},"errors":{"format":"%{attribute} %{message}","messages":{"inclusion":"\uc740(\ub294) \ubaa9\ub85d\uc5d0 \ud3ec\ud568\ub418\uc5b4 \uc788\ub294 \uac12\uc774 \uc544\ub2d9\ub2c8\ub2e4","exclusion":"\uc740(\ub294) \uc774\ubbf8 \uc608\uc57d\ub418\uc5b4 \uc788\ub294 \uac12\uc785\ub2c8\ub2e4","invalid":"\uc740(\ub294) \uc62c\ubc14\ub974\uc9c0 \uc54a\uc740 \uac12\uc785\ub2c8\ub2e4","confirmation":"\uc740(\ub294) \uc11c\ub85c \uc77c\uce58\ud574\uc57c \ud569\ub2c8\ub2e4","accepted":"\uc744(\ub97c) \ubc18\ub4dc\uc2dc \ud655\uc778\ud574\uc57c \ud569\ub2c8\ub2e4","empty":"\uc5d0 \ub0b4\uc6a9\uc744 \uc785\ub825\ud574 \uc8fc\uc138\uc694","blank":"\uc5d0 \ub0b4\uc6a9\uc744 \uc785\ub825\ud574 \uc8fc\uc138\uc694","too_long":"\uc740(\ub294) %{count}\uc790\ub97c \ub118\uc744 \uc218 \uc5c6\uc2b5\ub2c8\ub2e4","too_short":"\uc740(\ub294) \uc801\uc5b4\ub3c4 %{count}\uc790\ub97c \ub118\uc5b4\uc57c \ud569\ub2c8\ub2e4","wrong_length":"\uc740(\ub294) %{count}\uc790\uc5ec\uc57c \ud569\ub2c8\ub2e4","not_a_number":"\uc5d0 \uc22b\uc790\ub97c \uc785\ub825\ud574 \uc8fc\uc138\uc694","not_an_integer":"\uc5d0 \uc815\uc218\ub97c \uc785\ub825\ud574 \uc8fc\uc138\uc694","greater_than":"\uc740(\ub294) %{count}\ubcf4\ub2e4 \ucee4\uc57c \ud569\ub2c8\ub2e4","greater_than_or_equal_to":"\uc740(\ub294) %{count}\ubcf4\ub2e4 \ud06c\uac70\uc57c \uac19\uc544\uc57c \ud569\ub2c8\ub2e4","equal_to":"\uc740(\ub294) %{count}\uacfc \uac19\uc544\uc57c \ud569\ub2c8\ub2e4","less_than":"\uc740(\ub294) %{count}\ubcf4\ub2e4 \uc791\uc544\uc57c \ud569\ub2c8\ub2e4","less_than_or_equal_to":"\uc740(\ub294) %{count}\uacfc \uc791\uac70\ub098 \uac19\uc544\uc57c \ud569\ub2c8\ub2e4","odd":"\uc5d0 \ud640\uc218\ub97c \uc785\ub825\ud574 \uc8fc\uc138\uc694","even":"\uc5d0 \uc9dd\uc218\ub97c \uc785\ub825\ud574 \uc8fc\uc138\uc694"}},"activerecord":{"errors":{"template":{"header":{"one":"\ud55c \uac1c\uc758 \uc624\ub958\uac00 \ubc1c\uc0dd\ud574 %{model}\ub97c \uc800\uc7a5 \ud560 \uc218 \uc5c6\uc2b5\ub2c8\ub2e4","other":"%{count}\uac1c\uc758 \uc624\ub958\uac00 \ubc1c\uc0dd\ud574 %{model}\ub97c \uc800\uc7a5 \ud560 \uc218 \uc5c6\uc2b5\ub2c8\ub2e4"},"body":"\ub2e4\uc74c \ud56d\ubaa9\uc5d0 \ubb38\uc81c\uac00 \ubc1c\uacac\ub418\uc5c8\uc2b5\ub2c8\ub2e4:"},"messages":{"taken":"\uc740(\ub294) \uc774\ubbf8 \uc874\uc7ac\ud569\ub2c8\ub2e4.","record_invalid":"\ub370\uc774\ud130 \uac80\uc99d\uc5d0 \uc2e4\ud328\ud558\uc600\uc2b5\ub2c8\ub2e4. %{errors}","inclusion":"\uc740(\ub294) \ubaa9\ub85d\uc5d0 \ud3ec\ud568\ub418\uc5b4 \uc788\ub294 \uac12\uc774 \uc544\ub2d9\ub2c8\ub2e4","exclusion":"\uc740(\ub294) \uc774\ubbf8 \uc608\uc57d\ub418\uc5b4 \uc788\ub294 \uac12\uc785\ub2c8\ub2e4","invalid":"\uc740(\ub294) \uc62c\ubc14\ub974\uc9c0 \uc54a\uc740 \uac12\uc785\ub2c8\ub2e4","confirmation":"\uc740(\ub294) \uc11c\ub85c \uc77c\uce58\ud574\uc57c \ud569\ub2c8\ub2e4","accepted":"\uc744(\ub97c) \ubc18\ub4dc\uc2dc \ud655\uc778\ud574\uc57c \ud569\ub2c8\ub2e4","empty":"\uc5d0 \ub0b4\uc6a9\uc744 \uc785\ub825\ud574 \uc8fc\uc138\uc694","blank":"\uc5d0 \ub0b4\uc6a9\uc744 \uc785\ub825\ud574 \uc8fc\uc138\uc694","too_long":"\uc740(\ub294) %{count}\uc790\ub97c \ub118\uc744 \uc218 \uc5c6\uc2b5\ub2c8\ub2e4","too_short":"\uc740(\ub294) \uc801\uc5b4\ub3c4 %{count}\uc790\ub97c \ub118\uc5b4\uc57c \ud569\ub2c8\ub2e4","wrong_length":"\uc740(\ub294) %{count}\uc790\uc5ec\uc57c \ud569\ub2c8\ub2e4","not_a_number":"\uc5d0 \uc22b\uc790\ub97c \uc785\ub825\ud574 \uc8fc\uc138\uc694","not_an_integer":"\uc5d0 \uc815\uc218\ub97c \uc785\ub825\ud574 \uc8fc\uc138\uc694","greater_than":"\uc740(\ub294) %{count}\ubcf4\ub2e4 \ucee4\uc57c \ud569\ub2c8\ub2e4","greater_than_or_equal_to":"\uc740(\ub294) %{count}\ubcf4\ub2e4 \ud06c\uac70\uc57c \uac19\uc544\uc57c \ud569\ub2c8\ub2e4","equal_to":"\uc740(\ub294) %{count}\uacfc \uac19\uc544\uc57c \ud569\ub2c8\ub2e4","less_than":"\uc740(\ub294) %{count}\ubcf4\ub2e4 \uc791\uc544\uc57c \ud569\ub2c8\ub2e4","less_than_or_equal_to":"\uc740(\ub294) %{count}\uacfc \uc791\uac70\ub098 \uac19\uc544\uc57c \ud569\ub2c8\ub2e4","odd":"\uc5d0 \ud640\uc218\ub97c \uc785\ub825\ud574 \uc8fc\uc138\uc694","even":"\uc5d0 \uc9dd\uc218\ub97c \uc785\ub825\ud574 \uc8fc\uc138\uc694"},"full_messages":{"format":"%{attribute} %{message}"}}}},"sl":{"date":{"formats":{"default":"%d.%m.%Y","short":"%d. %b","long":"%d. %b %Y","simple":"%d. %b %Y"},"day_names":["nedelja","ponedeljek","torek","sreda","\u010detrtek","petek","sobota"],"abbr_day_names":["ned","pon","tor","sre","\u010det","pet","sob"],"month_names":[null,"januar","februar","marec","april","maj","junij","julij","avgust","september","oktober","november","december"],"abbr_month_names":[null,"jan","feb","mar","apr","maj","jun","jul","avg","sep","okt","nov","dec"],"order":["day","month","year"]},"time":{"formats":{"default":"%A, %d %b %Y ob %H:%M:%S","short":"%d. %b ob %H:%M","long":"%d. %B, %Y ob %H:%M","simple":"%d. %B %Y ob %H:%M"},"am":"dopoldan","pm":"popoldan"},"support":{"array":{"words_connector":", ","two_words_connector":" in ","last_word_connector":" in "}},"activerecord":{"errors":{"template":{"header":{"one":"Ena napaka prepre\u010duje, da bi shranili %{model}","two":"Dve napaki prepre\u010dujeta, da bi shranili %{model}","few":"%{count} napake prepre\u010dujejo, da bi shranili %{model}","other":"%{count} napak prepre\u010duje, da bi shranili %{model}"},"body":"Napa\u010dno izpolnjena polja:"},"messages":{"inclusion":"ni vklju\u010deno v seznam","exclusion":"je rezervirano","invalid":"je nepravilno","confirmation":"se ne ujema s potrditvijo","accepted":"mora biti sprejeto","empty":"ne sme biti prazno","blank":"ne sme biti prazno","too_long":"je predolgo (dovoljeno je do %{count} znakov)","too_short":"je prekratko (zahtevano je najmanj %{count} znakov)","wrong_length":"je napa\u010dne dol\u017eine (mora biti natan\u010dno %{count} znakov)","taken":"je \u017ee zasedeno","not_a_number":"ni \u0161tevilka","greater_than":"mora biti ve\u010dje kot %{count}","greater_than_or_equal_to":"mora biti ve\u010dje ali enako %{count}","equal_to":"mora biti enako %{count}","less_than":"mora biti manj kot %{count}","less_than_or_equal_to":"mora biti manj ali enako %{count}","odd":"mora biti liho","even":"mora biti sodo","record_invalid":""}}},"number":{"format":{"separator":",","delimiter":".","precision":2},"currency":{"format":{"format":"%u%n","unit":"\u20ac","separator":",","delimiter":".","precision":2}},"percentage":{"format":{"delimiter":""}},"precision":{"format":{"delimiter":""}},"human":{"format":{"delimiter":"","precision":1},"storage_units":{"format":"%n %u","units":{"byte":{"one":"Byte","other":"Bytes"},"kb":"KB","mb":"MB","gb":"GB","tb":"TB"}}}},"datetime":{"distance_in_words":{"half_a_minute":"pol minute","less_than_x_seconds":{"one":"manj kot 1 sekunda","two":"manj kot 2 sekundi","few":"manj kot %{count} sekunde","other":"manj kot %{count} sekund"},"x_seconds":{"one":"1 sekunda","two":"2 sekundi","few":"%{count} sekunde","other":"%{count} sekund"},"less_than_x_minutes":{"one":"manj kot ena minuta","two":"manj kot dve minuti","few":"manj kot %{count} minute","other":"manj kot %{count} minut"},"x_minutes":{"one":"1 minuta","two":"2 minuti","few":"%{count} minute","other":"%{count} minut"},"about_x_hours":{"one":"okoli 1 ura","two":"okoli 2 uri","few":"okoli %{count} ure","other":"okoli %{count} ur"},"x_days":{"one":"1 dan","two":"2 dneva","few":"%{count} dnevi","other":"%{count} dni"},"about_x_months":{"one":"okoli 1 mesec","two":"okoli 2 meseca","few":"okoli %{count} mesece","other":"okoli %{count} mesecev"},"x_months":{"one":"1 mesec","two":"2 meseca","few":"%{count} mesece","other":"%{count} mesecev"},"almost_x_years":{"one":"skoraj 1 leto","two":"skoraj 2 leti","few":"skoraj %{count} leta","other":"skoraj %{count} let"},"about_x_years":{"one":"okoli 1 leto","two":"okoli 2 leti","few":"okoli %{count} leta","other":"okoli %{count} let"},"over_x_years":{"one":"ve\u010d kot 1 leto","two":"ve\u010d kot 2 leti","few":"ve\u010d kot %{count} leta","other":"ve\u010d kot %{count} let"}},"prompts":{"year":"Leto","month":"Mesec","day":"Dan","hour":"Ura","minute":"Minute","second":"Sekunde"}}},"is":{"date":{"formats":{"default":"%d.%m.%Y","short":"%e. %b","long":"%e. %B %Y"},"day_names":["sunnudaginn","m\u00e1nudaginn","\u00feri\u00f0judaginn","mi\u00f0vikudaginn","fimmtudaginn","f\u00f6studaginn","laugardaginn"],"abbr_day_names":["sun","m\u00e1n","\u00feri","mi\u00f0","fim","f\u00f6s","lau"],"month_names":[null,"jan\u00faar","febr\u00faar","mars","apr\u00edl","ma\u00ed","j\u00fan\u00ed","j\u00fal\u00ed","\u00e1g\u00fast","september","okt\u00f3ber","n\u00f3vember","desember"],"abbr_month_names":[null,"jan","feb","mar","apr","ma\u00ed","j\u00fan","j\u00fal","\u00e1g\u00fa","sep","okt","n\u00f3v","des"],"order":["day","month","year"]},"time":{"formats":{"default":"%A %e. %B %Y kl. %H:%M","time":"%H:%M","short":"%e. %B kl. %H:%M","long":"%A %e. %B %Y kl. %H:%M"},"am":"","pm":""},"support":{"array":{"words_connector":", ","two_words_connector":" og ","last_word_connector":" og "},"select":{"prompt":"Veldu"}},"number":{"format":{"separator":".","delimiter":",","precision":3,"significant":false,"strip_insignificant_zeros":false},"currency":{"format":{"format":"%n %u","unit":"kr.","separator":".","delimiter":",","precision":2,"significant":false,"strip_insignificant_zeros":false}},"percentage":{"format":{"delimiter":""}},"precision":{"format":{"delimiter":""}},"human":{"format":{"delimiter":"","precision":3,"significant":true,"strip_insignificant_zeros":true},"storage_units":{"format":"%n %u","units":{"byte":{"one":"b\u00e6ti","other":"b\u00e6ti"},"kb":"KB","mb":"MB","gb":"GB","tb":"TB"}},"decimal_units":{"format":"%n %u","units":{"unit":"","thousand":"\u00fe\u00fasund","million":{"one":"millj\u00f3n","other":"millj\u00f3nir"},"billion":{"one":"milliar\u00f0ur","other":"milliar\u00f0ar"},"trillion":{"one":"billj\u00f3n","other":"billj\u00f3nir"},"quadrillion":{"one":"billjar\u00f0ur","other":"billjar\u00f0ar"}}}}},"datetime":{"distance_in_words":{"half_a_minute":"h\u00e1lf m\u00edn\u00fata","less_than_x_seconds":{"one":"minna en 1 sek\u00fanda","other":"minna en %{count} sek\u00fandur"},"x_seconds":{"one":"1 sek\u00fanda","other":"%{count} sek\u00fandur"},"less_than_x_minutes":{"one":"minna en 1 m\u00edn\u00fata","other":"minna en %{count} m\u00edn\u00fatur"},"x_minutes":{"one":"1 m\u00edn\u00fata","other":"%{count} m\u00edn\u00fatur"},"about_x_hours":{"one":"u.\u00fe.b. 1 klukkustund","other":"u.\u00fe.b. %{count} klukkustundir"},"x_days":{"one":"1 dagur","other":"%{count} dagar"},"about_x_months":{"one":"u.\u00fe.b. 1 m\u00e1nu\u00f0ur","other":"u.\u00fe.b. %{count} m\u00e1nu\u00f0ir"},"x_months":{"one":"1 m\u00e1nu\u00f0ur","other":"%{count} m\u00e1nu\u00f0ir"},"about_x_years":{"one":"u.\u00fe.b. 1 \u00e1r","other":"u.\u00fe.b. %{count} \u00e1r"},"over_x_years":{"one":"meira en 1 \u00e1r","other":"meira en %{count} \u00e1r"},"almost_x_years":{"one":"n\u00e6stum 1 \u00e1r","other":"n\u00e6stum %{count} \u00e1r"}},"prompts":{"year":"\u00c1r","month":"M\u00e1nu\u00f0ur","day":"Dagur","hour":"Klukkustund","minute":"M\u00edn\u00fata","second":"Sek\u00fanda"}},"helpers":{"select":{"prompt":"Veldu"},"submit":{"create":"B\u00faa til %{model}","update":"Uppf\u00e6ra %{model}","submit":"Geyma %{model}"}},"errors":{"format":"%{attribute} %{message}","messages":{"inclusion":"er ekki \u00ed listanum","exclusion":"er fr\u00e1teki\u00f0","invalid":"er \u00f3gilt","confirmation":"er ekki jafngilt sta\u00f0festingunni","accepted":"\u00fearf a\u00f0 vera teki\u00f0 gilt","empty":"m\u00e1 ekki vera t\u00f3mt","blank":"m\u00e1 ekki innihalda au\u00f0a stafi","too_long":"er of langt (m\u00e1 mest vera %{count} stafir)","too_short":"er of stutt (m\u00e1 minnst vera %{count} stafir)","wrong_length":"er af rangri lengd (m\u00e1 mest vera %{count} stafir)","not_a_number":"er ekki tala","not_an_integer":"ver\u00f0ur a\u00f0 vera heiltala","greater_than":"\u00fearf a\u00f0 vera st\u00e6rri en %{count}","greater_than_or_equal_to":"\u00fearf a\u00f0 vera st\u00e6rri en e\u00f0a jafngilt %{count}","equal_to":"\u00fearf a\u00f0 vera jafngilt %{count}","less_than":"\u00fearf a\u00f0 vera minna en %{count}","less_than_or_equal_to":"\u00fearf a\u00f0 vera minna en e\u00f0a jafngilt %{count}","odd":"\u00fearf a\u00f0 vera oddatala","even":"\u00fearf a\u00f0 vera sl\u00e9tt tala"}},"activerecord":{"errors":{"template":{"header":{"one":"Ekki var h\u00e6gt a\u00f0 vista %{model} vegna einnar villu.","other":"Ekki var h\u00e6gt a\u00f0 vista %{model} vegna %{count} villna."},"body":"Upp kom vandam\u00e1l \u00ed eftirfarandi d\u00e1lkum:"},"messages":{"taken":"er \u00feegar \u00ed notkun","record_invalid":"Villur: %{errors}","inclusion":"er ekki \u00ed listanum","exclusion":"er fr\u00e1teki\u00f0","invalid":"er \u00f3gilt","confirmation":"er ekki jafngilt sta\u00f0festingunni","accepted":"\u00fearf a\u00f0 vera teki\u00f0 gilt","empty":"m\u00e1 ekki vera t\u00f3mt","blank":"m\u00e1 ekki innihalda au\u00f0a stafi","too_long":"er of langt (m\u00e1 mest vera %{count} stafir)","too_short":"er of stutt (m\u00e1 minnst vera %{count} stafir)","wrong_length":"er af rangri lengd (m\u00e1 mest vera %{count} stafir)","not_a_number":"er ekki tala","not_an_integer":"ver\u00f0ur a\u00f0 vera heiltala","greater_than":"\u00fearf a\u00f0 vera st\u00e6rri en %{count}","greater_than_or_equal_to":"\u00fearf a\u00f0 vera st\u00e6rri en e\u00f0a jafngilt %{count}","equal_to":"\u00fearf a\u00f0 vera jafngilt %{count}","less_than":"\u00fearf a\u00f0 vera minna en %{count}","less_than_or_equal_to":"\u00fearf a\u00f0 vera minna en e\u00f0a jafngilt %{count}","odd":"\u00fearf a\u00f0 vera oddatala","even":"\u00fearf a\u00f0 vera sl\u00e9tt tala"},"full_messages":{"format":"%{attribute} %{message}"}}}},"lt":{"number":{"format":{"separator":",","delimiter":" ","precision":3},"currency":{"format":{"format":"%n %u","unit":"Lt","separator":",","delimiter":" ","precision":2}},"percentage":{"format":{"delimiter":""}},"precision":{"format":{"delimiter":""}},"human":{"format":{"delimiter":"","precision":1},"storage_units":{"format":"%n %u","units":{"byte":{"one":"Baitas","other":"Baitai"},"kb":"KB","mb":"MB","gb":"GB","tb":"TB"}}}},"datetime":{"distance_in_words":{"half_a_minute":"pus\u0117 minut\u0117s","less_than_x_seconds":{"one":"ma\u017eiau nei 1 sekund\u0117","other":"ma\u017eiau nei %{count} sekund\u0117s"},"x_seconds":{"one":"1 sekund\u0117","other":"%{count} sekund\u0117s"},"less_than_x_minutes":{"one":"ma\u017eiau nei minut\u0117","other":"ma\u017eiau nei %{count} minut\u0117s"},"x_minutes":{"one":"1 minut\u0117","other":"%{count} minut\u0117s"},"about_x_hours":{"one":"apie 1 valanda","other":"apie %{count} valand\u0173"},"x_days":{"one":"1 diena","other":"%{count} dien\u0173"},"about_x_months":{"one":"apie 1 m\u0117nuo","other":"apie %{count} m\u0117nesiai"},"x_months":{"one":"1 m\u0117nuo","other":"%{count} m\u0117nesiai"},"about_x_years":{"one":"apie 1 metai","other":"apie %{count} met\u0173"},"over_x_years":{"one":"vir\u0161 1 met\u0173","other":"vir\u0161 %{count} met\u0173"}},"prompts":{"year":"Metai","month":"M\u0117nuo","day":"Diena","hour":"Valanda","minute":"Minut\u0117","second":"Sekund\u0117s"}},"activerecord":{"errors":{"template":{"header":{"one":"I\u0161saugant objekt\u0105 %{model} rasta klaida","other":"I\u0161saugant objekt\u0105 %{model} rastos %{count} klaidos"},"body":"\u0160iuose laukuose yra klaid\u0173:"},"messages":{"inclusion":"nenumatyta reik\u0161m\u0117","exclusion":"u\u017eimtas","invalid":"neteisingas","confirmation":"neteisingai pakartotas","accepted":"turi b\u016bti patvirtintas","empty":"negali b\u016bti tu\u0161\u010dias","blank":"negali b\u016bti tu\u0161\u010dias","too_long":"per ilgas (daugiausiai %{count} simboliai)","too_short":"per trumpas (ma\u017eiausiai %{count} simboliai)","wrong_length":"neteisingo ilgio (turi b\u016bti %{count} simboliai)","taken":"jau u\u017eimtas","not_a_number":"ne skai\u010dius","greater_than":"turi b\u016bti didesnis u\u017e %{count}","greater_than_or_equal_to":"turi b\u016bti didesnis arba lygus %{count}","equal_to":"turi b\u016bti lygus %{count}","less_than":"turi b\u016bti ma\u017eesnis u\u017e %{count}","less_than_or_equal_to":"turi b\u016bti ma\u017eesnis arba lygus %{count}","odd":"turi b\u016bti nelyginis","even":"turi b\u016bti lyginis"},"models":null}},"date":{"formats":{"default":"%Y-%m-%d","short":"%b %d","long":"%B %d, %Y"},"day_names":["sekmadienis","pirmadienis","antradienis","tre\u010diadienis","ketvirtadienis","penktadienis","\u0161e\u0161tadienis"],"abbr_day_names":["Sek","Pir","Ant","Tre","Ket","Pen","\u0160e\u0161"],"month_names":[null,"sausio","vasario","kovo","baland\u017eio","gegu\u017e\u0117s","bir\u017eelio","liepos","rugpj\u016b\u010dio","rugs\u0117jo","spalio","lapkri\u010dio","gruod\u017eio"],"abbr_month_names":[null,"Sau","Vas","Kov","Bal","Geg","Bir","Lie","Rgp","Rgs","Spa","Lap","Grd"],"order":["year","month","day"]},"time":{"formats":{"default":"%a, %d %b %Y %H:%M:%S %z","short":"%d %b %H:%M","long":"%B %d, %Y %H:%M"},"am":"am","pm":"pm"},"support":{"array":{"words_connector":", ","two_words_connector":" ir ","last_word_connector":" ir "}}},"nb":{"support":{"array":{"words_connector":", ","two_words_connector":" og ","last_word_connector":" og "},"select":{"prompt":"Velg"}},"date":{"formats":{"default":"%d.%m.%Y","short":"%e. %b","long":"%e. %B %Y"},"day_names":["s\u00f8ndag","mandag","tirsdag","onsdag","torsdag","fredag","l\u00f8rdag"],"abbr_day_names":["s\u00f8n","man","tir","ons","tor","fre","l\u00f8r"],"month_names":[null,"januar","februar","mars","april","mai","juni","juli","august","september","oktober","november","desember"],"abbr_month_names":[null,"jan","feb","mar","apr","mai","jun","jul","aug","sep","okt","nov","des"],"order":["day","month","year"]},"time":{"formats":{"default":"%A, %e. %B %Y, %H:%M","short":"%e. %B, %H:%M","long":"%A, %e. %B %Y, %H:%M"},"am":"","pm":""},"datetime":{"distance_in_words":{"half_a_minute":"et halvt minutt","less_than_x_seconds":{"one":"mindre enn 1 sekund","other":"mindre enn %{count} sekunder"},"x_seconds":{"one":"1 sekund","other":"%{count} sekunder"},"less_than_x_minutes":{"one":"mindre enn 1 minutt","other":"mindre enn %{count} minutter"},"x_minutes":{"one":"1 minutt","other":"%{count} minutter"},"about_x_hours":{"one":"rundt 1 time","other":"rundt %{count} timer"},"x_days":{"one":"1 dag","other":"%{count} dager"},"about_x_months":{"one":"rundt 1 m\u00e5ned","other":"rundt %{count} m\u00e5neder"},"x_months":{"one":"1 m\u00e5ned","other":"%{count} m\u00e5neder"},"about_x_years":{"one":"rundt 1 \u00e5r","other":"rundt %{count} \u00e5r"},"over_x_years":{"one":"over 1 \u00e5r","other":"over %{count} \u00e5r"},"almost_x_years":{"one":"nesten 1 \u00e5r","other":"nesten %{count} \u00e5r"}},"prompts":{"year":"\u00c5r","month":"M\u00e5ned","day":"Dag","hour":"Time","minute":"Minutt","second":"Sekund"}},"number":{"format":{"precision":2,"separator":",","delimiter":" ","significant":false,"strip_insignificant_zeros":true},"currency":{"format":{"unit":"kr","format":"%n %u","precision":2,"separator":",","delimiter":" ","significant":false,"strip_insignificant_zeros":true}},"precision":{"format":{"delimiter":""}},"human":{"format":{"precision":1,"separator":",","delimiter":" ","significant":false,"strip_insignificant_zeros":true},"storage_units":{"format":"%n %u","units":{"byte":{"one":"Byte","other":"Bytes"},"kb":"kB","mb":"MB","gb":"GB","tb":"TB"}},"decimal_units":{"format":"%n %u","units":{"unit":"","thousand":"tusen","million":{"one":"million","other":"millioner"},"billion":{"one":"milliard","other":"milliarder"},"trillion":{"one":"billion","other":"billioner"},"quadrillion":{"one":"billiard","other":"billiarder"}}}},"percentage":{"format":{"delimiter":""}}},"helpers":{"select":{"prompt":"Vennligst velg"},"submit":{"create":"Lag %{model}","update":"Oppdater %{model}","submit":"Lagre %{model}"}},"errors":{"format":"%{attribute} %{message}","messages":{"inclusion":"er ikke inkludert i listen","exclusion":"er reservert","invalid":"er ugyldig","confirmation":"passer ikke bekreftelsen","accepted":"m\u00e5 v\u00e6re akseptert","empty":"kan ikke v\u00e6re tom","blank":"kan ikke v\u00e6re blank","too_long":"er for lang (maksimum %{count} tegn)","too_short":"er for kort (minimum %{count} tegn)","wrong_length":"er av feil lengde (maksimum %{count} tegn)","not_a_number":"er ikke et tall","not_an_integer":"er ikke et heltall","greater_than":"m\u00e5 v\u00e6re st\u00f8rre enn %{count}","greater_than_or_equal_to":"m\u00e5 v\u00e6re st\u00f8rre enn eller lik %{count}","equal_to":"m\u00e5 v\u00e6re lik %{count}","less_than":"m\u00e5 v\u00e6re mindre enn %{count}","less_than_or_equal_to":"m\u00e5 v\u00e6re mindre enn eller lik %{count}","odd":"m\u00e5 v\u00e6re oddetall","even":"m\u00e5 v\u00e6re partall"}},"activerecord":{"errors":{"template":{"header":{"one":"Kunne ikke lagre %{model} p\u00e5 grunn av \u00e9n feil.","other":"Kunne ikke lagre %{model} p\u00e5 grunn av %{count} feil."},"body":"Det oppstod problemer i f\u00f8lgende felt:"},"messages":{"taken":"er allerede i bruk","record_invalid":"Det oppstod feil: %{errors}","inclusion":"er ikke inkludert i listen","exclusion":"er reservert","invalid":"er ugyldig","confirmation":"passer ikke bekreftelsen","accepted":"m\u00e5 v\u00e6re akseptert","empty":"kan ikke v\u00e6re tom","blank":"kan ikke v\u00e6re blank","too_long":"er for lang (maksimum %{count} tegn)","too_short":"er for kort (minimum %{count} tegn)","wrong_length":"er av feil lengde (maksimum %{count} tegn)","not_a_number":"er ikke et tall","not_an_integer":"er ikke et heltall","greater_than":"m\u00e5 v\u00e6re st\u00f8rre enn %{count}","greater_than_or_equal_to":"m\u00e5 v\u00e6re st\u00f8rre enn eller lik %{count}","equal_to":"m\u00e5 v\u00e6re lik %{count}","less_than":"m\u00e5 v\u00e6re mindre enn %{count}","less_than_or_equal_to":"m\u00e5 v\u00e6re mindre enn eller lik %{count}","odd":"m\u00e5 v\u00e6re oddetall","even":"m\u00e5 v\u00e6re partall"},"full_messages":{"format":"%{attribute} %{message}"}}}},"fr-CA":{"date":{"formats":{"default":"%Y-%m-%d","short":"%y-%m-%d","long":"%d %B %Y"},"day_names":["dimanche","lundi","mardi","mercredi","jeudi","vendredi","samedi"],"abbr_day_names":["dim","lun","mar","mer","jeu","ven","sam"],"month_names":[null,"janvier","f\u00e9vrier","mars","avril","mai","juin","juillet","ao\u00fbt","septembre","octobre","novembre","d\u00e9cembre"],"abbr_month_names":[null,"jan.","f\u00e9v.","mar.","avr.","mai","juin","juil.","ao\u00fbt","sept.","oct.","nov.","d\u00e9c."],"order":["year","month","day"]},"time":{"formats":{"default":"%H:%M:%S","short":"%H:%M","long":"%A %d %B %Y %H:%M"},"am":"am","pm":"pm"},"datetime":{"distance_in_words":{"half_a_minute":"une demi-minute","less_than_x_seconds":{"zero":"moins d'une seconde","one":"moins d'une\u00a0seconde","other":"moins de %{count}\u00a0secondes"},"x_seconds":{"one":"1\u00a0seconde","other":"%{count}\u00a0secondes"},"less_than_x_minutes":{"zero":"moins d'une\u00a0minute","one":"moins d'une\u00a0minute","other":"moins de %{count}\u00a0minutes"},"x_minutes":{"one":"1\u00a0minute","other":"%{count}\u00a0minutes"},"about_x_hours":{"one":"environ une heure","other":"environ %{count}\u00a0heures"},"x_days":{"one":"1\u00a0jour","other":"%{count}\u00a0jours"},"about_x_months":{"one":"environ un mois","other":"environ %{count}\u00a0mois"},"x_months":{"one":"1\u00a0mois","other":"%{count}\u00a0mois"},"about_x_years":{"one":"environ un an","other":"environ %{count}\u00a0ans"},"over_x_years":{"one":"plus d'un an","other":"plus de %{count}\u00a0ans"},"almost_x_years":{"one":"presqu'un an","other":"presque %{count} ans"}},"prompts":{"year":"Ann\u00e9e","month":"Mois","day":"Jour","hour":"Heure","minute":"Minute","second":"Seconde"}},"number":{"format":{"separator":",","delimiter":" ","precision":3,"significant":false,"strip_insignificant_zeros":false},"currency":{"format":{"format":"%n %u","unit":"$","separator":",","delimiter":" ","precision":2,"significant":false,"strip_insignificant_zeros":false}},"percentage":{"format":{"delimiter":""}},"precision":{"format":{"delimiter":""}},"human":{"format":{"delimiter":"","precision":2,"significant":true,"strip_insignificant_zeros":true},"storage_units":{"format":"%n %u","units":{"byte":{"one":"Octet","other":"Octets"},"kb":"ko","mb":"Mo","gb":"Go","tb":"To"}},"decimal_units":{"format":"%n %u","units":{"unit":"","thousand":"Millier","million":"Million","billion":"Milliard","trillion":"Mille milliard","quadrillion":"Million de milliards"}}}},"support":{"array":{"words_connector":", ","two_words_connector":" et ","last_word_connector":" et "},"select":{"prompt":"Veuillez s\u00e9lectionner"}},"helpers":{"select":{"prompt":"Veuillez s\u00e9lectionner"},"submit":{"create":"Cr\u00e9er un %{model}","update":"Modifier ce %{model}","submit":"Enregistrer ce %{model}"}},"errors":{"format":"Le %{attribute} %{message}","messages":{"inclusion":"n'est pas inclus(e) dans la liste","exclusion":"n'est pas disponible","invalid":"n'est pas valide","confirmation":"ne concorde pas avec la confirmation","accepted":"doit \u00eatre accept\u00e9(e)","empty":"doit \u00eatre rempli(e)","blank":"doit \u00eatre rempli(e)","too_long":{"one":"est trop long (pas plus d'un caract\u00e8re)","other":"est trop long (pas plus de %{count} caract\u00e8res)"},"too_short":{"one":"est trop court (au moins un caract\u00e8re)","other":"est trop court (au moins %{count} caract\u00e8res)"},"wrong_length":{"one":"ne fait pas la bonne longueur (doit comporter un seul caract\u00e8re)","other":"ne fait pas la bonne longueur (doit comporter %{count} caract\u00e8res)"},"not_a_number":"n'est pas un nombre","not_an_integer":"doit \u00eatre un nombre entier","greater_than":"doit \u00eatre sup\u00e9rieur \u00e0 %{count}","greater_than_or_equal_to":"doit \u00eatre sup\u00e9rieur ou \u00e9gal \u00e0 %{count}","equal_to":"doit \u00eatre \u00e9gal \u00e0 %{count}","less_than":"doit \u00eatre inf\u00e9rieur \u00e0 %{count}","less_than_or_equal_to":"doit \u00eatre inf\u00e9rieur ou \u00e9gal \u00e0 %{count}","odd":"doit \u00eatre impair","even":"doit \u00eatre pair"}},"attributes":{"created_at":"Cr\u00e9\u00e9 le","updated_at":"Modifi\u00e9 le"},"activerecord":{"errors":{"messages":{"taken":"n'est pas disponible","record_invalid":"La validation a \u00e9chou\u00e9 : %{errors}","inclusion":"n'est pas inclus(e) dans la liste","exclusion":"n'est pas disponible","invalid":"n'est pas valide","confirmation":"ne concorde pas avec la confirmation","accepted":"doit \u00eatre accept\u00e9(e)","empty":"doit \u00eatre rempli(e)","blank":"doit \u00eatre rempli(e)","too_long":{"one":"est trop long (pas plus d'un caract\u00e8re)","other":"est trop long (pas plus de %{count} caract\u00e8res)"},"too_short":{"one":"est trop court (au moins un caract\u00e8re)","other":"est trop court (au moins %{count} caract\u00e8res)"},"wrong_length":{"one":"ne fait pas la bonne longueur (doit comporter un seul caract\u00e8re)","other":"ne fait pas la bonne longueur (doit comporter %{count} caract\u00e8res)"},"not_a_number":"n'est pas un nombre","not_an_integer":"doit \u00eatre un nombre entier","greater_than":"doit \u00eatre sup\u00e9rieur \u00e0 %{count}","greater_than_or_equal_to":"doit \u00eatre sup\u00e9rieur ou \u00e9gal \u00e0 %{count}","equal_to":"doit \u00eatre \u00e9gal \u00e0 %{count}","less_than":"doit \u00eatre inf\u00e9rieur \u00e0 %{count}","less_than_or_equal_to":"doit \u00eatre inf\u00e9rieur ou \u00e9gal \u00e0 %{count}","odd":"doit \u00eatre impair","even":"doit \u00eatre pair"},"template":{"header":{"one":"Impossible d'enregistrer ce %{model} : 1 erreur","other":"Impossible d'enregistrer ce %{model} : %{count} erreurs"},"body":"Veuillez v\u00e9rifier les champs suivants\u00a0: "},"full_messages":{"format":"%{attribute} %{message}"}}}},"sw":{"date":{"formats":{"default":"%d-%m-%Y","short":"%e %b","long":"%e %B, %Y"},"day_names":["Jumpili","Jumatatu","Jumanne","Jumatano","Alhamisi","Ijumaa","Jumamosi"],"abbr_day_names":["J2","J3","J4","J5","Al","Ij","J1"],"month_names":[null,"Mwezi wa kwanza","Mwezi wa pili","Mwezi wa tatu","Mwezi wa nne","Mwezi wa tano","Mwezi wa sita","Mwezi wa saba","Mwezi wa nane","Mwezi wa tisa","Mwezi wa kumi","Mwezi wa kumi na moja","Mwezi wa kumi na mbili"],"abbr_month_names":[null,"Jan","Feb","Mac","Apr","Mei","Jun","Jul","Ago","Sep","Okt","Nov","Des"],"order":["day","month","year"]},"time":{"formats":{"default":"%a, %d %b %Y %H:%M:%S","short":"%e %b %Y %H:%M","long":"%A, %e. %B %Y, %H:%M:%S"},"am":"am","pm":"pm"},"support":{"array":{"words_connector":", ","two_words_connector":" na ","last_word_connector":", na "},"select":{"prompt":"Tafadhali teua"}},"number":{"format":{"separator":",","delimiter":".","precision":2,"significant":false,"strip_insignificant_zeros":false},"currency":{"format":{"format":"%n%u","unit":"/=","separator":",","delimiter":".","precision":2,"significant":false,"strip_insignificant_zeros":false}},"percentage":{"format":{"delimiter":""}},"precision":{"format":{"delimiter":""}},"human":{"format":{"delimiter":"","precision":3,"significant":true,"strip_insignificant_zeros":true},"storage_units":{"format":"%n %u","units":{"byte":{"one":"Byte","other":"Bytes"},"kb":"KB","mb":"MB","gb":"GB","tb":"TB"}},"decimal_units":{"format":"%n %u","units":{"unit":"","thousand":"Elfu","million":"Milioni","billion":"Bilioni","trillion":"Trilioni","quadrillion":"Quadrillion"}}}},"datetime":{"distance_in_words":{"half_a_minute":"nusu dakika","less_than_x_seconds":{"one":"chini ya sekunde 1","other":"chini ya sekunde %{count}"},"x_seconds":{"one":"sekunde 1","other":"sekunde %{count}"},"less_than_x_minutes":{"one":"chini ya dakika 1","other":"chini ya dakika %{count}"},"x_minutes":{"one":"dakika 1","other":"dakika %{count}"},"about_x_hours":{"one":"kama saa limoja","other":"kama masaa %{count}"},"x_days":{"one":"siku 1","other":"siku %{count}"},"about_x_months":{"one":"kama mwezi 1","other":"kama miezi %{count}"},"x_months":{"one":"mwezi 1","other":"miezi %{count}"},"about_x_years":{"one":"kama mwaka 1","other":"kama miaka %{count}"},"over_x_years":{"one":"zaidi ya mwaka 1","other":"zaidi ya miaka %{count}"},"almost_x_years":{"one":"karibia mwaka","other":"karibia miaka %{count}"}},"prompts":{"year":"Mwaka","month":"Mwezi","day":"Siku","hour":"Saa","minute":"Dakika","second":"Sekunde"}},"helpers":{"select":{"prompt":"Tafadhali teua"},"submit":{"create":"Unda %{model}","update":"Sasaisha %{model}","submit":"Akibisha %{model}"}},"errors":{"format":"%{attribute} %{message}","messages":{"inclusion":"haipo kwenye orodha","exclusion":"haiwezi kutumika","invalid":"haifai","confirmation":"haifanani na hapo chini","accepted":"lazima ikubaliwe","empty":"haitakiwi kuwa tupu","blank":"haitakiwi kuwa wazi","too_long":"ndefu sana (isizidi herufi %{count})","too_short":"fupi mno (isipungue herufi %{count})","wrong_length":"idadi ya herufi hazilingani (inatakiwa %{count})","not_a_number":"inaruhusiwa namba tu","not_an_integer":"inaruhusiwa namba tu","greater_than":"z/iwe zaidi ya {{count}}","greater_than_or_equal_to":"z/iwe sawa ama zaidi ya {{count}}","equal_to":"z/iwe sawa na {{count}}","less_than":"z/isizidi {{count}}","less_than_or_equal_to":"z/iwe sawa na, ama chini ya {{count}}","odd":"z/iwe witiri","even":"z/iwe shufwa"}},"activerecord":{"errors":{"template":{"header":{"one":"%{model} haikuhifadhiwa kwa sababu moja.","other":"%{model} haikuhifadhiwa kwa sababu %{count}."},"body":"Tafadhali kagua sehemu zifuatazo:"},"messages":{"taken":"imesajiliwa","record_invalid":"Uhalalishaji umeshindikana: %{errors}","inclusion":"haipo kwenye orodha","exclusion":"haiwezi kutumika","invalid":"haifai","confirmation":"haifanani na hapo chini","accepted":"lazima ikubaliwe","empty":"haitakiwi kuwa tupu","blank":"haitakiwi kuwa wazi","too_long":"ndefu sana (isizidi herufi %{count})","too_short":"fupi mno (isipungue herufi %{count})","wrong_length":"idadi ya herufi hazilingani (inatakiwa %{count})","not_a_number":"inaruhusiwa namba tu","not_an_integer":"inaruhusiwa namba tu","greater_than":"z/iwe zaidi ya {{count}}","greater_than_or_equal_to":"z/iwe sawa ama zaidi ya {{count}}","equal_to":"z/iwe sawa na {{count}}","less_than":"z/isizidi {{count}}","less_than_or_equal_to":"z/iwe sawa na, ama chini ya {{count}}","odd":"z/iwe witiri","even":"z/iwe shufwa"},"full_messages":{"format":"%{attribute}%{message}"}}}}};
+window.setTimeout(function() {
+  $(".alert-message").fadeTo(500, 0).slideUp(500, function(){
+      $(this).remove();
+  });
+}, 5000);
+
+$(window).load(function(){
+  I18n.defaultLocale = "zh-CN";
+  I18n.locale = "zh-CN";
+});
+
+jQuery(function($) {
+  $('form a.add_nested_fields').live('click', function() {
+    // Setup
+    var assoc   = $(this).attr('data-association');            // Name of child
+    var content = $('#' + assoc + '_fields_blueprint').html(); // Fields template
+
+    // Make the context correct by replacing new_<parents> with the generated ID
+    // of each of the parent objects
+    var context = ($(this).closest('.fields').find('input:first').attr('name') || '').replace(new RegExp('\[[a-z]+\]$'), '');
+
+    // context will be something like this for a brand new form:
+    // project[tasks_attributes][new_1255929127459][assignments_attributes][new_1255929128105]
+    // or for an edit form:
+    // project[tasks_attributes][0][assignments_attributes][1]
+    if(context) {
+      var parent_names = context.match(/[a-z_]+_attributes/g) || [];
+      var parent_ids   = context.match(/(new_)?[0-9]+/g) || [];
+
+      for(i = 0; i < parent_names.length; i++) {
+        if(parent_ids[i]) {
+          content = content.replace(
+            new RegExp('(_' + parent_names[i] + ')_.+?_', 'g'),
+            '$1_' + parent_ids[i] + '_');
+
+          content = content.replace(
+            new RegExp('(\\[' + parent_names[i] + '\\])\\[.+?\\]', 'g'),
+            '$1[' + parent_ids[i] + ']');
+        }
+      }
+    }
+
+    // Make a unique ID for the new child
+    var regexp  = new RegExp('new_' + assoc, 'g');
+    var new_id  = new Date().getTime();
+    content     = content.replace(regexp, "new_" + new_id);
+
+    $(this).before(content);
+    $(this).closest("form").trigger('nested:fieldAdded');
+    return false;
+  });
+
+  $('form a.remove_nested_fields').live('click', function() {
+    var hidden_field = $(this).prev('input[type=hidden]')[0];
+    if(hidden_field) {
+      hidden_field.value = '1';
+    }
+    $(this).closest('.fields').hide();
+    $(this).closest("form").trigger('nested:fieldRemoved');
+    return false;
+  });
+});
+/*
+ * jQuery Iframe Transport Plugin 1.2.5
+ * https://github.com/blueimp/jQuery-File-Upload
+ *
+ * Copyright 2011, Sebastian Tschan
+ * https://blueimp.net
+ *
+ * Licensed under the MIT license:
+ * http://creativecommons.org/licenses/MIT/
+ */
+
+/*jslint unparam: true, nomen: true */
+/*global jQuery, document */
+
+
+(function ($) {
+    'use strict';
+
+    // Helper variable to create unique names for the transport iframes:
+    var counter = 0;
+
+    // The iframe transport accepts three additional options:
+    // options.fileInput: a jQuery collection of file input fields
+    // options.paramName: the parameter name for the file form data,
+    //  overrides the name property of the file input field(s)
+    // options.formData: an array of objects with name and value properties,
+    //  equivalent to the return data of .serializeArray(), e.g.:
+    //  [{name: 'a', value: 1}, {name: 'b', value: 2}]
+    $.ajaxTransport('iframe', function (options) {
+        if (options.async && (options.type === 'POST' || options.type === 'GET')) {
+            var form,
+                iframe;
+            return {
+                send: function (_, completeCallback) {
+                    form = $('<form style="display:none;"></form>');
+                    // javascript:false as initial iframe src
+                    // prevents warning popups on HTTPS in IE6.
+                    // IE versions below IE8 cannot set the name property of
+                    // elements that have already been added to the DOM,
+                    // so we set the name along with the iframe HTML markup:
+                    iframe = $(
+                        '<iframe src="javascript:false;" name="iframe-transport-' +
+                            (counter += 1) + '"></iframe>'
+                    ).bind('load', function () {
+                        var fileInputClones;
+                        iframe
+                            .unbind('load')
+                            .bind('load', function () {
+                                var response;
+                                // Wrap in a try/catch block to catch exceptions thrown
+                                // when trying to access cross-domain iframe contents:
+                                try {
+                                    response = iframe.contents();
+                                    // Google Chrome and Firefox do not throw an
+                                    // exception when calling iframe.contents() on
+                                    // cross-domain requests, so we unify the response:
+                                    if (!response.length || !response[0].firstChild) {
+                                        throw new Error();
+                                    }
+                                } catch (e) {
+                                    response = undefined;
+                                }
+                                // The complete callback returns the
+                                // iframe content document as response object:
+                                completeCallback(
+                                    200,
+                                    'success',
+                                    {'iframe': response}
+                                );
+                                // Fix for IE endless progress bar activity bug
+                                // (happens on form submits to iframe targets):
+                                $('<iframe src="javascript:false;"></iframe>')
+                                    .appendTo(form);
+                                form.remove();
+                            });
+                        form
+                            .prop('target', iframe.prop('name'))
+                            .prop('action', options.url)
+                            .prop('method', options.type);
+                        if (options.formData) {
+                            $.each(options.formData, function (index, field) {
+                                $('<input type="hidden"/>')
+                                    .prop('name', field.name)
+                                    .val(field.value)
+                                    .appendTo(form);
+                            });
+                        }
+                        if (options.fileInput && options.fileInput.length &&
+                                options.type === 'POST') {
+                            fileInputClones = options.fileInput.clone();
+                            // Insert a clone for each file input field:
+                            options.fileInput.after(function (index) {
+                                return fileInputClones[index];
+                            });
+                            if (options.paramName) {
+                                options.fileInput.each(function () {
+                                    $(this).prop('name', options.paramName);
+                                });
+                            }
+                            // Appending the file input fields to the hidden form
+                            // removes them from their original location:
+                            form
+                                .append(options.fileInput)
+                                .prop('enctype', 'multipart/form-data')
+                                // enctype must be set as encoding for IE:
+                                .prop('encoding', 'multipart/form-data');
+                        }
+                        form.submit();
+                        // Insert the file input fields at their original location
+                        // by replacing the clones with the originals:
+                        if (fileInputClones && fileInputClones.length) {
+                            options.fileInput.each(function (index, input) {
+                                var clone = $(fileInputClones[index]);
+                                $(input).prop('name', clone.prop('name'));
+                                clone.replaceWith(input);
+                            });
+                        }
+                    });
+                    form.append(iframe).appendTo(document.body);
+                },
+                abort: function () {
+                    if (iframe) {
+                        // javascript:false as iframe src aborts the request
+                        // and prevents warning popups on HTTPS in IE6.
+                        // concat is used to avoid the "Script URL" JSLint error:
+                        iframe
+                            .unbind('load')
+                            .prop('src', 'javascript'.concat(':false;'));
+                    }
+                    if (form) {
+                        form.remove();
+                    }
+                }
+            };
+        }
+    });
+
+    // The iframe transport returns the iframe content document as response.
+    // The following adds converters from iframe to text, json, html, and script:
+    $.ajaxSetup({
+        converters: {
+            'iframe text': function (iframe) {
+                return $(iframe[0].body).text();
+            },
+            'iframe json': function (iframe) {
+                return $.parseJSON($(iframe[0].body).text());
+            },
+            'iframe html': function (iframe) {
+                return $(iframe[0].body).html();
+            },
+            'iframe script': function (iframe) {
+                return $.globalEval($(iframe[0].body).text());
+            }
+        }
+    });
+
+}(jQuery));
+/*
+ * jQuery XDomainRequest Transport Plugin 1.0.1
+ * https://github.com/blueimp/jQuery-File-Upload
+ *
+ * Copyright 2011, Sebastian Tschan
+ * https://blueimp.net
+ *
+ * Licensed under the MIT license:
+ * http://creativecommons.org/licenses/MIT/
+ *
+ * Based on Julian Aubourg's ajaxHooks xdr.js:
+ * https://github.com/jaubourg/ajaxHooks/
+ */
+
+/*jslint unparam: true */
+/*global jQuery, window, XDomainRequest */
+
+
+(function ($) {
+    'use strict';
+    if (window.XDomainRequest) {
+        jQuery.ajaxTransport(function (s) {
+            if (s.crossDomain && s.async) {
+                if (s.timeout) {
+                    s.xdrTimeout = s.timeout;
+                    delete s.timeout;
+                }
+                var xdr;
+                return {
+                    send: function (headers, completeCallback) {
+                        function callback(status, statusText, responses, responseHeaders) {
+                            xdr.onload = xdr.onerror = xdr.ontimeout = jQuery.noop;
+                            xdr = null;
+                            completeCallback(status, statusText, responses, responseHeaders);
+                        }
+                        xdr = new XDomainRequest();
+                        // XDomainRequest only supports GET and POST:
+                        if (s.type === 'DELETE') {
+                            s.url = s.url + (/\?/.test(s.url) ? '&' : '?') +
+                                '_method=DELETE';
+                            s.type = 'POST';
+                        } else if (s.type === 'PUT') {
+                            s.url = s.url + (/\?/.test(s.url) ? '&' : '?') +
+                                '_method=PUT';
+                            s.type = 'POST';
+                        }
+                        xdr.open(s.type, s.url);
+                        xdr.onload = function () {
+                            callback(
+                                200,
+                                'OK',
+                                {text: xdr.responseText},
+                                'Content-Type: ' + xdr.contentType
+                            );
+                        };
+                        xdr.onerror = function () {
+                            callback(404, 'Not Found');
+                        };
+                        if (s.xdrTimeout) {
+                            xdr.ontimeout = function () {
+                                callback(0, 'timeout');
+                            };
+                            xdr.timeout = s.xdrTimeout;
+                        }
+                        xdr.send((s.hasContent && s.data) || null);
+                    },
+                    abort: function () {
+                        if (xdr) {
+                            xdr.onerror = jQuery.noop();
+                            xdr.abort();
+                        }
+                    }
+                };
+            }
+        });
+    }
+}(jQuery));
+/*
+ * jQuery postMessage Transport Plugin 1.0
+ * https://github.com/blueimp/jQuery-File-Upload
+ *
+ * Copyright 2011, Sebastian Tschan
+ * https://blueimp.net
+ *
+ * Licensed under the MIT license:
+ * http://creativecommons.org/licenses/MIT/
+ */
+
+/*jslint unparam: true, nomen: true */
+/*global jQuery, window, document */
+
+
+(function ($) {
+    'use strict';
+
+    var counter = 0,
+        names = [
+            'accepts',
+            'cache',
+            'contents',
+            'contentType',
+            'crossDomain',
+            'data',
+            'dataType',
+            'headers',
+            'ifModified',
+            'mimeType',
+            'password',
+            'processData',
+            'timeout',
+            'traditional',
+            'type',
+            'url',
+            'username'
+        ],
+        convert = function (p) {
+            return p;
+        };
+
+    $.ajaxSetup({
+        converters: {
+            'postmessage text': convert,
+            'postmessage json': convert,
+            'postmessage html': convert
+        }
+    });
+
+    $.ajaxTransport('postmessage', function (options) {
+        if (options.postMessage && window.postMessage) {
+            var iframe,
+                loc = $('<a>').prop('href', options.postMessage)[0],
+                target = loc.protocol + '//' + loc.host,
+                xhrUpload = options.xhr().upload;
+            return {
+                send: function (_, completeCallback) {
+                    var message = {
+                            id: 'postmessage-transport-' + (counter += 1)
+                        },
+                        eventName = 'message.' + message.id;
+                    iframe = $(
+                        '<iframe style="display:none;" src="' +
+                            options.postMessage + '" name="' +
+                            message.id + '"></iframe>'
+                    ).bind('load', function () {
+                        $.each(names, function (i, name) {
+                            message[name] = options[name];
+                        });
+                        message.dataType = message.dataType.replace('postmessage ', '');
+                        $(window).bind(eventName, function (e) {
+                            e = e.originalEvent;
+                            var data = e.data,
+                                ev;
+                            if (e.origin === target && data.id === message.id) {
+                                if (data.type === 'progress') {
+                                    ev = document.createEvent('Event');
+                                    ev.initEvent(data.type, false, true);
+                                    $.extend(ev, data);
+                                    xhrUpload.dispatchEvent(ev);
+                                } else {
+                                    completeCallback(
+                                        data.status,
+                                        data.statusText,
+                                        {postmessage: data.result},
+                                        data.headers
+                                    );
+                                    iframe.remove();
+                                    $(window).unbind(eventName);
+                                }
+                            }
+                        });
+                        iframe[0].contentWindow.postMessage(
+                            message,
+                            target
+                        );
+                    }).appendTo(document.body);
+                },
+                abort: function () {
+                    if (iframe) {
+                        iframe.remove();
+                    }
+                }
+            };
+        }
+    });
+
+}(jQuery));
+/*
+ * jQuery File Upload Plugin 5.5.2
+ * https://github.com/blueimp/jQuery-File-Upload
+ *
+ * Copyright 2010, Sebastian Tschan
+ * https://blueimp.net
+ *
+ * Licensed under the MIT license:
+ * http://creativecommons.org/licenses/MIT/
+ */
+
+/*jslint nomen: true, unparam: true, regexp: true */
+/*global document, XMLHttpRequestUpload, Blob, File, FormData, location, jQuery */
+
+
+(function ($) {
+    'use strict';
+
+    // The fileupload widget listens for change events on file input fields defined
+    // via fileInput setting and paste or drop events of the given dropZone.
+    // In addition to the default jQuery Widget methods, the fileupload widget
+    // exposes the "add" and "send" methods, to add or directly send files using
+    // the fileupload API.
+    // By default, files added via file input selection, paste, drag & drop or
+    // "add" method are uploaded immediately, but it is possible to override
+    // the "add" callback option to queue file uploads.
+    $.widget('blueimp.fileupload', {
+
+        options: {
+            // The namespace used for event handler binding on the dropZone and
+            // fileInput collections.
+            // If not set, the name of the widget ("fileupload") is used.
+            namespace: undefined,
+            // The drop target collection, by the default the complete document.
+            // Set to null or an empty collection to disable drag & drop support:
+            dropZone: $(document),
+            // The file input field collection, that is listened for change events.
+            // If undefined, it is set to the file input fields inside
+            // of the widget element on plugin initialization.
+            // Set to null or an empty collection to disable the change listener.
+            fileInput: undefined,
+            // By default, the file input field is replaced with a clone after
+            // each input field change event. This is required for iframe transport
+            // queues and allows change events to be fired for the same file
+            // selection, but can be disabled by setting the following option to false:
+            replaceFileInput: true,
+            // The parameter name for the file form data (the request argument name).
+            // If undefined or empty, the name property of the file input field is
+            // used, or "files[]" if the file input name property is also empty:
+            paramName: undefined,
+            // By default, each file of a selection is uploaded using an individual
+            // request for XHR type uploads. Set to false to upload file
+            // selections in one request each:
+            singleFileUploads: true,
+            // To limit the number of files uploaded with one XHR request,
+            // set the following option to an integer greater than 0:
+            limitMultiFileUploads: undefined,
+            // Set the following option to true to issue all file upload requests
+            // in a sequential order:
+            sequentialUploads: false,
+            // To limit the number of concurrent uploads,
+            // set the following option to an integer greater than 0:
+            limitConcurrentUploads: undefined,
+            // Set the following option to true to force iframe transport uploads:
+            forceIframeTransport: false,
+            // Set the following option to the location of a postMessage window,
+            // to enable postMessage transport uploads:
+            postMessage: undefined,
+            // By default, XHR file uploads are sent as multipart/form-data.
+            // The iframe transport is always using multipart/form-data.
+            // Set to false to enable non-multipart XHR uploads:
+            multipart: true,
+            // To upload large files in smaller chunks, set the following option
+            // to a preferred maximum chunk size. If set to 0, null or undefined,
+            // or the browser does not support the required Blob API, files will
+            // be uploaded as a whole.
+            maxChunkSize: undefined,
+            // When a non-multipart upload or a chunked multipart upload has been
+            // aborted, this option can be used to resume the upload by setting
+            // it to the size of the already uploaded bytes. This option is most
+            // useful when modifying the options object inside of the "add" or
+            // "send" callbacks, as the options are cloned for each file upload.
+            uploadedBytes: undefined,
+            // By default, failed (abort or error) file uploads are removed from the
+            // global progress calculation. Set the following option to false to
+            // prevent recalculating the global progress data:
+            recalculateProgress: true,
+
+            // Additional form data to be sent along with the file uploads can be set
+            // using this option, which accepts an array of objects with name and
+            // value properties, a function returning such an array, a FormData
+            // object (for XHR file uploads), or a simple object.
+            // The form of the first fileInput is given as parameter to the function:
+            formData: function (form) {
+                return form.serializeArray();
+            },
+
+            // The add callback is invoked as soon as files are added to the fileupload
+            // widget (via file input selection, drag & drop, paste or add API call).
+            // If the singleFileUploads option is enabled, this callback will be
+            // called once for each file in the selection for XHR file uplaods, else
+            // once for each file selection.
+            // The upload starts when the submit method is invoked on the data parameter.
+            // The data object contains a files property holding the added files
+            // and allows to override plugin options as well as define ajax settings.
+            // Listeners for this callback can also be bound the following way:
+            // .bind('fileuploadadd', func);
+            // data.submit() returns a Promise object and allows to attach additional
+            // handlers using jQuery's Deferred callbacks:
+            // data.submit().done(func).fail(func).always(func);
+            add: function (e, data) {
+                data.submit();
+            },
+
+            // Other callbacks:
+            // Callback for the submit event of each file upload:
+            // submit: function (e, data) {}, // .bind('fileuploadsubmit', func);
+            // Callback for the start of each file upload request:
+            // send: function (e, data) {}, // .bind('fileuploadsend', func);
+            // Callback for successful uploads:
+            // done: function (e, data) {}, // .bind('fileuploaddone', func);
+            // Callback for failed (abort or error) uploads:
+            // fail: function (e, data) {}, // .bind('fileuploadfail', func);
+            // Callback for completed (success, abort or error) requests:
+            // always: function (e, data) {}, // .bind('fileuploadalways', func);
+            // Callback for upload progress events:
+            // progress: function (e, data) {}, // .bind('fileuploadprogress', func);
+            // Callback for global upload progress events:
+            // progressall: function (e, data) {}, // .bind('fileuploadprogressall', func);
+            // Callback for uploads start, equivalent to the global ajaxStart event:
+            // start: function (e) {}, // .bind('fileuploadstart', func);
+            // Callback for uploads stop, equivalent to the global ajaxStop event:
+            // stop: function (e) {}, // .bind('fileuploadstop', func);
+            // Callback for change events of the fileInput collection:
+            // change: function (e, data) {}, // .bind('fileuploadchange', func);
+            // Callback for paste events to the dropZone collection:
+            // paste: function (e, data) {}, // .bind('fileuploadpaste', func);
+            // Callback for drop events of the dropZone collection:
+            // drop: function (e, data) {}, // .bind('fileuploaddrop', func);
+            // Callback for dragover events of the dropZone collection:
+            // dragover: function (e) {}, // .bind('fileuploaddragover', func);
+
+            // The plugin options are used as settings object for the ajax calls.
+            // The following are jQuery ajax settings required for the file uploads:
+            processData: false,
+            contentType: false,
+            cache: false
+        },
+
+        // A list of options that require a refresh after assigning a new value:
+        _refreshOptionsList: ['namespace', 'dropZone', 'fileInput'],
+
+        _isXHRUpload: function (options) {
+            var undef = 'undefined';
+            return !options.forceIframeTransport &&
+                typeof XMLHttpRequestUpload !== undef && typeof File !== undef &&
+                (!options.multipart || typeof FormData !== undef);
+        },
+
+        _getFormData: function (options) {
+            var formData;
+            if (typeof options.formData === 'function') {
+                return options.formData(options.form);
+            } else if ($.isArray(options.formData)) {
+                return options.formData;
+            } else if (options.formData) {
+                formData = [];
+                $.each(options.formData, function (name, value) {
+                    formData.push({name: name, value: value});
+                });
+                return formData;
+            }
+            return [];
+        },
+
+        _getTotal: function (files) {
+            var total = 0;
+            $.each(files, function (index, file) {
+                total += file.size || 1;
+            });
+            return total;
+        },
+
+        _onProgress: function (e, data) {
+            if (e.lengthComputable) {
+                var total = data.total || this._getTotal(data.files),
+                    loaded = parseInt(
+                        e.loaded / e.total * (data.chunkSize || total),
+                        10
+                    ) + (data.uploadedBytes || 0);
+                this._loaded += loaded - (data.loaded || data.uploadedBytes || 0);
+                data.lengthComputable = true;
+                data.loaded = loaded;
+                data.total = total;
+                // Trigger a custom progress event with a total data property set
+                // to the file size(s) of the current upload and a loaded data
+                // property calculated accordingly:
+                this._trigger('progress', e, data);
+                // Trigger a global progress event for all current file uploads,
+                // including ajax calls queued for sequential file uploads:
+                this._trigger('progressall', e, {
+                    lengthComputable: true,
+                    loaded: this._loaded,
+                    total: this._total
+                });
+            }
+        },
+
+        _initProgressListener: function (options) {
+            var that = this,
+                xhr = options.xhr ? options.xhr() : $.ajaxSettings.xhr();
+            // Accesss to the native XHR object is required to add event listeners
+            // for the upload progress event:
+            if (xhr.upload && xhr.upload.addEventListener) {
+                xhr.upload.addEventListener('progress', function (e) {
+                    that._onProgress(e, options);
+                }, false);
+                options.xhr = function () {
+                    return xhr;
+                };
+            }
+        },
+
+        _initXHRData: function (options) {
+            var formData,
+                file = options.files[0];
+            if (!options.multipart || options.blob) {
+                // For non-multipart uploads and chunked uploads,
+                // file meta data is not part of the request body,
+                // so we transmit this data as part of the HTTP headers.
+                // For cross domain requests, these headers must be allowed
+                // via Access-Control-Allow-Headers or removed using
+                // the beforeSend callback:
+                options.headers = $.extend(options.headers, {
+                    'X-File-Name': file.name,
+                    'X-File-Type': file.type,
+                    'X-File-Size': file.size
+                });
+                if (!options.blob) {
+                    // Non-chunked non-multipart upload:
+                    options.contentType = file.type;
+                    options.data = file;
+                } else if (!options.multipart) {
+                    // Chunked non-multipart upload:
+                    options.contentType = 'application/octet-stream';
+                    options.data = options.blob;
+                }
+            }
+            if (options.multipart && typeof FormData !== 'undefined') {
+                if (options.postMessage) {
+                    // window.postMessage does not allow sending FormData
+                    // objects, so we just add the File/Blob objects to
+                    // the formData array and let the postMessage window
+                    // create the FormData object out of this array:
+                    formData = this._getFormData(options);
+                    if (options.blob) {
+                        formData.push({
+                            name: options.paramName,
+                            value: options.blob
+                        });
+                    } else {
+                        $.each(options.files, function (index, file) {
+                            formData.push({
+                                name: options.paramName,
+                                value: file
+                            });
+                        });
+                    }
+                } else {
+                    if (options.formData instanceof FormData) {
+                        formData = options.formData;
+                    } else {
+                        formData = new FormData();
+                        $.each(this._getFormData(options), function (index, field) {
+                            formData.append(field.name, field.value);
+                        });
+                    }
+                    if (options.blob) {
+                        formData.append(options.paramName, options.blob);
+                    } else {
+                        $.each(options.files, function (index, file) {
+                            // File objects are also Blob instances.
+                            // This check allows the tests to run with
+                            // dummy objects:
+                            if (file instanceof Blob) {
+                                formData.append(options.paramName, file);
+                            }
+                        });
+                    }
+                }
+                options.data = formData;
+            }
+            // Blob reference is not needed anymore, free memory:
+            options.blob = null;
+        },
+
+        _initIframeSettings: function (options) {
+            // Setting the dataType to iframe enables the iframe transport:
+            options.dataType = 'iframe ' + (options.dataType || '');
+            // The iframe transport accepts a serialized array as form data:
+            options.formData = this._getFormData(options);
+        },
+
+        _initDataSettings: function (options) {
+            if (this._isXHRUpload(options)) {
+                if (!this._chunkedUpload(options, true)) {
+                    if (!options.data) {
+                        this._initXHRData(options);
+                    }
+                    this._initProgressListener(options);
+                }
+                if (options.postMessage) {
+                    // Setting the dataType to postmessage enables the
+                    // postMessage transport:
+                    options.dataType = 'postmessage ' + (options.dataType || '');
+                }
+            } else {
+                this._initIframeSettings(options, 'iframe');
+            }
+        },
+
+        _initFormSettings: function (options) {
+            // Retrieve missing options from the input field and the
+            // associated form, if available:
+            if (!options.form || !options.form.length) {
+                options.form = $(options.fileInput.prop('form'));
+            }
+            if (!options.paramName) {
+                options.paramName = options.fileInput.prop('name') ||
+                    'files[]';
+            }
+            if (!options.url) {
+                options.url = options.form.prop('action') || location.href;
+            }
+            // The HTTP request method must be "POST" or "PUT":
+            options.type = (options.type || options.form.prop('method') || '')
+                .toUpperCase();
+            if (options.type !== 'POST' && options.type !== 'PUT') {
+                options.type = 'POST';
+            }
+        },
+
+        _getAJAXSettings: function (data) {
+            var options = $.extend({}, this.options, data);
+            this._initFormSettings(options);
+            this._initDataSettings(options);
+            return options;
+        },
+
+        // Maps jqXHR callbacks to the equivalent
+        // methods of the given Promise object:
+        _enhancePromise: function (promise) {
+            promise.success = promise.done;
+            promise.error = promise.fail;
+            promise.complete = promise.always;
+            return promise;
+        },
+
+        // Creates and returns a Promise object enhanced with
+        // the jqXHR methods abort, success, error and complete:
+        _getXHRPromise: function (resolveOrReject, context, args) {
+            var dfd = $.Deferred(),
+                promise = dfd.promise();
+            context = context || this.options.context || promise;
+            if (resolveOrReject === true) {
+                dfd.resolveWith(context, args);
+            } else if (resolveOrReject === false) {
+                dfd.rejectWith(context, args);
+            }
+            promise.abort = dfd.promise;
+            return this._enhancePromise(promise);
+        },
+
+        // Uploads a file in multiple, sequential requests
+        // by splitting the file up in multiple blob chunks.
+        // If the second parameter is true, only tests if the file
+        // should be uploaded in chunks, but does not invoke any
+        // upload requests:
+        _chunkedUpload: function (options, testOnly) {
+            var that = this,
+                file = options.files[0],
+                fs = file.size,
+                ub = options.uploadedBytes = options.uploadedBytes || 0,
+                mcs = options.maxChunkSize || fs,
+                // Use the Blob methods with the slice implementation
+                // according to the W3C Blob API specification:
+                slice = file.webkitSlice || file.mozSlice || file.slice,
+                upload,
+                n,
+                jqXHR,
+                pipe;
+            if (!(this._isXHRUpload(options) && slice && (ub || mcs < fs)) ||
+                    options.data) {
+                return false;
+            }
+            if (testOnly) {
+                return true;
+            }
+            if (ub >= fs) {
+                file.error = 'uploadedBytes';
+                return this._getXHRPromise(
+                    false,
+                    options.context,
+                    [null, 'error', file.error]
+                );
+            }
+            // n is the number of blobs to upload,
+            // calculated via filesize, uploaded bytes and max chunk size:
+            n = Math.ceil((fs - ub) / mcs);
+            // The chunk upload method accepting the chunk number as parameter:
+            upload = function (i) {
+                if (!i) {
+                    return that._getXHRPromise(true, options.context);
+                }
+                // Upload the blobs in sequential order:
+                return upload(i -= 1).pipe(function () {
+                    // Clone the options object for each chunk upload:
+                    var o = $.extend({}, options);
+                    o.blob = slice.call(
+                        file,
+                        ub + i * mcs,
+                        ub + (i + 1) * mcs
+                    );
+                    // Store the current chunk size, as the blob itself
+                    // will be dereferenced after data processing:
+                    o.chunkSize = o.blob.size;
+                    // Process the upload data (the blob and potential form data):
+                    that._initXHRData(o);
+                    // Add progress listeners for this chunk upload:
+                    that._initProgressListener(o);
+                    jqXHR = ($.ajax(o) || that._getXHRPromise(false, o.context))
+                        .done(function () {
+                            // Create a progress event if upload is done and
+                            // no progress event has been invoked for this chunk:
+                            if (!o.loaded) {
+                                that._onProgress($.Event('progress', {
+                                    lengthComputable: true,
+                                    loaded: o.chunkSize,
+                                    total: o.chunkSize
+                                }), o);
+                            }
+                            options.uploadedBytes = o.uploadedBytes +=
+                                o.chunkSize;
+                        });
+                    return jqXHR;
+                });
+            };
+            // Return the piped Promise object, enhanced with an abort method,
+            // which is delegated to the jqXHR object of the current upload,
+            // and jqXHR callbacks mapped to the equivalent Promise methods:
+            pipe = upload(n);
+            pipe.abort = function () {
+                return jqXHR.abort();
+            };
+            return this._enhancePromise(pipe);
+        },
+
+        _beforeSend: function (e, data) {
+            if (this._active === 0) {
+                // the start callback is triggered when an upload starts
+                // and no other uploads are currently running,
+                // equivalent to the global ajaxStart event:
+                this._trigger('start');
+            }
+            this._active += 1;
+            // Initialize the global progress values:
+            this._loaded += data.uploadedBytes || 0;
+            this._total += this._getTotal(data.files);
+        },
+
+        _onDone: function (result, textStatus, jqXHR, options) {
+            if (!this._isXHRUpload(options)) {
+                // Create a progress event for each iframe load:
+                this._onProgress($.Event('progress', {
+                    lengthComputable: true,
+                    loaded: 1,
+                    total: 1
+                }), options);
+            }
+            options.result = result;
+            options.textStatus = textStatus;
+            options.jqXHR = jqXHR;
+            this._trigger('done', null, options);
+        },
+
+        _onFail: function (jqXHR, textStatus, errorThrown, options) {
+            options.jqXHR = jqXHR;
+            options.textStatus = textStatus;
+            options.errorThrown = errorThrown;
+            this._trigger('fail', null, options);
+            if (options.recalculateProgress) {
+                // Remove the failed (error or abort) file upload from
+                // the global progress calculation:
+                this._loaded -= options.loaded || options.uploadedBytes || 0;
+                this._total -= options.total || this._getTotal(options.files);
+            }
+        },
+
+        _onAlways: function (jqXHRorResult, textStatus, jqXHRorError, options) {
+            this._active -= 1;
+            options.textStatus = textStatus;
+            if (jqXHRorError && jqXHRorError.always) {
+                options.jqXHR = jqXHRorError;
+                options.result = jqXHRorResult;
+            } else {
+                options.jqXHR = jqXHRorResult;
+                options.errorThrown = jqXHRorError;
+            }
+            this._trigger('always', null, options);
+            if (this._active === 0) {
+                // The stop callback is triggered when all uploads have
+                // been completed, equivalent to the global ajaxStop event:
+                this._trigger('stop');
+                // Reset the global progress values:
+                this._loaded = this._total = 0;
+            }
+        },
+
+        _onSend: function (e, data) {
+            var that = this,
+                jqXHR,
+                slot,
+                pipe,
+                options = that._getAJAXSettings(data),
+                send = function (resolve, args) {
+                    that._sending += 1;
+                    jqXHR = jqXHR || (
+                        (resolve !== false &&
+                        that._trigger('send', e, options) !== false &&
+                        (that._chunkedUpload(options) || $.ajax(options))) ||
+                        that._getXHRPromise(false, options.context, args)
+                    ).done(function (result, textStatus, jqXHR) {
+                        that._onDone(result, textStatus, jqXHR, options);
+                    }).fail(function (jqXHR, textStatus, errorThrown) {
+                        that._onFail(jqXHR, textStatus, errorThrown, options);
+                    }).always(function (jqXHRorResult, textStatus, jqXHRorError) {
+                        that._sending -= 1;
+                        that._onAlways(
+                            jqXHRorResult,
+                            textStatus,
+                            jqXHRorError,
+                            options
+                        );
+                        if (options.limitConcurrentUploads &&
+                                options.limitConcurrentUploads > that._sending) {
+                            // Start the next queued upload,
+                            // that has not been aborted:
+                            var nextSlot = that._slots.shift();
+                            while (nextSlot) {
+                                if (!nextSlot.isRejected()) {
+                                    nextSlot.resolve();
+                                    break;
+                                }
+                                nextSlot = that._slots.shift();
+                            }
+                        }
+                    });
+                    return jqXHR;
+                };
+            this._beforeSend(e, options);
+            if (this.options.sequentialUploads ||
+                    (this.options.limitConcurrentUploads &&
+                    this.options.limitConcurrentUploads <= this._sending)) {
+                if (this.options.limitConcurrentUploads > 1) {
+                    slot = $.Deferred();
+                    this._slots.push(slot);
+                    pipe = slot.pipe(send);
+                } else {
+                    pipe = (this._sequence = this._sequence.pipe(send, send));
+                }
+                // Return the piped Promise object, enhanced with an abort method,
+                // which is delegated to the jqXHR object of the current upload,
+                // and jqXHR callbacks mapped to the equivalent Promise methods:
+                pipe.abort = function () {
+                    var args = [undefined, 'abort', 'abort'];
+                    if (!jqXHR) {
+                        if (slot) {
+                            slot.rejectWith(args);
+                        }
+                        return send(false, args);
+                    }
+                    return jqXHR.abort();
+                };
+                return this._enhancePromise(pipe);
+            }
+            return send();
+        },
+
+        _onAdd: function (e, data) {
+            var that = this,
+                result = true,
+                options = $.extend({}, this.options, data),
+                limit = options.limitMultiFileUploads,
+                fileSet,
+                i;
+            if (!(options.singleFileUploads || limit) ||
+                    !this._isXHRUpload(options)) {
+                fileSet = [data.files];
+            } else if (!options.singleFileUploads && limit) {
+                fileSet = [];
+                for (i = 0; i < data.files.length; i += limit) {
+                    fileSet.push(data.files.slice(i, i + limit));
+                }
+            }
+            data.originalFiles = data.files;
+            $.each(fileSet || data.files, function (index, element) {
+                var files = fileSet ? element : [element],
+                    newData = $.extend({}, data, {files: files});
+                newData.submit = function () {
+                    newData.jqXHR = this.jqXHR =
+                        (that._trigger('submit', e, this) !== false) &&
+                        that._onSend(e, this);
+                    return this.jqXHR;
+                };
+                return (result = that._trigger('add', e, newData));
+            });
+            return result;
+        },
+
+        // File Normalization for Gecko 1.9.1 (Firefox 3.5) support:
+        _normalizeFile: function (index, file) {
+            if (file.name === undefined && file.size === undefined) {
+                file.name = file.fileName;
+                file.size = file.fileSize;
+            }
+        },
+
+        _replaceFileInput: function (input) {
+            var inputClone = input.clone(true);
+            $('<form></form>').append(inputClone)[0].reset();
+            // Detaching allows to insert the fileInput on another form
+            // without loosing the file input value:
+            input.after(inputClone).detach();
+            // Avoid memory leaks with the detached file input:
+            $.cleanData(input.unbind('remove'));
+            // Replace the original file input element in the fileInput
+            // collection with the clone, which has been copied including
+            // event handlers:
+            this.options.fileInput = this.options.fileInput.map(function (i, el) {
+                if (el === input[0]) {
+                    return inputClone[0];
+                }
+                return el;
+            });
+            // If the widget has been initialized on the file input itself,
+            // override this.element with the file input clone:
+            if (input[0] === this.element[0]) {
+                this.element = inputClone;
+            }
+        },
+
+        _onChange: function (e) {
+            var that = e.data.fileupload,
+                data = {
+                    files: $.each($.makeArray(e.target.files), that._normalizeFile),
+                    fileInput: $(e.target),
+                    form: $(e.target.form)
+                };
+            if (!data.files.length) {
+                // If the files property is not available, the browser does not
+                // support the File API and we add a pseudo File object with
+                // the input value as name with path information removed:
+                data.files = [{name: e.target.value.replace(/^.*\\/, '')}];
+            }
+            if (that.options.replaceFileInput) {
+                that._replaceFileInput(data.fileInput);
+            }
+            if (that._trigger('change', e, data) === false ||
+                    that._onAdd(e, data) === false) {
+                return false;
+            }
+        },
+
+        _onPaste: function (e) {
+            var that = e.data.fileupload,
+                cbd = e.originalEvent.clipboardData,
+                items = (cbd && cbd.items) || [],
+                data = {files: []};
+            $.each(items, function (index, item) {
+                var file = item.getAsFile && item.getAsFile();
+                if (file) {
+                    data.files.push(file);
+                }
+            });
+            if (that._trigger('paste', e, data) === false ||
+                    that._onAdd(e, data) === false) {
+                return false;
+            }
+        },
+
+        _onDrop: function (e) {
+            var that = e.data.fileupload,
+                dataTransfer = e.dataTransfer = e.originalEvent.dataTransfer,
+                data = {
+                    files: $.each(
+                        $.makeArray(dataTransfer && dataTransfer.files),
+                        that._normalizeFile
+                    )
+                };
+            if (that._trigger('drop', e, data) === false ||
+                    that._onAdd(e, data) === false) {
+                return false;
+            }
+            e.preventDefault();
+        },
+
+        _onDragOver: function (e) {
+            var that = e.data.fileupload,
+                dataTransfer = e.dataTransfer = e.originalEvent.dataTransfer;
+            if (that._trigger('dragover', e) === false) {
+                return false;
+            }
+            if (dataTransfer) {
+                dataTransfer.dropEffect = dataTransfer.effectAllowed = 'copy';
+            }
+            e.preventDefault();
+        },
+
+        _initEventHandlers: function () {
+            var ns = this.options.namespace || this.widgetName;
+            this.options.dropZone
+                .bind('dragover.' + ns, {fileupload: this}, this._onDragOver)
+                .bind('drop.' + ns, {fileupload: this}, this._onDrop)
+                .bind('paste.' + ns, {fileupload: this}, this._onPaste);
+            this.options.fileInput
+                .bind('change.' + ns, {fileupload: this}, this._onChange);
+        },
+
+        _destroyEventHandlers: function () {
+            var ns = this.options.namespace || this.widgetName;
+            this.options.dropZone
+                .unbind('dragover.' + ns, this._onDragOver)
+                .unbind('drop.' + ns, this._onDrop)
+                .unbind('paste.' + ns, this._onPaste);
+            this.options.fileInput
+                .unbind('change.' + ns, this._onChange);
+        },
+
+        _beforeSetOption: function (key, value) {
+            this._destroyEventHandlers();
+        },
+
+        _afterSetOption: function (key, value) {
+            var options = this.options;
+            if (!options.fileInput) {
+                options.fileInput = $();
+            }
+            if (!options.dropZone) {
+                options.dropZone = $();
+            }
+            this._initEventHandlers();
+        },
+
+        _setOption: function (key, value) {
+            var refresh = $.inArray(key, this._refreshOptionsList) !== -1;
+            if (refresh) {
+                this._beforeSetOption(key, value);
+            }
+            $.Widget.prototype._setOption.call(this, key, value);
+            if (refresh) {
+                this._afterSetOption(key, value);
+            }
+        },
+
+        _create: function () {
+            var options = this.options;
+            if (options.fileInput === undefined) {
+                options.fileInput = this.element.is('input:file') ?
+                        this.element : this.element.find('input:file');
+            } else if (!options.fileInput) {
+                options.fileInput = $();
+            }
+            if (!options.dropZone) {
+                options.dropZone = $();
+            }
+            this._slots = [];
+            this._sequence = this._getXHRPromise(true);
+            this._sending = this._active = this._loaded = this._total = 0;
+            this._initEventHandlers();
+        },
+
+        destroy: function () {
+            this._destroyEventHandlers();
+            $.Widget.prototype.destroy.call(this);
+        },
+
+        enable: function () {
+            $.Widget.prototype.enable.call(this);
+            this._initEventHandlers();
+        },
+
+        disable: function () {
+            this._destroyEventHandlers();
+            $.Widget.prototype.disable.call(this);
+        },
+
+        // This method is exposed to the widget API and allows adding files
+        // using the fileupload API. The data parameter accepts an object which
+        // must have a files property and can contain additional options:
+        // .fileupload('add', {files: filesList});
+        add: function (data) {
+            if (!data || this.options.disabled) {
+                return;
+            }
+            data.files = $.each($.makeArray(data.files), this._normalizeFile);
+            this._onAdd(null, data);
+        },
+
+        // This method is exposed to the widget API and allows sending files
+        // using the fileupload API. The data parameter accepts an object which
+        // must have a files property and can contain additional options:
+        // .fileupload('send', {files: filesList});
+        // The method returns a Promise object for the file upload call.
+        send: function (data) {
+            if (data && !this.options.disabled) {
+                data.files = $.each($.makeArray(data.files), this._normalizeFile);
+                if (data.files.length) {
+                    return this._onSend(null, data);
+                }
+            }
+            return this._getXHRPromise(false, data && data.context);
+        }
+
+    });
+
+}(jQuery));
+/*
+ * jQuery File Upload User Interface Plugin 5.1.1
+ * https://github.com/blueimp/jQuery-File-Upload
+ *
+ * Copyright 2010, Sebastian Tschan
+ * https://blueimp.net
+ *
+ * Licensed under the MIT license:
+ * http://creativecommons.org/licenses/MIT/
+ */
+
+/*jslint nomen: true, unparam: true, regexp: true */
+/*global window, document, URL, webkitURL, FileReader, jQuery */
+
+
+(function ($) {
+    'use strict';
+
+    // The UI version extends the basic fileupload widget and adds
+    // a complete user interface based on the given upload/download
+    // templates.
+    $.widget('blueimpUI.fileupload', $.blueimp.fileupload, {
+
+        options: {
+            // By default, files added to the widget are uploaded as soon
+            // as the user clicks on the start buttons. To enable automatic
+            // uploads, set the following option to true:
+            autoUpload: false,
+            // The following option limits the number of files that are
+            // allowed to be uploaded using this widget:
+            maxNumberOfFiles: undefined,
+            // The maximum allowed file size:
+            maxFileSize: undefined,
+            // The minimum allowed file size:
+            minFileSize: 1,
+            // The regular expression for allowed file types, matches
+            // against either file type or file name:
+            acceptFileTypes:  /.+$/i,
+            // The regular expression to define for which files a preview
+            // image is shown, matched against the file type:
+            previewFileTypes: /^image\/(gif|jpeg|png)$/,
+            // The maximum width of the preview images:
+            previewMaxWidth: 80,
+            // The maximum height of the preview images:
+            previewMaxHeight: 80,
+            // By default, preview images are displayed as canvas elements
+            // if supported by the browser. Set the following option to false
+            // to always display preview images as img elements:
+            previewAsCanvas: true,
+            // The file upload template that is given as first argument to the
+            // jQuery.tmpl method to render the file uploads:
+            uploadTemplate: $('#template-upload'),
+            // The file download template, that is given as first argument to the
+            // jQuery.tmpl method to render the file downloads:
+            downloadTemplate: $('#template-download'),
+            // The expected data type of the upload response, sets the dataType
+            // option of the $.ajax upload requests:
+            dataType: 'json',
+
+            // The add callback is invoked as soon as files are added to the fileupload
+            // widget (via file input selection, drag & drop or add API call).
+            // See the basic file upload widget for more information:
+            add: function (e, data) {
+                var that = $(this).data('fileupload');
+                that._adjustMaxNumberOfFiles(-data.files.length);
+                data.isAdjusted = true;
+                data.isValidated = that._validate(data.files);
+                data.context = that._renderUpload(data.files)
+                    .appendTo($(this).find('.files')).fadeIn(function () {
+                        // Fix for IE7 and lower:
+                        $(this).show();
+                    }).data('data', data);
+                if ((that.options.autoUpload || data.autoUpload) &&
+                        data.isValidated) {
+                    data.submit();
+                }
+            },
+            // Callback for the start of each file upload request:
+            send: function (e, data) {
+                if (!data.isValidated) {
+                    var that = $(this).data('fileupload');
+                    if (!data.isAdjusted) {
+                        that._adjustMaxNumberOfFiles(-data.files.length);
+                    }
+                    if (!that._validate(data.files)) {
+                        return false;
+                    }
+                }
+                if (data.context && data.dataType &&
+                        data.dataType.substr(0, 6) === 'iframe') {
+                    // Iframe Transport does not support progress events.
+                    // In lack of an indeterminate progress bar, we set
+                    // the progress to 100%, showing the full animated bar:
+                    data.context.find('.ui-progressbar').progressbar(
+                        'value',
+                        parseInt(100, 10)
+                    );
+                }
+            },
+            // Callback for successful uploads:
+            done: function (e, data) {
+                var that = $(this).data('fileupload');
+                if (data.context) {
+                    data.context.each(function (index) {
+                        var file = ($.isArray(data.result) &&
+                                data.result[index]) || {error: 'emptyResult'};
+                        if (file.error) {
+                            that._adjustMaxNumberOfFiles(1);
+                        }
+                        $(this).fadeOut(function () {
+                            that._renderDownload([file])
+                                .css('display', 'none')
+                                .replaceAll(this)
+                                .fadeIn(function () {
+                                    // Fix for IE7 and lower:
+                                    $(this).show();
+                                });
+                        });
+                    });
+                } else {
+                    that._renderDownload(data.result)
+                        .css('display', 'none')
+                        .appendTo($(this).find('.files'))
+                        .fadeIn(function () {
+                            // Fix for IE7 and lower:
+                            $(this).show();
+                        });
+                }
+            },
+            // Callback for failed (abort or error) uploads:
+            fail: function (e, data) {
+                var that = $(this).data('fileupload');
+                that._adjustMaxNumberOfFiles(data.files.length);
+                if (data.context) {
+                    data.context.each(function (index) {
+                        $(this).fadeOut(function () {
+                            if (data.errorThrown !== 'abort') {
+                                var file = data.files[index];
+                                file.error = file.error || data.errorThrown ||
+                                    true;
+                                that._renderDownload([file])
+                                    .css('display', 'none')
+                                    .replaceAll(this)
+                                    .fadeIn(function () {
+                                        // Fix for IE7 and lower:
+                                        $(this).show();
+                                    });
+                            } else {
+                                data.context.remove();
+                            }
+                        });
+                    });
+                } else if (data.errorThrown !== 'abort') {
+                    that._adjustMaxNumberOfFiles(-data.files.length);
+                    data.context = that._renderUpload(data.files)
+                        .css('display', 'none')
+                        .appendTo($(this).find('.files'))
+                        .fadeIn(function () {
+                            // Fix for IE7 and lower:
+                            $(this).show();
+                        }).data('data', data);
+                }
+            },
+            // Callback for upload progress events:
+            progress: function (e, data) {
+                if (data.context) {
+                    data.context.find('.ui-progressbar').progressbar(
+                        'value',
+                        parseInt(data.loaded / data.total * 100, 10)
+                    );
+                }
+            },
+            // Callback for global upload progress events:
+            progressall: function (e, data) {
+                $(this).find('.fileupload-progressbar').progressbar(
+                    'value',
+                    parseInt(data.loaded / data.total * 100, 10)
+                );
+            },
+            // Callback for uploads start, equivalent to the global ajaxStart event:
+            start: function () {
+                $(this).find('.fileupload-progressbar')
+                    .progressbar('value', 0).fadeIn();
+            },
+            // Callback for uploads stop, equivalent to the global ajaxStop event:
+            stop: function () {
+                $(this).find('.fileupload-progressbar').fadeOut();
+            },
+            // Callback for file deletion:
+            destroy: function (e, data) {
+                var that = $(this).data('fileupload');
+                if (data.url) {
+                    $.ajax(data)
+                        .success(function () {
+                            that._adjustMaxNumberOfFiles(1);
+                            $(this).fadeOut(function () {
+                                $(this).remove();
+                            });
+                        });
+                } else {
+                    that._adjustMaxNumberOfFiles(1);
+                    data.context.fadeOut(function () {
+                        $(this).remove();
+                    });
+                }
+            }
+        },
+
+        // Scales the given image (img HTML element)
+        // using the given options.
+        // Returns a canvas object if the canvas option is true
+        // and the browser supports canvas, else the scaled image:
+        _scaleImage: function (img, options) {
+            options = options || {};
+            var canvas = document.createElement('canvas'),
+                scale = Math.min(
+                    (options.maxWidth || img.width) / img.width,
+                    (options.maxHeight || img.height) / img.height
+                );
+            if (scale >= 1) {
+                scale = Math.max(
+                    (options.minWidth || img.width) / img.width,
+                    (options.minHeight || img.height) / img.height
+                );
+            }
+            img.width = parseInt(img.width * scale, 10);
+            img.height = parseInt(img.height * scale, 10);
+            if (!options.canvas || !canvas.getContext) {
+                return img;
+            }
+            canvas.width = img.width;
+            canvas.height = img.height;
+            canvas.getContext('2d')
+                .drawImage(img, 0, 0, img.width, img.height);
+            return canvas;
+        },
+
+        _createObjectURL: function (file) {
+            var undef = 'undefined',
+                urlAPI = (typeof window.createObjectURL !== undef && window) ||
+                    (typeof URL !== undef && URL) ||
+                    (typeof webkitURL !== undef && webkitURL);
+            return urlAPI ? urlAPI.createObjectURL(file) : false;
+        },
+
+        _revokeObjectURL: function (url) {
+            var undef = 'undefined',
+                urlAPI = (typeof window.revokeObjectURL !== undef && window) ||
+                    (typeof URL !== undef && URL) ||
+                    (typeof webkitURL !== undef && webkitURL);
+            return urlAPI ? urlAPI.revokeObjectURL(url) : false;
+        },
+
+        // Loads a given File object via FileReader interface,
+        // invokes the callback with a data url:
+        _loadFile: function (file, callback) {
+            if (typeof FileReader !== 'undefined' &&
+                    FileReader.prototype.readAsDataURL) {
+                var fileReader = new FileReader();
+                fileReader.onload = function (e) {
+                    callback(e.target.result);
+                };
+                fileReader.readAsDataURL(file);
+                return true;
+            }
+            return false;
+        },
+
+        // Loads an image for a given File object.
+        // Invokes the callback with an img or optional canvas
+        // element (if supported by the browser) as parameter:
+        _loadImage: function (file, callback, options) {
+            var that = this,
+                url,
+                img;
+            if (!options || !options.fileTypes ||
+                    options.fileTypes.test(file.type)) {
+                url = this._createObjectURL(file);
+                img = $('<img>').bind('load', function () {
+                    $(this).unbind('load');
+                    that._revokeObjectURL(url);
+                    callback(that._scaleImage(img[0], options));
+                });
+                if (url) {
+                    img.prop('src', url);
+                    return true;
+                } else {
+                    return this._loadFile(file, function (url) {
+                        img.prop('src', url);
+                    });
+                }
+            }
+            return false;
+        },
+
+        // Link handler, that allows to download files
+        // by drag & drop of the links to the desktop:
+        _enableDragToDesktop: function () {
+            var link = $(this),
+                url = link.prop('href'),
+                name = decodeURIComponent(url.split('/').pop())
+                    .replace(/:/g, '-'),
+                type = 'application/octet-stream';
+            link.bind('dragstart', function (e) {
+                try {
+                    e.originalEvent.dataTransfer.setData(
+                        'DownloadURL',
+                        [type, name, url].join(':')
+                    );
+                } catch (err) {}
+            });
+        },
+
+        _adjustMaxNumberOfFiles: function (operand) {
+            if (typeof this.options.maxNumberOfFiles === 'number') {
+                this.options.maxNumberOfFiles += operand;
+                if (this.options.maxNumberOfFiles < 1) {
+                    this._disableFileInputButton();
+                } else {
+                    this._enableFileInputButton();
+                }
+            }
+        },
+
+        _formatFileSize: function (file) {
+            if (typeof file.size !== 'number') {
+                return '';
+            }
+            if (file.size >= 1000000000) {
+                return (file.size / 1000000000).toFixed(2) + ' GB';
+            }
+            if (file.size >= 1000000) {
+                return (file.size / 1000000).toFixed(2) + ' MB';
+            }
+            return (file.size / 1000).toFixed(2) + ' KB';
+        },
+
+        _hasError: function (file) {
+            if (file.error) {
+                return file.error;
+            }
+            // The number of added files is subtracted from
+            // maxNumberOfFiles before validation, so we check if
+            // maxNumberOfFiles is below 0 (instead of below 1):
+            if (this.options.maxNumberOfFiles < 0) {
+                return 'maxNumberOfFiles';
+            }
+            // Files are accepted if either the file type or the file name
+            // matches against the acceptFileTypes regular expression, as
+            // only browsers with support for the File API report the type:
+            if (!(this.options.acceptFileTypes.test(file.type) ||
+                    this.options.acceptFileTypes.test(file.name))) {
+                return 'acceptFileTypes';
+            }
+            if (this.options.maxFileSize &&
+                    file.size > this.options.maxFileSize) {
+                return 'maxFileSize';
+            }
+            if (typeof file.size === 'number' &&
+                    file.size < this.options.minFileSize) {
+                return 'minFileSize';
+            }
+            return null;
+        },
+
+        _validate: function (files) {
+            var that = this,
+                valid = !!files.length;
+            $.each(files, function (index, file) {
+                file.error = that._hasError(file);
+                if (file.error) {
+                    valid = false;
+                }
+            });
+            return valid;
+        },
+
+        _uploadTemplateHelper: function (file) {
+            file.sizef = this._formatFileSize(file);
+            return file;
+        },
+
+        _renderUploadTemplate: function (files) {
+            var that = this;
+            return $.tmpl(
+                this.options.uploadTemplate,
+                $.map(files, function (file) {
+                    return that._uploadTemplateHelper(file);
+                })
+            );
+        },
+
+        _renderUpload: function (files) {
+            var that = this,
+                options = this.options,
+                tmpl = this._renderUploadTemplate(files),
+                isValidated = this._validate(files);
+            if (!(tmpl instanceof $)) {
+                return $();
+            }
+            tmpl.css('display', 'none');
+            // .slice(1).remove().end().first() removes all but the first
+            // element and selects only the first for the jQuery collection:
+            tmpl.find('.progress div').slice(
+                isValidated ? 1 : 0
+            ).remove().end().first()
+                .progressbar();
+            tmpl.find('.start button').slice(
+                this.options.autoUpload || !isValidated ? 0 : 1
+            ).remove().end().first()
+                .button({
+                    text: false,
+                    icons: {primary: 'ui-icon-circle-arrow-e'}
+                });
+            tmpl.find('.cancel button').slice(1).remove().end().first()
+                .button({
+                    text: false,
+                    icons: {primary: 'ui-icon-cancel'}
+                });
+            tmpl.find('.preview').each(function (index, node) {
+                that._loadImage(
+                    files[index],
+                    function (img) {
+                        $(img).hide().appendTo(node).fadeIn();
+                    },
+                    {
+                        maxWidth: options.previewMaxWidth,
+                        maxHeight: options.previewMaxHeight,
+                        fileTypes: options.previewFileTypes,
+                        canvas: options.previewAsCanvas
+                    }
+                );
+            });
+            return tmpl;
+        },
+
+        _downloadTemplateHelper: function (file) {
+            file.sizef = this._formatFileSize(file);
+            return file;
+        },
+
+        _renderDownloadTemplate: function (files) {
+            var that = this;
+            return $.tmpl(
+                this.options.downloadTemplate,
+                $.map(files, function (file) {
+                    return that._downloadTemplateHelper(file);
+                })
+            );
+        },
+
+        _renderDownload: function (files) {
+            var tmpl = this._renderDownloadTemplate(files);
+            if (!(tmpl instanceof $)) {
+                return $();
+            }
+            tmpl.css('display', 'none');
+            tmpl.find('.delete button').button({
+                text: false,
+                icons: {primary: 'ui-icon-trash'}
+            });
+            tmpl.find('a').each(this._enableDragToDesktop);
+            return tmpl;
+        },
+
+        _startHandler: function (e) {
+            e.preventDefault();
+            var tmpl = $(this).closest('.template-upload'),
+                data = tmpl.data('data');
+            if (data && data.submit && !data.jqXHR && data.submit()) {
+                $(this).fadeOut();
+            }
+        },
+
+        _cancelHandler: function (e) {
+            e.preventDefault();
+            var tmpl = $(this).closest('.template-upload'),
+                data = tmpl.data('data') || {};
+            if (!data.jqXHR) {
+                data.errorThrown = 'abort';
+                e.data.fileupload._trigger('fail', e, data);
+            } else {
+                data.jqXHR.abort();
+            }
+        },
+
+        _deleteHandler: function (e) {
+            e.preventDefault();
+            var button = $(this);
+            e.data.fileupload._trigger('destroy', e, {
+                context: button.closest('.template-download'),
+                url: button.attr('data-url'),
+                type: button.attr('data-type'),
+                dataType: e.data.fileupload.options.dataType
+            });
+        },
+
+        _initEventHandlers: function () {
+            $.blueimp.fileupload.prototype._initEventHandlers.call(this);
+            var eventData = {fileupload: this};
+            this.element.find('.files')
+                .delegate(
+                    '.start button',
+                    'click.' + this.options.namespace,
+                    eventData,
+                    this._startHandler
+                )
+                .delegate(
+                    '.cancel button',
+                    'click.' + this.options.namespace,
+                    eventData,
+                    this._cancelHandler
+                )
+                .delegate(
+                    '.delete button',
+                    'click.' + this.options.namespace,
+                    eventData,
+                    this._deleteHandler
+                );
+        },
+
+        _destroyEventHandlers: function () {
+            this.element.find('.files')
+                .undelegate('.start button', 'click.' + this.options.namespace)
+                .undelegate('.cancel button', 'click.' + this.options.namespace)
+                .undelegate('.delete button', 'click.' + this.options.namespace);
+            $.blueimp.fileupload.prototype._destroyEventHandlers.call(this);
+        },
+
+        _initFileUploadButtonBar: function () {
+            var fileUploadButtonBar = this.element.find('.fileupload-buttonbar'),
+                filesList = this.element.find('.files'),
+                ns = this.options.namespace;
+            fileUploadButtonBar
+                .addClass('ui-widget-header ui-corner-top');
+            this.element.find('.fileinput-button').each(function () {
+                var fileInput = $(this).find('input:file').detach();
+                $(this).button({icons: {primary: 'ui-icon-plusthick'}})
+                    .append(fileInput);
+            });
+            fileUploadButtonBar.find('.start')
+                .button({icons: {primary: 'ui-icon-circle-arrow-e'}})
+                .bind('click.' + ns, function (e) {
+                    e.preventDefault();
+                    filesList.find('.start button').click();
+                });
+            fileUploadButtonBar.find('.cancel')
+                .button({icons: {primary: 'ui-icon-cancel'}})
+                .bind('click.' + ns, function (e) {
+                    e.preventDefault();
+                    filesList.find('.cancel button').click();
+                });
+            fileUploadButtonBar.find('.delete')
+                .button({icons: {primary: 'ui-icon-trash'}})
+                .bind('click.' + ns, function (e) {
+                    e.preventDefault();
+                    filesList.find('.delete input:checked')
+                        .siblings('button').click();
+                });
+            fileUploadButtonBar.find('.toggle')
+                .bind('change.' + ns, function (e) {
+                    filesList.find('.delete input').prop(
+                        'checked',
+                        $(this).is(':checked')
+                    );
+                });
+        },
+
+        _destroyFileUploadButtonBar: function () {
+            this.element.find('.fileupload-buttonbar')
+                .removeClass('ui-widget-header ui-corner-top');
+            this.element.find('.fileinput-button').each(function () {
+                var fileInput = $(this).find('input:file').detach();
+                $(this).button('destroy')
+                    .append(fileInput);
+            });
+            this.element.find('.fileupload-buttonbar button')
+                .unbind('click.' + this.options.namespace)
+                .button('destroy');
+            this.element.find('.fileupload-buttonbar .toggle')
+                .unbind('change.' + this.options.namespace);
+        },
+
+        _enableFileInputButton: function () {
+            this.element.find('.fileinput-button input:file:disabled')
+                .each(function () {
+                    var fileInput = $(this),
+                        button = fileInput.parent();
+                    fileInput.detach().prop('disabled', false);
+                    button.button('enable').append(fileInput);
+                });
+        },
+
+        _disableFileInputButton: function () {
+            this.element.find('.fileinput-button input:file:enabled')
+                .each(function () {
+                    var fileInput = $(this),
+                        button = fileInput.parent();
+                    fileInput.detach().prop('disabled', true);
+                    button.button('disable').append(fileInput);
+                });
+        },
+
+        _initTemplates: function () {
+            // Handle cases where the templates are defined
+            // after the widget library has been included:
+            if (this.options.uploadTemplate instanceof $ &&
+                    !this.options.uploadTemplate.length) {
+                this.options.uploadTemplate = $(
+                    this.options.uploadTemplate.selector
+                );
+            }
+            if (this.options.downloadTemplate instanceof $ &&
+                    !this.options.downloadTemplate.length) {
+                this.options.downloadTemplate = $(
+                    this.options.downloadTemplate.selector
+                );
+            }
+        },
+
+        _create: function () {
+            $.blueimp.fileupload.prototype._create.call(this);
+            this._initTemplates();
+            this.element
+                .addClass('ui-widget');
+            this._initFileUploadButtonBar();
+            this.element.find('.fileupload-content')
+                .addClass('ui-widget-content ui-corner-bottom');
+            this.element.find('.fileupload-progressbar')
+                .hide().progressbar();
+        },
+
+        destroy: function () {
+            this.element.find('.fileupload-progressbar')
+                .progressbar('destroy');
+            this.element.find('.fileupload-content')
+                .removeClass('ui-widget-content ui-corner-bottom');
+            this._destroyFileUploadButtonBar();
+            this.element.removeClass('ui-widget');
+            $.blueimp.fileupload.prototype.destroy.call(this);
+        },
+
+        enable: function () {
+            $.blueimp.fileupload.prototype.enable.call(this);
+            this.element.find(':ui-button').not('.fileinput-button')
+                .button('enable');
+            this._enableFileInputButton();
+        },
+
+        disable: function () {
+            this.element.find(':ui-button').not('.fileinput-button')
+                .button('disable');
+            this._disableFileInputButton();
+            $.blueimp.fileupload.prototype.disable.call(this);
+        }
+
+    });
+
+}(jQuery));
+/*
+ * jQuery Templating Plugin
+ * Copyright 2010, John Resig
+ * Dual licensed under the MIT or GPL Version 2 licenses.
+ */
+
+(function( jQuery, undefined ){
+	var oldManip = jQuery.fn.domManip, tmplItmAtt = "_tmplitem", htmlExpr = /^[^<]*(<[\w\W]+>)[^>]*$|\{\{\! /,
+		newTmplItems = {}, wrappedItems = {}, appendToTmplItems, topTmplItem = { key: 0, data: {} }, itemKey = 0, cloneIndex = 0, stack = [];
+
+	function newTmplItem( options, parentItem, fn, data ) {
+		// Returns a template item data structure for a new rendered instance of a template (a 'template item').
+		// The content field is a hierarchical array of strings and nested items (to be
+		// removed and replaced by nodes field of dom elements, once inserted in DOM).
+		var newItem = {
+			data: data || (parentItem ? parentItem.data : {}),
+			_wrap: parentItem ? parentItem._wrap : null,
+			tmpl: null,
+			parent: parentItem || null,
+			nodes: [],
+			calls: tiCalls,
+			nest: tiNest,
+			wrap: tiWrap,
+			html: tiHtml,
+			update: tiUpdate
+		};
+		if ( options ) {
+			jQuery.extend( newItem, options, { nodes: [], parent: parentItem } );
+		}
+		if ( fn ) {
+			// Build the hierarchical content to be used during insertion into DOM
+			newItem.tmpl = fn;
+			newItem._ctnt = newItem._ctnt || newItem.tmpl( jQuery, newItem );
+			newItem.key = ++itemKey;
+			// Keep track of new template item, until it is stored as jQuery Data on DOM element
+			(stack.length ? wrappedItems : newTmplItems)[itemKey] = newItem;
+		}
+		return newItem;
+	}
+
+	// Override appendTo etc., in order to provide support for targeting multiple elements. (This code would disappear if integrated in jquery core).
+	jQuery.each({
+		appendTo: "append",
+		prependTo: "prepend",
+		insertBefore: "before",
+		insertAfter: "after",
+		replaceAll: "replaceWith"
+	}, function( name, original ) {
+		jQuery.fn[ name ] = function( selector ) {
+			var ret = [], insert = jQuery( selector ), elems, i, l, tmplItems,
+				parent = this.length === 1 && this[0].parentNode;
+
+			appendToTmplItems = newTmplItems || {};
+			if ( parent && parent.nodeType === 11 && parent.childNodes.length === 1 && insert.length === 1 ) {
+				insert[ original ]( this[0] );
+				ret = this;
+			} else {
+				for ( i = 0, l = insert.length; i < l; i++ ) {
+					cloneIndex = i;
+					elems = (i > 0 ? this.clone(true) : this).get();
+					jQuery.fn[ original ].apply( jQuery(insert[i]), elems );
+					ret = ret.concat( elems );
+				}
+				cloneIndex = 0;
+				ret = this.pushStack( ret, name, insert.selector );
+			}
+			tmplItems = appendToTmplItems;
+			appendToTmplItems = null;
+			jQuery.tmpl.complete( tmplItems );
+			return ret;
+		};
+	});
+
+	jQuery.fn.extend({
+		// Use first wrapped element as template markup.
+		// Return wrapped set of template items, obtained by rendering template against data.
+		tmpl: function( data, options, parentItem ) {
+			return jQuery.tmpl( this[0], data, options, parentItem );
+		},
+
+		// Find which rendered template item the first wrapped DOM element belongs to
+		tmplItem: function() {
+			return jQuery.tmplItem( this[0] );
+		},
+
+		// Consider the first wrapped element as a template declaration, and get the compiled template or store it as a named template.
+		template: function( name ) {
+			return jQuery.template( name, this[0] );
+		},
+
+		domManip: function( args, table, callback, options ) {
+			// This appears to be a bug in the appendTo, etc. implementation
+			// it should be doing .call() instead of .apply(). See #6227
+			if ( args[0] && args[0].nodeType ) {
+				var dmArgs = jQuery.makeArray( arguments ), argsLength = args.length, i = 0, tmplItem;
+				while ( i < argsLength && !(tmplItem = jQuery.data( args[i++], "tmplItem" ))) {}
+				if ( argsLength > 1 ) {
+					dmArgs[0] = [jQuery.makeArray( args )];
+				}
+				if ( tmplItem && cloneIndex ) {
+					dmArgs[2] = function( fragClone ) {
+						// Handler called by oldManip when rendered template has been inserted into DOM.
+						jQuery.tmpl.afterManip( this, fragClone, callback );
+					};
+				}
+				oldManip.apply( this, dmArgs );
+			} else {
+				oldManip.apply( this, arguments );
+			}
+			cloneIndex = 0;
+			if ( !appendToTmplItems ) {
+				jQuery.tmpl.complete( newTmplItems );
+			}
+			return this;
+		}
+	});
+
+	jQuery.extend({
+		// Return wrapped set of template items, obtained by rendering template against data.
+		tmpl: function( tmpl, data, options, parentItem ) {
+			var ret, topLevel = !parentItem;
+			if ( topLevel ) {
+				// This is a top-level tmpl call (not from a nested template using {{tmpl}})
+				parentItem = topTmplItem;
+				tmpl = jQuery.template[tmpl] || jQuery.template( null, tmpl );
+				wrappedItems = {}; // Any wrapped items will be rebuilt, since this is top level
+			} else if ( !tmpl ) {
+				// The template item is already associated with DOM - this is a refresh.
+				// Re-evaluate rendered template for the parentItem
+				tmpl = parentItem.tmpl;
+				newTmplItems[parentItem.key] = parentItem;
+				parentItem.nodes = [];
+				if ( parentItem.wrapped ) {
+					updateWrapped( parentItem, parentItem.wrapped );
+				}
+				// Rebuild, without creating a new template item
+				return jQuery( build( parentItem, null, parentItem.tmpl( jQuery, parentItem ) ));
+			}
+			if ( !tmpl ) {
+				return []; // Could throw...
+			}
+			if ( typeof data === "function" ) {
+				data = data.call( parentItem || {} );
+			}
+			if ( options && options.wrapped ) {
+				updateWrapped( options, options.wrapped );
+			}
+			ret = jQuery.isArray( data ) ?
+				jQuery.map( data, function( dataItem ) {
+					return dataItem ? newTmplItem( options, parentItem, tmpl, dataItem ) : null;
+				}) :
+				[ newTmplItem( options, parentItem, tmpl, data ) ];
+			return topLevel ? jQuery( build( parentItem, null, ret ) ) : ret;
+		},
+
+		// Return rendered template item for an element.
+		tmplItem: function( elem ) {
+			var tmplItem;
+			if ( elem instanceof jQuery ) {
+				elem = elem[0];
+			}
+			while ( elem && elem.nodeType === 1 && !(tmplItem = jQuery.data( elem, "tmplItem" )) && (elem = elem.parentNode) ) {}
+			return tmplItem || topTmplItem;
+		},
+
+		// Set:
+		// Use $.template( name, tmpl ) to cache a named template,
+		// where tmpl is a template string, a script element or a jQuery instance wrapping a script element, etc.
+		// Use $( "selector" ).template( name ) to provide access by name to a script block template declaration.
+
+		// Get:
+		// Use $.template( name ) to access a cached template.
+		// Also $( selectorToScriptBlock ).template(), or $.template( null, templateString )
+		// will return the compiled template, without adding a name reference.
+		// If templateString includes at least one HTML tag, $.template( templateString ) is equivalent
+		// to $.template( null, templateString )
+		template: function( name, tmpl ) {
+			if (tmpl) {
+				// Compile template and associate with name
+				if ( typeof tmpl === "string" ) {
+					// This is an HTML string being passed directly in.
+					tmpl = buildTmplFn( tmpl )
+				} else if ( tmpl instanceof jQuery ) {
+					tmpl = tmpl[0] || {};
+				}
+				if ( tmpl.nodeType ) {
+					// If this is a template block, use cached copy, or generate tmpl function and cache.
+					tmpl = jQuery.data( tmpl, "tmpl" ) || jQuery.data( tmpl, "tmpl", buildTmplFn( tmpl.innerHTML ));
+				}
+				return typeof name === "string" ? (jQuery.template[name] = tmpl) : tmpl;
+			}
+			// Return named compiled template
+			return name ? (typeof name !== "string" ? jQuery.template( null, name ):
+				(jQuery.template[name] ||
+					// If not in map, treat as a selector. (If integrated with core, use quickExpr.exec)
+					jQuery.template( null, htmlExpr.test( name ) ? name : jQuery( name )))) : null;
+		},
+
+		encode: function( text ) {
+			// Do HTML encoding replacing < > & and ' and " by corresponding entities.
+			return ("" + text).split("<").join("&lt;").split(">").join("&gt;").split('"').join("&#34;").split("'").join("&#39;");
+		}
+	});
+
+	jQuery.extend( jQuery.tmpl, {
+		tag: {
+			"tmpl": {
+				_default: { $2: "null" },
+				open: "if($notnull_1){_=_.concat($item.nest($1,$2));}"
+				// tmpl target parameter can be of type function, so use $1, not $1a (so not auto detection of functions)
+				// This means that {{tmpl foo}} treats foo as a template (which IS a function).
+				// Explicit parens can be used if foo is a function that returns a template: {{tmpl foo()}}.
+			},
+			"wrap": {
+				_default: { $2: "null" },
+				open: "$item.calls(_,$1,$2);_=[];",
+				close: "call=$item.calls();_=call._.concat($item.wrap(call,_));"
+			},
+			"each": {
+				_default: { $2: "$index, $value" },
+				open: "if($notnull_1){$.each($1a,function($2){with(this){",
+				close: "}});}"
+			},
+			"if": {
+				open: "if(($notnull_1) && $1a){",
+				close: "}"
+			},
+			"else": {
+				_default: { $1: "true" },
+				open: "}else if(($notnull_1) && $1a){"
+			},
+			"html": {
+				// Unecoded expression evaluation.
+				open: "if($notnull_1){_.push($1a);}"
+			},
+			"=": {
+				// Encoded expression evaluation. Abbreviated form is ${}.
+				_default: { $1: "$data" },
+				open: "if($notnull_1){_.push($.encode($1a));}"
+			},
+			"!": {
+				// Comment tag. Skipped by parser
+				open: ""
+			}
+		},
+
+		// This stub can be overridden, e.g. in jquery.tmplPlus for providing rendered events
+		complete: function( items ) {
+			newTmplItems = {};
+		},
+
+		// Call this from code which overrides domManip, or equivalent
+		// Manage cloning/storing template items etc.
+		afterManip: function afterManip( elem, fragClone, callback ) {
+			// Provides cloned fragment ready for fixup prior to and after insertion into DOM
+			var content = fragClone.nodeType === 11 ?
+				jQuery.makeArray(fragClone.childNodes) :
+				fragClone.nodeType === 1 ? [fragClone] : [];
+
+			// Return fragment to original caller (e.g. append) for DOM insertion
+			callback.call( elem, fragClone );
+
+			// Fragment has been inserted:- Add inserted nodes to tmplItem data structure. Replace inserted element annotations by jQuery.data.
+			storeTmplItems( content );
+			cloneIndex++;
+		}
+	});
+
+	//========================== Private helper functions, used by code above ==========================
+
+	function build( tmplItem, nested, content ) {
+		// Convert hierarchical content into flat string array
+		// and finally return array of fragments ready for DOM insertion
+		var frag, ret = content ? jQuery.map( content, function( item ) {
+			return (typeof item === "string") ?
+				// Insert template item annotations, to be converted to jQuery.data( "tmplItem" ) when elems are inserted into DOM.
+				(tmplItem.key ? item.replace( /(<\w+)(?=[\s>])(?![^>]*_tmplitem)([^>]*)/g, "$1 " + tmplItmAtt + "=\"" + tmplItem.key + "\" $2" ) : item) :
+				// This is a child template item. Build nested template.
+				build( item, tmplItem, item._ctnt );
+		}) :
+		// If content is not defined, insert tmplItem directly. Not a template item. May be a string, or a string array, e.g. from {{html $item.html()}}.
+		tmplItem;
+		if ( nested ) {
+			return ret;
+		}
+
+		// top-level template
+		ret = ret.join("");
+
+		// Support templates which have initial or final text nodes, or consist only of text
+		// Also support HTML entities within the HTML markup.
+		ret.replace( /^\s*([^<\s][^<]*)?(<[\w\W]+>)([^>]*[^>\s])?\s*$/, function( all, before, middle, after) {
+			frag = jQuery( middle ).get();
+
+			storeTmplItems( frag );
+			if ( before ) {
+				frag = unencode( before ).concat(frag);
+			}
+			if ( after ) {
+				frag = frag.concat(unencode( after ));
+			}
+		});
+		return frag ? frag : unencode( ret );
+	}
+
+	function unencode( text ) {
+		// Use createElement, since createTextNode will not render HTML entities correctly
+		var el = document.createElement( "div" );
+		el.innerHTML = text;
+		return jQuery.makeArray(el.childNodes);
+	}
+
+	// Generate a reusable function that will serve to render a template against data
+	function buildTmplFn( markup ) {
+		return new Function("jQuery","$item",
+			"var $=jQuery,call,_=[],$data=$item.data;" +
+
+			// Introduce the data as local variables using with(){}
+			"with($data){_.push('" +
+
+			// Convert the template into pure JavaScript
+			jQuery.trim(markup)
+				.replace( /([\\'])/g, "\\$1" )
+				.replace( /[\r\t\n]/g, " " )
+				.replace( /\$\{([^\}]*)\}/g, "{{= $1}}" )
+				.replace( /\{\{(\/?)(\w+|.)(?:\(((?:[^\}]|\}(?!\}))*?)?\))?(?:\s+(.*?)?)?(\(((?:[^\}]|\}(?!\}))*?)\))?\s*\}\}/g,
+				function( all, slash, type, fnargs, target, parens, args ) {
+					var tag = jQuery.tmpl.tag[ type ], def, expr, exprAutoFnDetect;
+					if ( !tag ) {
+						throw "Template command not found: " + type;
+					}
+					def = tag._default || [];
+					if ( parens && !/\w$/.test(target)) {
+						target += parens;
+						parens = "";
+					}
+					if ( target ) {
+						target = unescape( target );
+						args = args ? ("," + unescape( args ) + ")") : (parens ? ")" : "");
+						// Support for target being things like a.toLowerCase();
+						// In that case don't call with template item as 'this' pointer. Just evaluate...
+						expr = parens ? (target.indexOf(".") > -1 ? target + parens : ("(" + target + ").call($item" + args)) : target;
+						exprAutoFnDetect = parens ? expr : "(typeof(" + target + ")==='function'?(" + target + ").call($item):(" + target + "))";
+					} else {
+						exprAutoFnDetect = expr = def.$1 || "null";
+					}
+					fnargs = unescape( fnargs );
+					return "');" +
+						tag[ slash ? "close" : "open" ]
+							.split( "$notnull_1" ).join( target ? "typeof(" + target + ")!=='undefined' && (" + target + ")!=null" : "true" )
+							.split( "$1a" ).join( exprAutoFnDetect )
+							.split( "$1" ).join( expr )
+							.split( "$2" ).join( fnargs ?
+								fnargs.replace( /\s*([^\(]+)\s*(\((.*?)\))?/g, function( all, name, parens, params ) {
+									params = params ? ("," + params + ")") : (parens ? ")" : "");
+									return params ? ("(" + name + ").call($item" + params) : all;
+								})
+								: (def.$2||"")
+							) +
+						"_.push('";
+				}) +
+			"');}return _;"
+		);
+	}
+	function updateWrapped( options, wrapped ) {
+		// Build the wrapped content.
+		options._wrap = build( options, true,
+			// Suport imperative scenario in which options.wrapped can be set to a selector or an HTML string.
+			jQuery.isArray( wrapped ) ? wrapped : [htmlExpr.test( wrapped ) ? wrapped : jQuery( wrapped ).html()]
+		).join("");
+	}
+
+	function unescape( args ) {
+		return args ? args.replace( /\\'/g, "'").replace(/\\\\/g, "\\" ) : null;
+	}
+	function outerHtml( elem ) {
+		var div = document.createElement("div");
+		div.appendChild( elem.cloneNode(true) );
+		return div.innerHTML;
+	}
+
+	// Store template items in jQuery.data(), ensuring a unique tmplItem data data structure for each rendered template instance.
+	function storeTmplItems( content ) {
+		var keySuffix = "_" + cloneIndex, elem, elems, newClonedItems = {}, i, l, m;
+		for ( i = 0, l = content.length; i < l; i++ ) {
+			if ( (elem = content[i]).nodeType !== 1 ) {
+				continue;
+			}
+			elems = elem.getElementsByTagName("*");
+			for ( m = elems.length - 1; m >= 0; m-- ) {
+				processItemKey( elems[m] );
+			}
+			processItemKey( elem );
+		}
+		function processItemKey( el ) {
+			var pntKey, pntNode = el, pntItem, tmplItem, key;
+			// Ensure that each rendered template inserted into the DOM has its own template item,
+			if ( (key = el.getAttribute( tmplItmAtt ))) {
+				while ( pntNode.parentNode && (pntNode = pntNode.parentNode).nodeType === 1 && !(pntKey = pntNode.getAttribute( tmplItmAtt ))) { }
+				if ( pntKey !== key ) {
+					// The next ancestor with a _tmplitem expando is on a different key than this one.
+					// So this is a top-level element within this template item
+					// Set pntNode to the key of the parentNode, or to 0 if pntNode.parentNode is null, or pntNode is a fragment.
+					pntNode = pntNode.parentNode ? (pntNode.nodeType === 11 ? 0 : (pntNode.getAttribute( tmplItmAtt ) || 0)) : 0;
+					if ( !(tmplItem = newTmplItems[key]) ) {
+						// The item is for wrapped content, and was copied from the temporary parent wrappedItem.
+						tmplItem = wrappedItems[key];
+						tmplItem = newTmplItem( tmplItem, newTmplItems[pntNode]||wrappedItems[pntNode], null, true );
+						tmplItem.key = ++itemKey;
+						newTmplItems[itemKey] = tmplItem;
+					}
+					if ( cloneIndex ) {
+						cloneTmplItem( key );
+					}
+				}
+				el.removeAttribute( tmplItmAtt );
+			} else if ( cloneIndex && (tmplItem = jQuery.data( el, "tmplItem" )) ) {
+				// This was a rendered element, cloned during append or appendTo etc.
+				// TmplItem stored in jQuery data has already been cloned in cloneCopyEvent. We must replace it with a fresh cloned tmplItem.
+				cloneTmplItem( tmplItem.key );
+				newTmplItems[tmplItem.key] = tmplItem;
+				pntNode = jQuery.data( el.parentNode, "tmplItem" );
+				pntNode = pntNode ? pntNode.key : 0;
+			}
+			if ( tmplItem ) {
+				pntItem = tmplItem;
+				// Find the template item of the parent element.
+				// (Using !=, not !==, since pntItem.key is number, and pntNode may be a string)
+				while ( pntItem && pntItem.key != pntNode ) {
+					// Add this element as a top-level node for this rendered template item, as well as for any
+					// ancestor items between this item and the item of its parent element
+					pntItem.nodes.push( el );
+					pntItem = pntItem.parent;
+				}
+				// Delete content built during rendering - reduce API surface area and memory use, and avoid exposing of stale data after rendering...
+				delete tmplItem._ctnt;
+				delete tmplItem._wrap;
+				// Store template item as jQuery data on the element
+				jQuery.data( el, "tmplItem", tmplItem );
+			}
+			function cloneTmplItem( key ) {
+				key = key + keySuffix;
+				tmplItem = newClonedItems[key] =
+					(newClonedItems[key] || newTmplItem( tmplItem, newTmplItems[tmplItem.parent.key + keySuffix] || tmplItem.parent, null, true ));
+			}
+		}
+	}
+
+	//---- Helper functions for template item ----
+
+	function tiCalls( content, tmpl, data, options ) {
+		if ( !content ) {
+			return stack.pop();
+		}
+		stack.push({ _: content, tmpl: tmpl, item:this, data: data, options: options });
+	}
+
+	function tiNest( tmpl, data, options ) {
+		// nested template, using {{tmpl}} tag
+		return jQuery.tmpl( jQuery.template( tmpl ), data, options, this );
+	}
+
+	function tiWrap( call, wrapped ) {
+		// nested template, using {{wrap}} tag
+		var options = call.options || {};
+		options.wrapped = wrapped;
+		// Apply the template, which may incorporate wrapped content,
+		return jQuery.tmpl( jQuery.template( call.tmpl ), call.data, options, call.item );
+	}
+
+	function tiHtml( filter, textOnly ) {
+		var wrapped = this._wrap;
+		return jQuery.map(
+			jQuery( jQuery.isArray( wrapped ) ? wrapped.join("") : wrapped ).filter( filter || "*" ),
+			function(e) {
+				return textOnly ?
+					e.innerText || e.textContent :
+					e.outerHTML || outerHtml(e);
+			});
+	}
+
+	function tiUpdate() {
+		var coll = this.nodes;
+		jQuery.tmpl( null, null, null, this).insertBefore( coll[0] );
+		jQuery( coll ).remove();
+	}
+})( jQuery );
+
+/*
+ * jQuery Image Gallery Plugin 2.1
+ * https://github.com/blueimp/jQuery-Image-Gallery
+ *
+ * Copyright 2011, Sebastian Tschan
+ * https://blueimp.net
+ *
+ * Licensed under the MIT license:
+ * http://creativecommons.org/licenses/MIT/
+ */
+
+/*jslint white: true, nomen: true */
+/*global jQuery, window, document, setTimeout, clearTimeout */
+
+
+(function ($) {
+    'use strict';
+
+    // The Image Gallery plugin makes use of jQuery's delegate method to attach
+    // a click event handler for all child elements matching a selector,
+    // now or in the future, of the given set of root elements.
+    // The click handler opens the linked images in a jQuery UI dialog.
+    // The options object given to the imagegallery method is passed to the
+    // jQuery UI dialog initialization and allows to override any dialog options.
+    $.widget('blueimp.imagegallery', {
+
+        options: {
+            // selector given to jQuery's delegate method:
+            selector: 'a[rel="gallery"]',
+            // event handler namespace:
+            namespace: 'imagegallery',
+            // Shows the next image after the given time in ms (0 = disabled):
+            slideshow: 0,
+            // Offset of image width to viewport width:
+            offsetWidth: 100,
+            // Offset of image height to viewport height:
+            offsetHeight: 100,
+            // Display images fullscreen (overrides offsets):
+            fullscreen: false,
+            // Display images as canvas elements:
+            canvas: false,
+            // body class added on dialog display:
+            bodyClass: 'gallery-body',
+            // element id of the loading animation:
+            loaderId: 'gallery-loader',
+            // list of available dialog effects,
+            // used when show/hide is set to "random":
+            effects: [
+                'blind',
+                'clip',
+                'drop',
+                'explode',
+                'fade',
+                'fold',
+                'puff',
+                'slide',
+                'scale'
+            ],
+            // The following are jQuery UI dialog options, see
+            // http://jqueryui.com/demos/dialog/#options
+            // for additional options and documentation:
+            modal: true,
+            resizable: false,
+            width: 'auto',
+            height: 'auto',
+            show: 'fade',
+            hide: 'fade',
+            dialogClass: 'gallery-dialog'
+        },
+
+        // Scales the given image (img HTML element)
+        // using the given options.
+        // Returns a canvas object if the canvas option is true
+        // and the browser supports canvas, else the scaled image:
+        _scale: function (img, options) {
+            options = options || {};
+            var canvas = document.createElement('canvas'),
+                scale = Math.min(
+                    (options.maxWidth || img.width) / img.width,
+                    (options.maxHeight || img.height) / img.height
+                );
+            if (scale >= 1) {
+                scale = Math.max(
+                    (options.minWidth || img.width) / img.width,
+                    (options.minHeight || img.height) / img.height
+                );
+            }
+            img.width = parseInt(img.width * scale, 10);
+            img.height = parseInt(img.height * scale, 10);
+            if (!options.canvas || !canvas.getContext) {
+                return img;
+            }
+            canvas.width = img.width;
+            canvas.height = img.height;
+            canvas.getContext('2d')
+                .drawImage(img, 0, 0, img.width, img.height);
+            return canvas;
+        },
+
+        _getOverlay: function () {
+            return $(document.body)
+                .children('.ui-widget-overlay').last();
+        },
+
+        _openSibling: function (link) {
+            var that = this,
+                dialog = this._dialog;
+            clearTimeout(this._slideShow);
+            this._slideShow = null;
+            if (link.href !== this._link.href) {
+                dialog.dialog('widget').hide(this.options.hide, function () {
+                    that._overlay = that._getOverlay().clone()
+                        .appendTo(document.body);
+                    dialog
+                        .dialog('option', 'hide', null)
+                        .dialog('close');
+                    that._callback = function () {
+                        that._overlay.remove();
+                        that._overlay = null;
+                    };
+                    that._open(link);
+                });
+            } else {
+                dialog.dialog('close');
+            }
+        },
+
+        _prev: function () {
+            this._openSibling(this._prevLink);
+        },
+
+        _next: function () {
+            this._openSibling(this._nextLink);
+        },
+
+        _keyHandler: function (e) {
+            var that = e.data.imagegallery;
+            switch (e.which) {
+            case 37: // left
+            case 38: // up
+                that._prev();
+                return false;
+            case 39: // right
+            case 40: // down
+                that._next();
+                return false;
+            }
+        },
+
+        _wheelHandler: function (e) {
+            var that = e.data.imagegallery;
+            e = e.originalEvent;
+            that._wheelCounter += (e.wheelDelta || e.detail || 0);
+            if ((e.wheelDelta && that._wheelCounter >= 120) ||
+                    (!e.wheelDelta && that._wheelCounter < 0)) {
+                that._prev();
+                that._wheelCounter = 0;
+            } else if ((e.wheelDelta && that._wheelCounter <= -120) ||
+                        (!e.wheelDelta && that._wheelCounter > 0)) {
+                that._next();
+                that._wheelCounter = 0;
+            }
+            return false;
+        },
+
+        _clickHandler: function (e) {
+            var that = e.data.imagegallery;
+            if (e.altKey) {
+                that._prev();
+            } else {
+                that._next();
+            }
+        },
+
+        _overlayClickHandler: function (e) {
+            var that = e.data.imagegallery;
+            $(this).unbind(
+                'click.' + that.options.namespace,
+                that._overlayClickHandler
+            );
+            that._dialog.dialog('close');
+        },
+
+        _openHandler: function (e) {
+            var that = e.data.imagegallery,
+                options = that.options;
+            $(document.body).addClass(options.bodyClass);
+            that._getOverlay()
+                .bind(
+                    'click.' + options.namespace,
+                    e.data,
+                    that._overlayClickHandler
+                );
+            if (that._callback) {
+                that._callback();
+                that._callback = null;
+            }
+            if (options.slideshow) {
+                that._slideShow = setTimeout(
+                    function () {
+                        that._next();
+                    },
+                    options.slideshow
+                );
+            }
+        },
+
+        _closeHandler: function (e) {
+            var that = e.data.imagegallery,
+                options = that.options;
+            $(document)
+                .unbind(
+                    'keydown.' + options.namespace,
+                    that._keyHandler
+                )
+                .unbind(
+                    'mousewheel.' + options.namespace +
+                        ', DOMMouseScroll.' + options.namespace,
+                    that._wheelHandler
+                );
+            clearTimeout(that._slideShow);
+            that._slideShow = null;
+            if (!that._overlay) {
+                $(document.body).removeClass(options.bodyClass);
+                that._position = null;
+            }
+            that._dialog.remove();
+            that._dialog = null;
+        },
+
+        _dragStopHandler: function (e, ui) {
+            var that = e.data.imagegallery;
+            that._position = ui.position;
+        },
+
+        _initDialogHandlers: function () {
+            var that = this,
+                options = this.options,
+                eventData = {imagegallery: this};
+            $(document)
+                .bind(
+                    'keydown.' + options.namespace,
+                    eventData,
+                    this._keyHandler
+                )
+                .bind(
+                    'mousewheel.' + options.namespace +
+                        ', DOMMouseScroll.' + options.namespace,
+                    eventData,
+                    this._wheelHandler
+                );
+            that._dialog
+                .bind(
+                    'click.' + options.namespace,
+                    eventData,
+                    this._clickHandler
+                )
+                .bind(
+                    'dialogopen.' + options.namespace,
+                    eventData,
+                    this._openHandler
+                )
+                .bind(
+                    'dialogclose.' + options.namespace,
+                    eventData,
+                    this._closeHandler
+                )
+                .bind(
+                    'dialogdragstop.' + options.namespace,
+                    eventData,
+                    this._dragStopHandler
+                );
+        },
+
+        _loadHandler: function (e) {
+            var that = e.data.imagegallery,
+                options = that.options,
+                img = that._img && that._img[0],
+                offsetWidth = options.offsetWidth,
+                offsetHeight = options.offsetHeight;
+            if (!img) {
+                return;
+            }
+            that._dialog = $('<div></div>');
+            that._loaded = true;
+            $(document)
+                .unbind(
+                    'keydown.' + options.namespace,
+                    that._escapeHandler
+                )
+                .unbind(
+                    'click.' + options.namespace,
+                    that._documentClickHandler
+                );
+            that._img = null;
+            that._loadingAnimation.hide();
+            if (e.type === 'error') {
+                that._dialog.addClass('ui-state-error');
+            } else {
+                if (options.fullscreen) {
+                    img = that._scale(
+                        img,
+                        {
+                            minWidth: $(window).width(),
+                            minHeight: $(window).height()
+                        }
+                    );
+                    offsetWidth = offsetHeight = 0;
+                }
+                img = that._scale(
+                    img,
+                    {
+                        maxWidth: $(window).width() - offsetWidth,
+                        maxHeight: $(window).height() - offsetHeight,
+                        canvas: options.canvas
+                    }
+                );
+            }
+            that._initDialogHandlers();
+            if (that._position) {
+                options = $.extend({}, options, {position: [
+                    that._position.left,
+                    that._position.top
+                ]});
+            }
+            that._dialog
+                .append(img)
+                .appendTo(document.body)
+                .dialog(options);
+        },
+
+        _abortLoading: function () {
+            var options = this.options;
+            this._img.unbind();
+            $(document)
+                .unbind(
+                    'keydown.' + options.namespace,
+                    this._escapeHandler
+                )
+                .unbind(
+                    'click.' + options.namespace,
+                    this._documentClickHandler
+                );
+            this._getOverlay().remove();
+            this._loadingAnimation.hide();
+            $(document.body).removeClass(options.bodyClass);
+        },
+
+        _escapeHandler: function (e) {
+            if (e.keyCode === 27) { // ESC key
+                e.data.imagegallery._abortLoading();
+            }
+        },
+
+        _documentClickHandler: function (e) {
+            var that = e.data.imagegallery;
+            // The closest() test prevents the click event
+            // bubbling up from aborting the image load:
+            if (!$(e.target).closest(that._link).length) {
+                that._abortLoading();
+            }
+        },
+
+        _loadImage: function () {
+            var that = this,
+                options = this.options,
+                eventData = {imagegallery: this};
+            this._img = $('<img>');
+            $(document)
+                .bind(
+                    'keydown.' + options.namespace,
+                    eventData,
+                    this._escapeHandler
+                )
+                .bind(
+                    'click.' + options.namespace,
+                    eventData,
+                    this._documentClickHandler
+                );
+            that._loaded = null;
+            this._img.bind(
+                'load error',
+                eventData,
+                this._loadHandler
+            ).prop('src', this._link.href);
+            // The timeout prevents the loading animation to show
+            // when the image has already been loaded:
+            setTimeout(function () {
+                if (!that._loaded) {
+                    that._loadingAnimation.show();
+                }
+            }, 100);
+        },
+
+        _preloadSiblings: function () {
+            // Preload the next and previous images:
+            $('<img>').prop('src', this._nextLink.href);
+            $('<img>').prop('src', this._prevLink.href);
+        },
+
+        _initSiblings: function () {
+            var that = this,
+                link = this._link,
+                links = this.element.find(this.options.selector);
+            this._prevLink = null;
+            this._nextLink = null;
+            links.each(function (index) {
+                // Check the next and next but one link, to account for
+                // thumbnail and name linking twice to the same image:
+                if ((links[index + 1] === link ||
+                        links[index + 2] === link) &&
+                        this.href !== link.href) {
+                    that._prevLink = this;
+                }
+                if ((links[index - 1] === link ||
+                        links[index - 2] === link) &&
+                        this.href !== link.href) {
+                    that._nextLink = this;
+                    return false;
+                }
+            });
+            if (!this._prevLink) {
+                this._prevLink = links[links.length - 1];
+            }
+            if (!this._nextLink) {
+                this._nextLink = links[0];
+            }
+        },
+
+        _getRandomEffect: function () {
+            var effects = this.options.effects;
+            return effects[Math.floor(Math.random() * effects.length)];
+        },
+
+        _initEffects: function () {
+            var options = this.options;
+            if (options.show === 'random' || this._show === 'random') {
+                this._show = 'random';
+                options.show = this._getRandomEffect();
+            }
+            if (options.hide === 'random' || this._hide === 'random') {
+                this._hide = 'random';
+                options.hide = this._getRandomEffect();
+            }
+        },
+
+        _open: function (link) {
+            if (this._dialog) {
+                var copy = $.extend({}, this);
+                copy._dialog = null;
+                copy._position = null;
+                copy._open(link);
+                return;
+            }
+            this.options.title = link.title ||
+                decodeURIComponent(link.href.split('/').pop());
+            this._link = link;
+            this._initEffects();
+            this._loadImage();
+            this._initSiblings();
+            this._preloadSiblings();
+        },
+
+        _initFullscreenOptions: function () {
+            var options = this.options;
+            if (options.fullscreen) {
+                if (!/-fullscreen$/.test(options.dialogClass)) {
+                    options.dialogClass += '-fullscreen';
+                }
+                if (!/-fullscreen$/.test(options.bodyClass)) {
+                    options.bodyClass += '-fullscreen';
+                }
+            } else {
+                options.dialogClass = options.dialogClass
+                    .replace(/-fullscreen$/, '');
+                options.bodyClass = options.bodyClass
+                    .replace(/-fullscreen$/, '');
+            }
+        },
+
+        _initLoadingAnimation: function () {
+            this._loadingAnimation = $(
+                '<div id="' +
+                    this.options.loaderId +
+                    '"></div>'
+            ).hide().appendTo(document.body);
+        },
+
+        _destroyLoadingAnimation: function () {
+            this._loadingAnimation.remove();
+            this._loadingAnimation = null;
+        },
+
+        _delegate: function () {
+            var that = this,
+                options = this.options;
+            this.element.delegate(
+                options.selector,
+                'click.' + options.namespace,
+                function (e) {
+                    e.preventDefault();
+                    that._open(this);
+                }
+            );
+        },
+
+        _undelegate: function () {
+            this.element.undelegate(
+                this.options.selector,
+                'click.' + this.options.namespace
+            );
+        },
+
+        _setOption: function (key, value) {
+            this._show = this._hide = null;
+            var refresh = (key === 'namespace' || key === 'selector');
+            if (refresh) {
+                this._undelegate();
+            }
+            $.Widget.prototype._setOption.call(this, key, value);
+            if (refresh) {
+                this._delegate();
+            }
+            if ($.inArray(
+                    key,
+                    ['fullscreen', 'dialogClass', 'bodyClass']
+                ) !== -1) {
+                this._initFullscreenOptions();
+            }
+        },
+
+        _create: function () {
+            this._wheelCounter = 0;
+            this._initLoadingAnimation();
+            this._initFullscreenOptions();
+            this._delegate();
+        },
+
+        destroy: function () {
+            clearTimeout(this._slideShow);
+            this._slideShow = null;
+            if (this._dialog) {
+                this._dialog.dialog('close');
+            }
+            this._undelegate();
+            this._destroyLoadingAnimation();
+            $.Widget.prototype.destroy.call(this);
+        },
+
+        enable: function () {
+            $.Widget.prototype.enable.call(this);
+            this._delegate();
+        },
+
+        disable: function () {
+            clearTimeout(this._slideShow);
+            this._slideShow = null;
+            this._undelegate();
+            $.Widget.prototype.disable.call(this);
+        }
+
+    });
+
+}(jQuery));
+
+
 // This is a manifest file that'll be compiled into including all the files listed below.
 // Add new JavaScript/Coffee code in separate files in this directory and they'll automatically
 // be included in the compiled file accessible from http://example.com/assets/application.js
@@ -24562,11 +25918,11 @@ I18n.translations = {"en":{"date":{"formats":{"default":"%Y-%m-%d","short":"%b %
 // the compiled file.
 //
 
-// Include all twitter's javascripts
-
-// Or peek any of them yourself
+// require_tree .
 
 
-// require rails.validations
+
+////////////////////////////////////////////////////////////
+
 
 ;

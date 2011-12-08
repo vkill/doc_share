@@ -1,0 +1,34 @@
+---
+zh-CN:
+  jquery_fileupload:
+    tmpl:
+      error: "错误:"
+      errors:
+        unknow: "未知"
+      upload:
+        untitled: 无文件名
+        errors:
+          maxFileSize: 文件大小超过最大限制
+          minFileSize: 文件大小低于最小限制
+          acceptFileTypes: 不容许此文件格式
+          maxNumberOfFiles: 文件数量超过限制
+        start: 开始
+        cancel: 取消
+
+      download:
+        errors:
+          "1": 文件超过最大上传的大小限制 upload_max_filesize(Rails directive)
+          "2": 文件超过最大接收的大小限制 MAX_FILE_SIZE(HTML form directive)
+          "3": 文件仅部分上传成功
+          "4": 文件没上传成功
+          "5": 缺少临时目录
+          "6": 写入磁盘时发生错误
+          "7": 延迟导致文件上传停止
+          maxFileSize: 文件大小超过最大限制
+          minFileSize: 文件大小低于最小限制
+          acceptFileTypes: 不容许此文件格式
+          maxNumberOfFiles: 文件数量超过限制
+          uploadedBytes: 已上传的字节超过文件大小
+          emptyResult: 文件上传结果为空
+        delete: 删除
+

@@ -1,14 +1,21 @@
 /%script{:src => "//ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"}
-/%script{:src => "//ajax.googleapis.com/ajax/libs/jqueryui/1.8.8/jquery-ui.min.js"}
+/%script{:src => "//ajax.googleapis.com/ajax/libs/jqueryui/1.8.16/jquery-ui.min.js"}
 = javascript_include_tag "application"
+= javascript_include_tag "coffee"
 
 :javascript
+  // Instantiate the object
+  var RailsSettings = RailsSettings || {};
+  // Set default development to false
+  RailsSettings.development = false;
+
   $(document).ready(function() {
     I18n.defaultLocale = "#{ I18n.default_locale }";
     I18n.locale = "#{ I18n.locale }";
+
+    RailsSettings.development = #{ Rails.env.development? ? true : false }
   })
 
-%script(language="javascript" src="/javascripts/jquery_file_upload_rails31.js")
 
 = yield :javascript
 

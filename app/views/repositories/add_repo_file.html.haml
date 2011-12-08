@@ -1,33 +1,54 @@
 .page-header
   .row
-    .span7
-      %input(id="fileupload" type="file" name="files[]" multiple)
+    .span14.offset1
+      #jquery_fileupload_repo
+        = simple_nested_form_for(@repository, :url => repository_path(@repository), :wrapper => :inline, :validate => false) do |f|
+          .row
+            .span8
+              .fileinput-button
+                = f.simple_fields_for :repo_files do |f_repo_file|
+                  /%span #{ t("add_files", :scope => [:web, :page]) }
+                  = f_repo_file.input_field :repo_file, :as => :file, :class => "span1"
+            .span6
+              .fileupload-buttonbar
+                %button.start{:type => "submit"} #{ t("start_upload_files", :scope => [:web, :page]) }
+                %button.cancel{:type => "reset"} #{ t("cancel_files", :scope => [:web, :page]) }
+                %button.delete{:type => "button"} #{ t("delete_choised_files", :scope => [:web, :page]) }
 
 
-    .span7.offset2
-      %h2 Add Repo File
-      = simple_nested_form_for(@repository, :url => repository_path(@repository), :wrapper => :inline, :validate => false) do |f|
-        - if f.error_notification
-          .alert-message.warning.fade.in(data-alert="alert")
-            %a(class="close" href="#") ×
-            %p
-              = f.error_notification
+        .fileupload-content
+          %table.files
 
-        = f.simple_fields_for :repo_files do |f_repo_file|
-          = f_repo_file.label :repo_file
-          = f_repo_file.input :repo_file , :wrapper => :prepend, :label => false do
-            - unless f_repo_file.object.repo_file.blank?
-              = f_repo_file.object.repo_file
-            - else
-              = f_repo_file.input_field :repo_file, :as => :file
-            .span2
-              = f_repo_file.link_to_remove t("remove")
+          .fileupload-progressbar
 
-        = f.link_to_add t("add"), :repo_files
 
-        .actions
-          = f.button :submit, "Add", :class => 'primary'
-          = button_tag 'Cancel', :type => :reset, :class => "btn"
-          %p.pull-right
-            = link_to t("back_to"), ""
+= content_for :javascript do
+  = render "partials/jquery_fileupload_tmpl"
+
+
+
+= simple_nested_form_for(@repository, :url => repository_path(@repository), :wrapper => :inline, :validate => false) do |f|
+  - if f.error_notification
+    .alert-message.warning.fade.in(data-alert="alert")
+      %a(class="close" href="#") ×
+      %p
+        = f.error_notification
+
+  = f.simple_fields_for :repo_files do |f_repo_file|
+    = f_repo_file.label :repo_file
+    = f_repo_file.input :repo_file , :wrapper => :prepend, :label => false do
+      - unless f_repo_file.object.repo_file.blank?
+        = f_repo_file.object.repo_file
+      - else
+        = f_repo_file.input_field :repo_file, :as => :file
+      .span2
+        = f_repo_file.link_to_remove t("remove")
+
+  = f.link_to_add t("add"), :repo_files
+
+  .actions
+    = f.button :submit, "Add", :class => 'primary'
+    = button_tag 'Cancel', :type => :reset, :class => "btn"
+    %p.pull-right
+      = link_to t("back_to"), ""
 

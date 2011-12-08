@@ -7,12 +7,9 @@
 //= require jquery
 //= require jquery-ui
 //= require jquery_ujs
-//= require_tree .
 
-// Include all twitter's javascripts
-//= require bootstrap
+// require_tree .
 
-// Or peek any of them yourself
 //= require bootstrap-alerts
 //= require bootstrap-dropdown
 //= require bootstrap-modal
@@ -25,5 +22,10 @@
 //= require i18n
 //= require i18n/translations
 
-// require rails.validations
+////////////////////////////////////////////////////////////
+
+//= require bootstrap-alerts_extension
+//= require i18n-js_config
+//= require nested_form
+//= require jquery_fileupload
 

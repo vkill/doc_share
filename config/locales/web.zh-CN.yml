@@ -31,9 +31,11 @@ zh-CN:
       send_message: 发消息
       reply: 回复
 
-      select_files: 点击选择文件
-      start_upload: 开始上传
-      stop_upload: 取消上传
+      add_files: 添加文件
+      start_upload_files: 开始上传
+      cancel_files: 取消
+      delete_choised_files: 删除所选文件
+
 
     activity:
       at: 在%{ago}前

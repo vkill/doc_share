@@ -1,0 +1,89 @@
+
+- @ud_error = t("error", :scope => [:jquery_fileupload, :tmpl ])
+- @ud_errors_unknow = t("unknow", :scope => [:jquery_fileupload, :tmpl, :errors ])
+
+- @u_untitled = t("untitled", :scope => [:jquery_fileupload, :tmpl, :upload ])
+- @u_errors_maxFileSize = t("maxFileSize", :scope => [:jquery_fileupload, :tmpl, :upload, :errors ])
+- @u_errors_minFileSize = t("minFileSize", :scope => [:jquery_fileupload, :tmpl, :upload, :errors ])
+- @u_errors_acceptFileTypes = t("acceptFileTypes", :scope => [:jquery_fileupload, :tmpl, :upload, :errors ])
+- @u_errors_maxNumberOfFiles = t("maxNumberOfFiles", :scope => [:jquery_fileupload, :tmpl, :upload, :errors ])
+- @u_start = t("start", :scope => [:jquery_fileupload, :tmpl, :upload ])
+- @u_cancel = t("cancel", :scope => [:jquery_fileupload, :tmpl, :upload ])
+
+- @d_errors_1 = t("1", :scope => [:jquery_fileupload, :tmpl, :download, :errors ])
+- @d_errors_2 = t("2", :scope => [:jquery_fileupload, :tmpl, :download, :errors ])
+- @d_errors_3 = t("3", :scope => [:jquery_fileupload, :tmpl, :download, :errors ])
+- @d_errors_4 = t("4", :scope => [:jquery_fileupload, :tmpl, :download, :errors ])
+- @d_errors_5 = t("5", :scope => [:jquery_fileupload, :tmpl, :download, :errors ])
+- @d_errors_6 = t("6", :scope => [:jquery_fileupload, :tmpl, :download, :errors ])
+- @d_errors_7 = t("7", :scope => [:jquery_fileupload, :tmpl, :download, :errors ])
+- @d_errors_maxFileSize = t("maxFileSize", :scope => [:jquery_fileupload, :tmpl, :download, :errors ])
+- @d_errors_minFileSize = t("minFileSize", :scope => [:jquery_fileupload, :tmpl, :download, :errors ])
+- @d_errors_acceptFileTypes = t("acceptFileTypes", :scope => [:jquery_fileupload, :tmpl, :download, :errors ])
+- @d_errors_maxNumberOfFiles = t("maxNumberOfFiles", :scope => [:jquery_fileupload, :tmpl, :download, :errors ])
+- @d_errors_uploadedBytes = t("uploadedBytes", :scope => [:jquery_fileupload, :tmpl, :download, :errors ])
+- @d_errors_emptyResult = t("emptyResult", :scope => [:jquery_fileupload, :tmpl, :download, :errors ])
+- @d_delete = t("delete", :scope => [:jquery_fileupload, :tmpl, :download ])
+
+
+%script#template-upload{:type => "text/x-jquery-tmpl"}
+  %tr{:class => "template-upload{{if error}} ui-state-error{{/if}}"}
+    %td.preview
+    %td.name {{if name}}${name}{{else}}#{ @u_untitled }{{/if}}
+    %td.size ${sizef}
+    {{if error}}
+    %td.error{:colspan => "2"}
+      #{ @ud_error }
+      {{if error === 'maxFileSize'}} #{ @u_errors_maxFileSize }
+      {{else error === 'minFileSize'}} #{ @u_errors_minFileSize }
+      {{else error === 'acceptFileTypes'}} #{ @u_errors_acceptFileTypes }
+      {{else error === 'maxNumberOfFiles'}} #{ @u_errors_maxNumberOfFiles }
+      {{else}} #{ @ud_errors_unknow } ${error}
+      {{/if}}
+    {{else}}
+    %td.progress
+      %div
+    %td.start
+      %button #{ @u_start }
+    {{/if}}
+    %td.cancel
+      %button #{ @u_cancel }
+
+%script#template-download{:type => "text/x-jquery-tmpl"}
+  %tr{:class => "template-download{{if error}} ui-state-error{{/if}}"}
+    {{if error}}
+    %td
+    %td.name ${name}
+    %td.size ${sizef}
+    %td.error{:colspan => "2"}
+      #{ @ud_error }
+      {{if error === 1}} #{ @d_errors_1 }
+      {{else error === 2}} #{ @d_errors_2 }
+      {{else error === 3}} #{ @d_errors_3 }
+      {{else error === 4}} #{ @d_errors_4 }
+      {{else error === 5}} #{ @d_errors_5 }
+      {{else error === 6}} #{ @d_errors_6 }
+      {{else error === 7}} #{ @d_errors_7 }
+      {{else error === 'maxFileSize'}} #{ @d_errors_maxFileSize }
+      {{else error === 'minFileSize'}} #{ @d_errors_minFileSize }
+      {{else error === 'acceptFileTypes'}} #{ @d_errors_acceptFileTypes }
+      {{else error === 'maxNumberOfFiles'}} #{ @d_errors_maxNumberOfFiles }
+      {{else error === 'uploadedBytes'}} #{ @d_errors_uploadedBytes }
+      {{else error === 'emptyResult'}} #{ @d_errors_emptyResult }
+      {{else}}{{if RailsSettings.development}}${error}{{else}}#{ @ud_errors_unknow }{{/if}}
+      {{/if}}
+    {{else}}
+    %td.preview
+      {{if thumbnail_url}}
+      %a{:href => "${url}", :rel => "gallery", :title => "${name}"}
+        %img{:src => "${thumbnail_url}"}/
+      {{/if}}
+    %td.name
+      <a href="${url}" title="${name}"{{if thumbnail_url}} rel="gallery"{{/if}}>${name}
+    %td.size ${sizef}
+    %td{:colspan => "2"}
+    {{/if}}
+    %td.delete
+      %button{"data-type" => "${delete_type}", "data-url" => "${delete_url}"} #{ @d_delete }
+      %input{:name => "delete", :type => "checkbox", :value => "1"}
+

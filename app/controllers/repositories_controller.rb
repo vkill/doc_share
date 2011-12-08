@@ -34,7 +34,8 @@ class RepositoriesController < ApplicationController
 
   def add_repo_file
     @repository = current_user.repositories.find(params[:id])
-    @repository.repo_files.build if @repository.repo_files.blank?
+#    @repository.repo_files.build if @repository.repo_files.blank?
+    @repository.repo_files.build
   end
 
   def show
