@@ -20,6 +20,8 @@ class RepoFile < ActiveRecord::Base
     {
       "name" => read_attribute(:repo_file),
       "size" => repo_file.size,
+      "url" => repo_file.url,
+      "thumbnail_url" => repo_file.url,
       "delete_url" => account_repository_repo_file_path(repository, id),
       "delete_type" => "DELETE"
      }

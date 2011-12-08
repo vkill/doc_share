@@ -1,14 +1,19 @@
 class Account::RepoFilesController < Account::BaseController
 
   respond_to :html
-  respond_to :json, :only => [:create]
+  respond_to :json, :only => [:index, :create, :destory]
 
   before_filter :find_repository
   before_filter :find_or_build_repo_file, :except => [:index]
+  before_filter :set_charset, :only => [:create]
 
   def index
     @repo_files = @repository.repo_files
-    render :json => @repo_files.collect { |repo_file| repo_file.to_jquery_fileupload }.to_json
+    respond_with do |format|
+      format.json {
+        render :json => @repo_files.collect { |repo_file| repo_file.to_jquery_fileupload }.to_json
+      }
+    end
   end
 
   def new
@@ -16,15 +21,21 @@ class Account::RepoFilesController < Account::BaseController
 
   def create
     if @repo_file.save
-      render :json => @repo_file.to_jquery_fileupload.to_json
+      respond_with do |format|
+        format.json { render :json => [@repo_file.to_jquery_fileupload].to_json }
+      end
     else
-      render :json => [{:error => "custom_failure"}], :status => 304
+      respond_with do |format|
+        format.json { render :json => [{:error => "custom_failure"}], :status => 304 }
+      end
     end
   end
 
   def destroy
     @repo_file.destroy
-    render :json => true
+    respond_with do |format|
+        format.json { render :json => true }
+    end
   end
 
   private
@@ -35,5 +46,10 @@ class Account::RepoFilesController < Account::BaseController
     def find_or_build_repo_file
       @repo_file = params[:id] ? @repository.repo_files.find(params[:id]) : @repository.repo_files.build(params[:repo_file])
     end
+
+    def set_charset
+      response.headers["Content-Type"] = "text/javascript; charset=utf-8" if params["format"].to_s == 'json'
+    end
+
 end
 
