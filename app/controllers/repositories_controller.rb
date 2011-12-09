@@ -43,7 +43,7 @@ class RepositoriesController < ApplicationController
 
   def admin
     raise "" unless @user == current_user
-    render :template => "account/repositories/manage"
+    @repo_file = @repository.repo_files.build()
   end
 
   private

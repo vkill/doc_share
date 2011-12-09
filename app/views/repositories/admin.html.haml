@@ -1,0 +1,8 @@
+= render "head", :repository => @repository
+
+.row
+  .span14.offset1
+    = render :template => "account/repositories/edit"
+
+    = render :template => "account/repo_files/manage"
+

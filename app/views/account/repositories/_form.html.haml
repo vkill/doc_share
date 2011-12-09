@@ -3,8 +3,8 @@
   = render "partials/simple_form_error_notification", :f => f
 
   = field_set_tag "" do
-    = f.input :name, :input_html => { :class => "span6" }
-    = f.input :describtion, :input_html => { :class => "span6", :rows => 2 }
+    = f.input :name, :input_html => { :class => "span8" }
+    = f.input :describtion, :input_html => { :class => "span8", :rows => 2 }
     = f.input :visibility, :as => :radio, :collection => Repository.get_visibility_values
 
   .actions

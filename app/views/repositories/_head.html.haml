@@ -1,9 +1,16 @@
 .row
-  .span12
+  .span10
     = render "partials/repository_link", :repository => repository
-  .span2
-    = render "partials/repository_reverse_watch", :repository => repository
-    = render "partials/repository_fork", :repository => repository
+  - if action_name == "admin"
+    .span4
+      = render "partials/repository_back_to_show", :repository => repository
+  - else
+    .span2
+      = render "partials/repository_manage", :repository => repository
+    .span2
+      = render "partials/repository_reverse_watch", :repository => repository
+      = render "partials/repository_fork", :repository => repository
+
   .span2
     = render "partials/repository_count_link", :repository => repository
 

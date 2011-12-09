@@ -28,9 +28,6 @@ class Account::RepositoriesController < Account::BaseController
     respond_with @repository
   end
 
-  def manage
-  end
-
   private
     def find_or_build_repository
       @repository = params[:id] ? current_user.repositories.find(params[:id]) : current_user.repositories.build(params[:repository])

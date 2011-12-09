@@ -1,13 +1,10 @@
 = render "head", :repository => @repository
 
 .row
-  .span12.offset1
+  .span14.offset1
     .page-header
       = @repository.describtion
     .page-header
-      - r = Grit::Repo.new @repository.git_repo_path
-      = r.tree.contents
-      /= binding.pry
-  .span1
-    = render "partials/repository_manage", :repository => @repository
+      - @repository.git_repo
+      = @r.tree.contents
 

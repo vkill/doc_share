@@ -15,8 +15,18 @@ zh-CN:
     page:
       account:
         repository:
-          manage_repo_files: 管理文件
-          edit_options: 修改信息
+          manage: 管理项目
+          manage_info: ""
+          new: 创建新项目
+          new_info: ""
+          edit: 修改项目信息
+          edit_info: ""
+
+        repo_file:
+          manage: 管理项目文件
+          manage_info: ""
+
+      repository:
 
 
 

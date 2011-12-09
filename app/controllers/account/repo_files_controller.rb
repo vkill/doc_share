@@ -1,7 +1,7 @@
 class Account::RepoFilesController < Account::BaseController
 
   respond_to :html
-  respond_to :json, :only => [:index, :check_exist, :create, :destory]
+  respond_to :json, :only => [:index, :exist, :create, :destory]
 
   before_filter :find_repository
   before_filter :find_or_build_repo_file, :except => [:index, :exist]
@@ -28,7 +28,7 @@ class Account::RepoFilesController < Account::BaseController
     end
   end
 
-  def new
+  def manage
   end
 
   def create
