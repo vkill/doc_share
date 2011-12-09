@@ -9,10 +9,10 @@ describe RepoFileObserver do
     repo_file = repository.repo_files.create!(:repo_file => file)
     repo = Grit::Repo.new repo_file.git_repo_path
     repo.commits.size.should == 2
-    repo.commits.last.message.should == "add file.txt"
+    repo.commits.first.message.should == "add file.txt"
     repo_file.destroy
     repo.commits.size.should == 3
-    repo.commits.last.message.should == "delete file.txt"
+    repo.commits.first.message.should == "delete file.txt"
   end
 
   it "update commit with git repo" do
