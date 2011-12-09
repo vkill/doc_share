@@ -1,7 +1,7 @@
-- if @watch
-  = raw %Q`$("[data-repository-reverse-watch-#{@target_repository.id}]").html(I18n.t("web.page.unwatch_repository"))`
+- if current_user.watching_repository? @repository
+  = raw %Q`$("[data-repository-reverse-watch-#{@repository.id}]").html(I18n.t("web.page.unwatch_repository"))`
 - else
-  = raw %Q`$("[data-repository-reverse-watch-#{@target_repository.id}]").html(I18n.t("web.page.watch_repository"))`
+  = raw %Q`$("[data-repository-reverse-watch-#{@repository.id}]").html(I18n.t("web.page.watch_repository"))`
 
-= raw %Q`$("[data-repository-watchers-count-#{@target_repository.id}]").html("#{@target_repository.watchers_count}")`
+= raw %Q`$("[data-repository-watchers-count-#{@repository.id}]").html("#{@repository.watchers_count}")`
 

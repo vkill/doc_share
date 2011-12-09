@@ -4,7 +4,7 @@ class Account::RepoFilesController < Account::BaseController
   respond_to :json, :only => [:index, :check_exist, :create, :destory]
 
   before_filter :find_repository
-  before_filter :find_or_build_repo_file, :except => [:index, :check_exist]
+  before_filter :find_or_build_repo_file, :except => [:index, :exist]
   before_filter :set_content_type, :only => [:create]
 
   def index

@@ -3,85 +3,61 @@ class RepositoriesController < ApplicationController
   respond_to :html, :except => [:reverse_watch]
   respond_to :js, :only => [:reverse_watch]
 
-  before_filter :require_login, :only => [:new, :create, :reverse_watch, :fork, :private_repositories,
-                                          :edit, :update, :add_repo_file]
-  before_filter :set_current_user, :only => [:create]
+  before_filter :require_login, :only => [:reverse_watch, :fork]
+  before_filter :find_user_public_repositories, :except => [:index]
+  before_filter :find_repository, :except => [:index, :public_repositories]
 
   def index
-    @repositories = Repository.page(params[:page])
-    respond_with @repositories
+    @repositories = Repository.public_repo.page(params[:page])
   end
 
-  def new
-    @repository = Repository.new
-  end
-
-  def create
-    @repository = Repository.new(params[:repository])
-    @repository.save
-    respond_with @repository, :location => user_repository_path(current_user.username, @repository.name.blank? ? "x" : @repository.name)
-  end
-
-  def edit
-    @repository = current_user.repositories.find(params[:id])
-  end
-
-  def update
-    @repository = current_user.repositories.find(params[:id])
-    @repository.update_attributes(params[:repository])
-    respond_with @repositories, :location => user_repository_path(current_user.username, @repository.name.blank? ? "x" : @repository.name)
-  end
-
-  def add_repo_file
-    @repository = current_user.repositories.find(params[:id])
-#    @repository.repo_files.build if @repository.repo_files.blank?
-    @repository.repo_files.build
+  def public_repositories
+    @repositories = @public_repositories
+    @repositories.page(params[:page])
   end
 
   def show
-    @repository = User.find(params[:user]).repositories.find(params[:repository])
   end
 
   def watchers
-    @repository = User.find(params[:user]).repositories.find(params[:repository])
     @watchers = @repository.watchers.page(params[:page])
   end
 
   def reverse_watch
-    @target_repository = User.find(params[:user]).repositories.find(params[:repository])
-    @user = current_user
-    if @user.watching_repository? @target_repository
-      @user.unwatch_repository(@target_repository)
+    if current_user.watching_repository? @repository
+      current_user.unwatch_repository(@repository)
     else
-      @user.watch_repository(@target_repository)
-      @watch = true
+      current_user.watch_repository(@repository)
     end
-    respond_with @target_repository
+    respond_with @repository, :location => after_location
   end
 
   def forks
-    @repository = User.find(params[:user]).repositories.find(params[:repository])
-    @forks = @repository.forks
+    @forks = @repository.forks.page(params[:page])
   end
 
   def fork
-    @repository = User.find(params[:user]).repositories.find(params[:repository])
-    @user = current_user
-    @new_repository = @repository.fork_by!(@user)
-    respond_with @new_repository, :location => user_repository_path(@user.username, @new_repository.name)
+    @new_repository = @repository.fork_by!(current_user)
+    respond_with @new_repository, :location => after_location_with_fork
   end
 
-  def public_repositories
-    @user = User.find(params[:user])
-    @repositories = @user.repositories.page(params[:page])
-    respond_with @repositories
-  end
+  private
+    def find_user_public_repositories
+      @user = User.find(params[:user])
+      @public_repositories = @user.repositories.public_repo
+    end
 
-  def private_repositories
-    @user = current_user
-    @repositories = @user.repositories.page(params[:page])
-    respond_with @repositories
-  end
+    def find_repository
+      @repository = @public_repositories.find(params[:repository])
+    end
+
+    def after_location
+      user_repository_path(@user.username, @repository.name.blank? ? "x" : @repository.name)
+    end
+
+    def after_location_with_fork
+      user_repository_path(current_user.username, @new_repository.name.blank? ? "x" : @new_repository.name)
+    end
 
 end
 

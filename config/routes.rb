@@ -1,16 +1,8 @@
 DocShare::Application.routes.draw do
 
-  get "repo_files/new"
-
-  get "repo_files/create"
-
-  get "main/dashboard"
-
-  get "main/notifications_center"
-
   root :to => 'home#index'
 
-
+  #user signup signin signout, user edit profile
   resources :users, :except => [:index] do
     member do
       get :activate
@@ -28,6 +20,7 @@ DocShare::Application.routes.draw do
   get "account/password/edit" => "users#password_edit", :as => :edit_password
 
 
+  #message
   resources :messages, :only => [:index, :new, :create, :show, :destroy] do
     collection do
       get :sent
@@ -37,11 +30,11 @@ DocShare::Application.routes.draw do
       put :reply
     end
   end
-  resources :repositories, :only => [:index, :new, :create, :edit, :update] do
-    member do
-      get :add_repo_file
-    end
-  end
+
+
+  #
+  resources :repositories, :only => [:index]
+
 
 
   #account namespace
@@ -49,7 +42,7 @@ DocShare::Application.routes.draw do
     root :to => "main#dashboard"
     get "dashboard" => "main#dashboard"
     get "notifications_center" => "main#notifications_center", :as => :notifications_center
-    resources :repository, :only => [:edit] do
+    resources :repositories, :except => [:show] do
       resources :repo_files, :only => [:index, :new, :create, :destroy] do
         collection do
           post :exist
@@ -58,21 +51,19 @@ DocShare::Application.routes.draw do
     end
   end
   get "dashboard" => "account/main#dashboard", :as => :dashboard
-  get "account/repositories" => "repositories#private_repositories", :as => :user_private_repositories
 
 
 
   scope ":user" do
     root :to => "users#user_page", :as => :user_page
 
+    get "repositories" => "repositories#public_repositories", :as => :user_public_repositories
+
     get "following" => "users#following", :as => :user_following  #following users and watching repositories
 
     get "followers" => "users#followers", :as => :user_followers
 
     match "reverse_follow" => "users#reverse_follow", :as => :user_reverse_follow, :via => :put
-
-    get "repositories" => "repositories#public_repositories", :as => :user_public_repositories
-
 
     scope ":repository" do
       root :to => "repositories#show", :as => :user_repository
@@ -85,7 +76,6 @@ DocShare::Application.routes.draw do
 
       match "fork" => "repositories#fork", :as => :user_repository_fork, :via => :put
 
-      get "tree" => "repositories#show"
       resources :issues
     end
   end

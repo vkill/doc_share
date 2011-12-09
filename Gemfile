@@ -88,6 +88,7 @@ gem "immortal", "~> 1.0.5"
 gem "activevalidators", "~> 1.8.0"
 
 gem "responders", "~> 0.6.4"
+gem "ransack", '~> 0.5.8'
 gem "squeel", '~> 0.9.3'
 gem "friendly_id", "~> 4.0.0.beta14"
 
