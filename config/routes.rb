@@ -67,7 +67,7 @@ DocShare::Application.routes.draw do
     match "reverse_follow" => "users#reverse_follow", :as => :user_reverse_follow, :via => :put
 
     scope ":repository" do
-      root :to => "repositories#show", :as => :user_repository
+      root :to => "repositories#tree", :as => :user_repository
 
       get "watchers" => "repositories#watchers", :as => :user_repository_watchers
 
@@ -78,6 +78,10 @@ DocShare::Application.routes.draw do
       match "fork" => "repositories#fork", :as => :user_repository_fork, :via => :put
 
       get "admin" => "repositories#admin", :as => :admin_user_repository
+
+      match "tree(/:path)" => "repositories#tree", :as => :tree_user_repository
+
+      match "blob/:path" => "repositories#blob", :as => :blob_user_repository
 
       resources :issues
     end

@@ -16,9 +16,6 @@ class RepositoriesController < ApplicationController
     @repositories.page(params[:page])
   end
 
-  def show
-  end
-
   def watchers
     @watchers = @repository.watchers.page(params[:page])
   end
@@ -44,6 +41,12 @@ class RepositoriesController < ApplicationController
   def admin
     raise "" unless @user == current_user
     @repo_file = @repository.repo_files.build()
+  end
+
+  def tree
+  end
+
+  def blob
   end
 
   private
