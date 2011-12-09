@@ -1,0 +1,13 @@
+= simple_form_for([:account, @repository], :wrapper => :inline) do |f|
+
+  = render "partials/simple_form_error_notification", :f => f
+
+  = field_set_tag "" do
+    = f.input :name, :input_html => { :class => "span6" }
+    = f.input :describtion, :input_html => { :class => "span6", :rows => 2 }
+    = f.input :visibility, :as => :radio, :collection => Repository.get_visibility_values
+
+  .actions
+    = f.button :submit, :class => 'primary'
+    = button_tag t('reset'), :type => :reset, :class => "btn"
+

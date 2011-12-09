@@ -1,0 +1,8 @@
+/ repository
+
+- if logged_in? and repository.username == current_user.username
+  /= link_to t("manage"), [:manage, :account, @repository]
+  = link_to t("manage"), admin_user_repository_path(current_user, @repository)
+- else
+  = raw "&nbsp"
+

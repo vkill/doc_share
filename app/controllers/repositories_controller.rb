@@ -3,7 +3,7 @@ class RepositoriesController < ApplicationController
   respond_to :html, :except => [:reverse_watch]
   respond_to :js, :only => [:reverse_watch]
 
-  before_filter :require_login, :only => [:reverse_watch, :fork]
+  before_filter :require_login, :only => [:reverse_watch, :fork, :admin]
   before_filter :find_user_public_repositories, :except => [:index]
   before_filter :find_repository, :except => [:index, :public_repositories]
 
@@ -39,6 +39,11 @@ class RepositoriesController < ApplicationController
   def fork
     @new_repository = @repository.fork_by!(current_user)
     respond_with @new_repository, :location => after_location_with_fork
+  end
+
+  def admin
+    raise "" unless @user == current_user
+    render :template => "account/repositories/manage"
   end
 
   private

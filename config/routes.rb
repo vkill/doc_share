@@ -43,6 +43,9 @@ DocShare::Application.routes.draw do
     get "dashboard" => "main#dashboard"
     get "notifications_center" => "main#notifications_center", :as => :notifications_center
     resources :repositories, :except => [:show] do
+      member do
+        get :manage
+      end
       resources :repo_files, :only => [:index, :new, :create, :destroy] do
         collection do
           post :exist
@@ -75,6 +78,8 @@ DocShare::Application.routes.draw do
       get "forks" => "repositories#forks", :as => :user_repository_forks
 
       match "fork" => "repositories#fork", :as => :user_repository_fork, :via => :put
+
+      get "admin" => "repositories#admin", :as => :admin_user_repository
 
       resources :issues
     end

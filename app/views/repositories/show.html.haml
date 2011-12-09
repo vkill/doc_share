@@ -9,5 +9,5 @@
       = r.tree.contents
       /= binding.pry
   .span1
-    = link_to "add_repo_file", [:new, :account, @repository, :repo_file]
+    = render "partials/repository_manage", :repository => @repository
 
