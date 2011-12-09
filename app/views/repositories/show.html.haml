@@ -5,6 +5,6 @@
     .page-header
       = @repository.describtion
     .page-header
-      - @repository.git_repo
-      = @r.tree.contents
+      = @repository.git_repo.commits.first.tree.contents.each do |content|
+        = content.name
 
