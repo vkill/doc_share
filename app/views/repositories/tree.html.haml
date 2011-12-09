@@ -5,6 +5,10 @@
     .page-header
       = @repository.describtion
     .page-header
-      = @repository.git_repo.commits.first.tree.contents.each do |content|
-        = content.name
+      - @contents.each do |content|
+        - if content.is_a?(Grit::Blob)
+          = link_to content.name, blob_user_repository_path(@user.username, @repository.name, content.name)
+        - elsif content.is_a?(Grit::Tree)
+          = link_to content.name, tree_user_repository_path(@user.username, @repository.name, content.name)
+        .row
 

@@ -6,6 +6,7 @@ class RepositoriesController < ApplicationController
   before_filter :require_login, :only => [:reverse_watch, :fork, :admin]
   before_filter :find_user_public_repositories, :except => [:index]
   before_filter :find_repository, :except => [:index, :public_repositories]
+  before_filter :set_tag, :only => [:tree, :blob]
 
   def index
     @repositories = Repository.public_repo.page(params[:page])
@@ -44,9 +45,13 @@ class RepositoriesController < ApplicationController
   end
 
   def tree
+    @tree_path = params[:tree_path]
+    @contents = @repository.git_repo.tree(@tag, @tree_path).contents
   end
 
   def blob
+    @blob_path = params[:blob_path]
+    @blob = @repository.git_repo.tree(@tag, @blob_path).contents.first
   end
 
   private
@@ -57,6 +62,10 @@ class RepositoriesController < ApplicationController
 
     def find_repository
       @repository = @public_repositories.find(params[:repository])
+    end
+
+    def set_tag
+      @tag = params[:tag] || 'master'
     end
 
     def after_location

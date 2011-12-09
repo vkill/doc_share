@@ -79,9 +79,11 @@ DocShare::Application.routes.draw do
 
       get "admin" => "repositories#admin", :as => :admin_user_repository
 
-      match "tree(/:path)" => "repositories#tree", :as => :tree_user_repository
+      match "tree(/:tree_path)" => "repositories#tree", :as => :tree_user_repository,
+                                                        :constraints => { :blob_path => /.*/ }
 
-      match "blob/:path" => "repositories#blob", :as => :blob_user_repository
+      match "blob/:blob_path" => "repositories#blob", :as => :blob_user_repository,
+                                                      :constraints => { :blob_path => /.*/ }
 
       resources :issues
     end
@@ -95,73 +97,73 @@ DocShare::Application.routes.draw do
 end
 
 #== Route Map
-# Generated on 08 Dec 2011 20:40
+# Generated on 09 Dec 2011 22:46
 #
-#                repo_files_create GET    /repo_files/create(.:format)                                {:controller=>"repo_files", :action=>"create"}
-#                   main_dashboard GET    /main/dashboard(.:format)                                   {:controller=>"main", :action=>"dashboard"}
-#        main_notifications_center GET    /main/notifications_center(.:format)                        {:controller=>"main", :action=>"notifications_center"}
-#                             root        /                                                           {:controller=>"home", :action=>"index"}
-#                    activate_user GET    /users/:id/activate(.:format)                               {:action=>"activate", :controller=>"users"}
-#               password_edit_user GET    /users/:id/password_edit(.:format)                          {:action=>"password_edit", :controller=>"users"}
-#             password_update_user PUT    /users/:id/password_update(.:format)                        {:action=>"password_update", :controller=>"users"}
-#                            users POST   /users(.:format)                                            {:action=>"create", :controller=>"users"}
-#                         new_user GET    /users/new(.:format)                                        {:action=>"new", :controller=>"users"}
-#                        edit_user GET    /users/:id/edit(.:format)                                   {:action=>"edit", :controller=>"users"}
-#                             user GET    /users/:id(.:format)                                        {:action=>"show", :controller=>"users"}
-#                                  PUT    /users/:id(.:format)                                        {:action=>"update", :controller=>"users"}
-#                                  DELETE /users/:id(.:format)                                        {:action=>"destroy", :controller=>"users"}
-#                         sessions POST   /sessions(.:format)                                         {:action=>"create", :controller=>"sessions"}
-#                      new_session GET    /sessions/new(.:format)                                     {:action=>"new", :controller=>"sessions"}
-#                  reset_passwords POST   /reset_passwords(.:format)                                  {:action=>"create", :controller=>"reset_passwords"}
-#               new_reset_password GET    /reset_passwords/new(.:format)                              {:action=>"new", :controller=>"reset_passwords"}
-#              edit_reset_password GET    /reset_passwords/:id/edit(.:format)                         {:action=>"edit", :controller=>"reset_passwords"}
-#                   reset_password PUT    /reset_passwords/:id(.:format)                              {:action=>"update", :controller=>"reset_passwords"}
-#                           signup GET    /signup(.:format)                                           {:action=>"new", :controller=>"users"}
-#                           signin GET    /signin(.:format)                                           {:action=>"new", :controller=>"sessions"}
-#                          signout GET    /signout(.:format)                                          {:action=>"destroy", :controller=>"sessions"}
-#                          profile GET    /account(.:format)                                          {:action=>"show", :controller=>"users"}
-#                     edit_profile GET    /account/edit(.:format)                                     {:controller=>"users", :action=>"edit"}
-#                    edit_password GET    /account/password/edit(.:format)                            {:controller=>"users", :action=>"password_edit"}
-#                    sent_messages GET    /messages/sent(.:format)                                    {:action=>"sent", :controller=>"messages"}
-#           notifications_messages GET    /messages/notifications(.:format)                           {:action=>"notifications", :controller=>"messages"}
-#                    reply_message PUT    /messages/:id/reply(.:format)                               {:action=>"reply", :controller=>"messages"}
-#                         messages GET    /messages(.:format)                                         {:action=>"index", :controller=>"messages"}
-#                                  POST   /messages(.:format)                                         {:action=>"create", :controller=>"messages"}
-#                      new_message GET    /messages/new(.:format)                                     {:action=>"new", :controller=>"messages"}
-#                          message GET    /messages/:id(.:format)                                     {:action=>"show", :controller=>"messages"}
-#                                  DELETE /messages/:id(.:format)                                     {:action=>"destroy", :controller=>"messages"}
-#         add_repo_file_repository GET    /repositories/:id/add_repo_file(.:format)                   {:action=>"add_repo_file", :controller=>"repositories"}
-#                     repositories GET    /repositories(.:format)                                     {:action=>"index", :controller=>"repositories"}
-#                                  POST   /repositories(.:format)                                     {:action=>"create", :controller=>"repositories"}
-#                   new_repository GET    /repositories/new(.:format)                                 {:action=>"new", :controller=>"repositories"}
-#                  edit_repository GET    /repositories/:id/edit(.:format)                            {:action=>"edit", :controller=>"repositories"}
-#                       repository PUT    /repositories/:id(.:format)                                 {:action=>"update", :controller=>"repositories"}
-#                     account_root        /account(.:format)                                          {:controller=>"account/main", :action=>"dashboard"}
-#                account_dashboard GET    /account/dashboard(.:format)                                {:action=>"dashboard", :controller=>"account/main"}
-#     account_notifications_center GET    /account/notifications_center(.:format)                     {:action=>"notifications_center", :controller=>"account/main"}
-#    account_repository_repo_files POST   /account/repository/:repository_id/repo_files(.:format)     {:action=>"create", :controller=>"account/repo_files"}
-# new_account_repository_repo_file GET    /account/repository/:repository_id/repo_files/new(.:format) {:action=>"new", :controller=>"account/repo_files"}
-#          edit_account_repository GET    /account/repository/:id/edit(.:format)                      {:action=>"edit", :controller=>"account/repository"}
-#                        dashboard GET    /dashboard(.:format)                                        {:action=>"dashboard", :controller=>"account/main"}
-#        user_private_repositories GET    /account/repositories(.:format)                             {:controller=>"repositories", :action=>"private_repositories"}
-#                        user_page        /:user(.:format)                                            {:controller=>"users", :action=>"user_page"}
-#                   user_following GET    /:user/following(.:format)                                  {:action=>"following", :controller=>"users"}
-#                   user_followers GET    /:user/followers(.:format)                                  {:action=>"followers", :controller=>"users"}
-#              user_reverse_follow PUT    /:user/reverse_follow(.:format)                             {:action=>"reverse_follow", :controller=>"users"}
-#         user_public_repositories GET    /:user/repositories(.:format)                               {:action=>"public_repositories", :controller=>"repositories"}
-#                  user_repository        /:user/:repository(.:format)                                {:controller=>"repositories", :action=>"show"}
-#         user_repository_watchers GET    /:user/:repository/watchers(.:format)                       {:action=>"watchers", :controller=>"repositories"}
-#    user_repository_reverse_watch PUT    /:user/:repository/reverse_watch(.:format)                  {:action=>"reverse_watch", :controller=>"repositories"}
-#            user_repository_forks GET    /:user/:repository/forks(.:format)                          {:action=>"forks", :controller=>"repositories"}
-#             user_repository_fork PUT    /:user/:repository/fork(.:format)                           {:action=>"fork", :controller=>"repositories"}
-#                             tree GET    /:user/:repository/tree(.:format)                           {:action=>"show", :controller=>"repositories"}
-#                           issues GET    /:user/:repository/issues(.:format)                         {:action=>"index", :controller=>"issues"}
-#                                  POST   /:user/:repository/issues(.:format)                         {:action=>"create", :controller=>"issues"}
-#                        new_issue GET    /:user/:repository/issues/new(.:format)                     {:action=>"new", :controller=>"issues"}
-#                       edit_issue GET    /:user/:repository/issues/:id/edit(.:format)                {:action=>"edit", :controller=>"issues"}
-#                            issue GET    /:user/:repository/issues/:id(.:format)                     {:action=>"show", :controller=>"issues"}
-#                                  PUT    /:user/:repository/issues/:id(.:format)                     {:action=>"update", :controller=>"issues"}
-#                                  DELETE /:user/:repository/issues/:id(.:format)                     {:action=>"destroy", :controller=>"issues"}
-#                                         /user_mailer_view                                           {:action=>"user_mailer_view", :to=>UserMailer::Preview}
-#                             page        /pages/*id                                                  {:controller=>"high_voltage/pages", :action=>"show"}
+#                        activate_user GET    /users/:id/activate(.:format)                                    {:action=>"activate", :controller=>"users"}
+#                   password_edit_user GET    /users/:id/password_edit(.:format)                               {:action=>"password_edit", :controller=>"users"}
+#                 password_update_user PUT    /users/:id/password_update(.:format)                             {:action=>"password_update", :controller=>"users"}
+#                                users POST   /users(.:format)                                                 {:action=>"create", :controller=>"users"}
+#                             new_user GET    /users/new(.:format)                                             {:action=>"new", :controller=>"users"}
+#                            edit_user GET    /users/:id/edit(.:format)                                        {:action=>"edit", :controller=>"users"}
+#                                 user GET    /users/:id(.:format)                                             {:action=>"show", :controller=>"users"}
+#                                      PUT    /users/:id(.:format)                                             {:action=>"update", :controller=>"users"}
+#                                      DELETE /users/:id(.:format)                                             {:action=>"destroy", :controller=>"users"}
+#                             sessions POST   /sessions(.:format)                                              {:action=>"create", :controller=>"sessions"}
+#                          new_session GET    /sessions/new(.:format)                                          {:action=>"new", :controller=>"sessions"}
+#                      reset_passwords POST   /reset_passwords(.:format)                                       {:action=>"create", :controller=>"reset_passwords"}
+#                   new_reset_password GET    /reset_passwords/new(.:format)                                   {:action=>"new", :controller=>"reset_passwords"}
+#                  edit_reset_password GET    /reset_passwords/:id/edit(.:format)                              {:action=>"edit", :controller=>"reset_passwords"}
+#                       reset_password PUT    /reset_passwords/:id(.:format)                                   {:action=>"update", :controller=>"reset_passwords"}
+#                               signup GET    /signup(.:format)                                                {:action=>"new", :controller=>"users"}
+#                               signin GET    /signin(.:format)                                                {:action=>"new", :controller=>"sessions"}
+#                              signout GET    /signout(.:format)                                               {:action=>"destroy", :controller=>"sessions"}
+#                              profile GET    /account(.:format)                                               {:action=>"show", :controller=>"users"}
+#                         edit_profile GET    /account/edit(.:format)                                          {:controller=>"users", :action=>"edit"}
+#                        edit_password GET    /account/password/edit(.:format)                                 {:controller=>"users", :action=>"password_edit"}
+#                        sent_messages GET    /messages/sent(.:format)                                         {:action=>"sent", :controller=>"messages"}
+#               notifications_messages GET    /messages/notifications(.:format)                                {:action=>"notifications", :controller=>"messages"}
+#                        reply_message PUT    /messages/:id/reply(.:format)                                    {:action=>"reply", :controller=>"messages"}
+#                             messages GET    /messages(.:format)                                              {:action=>"index", :controller=>"messages"}
+#                                      POST   /messages(.:format)                                              {:action=>"create", :controller=>"messages"}
+#                          new_message GET    /messages/new(.:format)                                          {:action=>"new", :controller=>"messages"}
+#                              message GET    /messages/:id(.:format)                                          {:action=>"show", :controller=>"messages"}
+#                                      DELETE /messages/:id(.:format)                                          {:action=>"destroy", :controller=>"messages"}
+#                         repositories GET    /repositories(.:format)                                          {:action=>"index", :controller=>"repositories"}
+#                         account_root        /account(.:format)                                               {:controller=>"account/main", :action=>"dashboard"}
+#                    account_dashboard GET    /account/dashboard(.:format)                                     {:action=>"dashboard", :controller=>"account/main"}
+#         account_notifications_center GET    /account/notifications_center(.:format)                          {:action=>"notifications_center", :controller=>"account/main"}
+# manage_account_repository_repo_files GET    /account/repositories/:repository_id/repo_files/manage(.:format) {:action=>"manage", :controller=>"account/repo_files"}
+#  exist_account_repository_repo_files POST   /account/repositories/:repository_id/repo_files/exist(.:format)  {:action=>"exist", :controller=>"account/repo_files"}
+#        account_repository_repo_files GET    /account/repositories/:repository_id/repo_files(.:format)        {:action=>"index", :controller=>"account/repo_files"}
+#                                      POST   /account/repositories/:repository_id/repo_files(.:format)        {:action=>"create", :controller=>"account/repo_files"}
+#         account_repository_repo_file DELETE /account/repositories/:repository_id/repo_files/:id(.:format)    {:action=>"destroy", :controller=>"account/repo_files"}
+#                 account_repositories GET    /account/repositories(.:format)                                  {:action=>"index", :controller=>"account/repositories"}
+#                                      POST   /account/repositories(.:format)                                  {:action=>"create", :controller=>"account/repositories"}
+#               new_account_repository GET    /account/repositories/new(.:format)                              {:action=>"new", :controller=>"account/repositories"}
+#              edit_account_repository GET    /account/repositories/:id/edit(.:format)                         {:action=>"edit", :controller=>"account/repositories"}
+#                   account_repository PUT    /account/repositories/:id(.:format)                              {:action=>"update", :controller=>"account/repositories"}
+#                                      DELETE /account/repositories/:id(.:format)                              {:action=>"destroy", :controller=>"account/repositories"}
+#                            dashboard GET    /dashboard(.:format)                                             {:action=>"dashboard", :controller=>"account/main"}
+#                            user_page        /:user(.:format)                                                 {:controller=>"users", :action=>"user_page"}
+#             user_public_repositories GET    /:user/repositories(.:format)                                    {:action=>"public_repositories", :controller=>"repositories"}
+#                       user_following GET    /:user/following(.:format)                                       {:action=>"following", :controller=>"users"}
+#                       user_followers GET    /:user/followers(.:format)                                       {:action=>"followers", :controller=>"users"}
+#                  user_reverse_follow PUT    /:user/reverse_follow(.:format)                                  {:action=>"reverse_follow", :controller=>"users"}
+#                      user_repository        /:user/:repository(.:format)                                     {:controller=>"repositories", :action=>"tree"}
+#             user_repository_watchers GET    /:user/:repository/watchers(.:format)                            {:action=>"watchers", :controller=>"repositories"}
+#        user_repository_reverse_watch PUT    /:user/:repository/reverse_watch(.:format)                       {:action=>"reverse_watch", :controller=>"repositories"}
+#                user_repository_forks GET    /:user/:repository/forks(.:format)                               {:action=>"forks", :controller=>"repositories"}
+#                 user_repository_fork PUT    /:user/:repository/fork(.:format)                                {:action=>"fork", :controller=>"repositories"}
+#                admin_user_repository GET    /:user/:repository/admin(.:format)                               {:action=>"admin", :controller=>"repositories"}
+#                 tree_user_repository        /:user/:repository/tree(/:path)(.:format)                        {:controller=>"repositories", :action=>"tree"}
+#                 blob_user_repository        /:user/:repository/blob/:path(.:format)                          {:controller=>"repositories", :action=>"blob"}
+#                               issues GET    /:user/:repository/issues(.:format)                              {:action=>"index", :controller=>"issues"}
+#                                      POST   /:user/:repository/issues(.:format)                              {:action=>"create", :controller=>"issues"}
+#                            new_issue GET    /:user/:repository/issues/new(.:format)                          {:action=>"new", :controller=>"issues"}
+#                           edit_issue GET    /:user/:repository/issues/:id/edit(.:format)                     {:action=>"edit", :controller=>"issues"}
+#                                issue GET    /:user/:repository/issues/:id(.:format)                          {:action=>"show", :controller=>"issues"}
+#                                      PUT    /:user/:repository/issues/:id(.:format)                          {:action=>"update", :controller=>"issues"}
+#                                      DELETE /:user/:repository/issues/:id(.:format)                          {:action=>"destroy", :controller=>"issues"}
+#                                             /user_mailer_view                                                {:action=>"user_mailer_view", :to=>UserMailer::Preview}
+#                                 page        /pages/*id                                                       {:controller=>"high_voltage/pages", :action=>"show"}
 
