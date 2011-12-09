@@ -1,2 +1,3 @@
-class Account::RepositoriesController < ApplicationController
+class Account::RepositoriesController < Account::BaseController
 end
+

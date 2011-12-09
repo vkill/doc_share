@@ -28,6 +28,12 @@ describe RepoFile do
     end
   end
 
+  context "scope" do
+    it "repo_file_exists?" do
+      pending
+    end
+  end
+
 end
 # == Schema Information
 #
