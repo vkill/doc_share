@@ -13,8 +13,7 @@ class RepositoriesController < ApplicationController
   end
 
   def public_repositories
-    @repositories = @public_repositories
-    @repositories.page(params[:page])
+    @repositories = @repositories.page(params[:page])
   end
 
   def watchers
@@ -57,11 +56,11 @@ class RepositoriesController < ApplicationController
   private
     def find_user_public_repositories
       @user = User.find(params[:user])
-      @public_repositories = @user.repositories.public_repo
+      @repositories = @user.repositories.public_repo
     end
 
     def find_repository
-      @repository = @public_repositories.find(params[:repository])
+      @repository = @repositories.find(params[:repository])
     end
 
     def set_tag
