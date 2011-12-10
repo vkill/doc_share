@@ -17,13 +17,9 @@
     .span8
       %p
         = render "partials/user/count_link", :user => @user
+      %br
       %p
-        %span
-          = t(:following, :scope => [:web, :page, :user],
-                  :following_users_count => @user.following_users_count,
-                  :watching_repositories_count => @user.watching_repositories_count)
-        %span
-          = link_to t("view_all"), user_following_path(@user.username)
+        = render "partials/user/following_link", :user => @user
 
 %br
 .page-header

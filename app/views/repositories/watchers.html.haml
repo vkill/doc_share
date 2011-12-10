@@ -6,7 +6,7 @@
       .page-header
         .row
           %p.pull-right
-            = render "partials/user_reverse_follow", :user => watcher
+            = render "partials/user/reverse_follow", :user => watcher
           %p
             = link_to watcher.username, user_page_path(watcher.username)
 
