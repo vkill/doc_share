@@ -8,24 +8,14 @@
 //= require jquery-ui
 //= require jquery_ujs
 
-// require_tree .
-
-//= require bootstrap-alerts
-//= require bootstrap-dropdown
-//= require bootstrap-modal
-//= require bootstrap-twipsy
-//= require bootstrap-popover
-//= require bootstrap-scrollspy
-//= require bootstrap-tabs
-//= require bootstrap-buttons
-
 //= require i18n
 //= require i18n/translations
 
-////////////////////////////////////////////////////////////
-
-//= require bootstrap-alerts_extension
+//= require bootstrap
+//= require bootstrap_extension
 //= require i18n-js_config
-//= require nested_form
 //= require jquery_fileupload
+//= require nested_form
+
+//= require_tree .
 

@@ -1,0 +1,28 @@
+/user
+
+- if logged_in?
+  - if me?(user)
+    = link_to user.private_repositories_count,
+          account_repositories_path(:private => true),
+          :class => "btn large disabled",
+          :rel => "twipsy",
+          :data => {:original_title => t(:private_repositories, :scope => [:web, :page, :user]),
+                    :placement => :below,
+                    "user_private_repositories_count_#{user.id}" => true}
+
+= link_to user.public_repositories_count,
+          user_public_repositories_path(user.username),
+          :class => "btn large disabled",
+          :rel => "twipsy",
+          :data => {:original_title => t(:public_repositories, :scope => [:web, :page, :user]),
+                    :placement => :below,
+                    "user_public_repositories_count_#{user.id}" => true}
+
+= link_to user.followers_count,
+          user_public_repositories_path(user.username),
+          :class => "btn large disabled",
+          :rel => "twipsy",
+          :data => {:original_title => t(:followers, :scope => [:web, :page, :user]),
+                    :placement => :below,
+                    "user_followers_count_#{user.id}" => true}
+

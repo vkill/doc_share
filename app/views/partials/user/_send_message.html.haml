@@ -1,0 +1,11 @@
+/ user
+
+- if logged_in?
+  - unless me?(user)
+    = link_to t(:send_message, :scope => [:web, :page, :user]),
+              new_message_path(:receiver => user.username),
+              :class => "btn small primary"
+
+- else
+  = render "partials/modal/sign_in", :text => t(:send_email, :scope => [:web, :page, :user])
+

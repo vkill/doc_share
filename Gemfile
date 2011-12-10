@@ -77,7 +77,7 @@ gem "ancestry", "~> 1.2.4"
 gem "by_star", "~> 1.0.1"
 #gem "inherited_resources", "~> 1.3.0"
 gem "high_voltage", "~> 1.0.1"
-gem "anjlab-bootstrap-rails", "~> 1.4.0.8", :require => "bootstrap-rails"
+#gem "anjlab-bootstrap-rails", "~> 1.4.0.8", :require => "bootstrap-rails"
 
 
 gem "mail_view", "~> 1.0.2", :group => [:development]

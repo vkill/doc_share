@@ -6,14 +6,14 @@
         .span12
           %p
           .row
-            = render "partials/repository_link", :repository => repository
+            = render "partials/repository/link", :repository => repository
           %p
           .row
             = repository.describtion
         .span2
-          = render "partials/repository_count_link", :repository => repository
+          = render "partials/repository/count_link", :repository => repository
         .span2
-          = render "partials/repository_reverse_watch", :repository => repository
+          = render "partials/repository/reverse_watch", :repository => repository
 
   .pagination
     = render 'partials/pagination', :resources => @repositories

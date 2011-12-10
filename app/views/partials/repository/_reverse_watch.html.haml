@@ -1,0 +1,19 @@
+/ repository
+
+- if logged_in?
+  - unless owner?(repository)
+    - if current_user.watching_repository?(repository)
+      - @text = t(:unwatch, :scope => [:web, :page, :repository])
+    - else
+      - @text = t(:watch, :scope => [:web, :page, :repository])
+
+    = link_to @text,
+              user_repository_reverse_watch_path(repository.username, repository.name),
+              :method => :put,
+              :remote => true,
+              :data => { "repository_reverse_watch_#{repository.id}" => true },
+              :class => "btn small primary"
+
+- else
+  = render "partials/modal/sign_in", :text => t(:watch, :scope => [:web, :page, :repository])
+

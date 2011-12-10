@@ -52,9 +52,6 @@ GEM
     addressable (2.2.6)
     ancestry (1.2.4)
       activerecord (>= 2.2.2)
-    anjlab-bootstrap-rails (1.4.0.10)
-      railties (~> 3.0)
-      thor (~> 0.14)
     annotate (2.4.1.beta1)
     arel (2.2.1)
     attribute_enums (0.1.4)
@@ -316,7 +313,6 @@ PLATFORMS
 DEPENDENCIES
   activevalidators (~> 1.8.0)
   ancestry (~> 1.2.4)
-  anjlab-bootstrap-rails (~> 1.4.0.8)
   annotate (~> 2.4.1.beta1)
   attribute_enums (~> 0.1.4)
   by_star (~> 1.0.1)

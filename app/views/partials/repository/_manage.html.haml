@@ -1,0 +1,8 @@
+/ repository
+
+- if logged_in?
+  - if owner?(repository)
+    = link_to t(:manage, :scope => [:web, :page, :repository]),
+                admin_user_repository_path(current_user.username, repository.name),
+                :class => "btn small primary"
+

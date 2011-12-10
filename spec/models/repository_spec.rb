@@ -76,6 +76,14 @@ describe Repository do
       repository = Repository.make!(:visibility => :public_repo)
       repository.visibility_prefix.should == "public"
     end
+
+    it "has forked_by_user method" do
+      pending
+    end
+
+    it "has forked_by_user? method" do
+      pending
+    end
   end
 
 end

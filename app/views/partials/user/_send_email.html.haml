@@ -1,0 +1,11 @@
+/ user
+
+- if logged_in?
+  - unless me?(user)
+    = mail_to user.email,
+              t(:send_email, :scope => [:web, :page, :user]),
+              :class => "btn small primary"
+
+- else
+  = render "partials/modal/sign_in", :text => t(:send_email, :scope => [:web, :page, :user])
+

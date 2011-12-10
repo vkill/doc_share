@@ -7,11 +7,11 @@
 */
 
 /*
-*= require bootstrap
-*= require bootstrap_extension
 *= require jquery_fileupload
 *= require jquery_ui
 *= require simple_form_extension
+*= require bootstrap
+*= require bootstrap_extension
 *
 */
 

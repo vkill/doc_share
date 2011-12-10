@@ -1,0 +1,19 @@
+/ user
+
+- if logged_in?
+  - unless me?(user)
+    - if current_user.following_user?(user)
+      - @text = t(:unfollow, :scope => [:web, :page, :user])
+    - else
+      - @text = t(:follow, :scope => [:web, :page, :user])
+
+    = link_to @text,
+              user_reverse_follow_path(user.username),
+              :method => :put,
+              :remote => true,
+              :data => { "user_reverse_follow_#{user.id}" => true },
+              :class => "btn small primary"
+
+- else
+  = render "partials/modal/sign_in", :text => t(:follow, :scope => [:web, :page, :user])
+

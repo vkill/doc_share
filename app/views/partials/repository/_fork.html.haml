@@ -1,0 +1,20 @@
+/ repository
+
+- if logged_in?
+  - unless owner?(repository)
+    - if repository.forked_by_user?(current_user)
+      = link_to t(:forked, :scope => [:web, :page, :repository]),
+                user_repository_path(current_user.username, repository.forked_by_user(current_user).name),
+                :class => "btn small",
+                :rel => "twipsy",
+                :data => {:original_title => t(:forked_info, :scope => [:web, :page, :repository]),
+                          :placement => :below}
+    - else
+      = link_to t(:fork, :scope => [:web, :page, :repository]),
+                user_repository_fork_path(repository.username, repository.name),
+                :method => :put,
+                :class => "btn small primary"
+
+- else
+  = render "partials/modal/sign_in", :text => t(:fork, :scope => [:web, :page, :repository])
+

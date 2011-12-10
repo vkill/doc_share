@@ -12,6 +12,10 @@ zh-CN:
       user_page: 账户首页
       repositories: 项目
 
+    modal:
+      sign_in:
+        require_sign_in: 继续操作前请先登录
+
     page:
       account:
         repository:
@@ -25,37 +29,38 @@ zh-CN:
         repo_file:
           manage: 管理项目文件
           manage_info: ""
+          add_files: 添加文件
+          start_upload_files: 开始上传
+          cancel_files: 取消
+          delete_choised_files: 删除所选文件
 
       repository:
+        watch: 关注
+        unwatch: 取消关注
+        watchers: 被关注数
+        fork: 拷贝
+        forked: 已拷贝
+        forked_info: 你已经拷贝过此项目，点击跳转到此项目
+        forks: 被拷贝数
+        manage: 管理项目
+        back_to: 返回项目
+        new: 新项目
+
+      user:
+        edit_profile: 编辑个人资料
+        send_email: 发邮件
+        send_message: 发消息
+        follow: 关注
+        unfollow: 取消关注
+        followers: 被关注数
+        public_repositories: 共享项目数量
+        private_repositories: 私有项目数量
+        following: 他/她关注有%{following_users_count}个人、关注有%{watching_repositories_count}个项目
+
+      message:
+        reply: 回复
 
 
-
-
-      follow_user: 关注
-      unfollow_user: 取消关注
-      user_followers: 被关注数
-
-      user_public_repositories: 共享项目数量
-      user_private_repositories: 私有项目数量
-      following: 他/她关注有%{following_users_count}个人、关注有%{watching_repositories_count}个项目
-
-      watch_repository: 关注
-      unwatch_repository: 取消关注
-      repository_watchers: 被关注数
-
-      fork_repository: 拷贝
-      repository_forks: 被拷贝数
-
-      send_email: 发邮件
-      send_message: 发消息
-
-
-      reply: 回复
-
-      add_files: 添加文件
-      start_upload_files: 开始上传
-      cancel_files: 取消
-      delete_choised_files: 删除所选文件
 
 
     activity:
@@ -75,4 +80,5 @@ zh-CN:
   view_all: 查看全部
   select_options: 请选择一个选项
   manage: 管理
+  close: 关闭
 

@@ -1,18 +1,18 @@
 .row
-  .span10
-    = render "partials/repository_link", :repository => repository
+  .span8
+    = render "partials/repository/link", :repository => repository
   - if action_name == "admin"
-    .span4
-      = render "partials/repository_back_to_show", :repository => repository
+    .span6
+      = render "partials/repository/back_to_tree", :repository => repository
   - else
-    .span2
-      = render "partials/repository_manage", :repository => repository
-    .span2
-      = render "partials/repository_reverse_watch", :repository => repository
-      = render "partials/repository_fork", :repository => repository
+    .span3
+      = render "partials/repository/manage", :repository => repository
+    .span3
+      = render "partials/repository/reverse_watch", :repository => repository
+      = render "partials/repository/fork", :repository => repository
 
   .span2
-    = render "partials/repository_count_link", :repository => repository
+    = render "partials/repository/count_link", :repository => repository
 
 %br
 .page-header

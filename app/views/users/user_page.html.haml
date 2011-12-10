@@ -16,11 +16,12 @@
             = @user.site
     .span8
       %p
-        = render "partials/user_count_link", :user => @user
+        = render "partials/user/count_link", :user => @user
       %p
         %span
-          = t("web.page.following", :following_users_count => @user.following_users_count,
-              :watching_repositories_count => @user.watching_repositories_count)
+          = t(:following, :scope => [:web, :page, :user],
+                  :following_users_count => @user.following_users_count,
+                  :watching_repositories_count => @user.watching_repositories_count)
         %span
           = link_to t("view_all"), user_following_path(@user.username)
 

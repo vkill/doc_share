@@ -11,14 +11,17 @@
         .row
           .span8
             .fileinput-button
-              /%span #{ t("add_files", :scope => [:web, :page]) }
+              /%span #{ t(:add_files, :scope => [:web, :page, :account, :repo_file]) }
               = hidden_field_tag :format, 'json'
               = f.input_field :repo_file, :as => :file, :class => "span1"
           .span6
             .fileupload-buttonbar
-              %button.start{:type => "submit"} #{ t("start_upload_files", :scope => [:web, :page]) }
-              %button.cancel{:type => "reset"} #{ t("cancel_files", :scope => [:web, :page]) }
-              %button.delete{:type => "button"} #{ t("delete_choised_files", :scope => [:web, :page]) }
+              %button.start{:type => "submit"}
+                = t(:start_upload_files, :scope => [:web, :page, :account, :repo_file])
+              %button.cancel{:type => "reset"}
+                = t(:cancel_files, :scope => [:web, :page, :account, :repo_file])
+              %button.delete{:type => "button"}
+                = t(:delete_choised_files, :scope => [:web, :page, :account, :repo_file])
 
 
       .fileupload-content

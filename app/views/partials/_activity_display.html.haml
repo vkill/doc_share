@@ -4,7 +4,7 @@
 - when :created_repository, :destroyed_repository, :watched_repository, :unwatched_repository, :forked_repository
   = link_to activity.username, user_page_path(activity.username)
   = activity.action_text
-  = render "partials/repository_link", :repository => activity.target
+  = render "partials/repository/link", :repository => activity.target
   = t("web.activity.at", :ago => time_ago_in_words(activity.created_at))
 - when :followed_user, :unfollowed_user
   = link_to activity.username, user_page_path(activity.username)

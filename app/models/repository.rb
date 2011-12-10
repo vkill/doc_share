@@ -33,7 +33,7 @@ class Repository < ActiveRecord::Base
 
   def fork_by!(user)
     if forked_by_user?(user)
-      forks.where(:user_id => user.id).first
+      self.forked_by_user(user)
     else
       new_repository = user.repositories.create!(
         :category_id => category_id,
@@ -49,8 +49,12 @@ class Repository < ActiveRecord::Base
     self.descendants
   end
 
+  def forked_by_user(user)
+    forks.where(:user_id => user.id).first
+  end
+
   def forked_by_user?(user)
-    !forks.where(:user_id => user.id).blank?
+    forks.where(:user_id => user.id).exists?
   end
 
   def git_repo

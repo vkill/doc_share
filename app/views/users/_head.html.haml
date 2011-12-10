@@ -3,12 +3,10 @@
     %p
       = user.username
   .span4
-    - if logged_in? and current_user == user
-      = link_to t("web.topbar.profile_center"), profile_path
-    - else
-      = link_to t("web.page.send_message"), new_message_path(:receiver => user.username)
-      = mail_to user.email, t("web.page.send_email")
-      = render "partials/user_reverse_follow", :user => user
+    = render "partials/user/edit_profile", :user => user
+    = render "partials/user/send_email", :user => user
+    = render "partials/user/send_message", :user => user
+    = render "partials/user/reverse_follow", :user => user
 
 %br
 .page-header

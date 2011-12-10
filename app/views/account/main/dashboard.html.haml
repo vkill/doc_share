@@ -7,7 +7,8 @@
 .span6.offset1
   .row
     .span5.offset1
-      = link_to "new repository", [:new, :account, :repository], :class => "btn large primary disabled"
+      = link_to t(:new, :scope => [:web, :page, :repository]), [:new, :account, :repository],
+                :class => "btn large primary"
 
   %br
   .page-header
@@ -18,9 +19,9 @@
       .page-header
         .row
           .span3
-            = render "partials/repository_link", :repository => repository
+            = render "partials/repository/link", :repository => repository
           .span2
-            = render "partials/repository_count_link", :repository => repository
+            = render "partials/repository/count_link", :repository => repository
 
   %br
   .page-header
@@ -31,7 +32,7 @@
       .page-header
         .row
           .span3
-            = render "partials/repository_link", :repository => repository
+            = render "partials/repository/link", :repository => repository
           .span2
-            = render "partials/repository_count_link", :repository => repository
+            = render "partials/repository/count_link", :repository => repository
 
