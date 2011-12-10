@@ -7,7 +7,7 @@ class RepoFileObserver < ActiveRecord::Observer
     i = r.index
     i.read_tree "master"
     i.add(record.repo_file.file.filename, record.repo_file.file.to_file.read)
-    i.commit "add #{ record.repo_file.file.filename }", r.commits
+    i.commit "add #{ record.repo_file.file.filename }", [r.commits.first]
   end
 
   def after_update(record)
@@ -15,7 +15,7 @@ class RepoFileObserver < ActiveRecord::Observer
     i = r.index
     i.read_tree "master"
     i.add(record.repo_file.file.filename, record.repo_file.file.to_file.read)
-    i.commit "update #{ record.repo_file.file.filename }", r.commits
+    i.commit "update #{ record.repo_file.file.filename }", [r.commits.first]
   end
 
   def after_destroy(record)
@@ -23,7 +23,7 @@ class RepoFileObserver < ActiveRecord::Observer
     i = r.index
     i.read_tree "master"
     i.delete(record.repo_file.file.filename)
-    i.commit "delete #{ record.repo_file.file.filename }", r.commits
+    i.commit "delete #{ record.repo_file.file.filename }", [r.commits.first]
   end
 
 end
