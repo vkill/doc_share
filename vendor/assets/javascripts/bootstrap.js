@@ -13,3 +13,16 @@ $(function () {
   })
 })
 
+
+$(function() {
+  var btn = $("a[data-buttons]").click(function () {
+    btn.button('loading')
+    setTimeout(function () {
+      if (btn.html() != btn.data("complete-text")) {
+        btn.button('timeout')
+        setTimeout(function (){ btn.button('reset') },3000);
+      }
+    }, 8000)
+  })
+})
+

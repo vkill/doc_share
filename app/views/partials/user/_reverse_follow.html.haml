@@ -4,16 +4,22 @@
   - unless me?(user)
     - if current_user.following_user?(user)
       - @text = t(:unfollow, :scope => [:web, :page, :user])
+      - @complete_text = t(:follow, :scope => [:web, :page, :user])
     - else
       - @text = t(:follow, :scope => [:web, :page, :user])
+      - @complete_text = t(:unfollow, :scope => [:web, :page, :user])
 
     = link_to @text,
               user_reverse_follow_path(user.username),
               :method => :put,
               :remote => true,
-              :data => { "user_reverse_follow_#{user.id}" => true },
+              :data => { "user_reverse_follow_#{user.id}" => true,
+                          :buttons => true,
+                          :loading_text => t(:loading, :event => t(:request, :scope => [:event])),
+                          :complete_text => @complete_text,
+                          :timeout_text => t(:time_out, :event => "")},
               :class => "btn small primary"
 
 - else
-  = render "partials/modal/sign_in", :text => t(:follow, :scope => [:web, :page, :user])
+  = render "partials/modals/sign_in", :text => t(:follow, :scope => [:web, :page, :user])
 

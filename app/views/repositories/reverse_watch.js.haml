@@ -1,7 +1,3 @@
-- if current_user.watching_repository? @repository
-  = raw %Q`$("[data-repository-reverse-watch-#{@repository.id}]").html(I18n.t("web.page.repository.unwatch"))`
-- else
-  = raw %Q`$("[data-repository-reverse-watch-#{@repository.id}]").html(I18n.t("web.page.repository.watch"))`
-
+= raw %Q`$("[data-repository-reverse-watch-#{@repository.id}]").button('complete')`
 = raw %Q`$("[data-repository-watchers-count-#{@repository.id}]").html("#{@repository.watchers_count}")`
 

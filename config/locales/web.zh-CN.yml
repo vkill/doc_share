@@ -60,12 +60,13 @@ zh-CN:
       message:
         reply: 回复
 
+      activity:
+        at: 在%{ago}前
 
-
-
-    activity:
-      at: 在%{ago}前
-
+  event:
+    request: 请求
+  loading: "%{event}中..."
+  time_out: "%{event}超时,稍候再试"
 
   show: 查看
   edit: 编辑
