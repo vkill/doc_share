@@ -93,7 +93,7 @@ gem "squeel", '~> 0.9.3'
 gem "friendly_id", "~> 4.0.0.beta14"
 
 #
-gem "grit", "~> 2.4.1"
+gem "grit", :path => "vendor/plugins/grit-2.4.1"
 
 gemfile_local = File.expand_path('../Gemfile.local', __FILE__)
 eval(File.read(gemfile_local)) if File.exists?(gemfile_local)

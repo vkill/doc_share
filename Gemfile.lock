@@ -12,6 +12,13 @@ GIT
   specs:
     nested_form (0.1.1)
 
+PATH
+  remote: vendor/plugins/grit-2.4.1
+  specs:
+    grit (2.4.1)
+      diff-lcs (~> 1.1)
+      mime-types (~> 1.15)
+
 GEM
   remote: http://rubygems.org/
   specs:
@@ -104,9 +111,6 @@ GEM
       term-ansicolor (~> 1.0.5)
       thor (>= 0.13.6)
     friendly_id (4.0.0.beta14)
-    grit (2.4.1)
-      diff-lcs (~> 1.1)
-      mime-types (~> 1.15)
     guard (0.8.8)
       thor (~> 0.14.6)
     guard-rspec (0.5.8)
@@ -326,7 +330,7 @@ DEPENDENCIES
   ffaker (~> 1.10.1)
   foreman (~> 0.26.1)
   friendly_id (~> 4.0.0.beta14)
-  grit (~> 2.4.1)
+  grit!
   guard-rspec (~> 0.5.4)
   guard-spork (~> 0.3.1)
   haml-rails (~> 0.3.4)

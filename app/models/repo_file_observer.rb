@@ -6,7 +6,7 @@ class RepoFileObserver < ActiveRecord::Observer
     r = record.git_repo
     i = r.index
     i.read_tree "master"
-    i.add(record.repo_file.file.filename, record.repo_file.file.to_file.read.force_encoding(Encoding::UTF_8))
+    i.add(record.repo_file.file.filename, record.repo_file.file.to_file.read)
     i.commit "add #{ record.repo_file.file.filename }", r.commits
   end
 
@@ -14,7 +14,7 @@ class RepoFileObserver < ActiveRecord::Observer
     r = record.git_repo
     i = r.index
     i.read_tree "master"
-    i.add(record.repo_file.file.filename, record.repo_file.file.to_file.read.force_encoding(Encoding::UTF_8))
+    i.add(record.repo_file.file.filename, record.repo_file.file.to_file.read)
     i.commit "update #{ record.repo_file.file.filename }", r.commits
   end
 
