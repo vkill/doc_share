@@ -14,7 +14,7 @@
     = f.input :password_confirmation, :required => true, :input_html => { :class => "span4" }
 
   .actions
-    = f.button :submit, "Sign in", :class => 'primary'
+    = f.button :submit, "Sign in", :class => 'primary', :data => {:disable_with => "Sign in ..."}
     = button_tag 'Cancel', :type => :reset, :class => "btn"
     %p.pull-right
       = link_to t("web.topbar.sign_in"), signin_path
