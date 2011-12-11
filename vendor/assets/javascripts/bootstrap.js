@@ -15,7 +15,7 @@ $(function () {
 
 
 $(function() {
-  var btn = $("a[data-buttons]").click(function () {
+  var btn = $("[data-buttons]").click(function () {
     btn.button('loading')
     setTimeout(function () {
       if (btn.html() != btn.data("complete-text")) {

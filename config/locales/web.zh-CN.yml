@@ -66,7 +66,7 @@ zh-CN:
   event:
     request: 请求
   loading: "%{event}中..."
-  time_out: "%{event}超时,稍候再试"
+  timeout: "%{event}超时,稍候再试"
 
   show: 查看
   edit: 编辑
