@@ -5,14 +5,14 @@
   = link_to activity.username, user_page_path(activity.username)
   = activity.action_text
   = render "partials/repository/link", :repository => activity.target
-  = t("web.activity.at", :ago => time_ago_in_words(activity.created_at))
+  = t(:at, :scope => [:web, :page, :activity], :ago => time_ago_in_words(activity.created_at))
 - when :followed_user, :unfollowed_user
   = link_to activity.username, user_page_path(activity.username)
   = activity.action_text
   = link_to activity.target.username, user_page_path(activity.target.username)
-  = t("web.activity.at", :ago => time_ago_in_words(activity.created_at))
+  = t(:at, :scope => [:web, :page, :activity], :ago => time_ago_in_words(activity.created_at))
 - else
   = link_to activity.username, user_page_path(activity.username)
   = activity.action_text
-  = t("web.activity.at", :ago => time_ago_in_words(activity.created_at))
+  = t(:at, :scope => [:web, :page, :activity], :ago => time_ago_in_words(activity.created_at))
 

@@ -34,7 +34,7 @@ $(function() {
       btn.button('loading')
       requestId = Math.random() + Math.random() + Math.random()
       btn.attr("data-request-id", requestId)
-      setTimeout("buttomRequestTimeout(" + requestId + ")", 3000)
+      setTimeout("buttomRequestTimeout(" + requestId + ")", 8000)
     })
   })
 })
