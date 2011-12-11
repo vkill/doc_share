@@ -1,3 +1,6 @@
-= raw %Q`$("[data-repository-reverse-watch-#{@repository.id}]").button('complete')`
+- if @watch
+  = raw %Q`$("[data-repository-reverse-watch-#{@repository.id}]").button('watchComplete')`
+- else
+  = raw %Q`$("[data-repository-reverse-watch-#{@repository.id}]").button('unwatchComplete')`
 = raw %Q`$("[data-repository-watchers-count-#{@repository.id}]").html("#{@repository.watchers_count}")`
 

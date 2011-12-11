@@ -63,10 +63,10 @@ zh-CN:
       activity:
         at: 在%{ago}前
 
-  event:
-    request: 请求
-  loading: "%{event}中..."
-  timeout: "%{event}超时,稍候再试"
+
+  requesting: "请求中..."
+  request_timeout: "请求超时,请稍候再试!"
+  request_server_error: "服务器故障，请联系管理员!"
 
   show: 查看
   edit: 编辑

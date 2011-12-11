@@ -22,7 +22,7 @@
 
   %div(class='span1.5')
     %a{ :href => user_followers_path(user.username) }
-      %h1
+      %h1{"data-user-followers-count-#{user.id}" => true}
         = user.followers_count
       %span
         = t(:followers, :scope => [:web, :page, :user])

@@ -3,21 +3,22 @@
 - if logged_in?
   - unless me?(user)
     - if current_user.following_user?(user)
-      - @text = t(:unfollow, :scope => [:web, :page, :user])
-      - @complete_text = t(:follow, :scope => [:web, :page, :user])
+      - @original_text = t(:unfollow, :scope => [:web, :page, :user])
     - else
-      - @text = t(:follow, :scope => [:web, :page, :user])
-      - @complete_text = t(:unfollow, :scope => [:web, :page, :user])
+      - @original_text = t(:follow, :scope => [:web, :page, :user])
 
-    = link_to @text,
+    = link_to @original_text,
               user_reverse_follow_path(user.username),
               :method => :put,
               :remote => true,
               :data => { "user_reverse_follow_#{user.id}" => true,
                           :buttons => true,
-                          :loading_text => t(:loading, :event => t(:request, :scope => [:event])),
-                          :complete_text => @complete_text,
-                          :timeout_text => t(:timeout, :event => "")},
+                          :loading_text => t(:requesting),
+                          :timeout_text => t(:request_timeout),
+                          :server_error_text => t(:request_server_error),
+                          :alerts_containers_div => "alerts",
+                          :follow_complete_text => t(:unfollow, :scope => [:web, :page, :user]),
+                          :unfollow_complete_text => t(:follow, :scope => [:web, :page, :user])},
               :class => "btn small primary"
 
 - else

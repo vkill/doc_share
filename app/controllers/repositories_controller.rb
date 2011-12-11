@@ -24,6 +24,7 @@ class RepositoriesController < ApplicationController
     if current_user.watching_repository? @repository
       current_user.unwatch_repository(@repository)
     else
+      @watch = true
       current_user.watch_repository(@repository)
     end
     respond_with @repository, :location => after_location

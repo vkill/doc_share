@@ -7,6 +7,7 @@
 //= require bootstrap/bootstrap-tabs
 //= require bootstrap/bootstrap-buttons
 
+// enable twipsy
 $(function () {
   $("a[rel=twipsy]").twipsy({
     live: true
@@ -14,15 +15,27 @@ $(function () {
 })
 
 
+// enable buttons, timeout append error to alerts
+function buttomRequestTimeout(requestId) {
+  dom = $("[data-request-id='" + requestId + "']")
+  if (dom.length != 0 ) {
+    if (dom.attr('disabled') == 'disabled') {
+      $("div#" + dom.data('alerts-containers-div')).append(
+        "<div class='alert-message warning' data-alert=true><a class='close' href='#'>×</a><p>" + dom.data('timeout-text') + "</p></div>"
+    )
+      dom.button('reset')
+    }
+  }
+}
 $(function() {
-  var btn = $("[data-buttons]").click(function () {
-    btn.button('loading')
-    setTimeout(function () {
-      if (btn.html() != btn.data("complete-text")) {
-        btn.button('timeout')
-        setTimeout(function (){ btn.button('reset') },3000);
-      }
-    }, 8000)
+  $("[data-buttons]").each(function(){
+    btn = $(this).click(function () {
+      if (btn.attr('disabled') == 'disabled') { return false }
+      btn.button('loading')
+      requestId = Math.random() + Math.random() + Math.random()
+      btn.attr("data-request-id", requestId)
+      setTimeout("buttomRequestTimeout(" + requestId + ")", 3000)
+    })
   })
 })
 

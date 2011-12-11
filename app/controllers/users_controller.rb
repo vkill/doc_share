@@ -97,6 +97,7 @@ class UsersController < ApplicationController
     if @user.following_user? @target_user
       @user.unfollow_user(@target_user)
     else
+      @follow = true
       @user.follow_user(@target_user)
     end
     respond_with @target_user
