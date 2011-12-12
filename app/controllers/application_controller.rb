@@ -6,27 +6,37 @@ class ApplicationController < ActionController::Base
 
   protect_from_forgery
 
+  before_filter :set_local
 
-  def set_current_user(resource_name=nil, attribute_name="user_id")
-    return unless (current_user rescue nil)
-    resource_name ||= controller_name.singularize
-    params[resource_name] ||= {}
-    params[resource_name][attribute_name] = current_user.id
-  end
 
-  class << self
-    def main_nav_highlight(name, *options)
-      class_eval do
-        before_filter Proc.new{|c| c.instance_variable_set(:@main_nav, name.to_sym)} ,options.extract_options!.slice(:only, :except)
+  private
+    def set_current_user(resource_name=nil, attribute_name="user_id")
+      return unless current_user.respond_to?(:id)
+      resource_name ||= controller_name.singularize
+      params[resource_name] ||= {}
+      params[resource_name][attribute_name] = current_user.id
+    end
+
+    class << self
+      def main_nav_highlight(name, *options)
+        class_eval do
+          before_filter Proc.new{|c| c.instance_variable_set(:@main_nav, name.to_sym)} ,options.extract_options!.slice(:only, :except)
+        end
+      end
+
+      def sec_nav_highlight(name, *options)
+        class_eval do
+          before_filter Proc.new{|c| c.instance_variable_set(:@sec_nav, name.to_sym)} ,options.extract_options!.slice(:only, :except)
+        end
       end
     end
 
-    def sec_nav_highlight(name, *options)
-      class_eval do
-        before_filter Proc.new{|c| c.instance_variable_set(:@sec_nav, name.to_sym)} ,options.extract_options!.slice(:only, :except)
+    def set_local
+      if params[:locale].present? and params[:locale].to_sym.in?([:"zh-CN", :"en"])
+         session[:locale] = params[:locale]
       end
+      I18n.locale = session[:locale] || I18n.default_locale
     end
-  end
 
 end
 
