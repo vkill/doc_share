@@ -69,6 +69,7 @@ class UsersController < ApplicationController
       logout
       redirect_to [:new, :session], :notice => t(:notice, :scope => [:sorcery, :user, :password_update])
     else
+      @user.valid?
       render :password_edit
     end
   end
