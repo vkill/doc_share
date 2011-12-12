@@ -1,6 +1,7 @@
 class MessagesController < ApplicationController
 
   before_filter :require_login
+
   main_nav_highlight :messages
   sec_nav_highlight :new, :only => [:new, :create]
   sec_nav_highlight :received, :only => [:index]
@@ -13,7 +14,6 @@ class MessagesController < ApplicationController
   def new
     @message = Message.new
     @message.receiver = User.find(params[:receiver]) if params[:receiver]
-    respond_with @message
   end
 
   def create
@@ -26,7 +26,6 @@ class MessagesController < ApplicationController
     @message = Message.by_user(current_user).find(params[:id])
     @message.read!
     @new_message = Message.new
-    respond_with @message
   end
 
   def destroy
@@ -56,6 +55,5 @@ class MessagesController < ApplicationController
     @messages = current_user.received_messages.system_notification.page(params[:page])
     respond_with @messages, :template => "messages/index"
   end
-
 end
 
