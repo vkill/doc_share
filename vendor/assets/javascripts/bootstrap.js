@@ -89,13 +89,13 @@ function buttomRequestTimeout(requestId) {
 }
 $(function() {
   $("[data-buttons]").each(function(){
-    btn = $(this).click(function () {
-      if (btn.attr('disabled') == 'disabled') {
+    $(this).click(function () {
+      if ($(this).attr('disabled') == 'disabled') {
         return false
       } else {
-        btn.button('loading')
-        requestId = Math.random() + Math.random() + Math.random()
-        btn.attr("data-request-id", requestId)
+        $(this).button('loading')
+        requestId = Math.random() + Math.random() + Math.random() + Math.random()
+        $(this).attr("data-request-id", requestId)
         setTimeout("buttomRequestTimeout(" + requestId + ")", 8000)
       }
     })
