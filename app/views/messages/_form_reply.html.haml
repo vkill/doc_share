@@ -1,0 +1,14 @@
+
+= simple_form_for(new_message, :as => :new_message, :url => [:reply, message], :html => { :method => :put }, :wrapper => :inline) do |f|
+
+  = render "partials/simple_form_error_notification", :f => f
+
+  = field_set_tag "", :class => 'fieldset-nolabel' do
+    = f.input :content, :required => true, :autofocus => true, :wrapper => :nolabel,
+                      :input_html => {:rows => 5, :class => :span8}
+
+  .actions
+    = f.button :submit, t(:reply, :scope => [:simple_form, :actions, :submit, :message]),
+                :class => 'primary', :disable_with => t(:submitting)
+    = link_to t(:back_to), [:messages]
+

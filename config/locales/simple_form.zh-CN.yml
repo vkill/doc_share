@@ -38,4 +38,6 @@ zh-CN:
           reset_password: 重置密码
           update_profile: 更改个人资料
           update_password: 更改密码
+        message:
+          reply: 回复
 

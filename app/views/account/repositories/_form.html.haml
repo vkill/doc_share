@@ -8,6 +8,6 @@
     = f.input :visibility, :as => :radio, :collection => Repository.get_visibility_values
 
   .actions
-    = f.button :submit, :class => 'primary'
+    = f.button :submit, :class => 'primary', :disable_with => t(:submitting)
     = button_tag t(:reset), :type => :reset, :class => "btn"
 

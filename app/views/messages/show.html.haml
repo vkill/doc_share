@@ -13,18 +13,5 @@
           = @message.content
 
         .page-header
-          = simple_form_for(@new_message, :as => :new_message, :url => [:reply, @message], :html => { :method => :put }, :wrapper => :inline) do |f|
-            - if f.error_notification
-              .alert-message.warning.fade.in(data-alert="alert")
-                %a(class="close" href="#") ×
-                %p
-                  = f.error_notification
-
-            = field_set_tag "", :class => 'fieldset-nolabel' do
-              = f.input :content, :required => true, :autofocus => true, :wrapper => :nolabel,
-                                :input_html => {:rows => 5, :class => :span8}
-
-            .actions
-              = f.button :submit, t("web.page.reply"), :class => 'primary'
-              = link_to t("back_to"), [:messages]
+          = render "form_reply", :message => @message, :new_message => @new_message
 

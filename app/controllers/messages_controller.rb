@@ -35,7 +35,7 @@ class MessagesController < ApplicationController
   end
 
   def reply
-    @message = Message.received_by_user(current_user).member_mailbox.find(params[:id])
+    @message = current_user.received_messages.member_mailbox.find(params[:id])
     @new_message = @message.reply!(params[:new_message][:content])
     respond_with @new_message, :location => [:messages], :action => "show"
   end

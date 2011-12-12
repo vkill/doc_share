@@ -1,0 +1,13 @@
+= simple_form_for(message, :wrapper => :inline) do |f|
+
+  = render "partials/simple_form_error_notification", :f => f
+
+  = field_set_tag "" do
+    = f.input :receiver_id, :input_html => { :class => "span5" }
+    = f.input :subject, :autofocus => true, :input_html => { :class => "span5" }
+    = f.input :content, :input_html => { :class => "span5", :rows => 5 }
+
+  .actions
+    = f.button :submit, :class => 'primary', :disable_with => t(:submitting)
+    = button_tag t(:reset), :type => :reset, :class => "btn"
+
