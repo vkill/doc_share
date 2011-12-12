@@ -2,11 +2,12 @@
 zh-CN:
   activerecord:
     models:
-      repo_file: RepoFile
+      repo_file: 项目文件
     attributes:
       repo_file:
         id: id
-        repository_id: 库id
-        repo_file: 回购文件
+        repository_id: 项目id
+        repo_file: 文件
         created_at: 创建时间
         updated_at: 最后更新
+

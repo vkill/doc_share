@@ -2,13 +2,14 @@
 zh-CN:
   activerecord:
     models:
-      setting_user_notification: SettingUserNotification
+      setting_user_notification: 用户通知设置
     attributes:
       setting_user_notification:
         id: id
         user_id: 用户id
-        user_followed: 用户跟踪
-        code_watched: 代码看着
-        code_forked: 代码叉
+        user_followed: 用户被关注
+        code_watched: 项目被关注
+        code_forked: 项目被拷贝
         created_at: 创建时间
         updated_at: 最后更新
+

@@ -7,11 +7,12 @@ zh-CN:
       issue:
         id: id
         user_id: 用户id
-        repository_id: 库id
+        repository_id: 项目id
         title: 标题
         content: 内容
         state: 状态
-        number_with_repo: 数字和回购
+        number_with_repo: 编号(项目)
         created_at: 创建时间
         updated_at: 最后更新
-        comments_count: 评论数
+        comments_count:
+

@@ -2,22 +2,23 @@
 zh-CN:
   activerecord:
     models:
-      repository: 库
+      repository: 项目
     attributes:
       repository:
         id: id
         user_id: 用户id
-        category_id: 类别id
+        category_id: 分类id
         ancestry: 祖先
-        deleted: 删除
-        name: 名字
-        describtion: 说明
-        visibility: 能见度
+        deleted: 已删除
+        name: 名称
+        describtion: 描述
+        visibility: 类别
         features: 特征
         created_at: 创建时间
         updated_at: 最后更新
-        watchers_count: 观察者数
-        repo_files_count: 回购档案的计数
-        issues_count: 问题数
-        comments_count: 评论数
-        forks_count: 叉数
+        watchers_count:
+        repo_files_count:
+        issues_count:
+        comments_count:
+        forks_count:
+

@@ -2,18 +2,19 @@
 zh-CN:
   activerecord:
     models:
-      message: 信息
+      message: 消息
     attributes:
       message:
         id: id
-        sender_id: 发送者身份
-        receiver_id: 接收机id
-        category: 范畴
-        subject: 主体
+        sender_id: 发送人id
+        receiver_id: 接收人id
+        category: 分类
+        subject: 标题
         content: 内容
         ancestry: 祖先
-        is_readed: 是读到哪儿了
+        is_readed: 已读
         target_id: 目标id
         target_type: 目标类型
         created_at: 创建时间
         updated_at: 最后更新
+

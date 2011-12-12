@@ -7,38 +7,39 @@ zh-CN:
       user:
         id: id
         username: 用户名
-        email: 电子邮件
-        crypted_password: crypted密码
-        salt: 盐
+        email: 邮箱
+        crypted_password:
+        salt:
         created_at: 创建时间
         updated_at: 最后更新
-        remember_me_token: 记得我表示
-        remember_me_token_expires_at: 记得我将在象征
-        reset_password_token: 重置密码表征
-        reset_password_token_expires_at: 重置密码将在象征
-        reset_password_email_sent_at: 重置密码邮件
-        last_login_at: 最后登录在
-        last_logout_at: 在去年登出
-        last_activity_at: 最后一个活动
-        failed_logins_count: 登录失败数
-        lock_expires_at: 锁将在
+        remember_me_token:
+        remember_me_token_expires_at:
+        reset_password_token:
+        reset_password_token_expires_at:
+        reset_password_email_sent_at:
+        last_login_at: 最后登入时间
+        last_logout_at: 最后登出时间
+        last_activity_at: 最后活动时间
+        failed_logins_count: 登录失败次数
+        lock_expires_at: 被锁过期时间
         activation_state: 激活状态
-        activation_token: 激活令牌
-        activation_token_expires_at: 激活令牌将在
+        activation_token: 激活标识
+        activation_token_expires_at: 激活标识过期时间
         is_super_admin: 超级管理员
         name: 名字
         gender: 性别
-        site: 网站
+        site: 主页/Blog
         company: 公司
-        location: 位置
+        location: 所在城市
         state: 状态
-        repositories_count: 库数
-        issues_count: 问题数
-        comments_count: 评论数
-        sent_messages_count: 发送信息计数
-        received_messages_count: 收到消息数
-        followers_count: 追随者数
-        watching_repositories_count: 看库数
-        following_users_count: 东莞市用户数
-        unread_system_notifications_count: 计数系统通知未读
-        unread_member_mailboxs_count: mailboxs未读的成员数
+        repositories_count:
+        issues_count:
+        comments_count:
+        sent_messages_count:
+        received_messages_count:
+        followers_count:
+        watching_repositories_count:
+        following_users_count:
+        unread_system_notifications_count:
+        unread_member_mailboxs_count:
+

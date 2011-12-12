@@ -2,12 +2,13 @@
 zh-CN:
   activerecord:
     models:
-      role: 作用
+      role: 角色
     attributes:
       role:
         id: id
-        name: 名字
-        code: 代码
-        describtion: 说明
+        name: 名称
+        code: 标识
+        describtion: 描述
         created_at: 创建时间
         updated_at: 最后更新
+
