@@ -23,7 +23,19 @@ zh-CN:
     #   username: 'User name to sign in.'
     #   password: 'No special characters, please.'
 
+
     hints:
       user:
         username: "唯一"
+
+
+    actions:
+      submit:
+        user:
+          sign_up: 注册
+          sign_in: 登入
+          send_me_reset_password_instructions: 发送重置密码指定
+          reset_password: 重置密码
+          update_profile: 更改个人资料
+          update_password: 更改密码
 

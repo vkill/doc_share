@@ -8,5 +8,5 @@ zh-CN:
         id: id
         repository_id: 库id
         repo_file: 回购文件
-        created_at: 创建在
-        updated_at: 及时更新,
+        created_at: 创建时间
+        updated_at: 最后更新

@@ -12,6 +12,6 @@ zh-CN:
         content: 内容
         state: 状态
         number_with_repo: 数字和回购
-        created_at: 创建在
-        updated_at: 及时更新,
+        created_at: 创建时间
+        updated_at: 最后更新
         comments_count: 评论数

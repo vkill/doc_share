@@ -1,0 +1,13 @@
+---
+zh-CN:
+  activerecord:
+    attributes:
+      user:
+        password: 密码
+        password_confirmation: 确认密码
+        login: 邮箱或用户名
+        remember_me: 记住我
+        current_password: 原始密码
+      message:
+        user_id: 接收人
+

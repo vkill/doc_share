@@ -14,8 +14,8 @@ zh-CN:
         describtion: 说明
         visibility: 能见度
         features: 特征
-        created_at: 创建在
-        updated_at: 及时更新,
+        created_at: 创建时间
+        updated_at: 最后更新
         watchers_count: 观察者数
         repo_files_count: 回购档案的计数
         issues_count: 问题数

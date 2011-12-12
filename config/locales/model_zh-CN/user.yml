@@ -10,8 +10,8 @@ zh-CN:
         email: 电子邮件
         crypted_password: crypted密码
         salt: 盐
-        created_at: 创建在
-        updated_at: 及时更新,
+        created_at: 创建时间
+        updated_at: 最后更新
         remember_me_token: 记得我表示
         remember_me_token_expires_at: 记得我将在象征
         reset_password_token: 重置密码表征

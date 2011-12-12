@@ -10,5 +10,5 @@ zh-CN:
         user_followed: 用户跟踪
         code_watched: 代码看着
         code_forked: 代码叉
-        created_at: 创建在
-        updated_at: 及时更新,
+        created_at: 创建时间
+        updated_at: 最后更新

@@ -1,0 +1,30 @@
+= simple_form_for(user, :url => (user.new_record? ? users_path : user_path(user)), :wrapper => :inline) do |f|
+
+  = render "partials/simple_form_error_notification", :f => f
+
+  = field_set_tag "" do
+    - if user.new_record?
+      = f.input :username, :required => true, :autofocus => true, :input_html => { :class => "span4" }
+      = f.input :email, :required => true, :input_html => { :class => "span4" }
+      = f.input :password, :required => true, :input_html => { :class => "span4" }
+      = f.input :password_confirmation, :required => true, :input_html => { :class => "span4" }
+    - else
+      = f.input :username, :required => true, :input_html => { :class => "span4 disabled", :disabled => true }
+      = f.input :email, :autofocus => true, :input_html => { :class => "span4" }
+      = f.input :name, :input_html => { :class => "span4" }
+      = f.input :site, :input_html => { :class => "span4" }
+      = f.input :company, :input_html => { :class => "span4" }
+      = f.input :location, :input_html => { :class => "span4" }
+
+  .actions
+    = f.button :submit, t( (user.new_record? ? :sign_up : :update_profile),
+                            :scope => [:simple_form, :actions, :submit, :user]),
+                        :class => 'primary', :disable_with => t(:submitting)
+    = button_tag t(:reset), :type => :reset, :class => "btn"
+
+    - if user.new_record?
+      %p.pull-right
+        = link_to t(:sign_in, :scope => [:web, :topbar]), signin_path
+        = link_to t(:forget_password, :scope => [:web, :topbar]), new_reset_password_path
+        /= link_to t(:sign_up, :scope => [:web, :topbar]), signup_path
+

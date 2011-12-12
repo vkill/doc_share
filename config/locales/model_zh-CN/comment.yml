@@ -10,5 +10,5 @@ zh-CN:
         commentable_type: commentable类型
         user_id: 用户id
         content: 内容
-        created_at: 创建在
-        updated_at: 及时更新,
+        created_at: 创建时间
+        updated_at: 最后更新
