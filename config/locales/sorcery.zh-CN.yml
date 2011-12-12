@@ -1,0 +1,30 @@
+---
+zh-CN:
+  sorcery:
+    reset_password:
+      email_not_found: 邮箱未找到
+      create:
+        notice: 请查看您的电子邮件按操作重置密码
+      update:
+        notice: 密码重置成功,请登录
+
+    session:
+      create:
+        notice: 登入成功
+        alert: 登入失败
+      destroy:
+        notice: 登出成功
+
+    user:
+      create:
+        notice: 注册成功,请登录
+        notice_activate: 注册成功,请查看您的电子邮件按操作激活账户
+      activate:
+        notice: 账户已激活,请登录
+      update:
+        notice: 个人资料更新成功
+      destroy:
+        notice: 用户删除成功
+      password_update:
+        notice: 密码更新成功,请重新登录
+

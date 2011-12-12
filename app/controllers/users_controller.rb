@@ -6,7 +6,10 @@ class UsersController < ApplicationController
   respond_to :js, :only => [:reverse_follow]
 
   before_filter :require_login, :only => [:show, :edit, :update, :destroy, :password_edit, :password_update,
-                                          :reverse_follow ]
+                                          :reverse_follow]
+  before_filter :set_user, :only => [:show, :edit, :update, :destroy, :password_edit, :password_update]
+  before_filter :find_user, :only => [:user_page, :following, :followers, :reverse_follow]
+
   main_nav_highlight :profile, :only => [:show, :edit, :update, :destroy, :password_edit, :password_update]
   sec_nav_highlight :show_profile, :only => [:show]
   sec_nav_highlight :edit_profile, :only => [:edit]
@@ -14,107 +17,103 @@ class UsersController < ApplicationController
 
   def new
     @user = User.new
-    respond_with @user
   end
 
   def create
     @user = User.new(params[:user])
-    @user.save
-    respond_with @user, :location => [:new, :session]
+    if @user.save
+      if Rails.application.config.sorcery.submodules.include?(:user_activation)
+        redirect_to [:new, :session], :notice => t(:notice_activate, :scope => [:sorcery, :user, :create])
+      else
+        redirect_to [:new, :session], :notice => t(:notice, :scope => [:sorcery, :user, :create])
+      end
+    else
+      render :new
+    end
   end
 
   def activate
     if @user = User.load_from_activation_token(params[:id])
       @user.activate!
-      redirect_to [:new, :session], :flash => { :success => t("flash.users.activate.success") }
+      redirect_to [:new, :session], :notice => t(:notice, :scope => [:sorcery, :user, :activate])
     else
       not_authenticated
     end
   end
 
   def show
-    @user = current_user
-    respond_with @user
   end
 
   def edit
-    @user = current_user
-    respond_with @user
   end
 
   def update
-    @user = current_user
-    @user.update_attributes(params[:user])
-    respond_with @user, :location => current_user
+    if @user.update_attributes(params[:user])
+      redirect_to @user, :notice => t(:notice, :scope => [:sorcery, :user, :update])
+    else
+      render :edit
+    end
   end
 
   def destroy
-    @user = current_user
     @user.destroy
-    respond_with @user, :location => root_path
+    redirect_to root_path, :notice => t(:notice, :scope => [:sorcery, :user, :destroy])
   end
 
   def password_edit
-    @user = current_user
-    respond_with @user
   end
 
   def password_update
-    @user = current_user
     @user.password_confirmation = params[:user][:password_confirmation]
     if !User.authenticate(@user.username, params[:user][:current_password]).nil? and @user.change_password!(params[:user][:password])
       logout
-      redirect_to [:new, :session], :flash => { :success => t("flash.users.password_update.success") }
+      redirect_to [:new, :session], :notice => t(:notice, :scope => [:sorcery, :user, :password_update])
     else
-      render :action => "password_edit"
+      render :password_edit
     end
   end
 
 
   #########################################
   def user_page
-    @user = User.find(params[:user])
     @new_activities = @user.activities.limit 30
-    respond_with @user
   end
 
   def following
-    @user = User.find(params[:user])
     @following_users = @user.following_users
     @watching_repositories = @user.watching_repositories
-    respond_with @user
   end
 
   def followers
-    @user = User.find(params[:user])
     @followers = @user.followers
-    respond_with @user
   end
 
   def reverse_follow
-    @target_user = User.find(params[:user])
-    @user = current_user
-    if @user.following_user? @target_user
-      @user.unfollow_user(@target_user)
+    if current_user.following_user? @user
+      current_user.unfollow_user(@user)
     else
       @follow = true
-      @user.follow_user(@target_user)
+      current_user.follow_user(@user)
     end
-    respond_with @target_user
   end
 
 
   private
     def set_layout
-      case params[:action]
-      when 'new', 'create', 'activate'
+      case params[:action].to_sym
+      when :new, :create, :activate
         'sign'
-      when 'show', 'edit', 'update', 'destroy', 'password_edit', 'password_update'
+      when :show, :edit, :update, :destroy, :password_edit, :password_update
         'users'
       else
         'application'
       end
     end
-
+    def set_user
+      @user = current_user
+    end
+    def find_user
+      @user = User.find(params[:user])
+    end
 end
 

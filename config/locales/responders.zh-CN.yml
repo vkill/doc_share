@@ -14,20 +14,3 @@ zh-CN:
       reply:
         notice: '%{resource_name}回复成功.'
 
-    sessions:
-      create:
-        notice: '登入成功.'
-        alert: '登入失败.'
-      destroy:
-        notice: '登出成功.'
-
-    users:
-      create:
-        notice: '注册成功,请查看您的电子邮件按操作激活账户.'
-      update:
-        notice: '个人资料更新成功.'
-      activate:
-        notice: '账户已激活，请登录.'
-      password_update:
-        notice: '密码更新成功，请重新登录.'
-
