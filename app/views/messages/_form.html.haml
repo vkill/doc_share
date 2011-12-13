@@ -3,8 +3,8 @@
   = render "partials/simple_form_error_notification", :f => f
 
   = field_set_tag "" do
-    = f.input :receiver_id, :input_html => { :class => "span5 token-input-list", :autocomplete => "false",
-                                              :id => :autocomplete_user}
+    = f.input :receiver_id, :input_html => { :class => "span5", :autocomplete => "false",
+                                              :data => { :autocomplete_user => true }}
 
     = f.input :subject, :autofocus => true, :input_html => { :class => "span5" }
     = f.input :content, :input_html => { :class => "span5", :rows => 5 }
