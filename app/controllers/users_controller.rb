@@ -17,9 +17,11 @@ class UsersController < ApplicationController
   sec_nav_highlight :edit_password, :only => [:password_edit]
 
   def search_by_username
-    @users = User.search(:username_cont => params["q"]).result().select([:username, :email])
+    q = params[:q] || params[:search]
+    @users = User.search(:username_cont => q).result().select([:id, :username, :email])
     respond_with @users do |format|
-      format.json { render :json => @users.map{|user| [user.username, user.gravatar_url] } }
+      format.json { render :json => @users.map{|user| {:id => user.id, :text => user.username,
+                                                      :image => user.gravatar_url } } }
     end
   end
 

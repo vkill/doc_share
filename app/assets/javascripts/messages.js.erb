@@ -1,5 +1,9 @@
-$(function() {
-  //$("[data-autocomplete-user]").autocomplete("<%= Rails.application.routes.url_helpers.search_by_username_users_path %>", {});
-
+$(document).ready(function () {
+  $("#autocomplete_user").jsonSuggest(
+    //"<%= Rails.application.routes.url_helpers.search_by_username_users_path %>",
+    {
+      url: "<%= Rails.application.routes.url_helpers.search_by_username_users_path %>"
+    }
+  );
 });
 
