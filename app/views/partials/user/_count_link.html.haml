@@ -5,7 +5,7 @@
     - if logged_in?
       - if me?(user)
         %div{ :class => 'span1.5' }
-          %a{ :href => user_private_repositories_path(user.username) }
+          %a{ :href => account_repositories_path }
             %h1
               = user.private_repositories_count
             %span

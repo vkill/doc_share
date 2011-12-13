@@ -1,2 +1,0 @@
-//= require jquery_autocomplete/jquery.autocomplete
-

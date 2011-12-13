@@ -14,7 +14,7 @@
 //= require bootstrap
 //= require bootstrap_extension
 //= require i18n-js_config
-//= require jquery_autocomplete
+
 //= require jquery_fileupload
 //= require nested_form
 

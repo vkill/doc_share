@@ -1,0 +1,9 @@
+"zh-CN":
+  activerecord:
+    errors:
+      models:
+        message:
+          attributes:
+            receiver_id:
+              existence: 未找到此人
+

@@ -2,8 +2,9 @@ class UsersController < ApplicationController
 
   layout :set_layout
 
-  respond_to :html, :except => [:reverse_follow]
+  respond_to :html, :except => [:search_by_username, :reverse_follow]
   respond_to :js, :only => [:reverse_follow]
+  respond_to :json, :only => [:search_by_username]
 
   before_filter :require_login, :only => [:show, :edit, :update, :destroy, :password_edit, :password_update,
                                           :reverse_follow]
@@ -14,6 +15,13 @@ class UsersController < ApplicationController
   sec_nav_highlight :show_profile, :only => [:show]
   sec_nav_highlight :edit_profile, :only => [:edit]
   sec_nav_highlight :edit_password, :only => [:password_edit]
+
+  def search_by_username
+    @users = User.search(:username_cont => params["q"]).result().select([:username, :email])
+    respond_with @users do |format|
+      format.json { render :json => @users.map{|user| [user.username, user.gravatar_url] } }
+    end
+  end
 
   def new
     @user = User.new

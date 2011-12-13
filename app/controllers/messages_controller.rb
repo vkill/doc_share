@@ -19,6 +19,11 @@ class MessagesController < ApplicationController
   def create
     @message = Message.new(params[:message])
     @message.save
+    if params[:message][:receiver_id].blank?
+      @message.errors.add(:receiver_id, :blank)
+    else
+      @message.errors.add(:receiver_id, :existence) if User.find_by_username(params[:message][:receiver_id]).blank?
+    end
     respond_with @message, :location => [:sent, :messages]
   end
 

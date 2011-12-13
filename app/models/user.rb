@@ -5,6 +5,9 @@ class User < ActiveRecord::Base
   extend FriendlyId
   friendly_id :username
 
+  include Gravtastic
+  gravtastic
+
   authenticates_with_sorcery!
 
   attr_accessor :login ,:remember_me

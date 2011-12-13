@@ -4,6 +4,9 @@ DocShare::Application.routes.draw do
 
   #user signup signin signout, user edit profile
   resources :users, :except => [:index] do
+    collection do
+      get :search_by_username
+    end
     member do
       get :activate
       get :password_edit
@@ -53,8 +56,6 @@ DocShare::Application.routes.draw do
   end
   get "dashboard" => "account/main#dashboard", :as => :dashboard
 
-
-
   scope ":user" do
     root :to => "users#user_page", :as => :user_page
 
@@ -97,12 +98,13 @@ DocShare::Application.routes.draw do
 end
 
 #== Route Map
-# Generated on 09 Dec 2011 22:46
+# Generated on 13 Dec 2011 11:39
 #
 #                        activate_user GET    /users/:id/activate(.:format)                                    {:action=>"activate", :controller=>"users"}
 #                   password_edit_user GET    /users/:id/password_edit(.:format)                               {:action=>"password_edit", :controller=>"users"}
 #                 password_update_user PUT    /users/:id/password_update(.:format)                             {:action=>"password_update", :controller=>"users"}
-#                                users POST   /users(.:format)                                                 {:action=>"create", :controller=>"users"}
+#                                users GET    /users(.:format)                                                 {:action=>"index", :controller=>"users"}
+#                                      POST   /users(.:format)                                                 {:action=>"create", :controller=>"users"}
 #                             new_user GET    /users/new(.:format)                                             {:action=>"new", :controller=>"users"}
 #                            edit_user GET    /users/:id/edit(.:format)                                        {:action=>"edit", :controller=>"users"}
 #                                 user GET    /users/:id(.:format)                                             {:action=>"show", :controller=>"users"}
@@ -155,8 +157,8 @@ end
 #                user_repository_forks GET    /:user/:repository/forks(.:format)                               {:action=>"forks", :controller=>"repositories"}
 #                 user_repository_fork PUT    /:user/:repository/fork(.:format)                                {:action=>"fork", :controller=>"repositories"}
 #                admin_user_repository GET    /:user/:repository/admin(.:format)                               {:action=>"admin", :controller=>"repositories"}
-#                 tree_user_repository        /:user/:repository/tree(/:path)(.:format)                        {:controller=>"repositories", :action=>"tree"}
-#                 blob_user_repository        /:user/:repository/blob/:path(.:format)                          {:controller=>"repositories", :action=>"blob"}
+#                 tree_user_repository        /:user/:repository/tree(/:tree_path)(.:format)                   {:controller=>"repositories", :action=>"tree"}
+#                 blob_user_repository        /:user/:repository/blob/:blob_path(.:format)                     {:blob_path=>/.*/, :controller=>"repositories", :action=>"blob"}
 #                               issues GET    /:user/:repository/issues(.:format)                              {:action=>"index", :controller=>"issues"}
 #                                      POST   /:user/:repository/issues(.:format)                              {:action=>"create", :controller=>"issues"}
 #                            new_issue GET    /:user/:repository/issues/new(.:format)                          {:action=>"new", :controller=>"issues"}
