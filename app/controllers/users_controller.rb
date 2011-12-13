@@ -7,7 +7,7 @@ class UsersController < ApplicationController
   respond_to :js, :only => [:reverse_follow]
 
   before_filter :require_login, :only => [:show, :edit, :update, :destroy, :password_edit, :password_update,
-                                          :reverse_follow]
+                                          :reverse_follow, :autocomplete_with_username]
   before_filter :set_user, :only => [:show, :edit, :update, :destroy, :password_edit, :password_update]
   before_filter :find_user, :only => [:user_page, :following, :followers, :reverse_follow]
 
@@ -16,6 +16,7 @@ class UsersController < ApplicationController
   sec_nav_highlight :edit_profile, :only => [:edit]
   sec_nav_highlight :edit_password, :only => [:password_edit]
 
+  #
   def autocomplete_with_username
     @users = User.search(:username_cont => params[:q]).result().select([:username, :email]).limit(10)
     respond_with @users do |format|

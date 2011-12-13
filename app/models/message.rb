@@ -16,7 +16,8 @@ class Message < ActiveRecord::Base
 
   attribute_enums :category, :in => [:system_notification, :member_mailbox], :default => :member_mailbox
   attribute_enums :is_readed, :booleans => true
-  validates :receiver_username, :presence => true
+  validates :receiver_username, :presence => true,
+                                :if => Proc.new { |record| record.receiver_id.blank? }
   validates :content, :presence => true,
                       :length => { :within => 6..2000 }
   validates :subject, :presence => true,
