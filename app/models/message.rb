@@ -15,6 +15,7 @@ class Message < ActiveRecord::Base
 
   attribute_enums :category, :in => [:system_notification, :member_mailbox], :default => :member_mailbox
   attribute_enums :is_readed, :booleans => true
+  validates :receiver_id, :presence => true
   validates :content, :presence => true,
                       :length => { :within => 6..2000 }
   validates :subject, :presence => true,

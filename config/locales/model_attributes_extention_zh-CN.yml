@@ -9,6 +9,6 @@ zh-CN:
         remember_me: 记住我
         current_password: 原始密码
       message:
-        user_id: 接收人
+        user_id: 接收人id
         receiver: 接收人
 

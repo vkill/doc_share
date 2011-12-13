@@ -1,8 +1,30 @@
 $(document).ready(function () {
-  $("#autocomplete_user").jsonSuggest(
-    //"<%= Rails.application.routes.url_helpers.search_by_username_users_path %>",
+  $("[data-autocomplete-user]").autocomplete("<%= Rails.application.routes.url_helpers.search_by_username_users_path %>",
     {
-      url: "<%= Rails.application.routes.url_helpers.search_by_username_users_path %>"
+      minChars: 0,
+		  //width: 280,
+		  max: 8,
+		  matchContains: true,
+		  highlightItem: false,
+		  dataType: 'json',
+      extraParams: {
+          format: 'json'
+      },
+		  parse: function(data) {
+        var parsed = [];
+        for (var i = 0; i < data.length; i++) {
+            parsed[parsed.length] = {
+                data: data[i],
+                value: data[i].text,
+                result: data[i].text
+            };
+        }
+
+        return parsed;
+      },
+      formatItem: function(item) {
+          return "<img src=" + item.image + " />" + "<span>" + item.text + "</span>";
+      }
     }
   );
 });

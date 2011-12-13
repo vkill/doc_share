@@ -21,7 +21,7 @@ class UsersController < ApplicationController
     @users = User.search(:username_cont => q).result().select([:id, :username, :email])
     respond_with @users do |format|
       format.json { render :json => @users.map{|user| {:id => user.id, :text => user.username,
-                                                      :image => user.gravatar_url } } }
+                                                      :image => user.gravatar_url(:size => 20) } } }
     end
   end
 
