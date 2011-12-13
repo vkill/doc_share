@@ -16,6 +16,7 @@
 //= require i18n-js_config
 
 //= require jquery_fileupload
+//= require jquery_tokeninput
 //= require nested_form
 
 //= require_tree .
