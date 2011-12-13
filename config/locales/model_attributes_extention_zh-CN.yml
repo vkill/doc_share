@@ -10,4 +10,5 @@ zh-CN:
         current_password: 原始密码
       message:
         user_id: 接收人
+        receiver: 接收人
 
