@@ -6,7 +6,7 @@
   .page-header
     .row
       %p.pull-right
-        = link_to t(:delete), [@message], :method => :delete, :confirm => t(:delete_confirm)
+        = link_to t(:delete), [:account, @message], :method => :delete, :confirm => t(:delete_confirm)
     .row
       .offset1
         %p

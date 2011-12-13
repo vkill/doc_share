@@ -6,15 +6,14 @@
   - elsif action_name ==  "notifications"
     %h2 notifications
 
-
 .row
   - @messages.each do |message|
     .page-header
       .row
         %p.pull-right
           - if @can_reply
-            = link_to t(:reply, :scope => [:web, :page, :message]), [message]
-          = link_to t(:delete), [message], :method => :delete, :confirm => t(:delete_confirm)
+            = link_to t(:reply, :scope => [:web, :page, :message]), [:account, message]
+          = link_to t(:delete), [:account, message], :method => :delete, :confirm => t(:delete_confirm)
       .row
         .offset1
           %p

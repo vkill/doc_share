@@ -18,13 +18,13 @@
             %li
               - if current_user.unread_system_notifications_count > 0
                 = link_to t("web.topbar.inbox") + "(" + current_user.unread_system_notifications_count.to_s + ")",
-                          [:notifications, :messages]
+                          [:account, :notifications, :messages]
               - elsif current_user.unread_member_mailboxs_count > 0
                 = link_to t("web.topbar.inbox") + "(" + current_user.unread_member_mailboxs_count.to_s + ")",
-                          [:messages]
+                          [:account, :messages]
               - else
                 = link_to t("web.topbar.inbox") + "(" + 0.to_s + ")",
-                          [:messages]
+                          [:account, :messages]
 
             %li.dropdown
               = link_to current_user.username, "javascript:void(0)", :class => "dropdown-toggle"

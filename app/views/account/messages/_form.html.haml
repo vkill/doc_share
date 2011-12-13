@@ -1,4 +1,4 @@
-= simple_form_for(message, :wrapper => :inline) do |f|
+= simple_form_for([:account, message], :wrapper => :inline) do |f|
 
   = render "partials/simple_form_error_notification", :f => f
 

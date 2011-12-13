@@ -1,7 +1,7 @@
 $(document).ready(function () {
   $("[data-autocomplete-user]").autocomplete("<%= Rails.application.routes.url_helpers.search_by_username_users_path %>",
     {
-      minChars: 0,
+      minChars: 1,
 		  //width: 280,
 		  max: 8,
 		  matchContains: true,

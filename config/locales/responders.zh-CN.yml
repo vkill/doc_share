@@ -10,7 +10,8 @@ zh-CN:
         notice: '%{resource_name}删除成功.'
         alert: '%{resource_name}删除失败.'
 
-    messages:
-      reply:
-        notice: '%{resource_name}回复成功.'
+    account:
+      messages:
+        reply:
+          notice: '%{resource_name}回复成功.'
 

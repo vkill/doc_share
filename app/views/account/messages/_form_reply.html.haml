@@ -1,5 +1,6 @@
 
-= simple_form_for(new_message, :as => :new_message, :url => [:reply, message], :html => { :method => :put }, :wrapper => :inline) do |f|
+= simple_form_for(new_message, :as => :new_message, :url => [:reply, :account, message],
+                                :html => { :method => :put }, :wrapper => :inline) do |f|
 
   = render "partials/simple_form_error_notification", :f => f
 
@@ -10,5 +11,5 @@
   .actions
     = f.button :submit, t(:reply, :scope => [:simple_form, :actions, :submit, :message]),
                 :class => 'primary', :disable_with => t(:submitting)
-    = link_to t(:back_to), [:messages]
+    = link_to t(:back_to), [:account, :messages]
 

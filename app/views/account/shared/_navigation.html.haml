@@ -4,7 +4,7 @@
   %li{:class => @main_nav == :profile ? :active : nil}
     = link_to "Profile", profile_path
   %li{:class => @main_nav == :messages ? :active : nil}
-    = link_to "Messages", [:messages]
+    = link_to "Messages", [:account, :messages]
   %li{:class => @main_nav == :notification_center ? :active : nil}
     = link_to "Notifications Center", account_notifications_center_path
 

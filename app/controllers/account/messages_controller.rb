@@ -1,7 +1,6 @@
-class MessagesController < ApplicationController
+class Account::MessagesController < Account::BaseController
 
-  before_filter :require_login
-  before_filter :set_current_user, :only => [:create, :update]
+  layout "messages"
 
   main_nav_highlight :messages
   sec_nav_highlight :new, :only => [:new, :create]
@@ -20,7 +19,7 @@ class MessagesController < ApplicationController
   def create
     @message = Message.new(params[:message])
     @message.save
-    respond_with @message, :location => [:sent, :messages]
+    respond_with :account, @message, :location => [:sent, :account, :messages]
   end
 
   def show
@@ -32,29 +31,30 @@ class MessagesController < ApplicationController
   def destroy
     @message = Message.by_user(current_user).find(params[:id])
     @message.destroy
-    respond_with @message
+    respond_with :account, @message
   end
 
   def reply
     @message = current_user.received_messages.member_mailbox.find(params[:id])
     @new_message = @message.reply!(params[:new_message][:content])
-    respond_with @new_message, :location => [:messages], :action => "show"
+    respond_with :account, @new_message, :location => [:account, :messages], :action => "show"
   end
 
   def index
     @messages = current_user.received_messages.member_mailbox.page(params[:page])
     @can_reply = true
-    respond_with @messages
+    respond_with :account, @message
   end
 
   def sent
     @messages = current_user.sent_messages.page(params[:page])
-    respond_with @messages, :template => "messages/index"
+    respond_with :account, @message, :template => "account/messages/index"
   end
 
   def notifications
     @messages = current_user.received_messages.system_notification.page(params[:page])
-    respond_with @messages, :template => "messages/index"
+    respond_with :account, @message, :template => "account/messages/index"
   end
+
 end
 

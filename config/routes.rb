@@ -22,19 +22,6 @@ DocShare::Application.routes.draw do
   get "account/edit" => "users#edit", :as => :edit_profile
   get "account/password/edit" => "users#password_edit", :as => :edit_password
 
-
-  #message
-  resources :messages, :only => [:index, :new, :create, :show, :destroy] do
-    collection do
-      get :sent
-      get :notifications
-    end
-    member do
-      put :reply
-    end
-  end
-
-
   #
   resources :repositories, :only => [:index]
 
@@ -51,6 +38,15 @@ DocShare::Application.routes.draw do
           get :manage
           post :exist
         end
+      end
+    end
+    resources :messages, :only => [:index, :new, :create, :show, :destroy] do
+      collection do
+        get :sent
+        get :notifications
+      end
+      member do
+        put :reply
       end
     end
   end
