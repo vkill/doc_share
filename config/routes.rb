@@ -5,7 +5,7 @@ DocShare::Application.routes.draw do
   #user signup signin signout, user edit profile
   resources :users, :except => [:index] do
     collection do
-      get :search_by_username
+      get :autocomplete_with_username
     end
     member do
       get :activate
