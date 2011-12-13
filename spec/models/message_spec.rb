@@ -14,6 +14,9 @@ describe Message do
     it { should have_valid(:subject).when('test_123' ) }
     it { should_not have_valid(:subject).when('s'*3, 's'*31, nil) }
 
+    it { should have_valid(:receiver_username).when('test_123' ) }
+    it { should_not have_valid(:receiver_username).when(nil) }
+
     context "reply" do
       before { subject.parent = Message.make! }
       it { should have_valid(:subject).when(nil) }
@@ -36,7 +39,15 @@ describe Message do
 
   context "validates" do
     it "when create a new message, should validate subject" do
-
+      pending
+    end
+    it "when create a new message, if receiver_username validated build receiver_id"
+      user = User.make!
+      subject.receiver_id.should be_nil
+      subject.receiver_username = user.username
+      subject.valid?
+      subject.receiver_id.should == user.id
+      subject.receive.should == user
     end
   end
 

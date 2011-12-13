@@ -1,6 +1,7 @@
 class MessagesController < ApplicationController
 
   before_filter :require_login
+  before_filter :set_current_user, :only => [:create, :update]
 
   main_nav_highlight :messages
   sec_nav_highlight :new, :only => [:new, :create]
@@ -18,16 +19,8 @@ class MessagesController < ApplicationController
 
   def create
     @message = Message.new(params[:message])
-    if params[:message][:receiver_id]
-      if user = User.find_by_username(params[:message][:receiver_id])
-        @message.receiver_id = user.id
-      else
-        @message.valid?
-        @message.errors.add(:receiver_id, :existence)
-      end
-    end
+    @message.save
     respond_with @message, :location => [:sent, :messages]
-    binding.pry
   end
 
   def show

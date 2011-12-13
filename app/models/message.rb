@@ -3,8 +3,9 @@ class Message < ActiveRecord::Base
   has_ancestry
   paginates_per 10
 
+  attr_accessor :receiver_username
   alias_attribute :user_id, :sender_id
-  attr_accessible :user_id, :receiver_id, :subject, :content, :parent, :sender, :receiver, :user
+  attr_accessible :user_id, :receiver_id, :subject, :content, :parent, :sender, :receiver, :user, :receiver_username
 
   belongs_to :sender, :class_name => 'User', :foreign_key => 'sender_id',
                       :counter_cache => :sent_messages_count
@@ -15,7 +16,7 @@ class Message < ActiveRecord::Base
 
   attribute_enums :category, :in => [:system_notification, :member_mailbox], :default => :member_mailbox
   attribute_enums :is_readed, :booleans => true
-  validates :receiver_id, :presence => true
+  validates :receiver_username, :presence => true
   validates :content, :presence => true,
                       :length => { :within => 6..2000 }
   validates :subject, :presence => true,
@@ -27,6 +28,8 @@ class Message < ActiveRecord::Base
 
   delegate :email, :username, :to => :user
   default_scope order('created_at DESC')
+
+  after_validation :build_receiver_id, :if => Proc.new { |record| record.receiver_username.present? }
 
   def readed?
     !!is_readed?
@@ -45,6 +48,16 @@ class Message < ActiveRecord::Base
     )
     new_message
   end
+
+  private
+    def build_receiver_id
+      user = User.find_by_username(receiver_username.to_s)
+      if user
+        self.receiver_id = user.id
+      else
+        errors.add(:receiver_username, :existence)
+      end
+    end
 
 end
 

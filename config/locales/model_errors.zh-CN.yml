@@ -4,6 +4,6 @@
       models:
         message:
           attributes:
-            receiver_id:
+            receiver_username:
               existence: 未找到此人
 

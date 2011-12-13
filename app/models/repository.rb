@@ -39,7 +39,8 @@ class Repository < ActiveRecord::Base
         :category_id => category_id,
         :name => name,
         :describtion => describtion,
-        :parent => self
+        :parent => self,
+        :user => user
       )
       new_repository
     end
