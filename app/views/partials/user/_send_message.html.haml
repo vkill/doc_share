@@ -3,7 +3,7 @@
 - if logged_in?
   - unless me?(user)
     = link_to t(:send_message, :scope => [:web, :page, :user]),
-              new_message_path(:receiver_username => user.username),
+              new_account_message_path(:receiver_username => user.username),
               :class => "btn small primary"
 
 - else
