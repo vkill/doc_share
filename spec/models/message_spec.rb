@@ -41,13 +41,13 @@ describe Message do
     it "when create a new message, should validate subject" do
       pending
     end
-    it "when create a new message, if receiver_username validated build receiver_id"
+    it "when create a new message, if receiver_username validated build receiver_id" do
       user = User.make!
       subject.receiver_id.should be_nil
       subject.receiver_username = user.username
       subject.valid?
       subject.receiver_id.should == user.id
-      subject.receive.should == user
+      subject.receiver.should == user
     end
   end
 
