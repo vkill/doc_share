@@ -27,5 +27,12 @@ DocShare::Application.configure do
 
   # Expands the lines which load the assets
   config.assets.debug = false
+
+  #rack-livereload, support livereload2
+  if defined?(Rack::LiveReload)
+    config.middleware.insert_before(
+      Rack::Lock, Rack::LiveReload
+    )
+  end
 end
 

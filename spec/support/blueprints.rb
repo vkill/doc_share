@@ -1,5 +1,5 @@
 require 'machinist/active_record'
-
+require "ffaker"
 # Add your blueprints here.
 #
 # e.g.

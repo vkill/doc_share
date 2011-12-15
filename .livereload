@@ -10,6 +10,7 @@ config.exts << 'haml'
 # exclude files with PATHS matching this REGEXP
 #config.exclusions << /somedir.*(ab){2,4}.(css|js)$/
 
+config.exclusions << 'repo/*'
 # reload the whole page when .js changes
 #config.apply_js_live = false
 # reload the whole page when .css changes
