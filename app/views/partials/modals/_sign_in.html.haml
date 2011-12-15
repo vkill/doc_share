@@ -1,13 +1,3 @@
-- text_info ||= t(:require_sign_in, :scope => [:web, :modal, :sign_in])
-
-= link_to text,
-          "javascript:void(0);",
-          :class => "btn small",
-          :rel => "twipsy",
-          :data => { :backdrop => 'true', :controls_modal => "modal-sign-in", :keyboard => 'true',
-                      :original_title => text_info, :placement => :below}
-
-
 - unless @modal_sign_in
   = content_for :modal do
     #modal-sign-in{:class => "modal hide fade", :style => "display: none; "}
@@ -18,6 +8,16 @@
       .modal-body
         = render "sessions/form", :user => new_user()
       .modal-footer
+        %a.close{:href => "#"} Close
 
-  - @modal_sign_in = true
+  - @modal_sign_in = false
+
+- text_info ||= t(:require_sign_in, :scope => [:web, :modal, :sign_in])
+
+= link_to text,
+          "javascript:void(0);",
+          :class => "btn small",
+          :rel => "twipsy",
+          :data => { :backdrop => 'true', :controls_modal => "modal-sign-in", :keyboard => 'true',
+                      :original_title => text_info, :placement => :below}
 

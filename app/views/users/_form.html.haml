@@ -25,6 +25,7 @@
     - if user.new_record?
       %p.pull-right
         = link_to t(:sign_in, :scope => [:web, :topbar]), signin_path
+        |
         = link_to t(:forget_password, :scope => [:web, :topbar]), new_reset_password_path
         /= link_to t(:sign_up, :scope => [:web, :topbar]), signup_path
 
