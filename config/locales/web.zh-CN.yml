@@ -69,6 +69,7 @@ zh-CN:
   request_timeout: "请求超时,请稍候再试!"
   request_server_error: "服务器故障，请联系管理员!"
   
+  index: 列表
   new: 新建
   show: 查看
   edit: 编辑
@@ -87,8 +88,10 @@ zh-CN:
   manage: 管理
   close: 关闭
   export: 导出
-
-
+  created_at: 创建时间
+  updated_at: 更新时间
+  
+  time_ago: "大约%{time_words}前"
 
 
   admin:

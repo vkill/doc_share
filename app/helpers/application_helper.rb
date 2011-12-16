@@ -17,5 +17,14 @@ module ApplicationHelper
     return false if !current_user.respond_to?(:id)
     current_user.has_role?("admin") or current_user.super_admin?
   end
+
+  def translate_attribute(klass, attribute_name)
+    klass.human_attribute_name(attribute_name)
+  end
+  alias :ta :translate_attribute
+
+  def time_ago(time)
+    t(:time_ago, :time_words => time_ago_in_words(time))
+  end
 end
 

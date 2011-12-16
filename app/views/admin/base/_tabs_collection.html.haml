@@ -1,0 +1,7 @@
+%ul.tabs(data-tabs="tabs")
+  %li.active
+    = link_to t(:index), [:admin, collection_name]
+  %li
+    = link_to t(:new), [:new, :admin, recource_name]
+  %li
+    = link_to t(:export), [:admin, collection_name]

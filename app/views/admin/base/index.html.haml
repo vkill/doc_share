@@ -1,0 +1,6 @@
+= render "tabs_collection", :collection_name => collection_name
+
+= render "entries", :collection => collection
+
+.pagination
+  = render 'partials/pagination', :resources => collection

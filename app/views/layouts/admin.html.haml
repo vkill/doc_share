@@ -11,16 +11,12 @@
     = stylesheet_link_tag    "application"
 
   %body
-    = render "shared/topbar"
+    = render "admin/shared/topbar"
 
     .container
-      .row
-        .span3
-          = render "admin/shared/navigation"
-        .span13
-          = render "shared/flash", :flash => flash
-          = render "admin/shared/breadcrumbs_navigation"
-          = yield
+      = render "shared/flash", :flash => flash
+      = render "admin/shared/breadcrumbs"
+      = yield
 
     = render "shared/footer"
     = render "shared/javascripts"

@@ -1,0 +1,36 @@
+%table.zebra-striped
+  %thead
+    %tr
+      %th.header
+        = "#"
+      %th.yellow.header
+        = ta User, :username
+      %th.blue.header
+        = ta User, :email
+      %th.green.header
+        = ta User, :name
+      %th.header
+        = t(:created_at)
+      %th.header
+        = t(:updated_at)
+      %th.header
+  %tbody
+    - collection.each do |user|
+      %tr
+        %td
+          = user.id
+        %td
+          = user.username
+        %td
+          = user.email
+        %td
+          = user.name
+        %td
+          = time_ago user.created_at
+        %td
+          = time_ago user.updated_at
+        %td
+          = link_to t(:show), [:admin, user], :title => t(:show)
+          = link_to t(:edit), [:edit, :admin, user], :title => t(:edit)
+          = link_to t(:delete), [:admin, user], :title => t(:delete),
+                    :method => :delete, :confirm => t(:delete_confirm)
