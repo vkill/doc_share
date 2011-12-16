@@ -2,17 +2,17 @@
   %thead
     %tr
       %th
-        = sort_link @q, :id
+        = sort_link q, :id
       %th
-        = sort_link @q, :username
+        = sort_link q, :username
       %th
-        = sort_link @q, :email
+        = sort_link q, :email
       %th
-        = sort_link @q, :name
+        = sort_link q, :name
       %th
-        = sort_link @q, :created_at
+        = sort_link q, :created_at
       %th
-        = sort_link @q, :updated_at
+        = sort_link q, :updated_at
       %th
   %tbody
     - collection.each do |user|
