@@ -1,4 +1,4 @@
-$(function() {
+$(document).ready(function() {
   // Initialize the jQuery File Upload widget
   $('#jquery_fileupload_repo').fileupload({
   });
