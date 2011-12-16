@@ -56,7 +56,7 @@ DocShare::Application.routes.draw do
   #admin namespace
   namespace :admin do
     root :to => "main#dashboard"
-    get "dashboard" => "main#dashboard"
+    get "dashboard" => "main#dashboard", :as => :dashboard
     resources :users
   end
 
@@ -103,13 +103,13 @@ DocShare::Application.routes.draw do
 end
 
 #== Route Map
-# Generated on 13 Dec 2011 11:39
+# Generated on 16 Dec 2011 15:07
 #
+#     autocomplete_with_username_users GET    /users/autocomplete_with_username(.:format)                      {:action=>"autocomplete_with_username", :controller=>"users"}
 #                        activate_user GET    /users/:id/activate(.:format)                                    {:action=>"activate", :controller=>"users"}
 #                   password_edit_user GET    /users/:id/password_edit(.:format)                               {:action=>"password_edit", :controller=>"users"}
 #                 password_update_user PUT    /users/:id/password_update(.:format)                             {:action=>"password_update", :controller=>"users"}
-#                                users GET    /users(.:format)                                                 {:action=>"index", :controller=>"users"}
-#                                      POST   /users(.:format)                                                 {:action=>"create", :controller=>"users"}
+#                                users POST   /users(.:format)                                                 {:action=>"create", :controller=>"users"}
 #                             new_user GET    /users/new(.:format)                                             {:action=>"new", :controller=>"users"}
 #                            edit_user GET    /users/:id/edit(.:format)                                        {:action=>"edit", :controller=>"users"}
 #                                 user GET    /users/:id(.:format)                                             {:action=>"show", :controller=>"users"}
@@ -127,14 +127,6 @@ end
 #                              profile GET    /account(.:format)                                               {:action=>"show", :controller=>"users"}
 #                         edit_profile GET    /account/edit(.:format)                                          {:controller=>"users", :action=>"edit"}
 #                        edit_password GET    /account/password/edit(.:format)                                 {:controller=>"users", :action=>"password_edit"}
-#                        sent_messages GET    /messages/sent(.:format)                                         {:action=>"sent", :controller=>"messages"}
-#               notifications_messages GET    /messages/notifications(.:format)                                {:action=>"notifications", :controller=>"messages"}
-#                        reply_message PUT    /messages/:id/reply(.:format)                                    {:action=>"reply", :controller=>"messages"}
-#                             messages GET    /messages(.:format)                                              {:action=>"index", :controller=>"messages"}
-#                                      POST   /messages(.:format)                                              {:action=>"create", :controller=>"messages"}
-#                          new_message GET    /messages/new(.:format)                                          {:action=>"new", :controller=>"messages"}
-#                              message GET    /messages/:id(.:format)                                          {:action=>"show", :controller=>"messages"}
-#                                      DELETE /messages/:id(.:format)                                          {:action=>"destroy", :controller=>"messages"}
 #                         repositories GET    /repositories(.:format)                                          {:action=>"index", :controller=>"repositories"}
 #                         account_root        /account(.:format)                                               {:controller=>"account/main", :action=>"dashboard"}
 #                    account_dashboard GET    /account/dashboard(.:format)                                     {:action=>"dashboard", :controller=>"account/main"}
@@ -150,7 +142,24 @@ end
 #              edit_account_repository GET    /account/repositories/:id/edit(.:format)                         {:action=>"edit", :controller=>"account/repositories"}
 #                   account_repository PUT    /account/repositories/:id(.:format)                              {:action=>"update", :controller=>"account/repositories"}
 #                                      DELETE /account/repositories/:id(.:format)                              {:action=>"destroy", :controller=>"account/repositories"}
+#                sent_account_messages GET    /account/messages/sent(.:format)                                 {:action=>"sent", :controller=>"account/messages"}
+#       notifications_account_messages GET    /account/messages/notifications(.:format)                        {:action=>"notifications", :controller=>"account/messages"}
+#                reply_account_message PUT    /account/messages/:id/reply(.:format)                            {:action=>"reply", :controller=>"account/messages"}
+#                     account_messages GET    /account/messages(.:format)                                      {:action=>"index", :controller=>"account/messages"}
+#                                      POST   /account/messages(.:format)                                      {:action=>"create", :controller=>"account/messages"}
+#                  new_account_message GET    /account/messages/new(.:format)                                  {:action=>"new", :controller=>"account/messages"}
+#                      account_message GET    /account/messages/:id(.:format)                                  {:action=>"show", :controller=>"account/messages"}
+#                                      DELETE /account/messages/:id(.:format)                                  {:action=>"destroy", :controller=>"account/messages"}
 #                            dashboard GET    /dashboard(.:format)                                             {:action=>"dashboard", :controller=>"account/main"}
+#                           admin_root        /admin(.:format)                                                 {:controller=>"admin/main", :action=>"dashboard"}
+#                      admin_dashboard GET    /admin/dashboard(.:format)                                       {:action=>"dashboard", :controller=>"admin/main"}
+#                          admin_users GET    /admin/users(.:format)                                           {:action=>"index", :controller=>"admin/users"}
+#                                      POST   /admin/users(.:format)                                           {:action=>"create", :controller=>"admin/users"}
+#                       new_admin_user GET    /admin/users/new(.:format)                                       {:action=>"new", :controller=>"admin/users"}
+#                      edit_admin_user GET    /admin/users/:id/edit(.:format)                                  {:action=>"edit", :controller=>"admin/users"}
+#                           admin_user GET    /admin/users/:id(.:format)                                       {:action=>"show", :controller=>"admin/users"}
+#                                      PUT    /admin/users/:id(.:format)                                       {:action=>"update", :controller=>"admin/users"}
+#                                      DELETE /admin/users/:id(.:format)                                       {:action=>"destroy", :controller=>"admin/users"}
 #                            user_page        /:user(.:format)                                                 {:controller=>"users", :action=>"user_page"}
 #             user_public_repositories GET    /:user/repositories(.:format)                                    {:action=>"public_repositories", :controller=>"repositories"}
 #                       user_following GET    /:user/following(.:format)                                       {:action=>"following", :controller=>"users"}
@@ -173,4 +182,3 @@ end
 #                                      DELETE /:user/:repository/issues/:id(.:format)                          {:action=>"destroy", :controller=>"issues"}
 #                                             /user_mailer_view                                                {:action=>"user_mailer_view", :to=>UserMailer::Preview}
 #                                 page        /pages/*id                                                       {:controller=>"high_voltage/pages", :action=>"show"}
-

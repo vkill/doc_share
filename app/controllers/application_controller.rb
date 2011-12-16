@@ -29,6 +29,28 @@ class ApplicationController < ActionController::Base
           before_filter Proc.new{|c| c.instance_variable_set(:@sec_nav, name.to_sym)} ,options.extract_options!.slice(:only, :except)
         end
       end
+
+      def add_breadcrumb(name, href='', *options)
+        class_eval do
+          before_filter Proc.new{|c|
+            breadcrumbs = c.instance_variable_get(:@breadcrumbs) || []
+            name =
+              if name.is_a?(String); name.to_s
+              elsif name.is_a?(Symbol); name.to_s
+              elsif name.is_a?(Proc); name.call(self)
+              elsif name.is_a?(Proc); name.call(self)
+              end
+            href =
+              if href.is_a?(String); href.to_s
+              elsif href.is_a?(Symbol); self.send href
+              elsif href.is_a?(Proc); href.call(self)
+              elsif href.is_a?(Proc); href.call(self)
+              end
+            breadcrumbs << [name, href]
+            c.instance_variable_set(:@breadcrumbs, breadcrumbs)
+          } ,options.extract_options!.slice(:only, :except)
+        end
+      end
     end
 
     def set_locale
