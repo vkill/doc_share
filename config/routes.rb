@@ -52,6 +52,15 @@ DocShare::Application.routes.draw do
   end
   get "dashboard" => "account/main#dashboard", :as => :dashboard
 
+
+  #admin namespace
+  namespace :admin do
+    root :to => "main#dashboard"
+    get "dashboard" => "main#dashboard"
+    resources :users
+  end
+
+
   scope ":user" do
     root :to => "users#user_page", :as => :user_page
 
