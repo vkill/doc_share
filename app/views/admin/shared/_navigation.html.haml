@@ -1,6 +1,30 @@
-%ul.tabs(data-tabs="tabs")
-  %li{:class => @main_nav == :dashboard ? :active : nil}
-    = link_to "Dashboard", dashboard_path
-  %li{:class => @main_nav == :users ? :active : nil}
-    = link_to "User", admin_users_path
+%h4
+  = t(:main, :scope => [:admin, :navigation])
+%dl
+  %dt
+  %dd
+    = link_to t(:dashboard, :scope => [:admin, :navigation]), admin_dashboard_path
 
+  %dt
+    = t(:basic, :scope => [:admin, :navigation])
+  %dd
+    = link_to t(:users, :scope => [:admin, :navigation]), admin_users_path
+  %dd
+    = link_to t(:roles, :scope => [:admin, :navigation]), ""
+
+  %dt
+    = t(:repository, :scope => [:admin, :navigation])
+  %dd
+    = link_to t(:repositories, :scope => [:admin, :navigation]), ""
+
+  %dt
+    = t(:statements, :scope => [:admin, :navigation])
+  %dd
+    = link_to "", ""
+
+  %dt
+    =t(:maintenance, :scope => [:admin, :navigation])
+  %dd
+    = link_to t(:data_export, :scope => [:admin, :navigation]), ""
+  %dd
+    = link_to t(:data_import, :scope => [:admin, :navigation]), ""

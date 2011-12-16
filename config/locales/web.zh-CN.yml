@@ -1,6 +1,6 @@
 ---
 zh-CN:
-  web:
+  web:    
     topbar:
       admin: 后台管理
       sign_in: 登入
@@ -68,10 +68,12 @@ zh-CN:
   requesting: "请求中..."
   request_timeout: "请求超时,请稍候再试!"
   request_server_error: "服务器故障，请联系管理员!"
-
+  
+  new: 新建
   show: 查看
   edit: 编辑
   delete: 删除
+  destroy: 删除
   confirm: 确定执行此操作?
   delete_confirm: 确定要执行删除操作吗?
   submitting: 提交中...
@@ -84,4 +86,29 @@ zh-CN:
   select_options: 请选择一个选项
   manage: 管理
   close: 关闭
+  export: 导出
 
+
+
+
+  admin:
+    navigation:
+      main: 管理中心
+      
+      dashboard: 控制面板
+      
+      basic: 基础资料管理
+      users: 用户管理
+      roles: 角色管理
+      
+      repository: 项目管理
+      repositories: 项目管理
+      
+      system: 系统配置
+      site_configs: 全局设置
+      
+      statements: 查询与统计
+      
+      maintenance: 数据维护
+      data_export: 备份数据
+      data_import: 导出数据
