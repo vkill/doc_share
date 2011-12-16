@@ -2,7 +2,7 @@
 zh-CN:
   web:
     topbar:
-      admin: admin
+      admin: 后台管理
       sign_in: 登入
       sign_up: 注册
       forget_password: 忘记密码?

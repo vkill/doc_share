@@ -15,11 +15,11 @@
 
     .container
       .row
-        = render "admin/shared/navigation"
-      .row
-        = render "shared/flash", :flash => flash
-      .row
-        = yield
+        .span3
+          = render "admin/shared/navigation"
+        .span13
+          = render "shared/flash", :flash => flash
+          = yield
 
     = render "shared/footer"
     = render "shared/javascripts"
