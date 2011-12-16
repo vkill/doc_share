@@ -1,19 +1,19 @@
 %table.zebra-striped
   %thead
     %tr
-      %th.header
-        = "#"
-      %th.yellow.header
-        = ta User, :username
-      %th.blue.header
-        = ta User, :email
-      %th.green.header
-        = ta User, :name
-      %th.header
-        = t(:created_at)
-      %th.header
-        = t(:updated_at)
-      %th.header
+      %th
+        = sort_link @q, :id
+      %th
+        = sort_link @q, :username
+      %th
+        = sort_link @q, :email
+      %th
+        = sort_link @q, :name
+      %th
+        = sort_link @q, :created_at
+      %th
+        = sort_link @q, :updated_at
+      %th
   %tbody
     - collection.each do |user|
       %tr

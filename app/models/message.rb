@@ -28,7 +28,6 @@ class Message < ActiveRecord::Base
   scope :by_user, lambda {|user| where{(sender_id == user.id) | (receiver_id == user.id)} }
 
   delegate :email, :username, :to => :user
-  default_scope order('created_at DESC')
 
   after_validation :build_receiver_id, :if => Proc.new { |record| record.receiver_username.present? }
 

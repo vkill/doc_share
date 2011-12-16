@@ -8,7 +8,6 @@ class RepoFile < ActiveRecord::Base
 
   validates :repo_file, :presence => true
 
-  default_scope order('created_at DESC')
   scope :repo_file_exist?, Proc.new{|repo_file_name| where(:repo_file => repo_file_name).exists? }
 
   delegate :git_repo_path, :git_repo, :to => :repository

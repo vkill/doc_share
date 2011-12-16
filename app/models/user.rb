@@ -53,9 +53,6 @@ class User < ActiveRecord::Base
   validates :site, :url => true,
                   :if => Proc.new { |record| record.site? }
 
-
-  default_scope order('created_at DESC')
-
   class << self
     def current=(user)
       Thread.current[:user] = user

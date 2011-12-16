@@ -29,7 +29,6 @@ class Repository < ActiveRecord::Base
 
   delegate :email, :username, :to => :user
 
-  default_scope order('created_at DESC')
 
   def fork_by!(user)
     if forked_by_user?(user)
