@@ -5,13 +5,33 @@
       .container
         %h3
           = link_to Settings.project.name, root_path
+
         %ul.nav
           %li
-            = link_to t("web.topbar.repositories"), repositories_path
+            = link_to t(:dashboard, :scope => [:admin, :navigation]), admin_dashboard_path
+          %li.dropdown
+            = link_to t(:basic, :scope => [:admin, :navigation]), "javascript:void(0)", :class => "dropdown-toggle"
+            %ul.dropdown-menu
+              %li
+                = link_to t(:users, :scope => [:admin, :navigation]), admin_users_path
+              %li
+                = link_to t(:roles, :scope => [:admin, :navigation]), ""
+          %li.dropdown
+            = link_to t(:repository, :scope => [:admin, :navigation]), "javascript:void(0)", :class => "dropdown-toggle"
+            %ul.dropdown-menu
+              %li
+                = link_to t(:repositories, :scope => [:admin, :navigation]), ""
+          %li.dropdown
+            = link_to t(:maintenance, :scope => [:admin, :navigation]), "javascript:void(0)", :class => "dropdown-toggle"
+            %ul.dropdown-menu
+              %li
+                = link_to t(:data_export, :scope => [:admin, :navigation]), ""
+              %li
+                = link_to t(:data_import, :scope => [:admin, :navigation]), ""
+
         %ul.nav.secondary-nav
           %li
-            = link_to t("web.topbar.dashboard"), dashboard_path
-            
+            = link_to t("web.topbar.root"), root_path
           %li.dropdown
             = link_to current_user.username, "javascript:void(0)", :class => "dropdown-toggle"
             %ul.dropdown-menu
@@ -20,8 +40,6 @@
               %li.divider
               %li
                 = link_to t("web.topbar.user_page"), user_page_path(current_user)
-
-
           %li
             = link_to t("web.topbar.sign_out"), signout_path
 

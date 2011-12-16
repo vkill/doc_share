@@ -2,11 +2,9 @@
 /[if lt IE 9]
   %script{:src => "//html5shim.googlecode.com/svn/trunk/html5.js"}
 / Le javascript
-
 /%script{:src => "//ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"}
 /%script{:src => "//ajax.googleapis.com/ajax/libs/jqueryui/1.8.16/jquery-ui.min.js"}
 = javascript_include_tag "application"
-
 :javascript
   // Instantiate the object
   var RailsSettings = RailsSettings || {};
@@ -19,6 +17,5 @@
 
     RailsSettings.development = #{ Rails.env.development? ? true : false }
   })
-
 = yield :javascript
 

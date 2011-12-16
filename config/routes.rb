@@ -57,7 +57,11 @@ DocShare::Application.routes.draw do
   namespace :admin do
     root :to => "main#dashboard"
     get "dashboard" => "main#dashboard", :as => :dashboard
-    resources :users
+    resources :users do
+      member do
+        get :delete
+      end
+    end
   end
 
 
@@ -103,7 +107,7 @@ DocShare::Application.routes.draw do
 end
 
 #== Route Map
-# Generated on 16 Dec 2011 15:07
+# Generated on 16 Dec 2011 21:26
 #
 #     autocomplete_with_username_users GET    /users/autocomplete_with_username(.:format)                      {:action=>"autocomplete_with_username", :controller=>"users"}
 #                        activate_user GET    /users/:id/activate(.:format)                                    {:action=>"activate", :controller=>"users"}
@@ -153,11 +157,13 @@ end
 #                            dashboard GET    /dashboard(.:format)                                             {:action=>"dashboard", :controller=>"account/main"}
 #                           admin_root        /admin(.:format)                                                 {:controller=>"admin/main", :action=>"dashboard"}
 #                      admin_dashboard GET    /admin/dashboard(.:format)                                       {:action=>"dashboard", :controller=>"admin/main"}
+#                           admin_user GET    /admin/users/:id(.:format)                                       {:action=>"destroy", :controller=>"admin/users"}
+#                                      PUT    /admin/users/:id(.:format)                                       {:action=>"destroy", :controller=>"admin/users"}
 #                          admin_users GET    /admin/users(.:format)                                           {:action=>"index", :controller=>"admin/users"}
 #                                      POST   /admin/users(.:format)                                           {:action=>"create", :controller=>"admin/users"}
 #                       new_admin_user GET    /admin/users/new(.:format)                                       {:action=>"new", :controller=>"admin/users"}
 #                      edit_admin_user GET    /admin/users/:id/edit(.:format)                                  {:action=>"edit", :controller=>"admin/users"}
-#                           admin_user GET    /admin/users/:id(.:format)                                       {:action=>"show", :controller=>"admin/users"}
+#                                      GET    /admin/users/:id(.:format)                                       {:action=>"show", :controller=>"admin/users"}
 #                                      PUT    /admin/users/:id(.:format)                                       {:action=>"update", :controller=>"admin/users"}
 #                                      DELETE /admin/users/:id(.:format)                                       {:action=>"destroy", :controller=>"admin/users"}
 #                            user_page        /:user(.:format)                                                 {:controller=>"users", :action=>"user_page"}

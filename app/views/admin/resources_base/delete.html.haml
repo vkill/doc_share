@@ -1,0 +1,10 @@
+
+= render "tabs_resource", :collection_name => collection_name, :resource_name => resource_name
+
+= form_tag([:admin, resource], :method => :delete) do |f|
+  
+  = render "delete_confirm", :resource => resource
+
+  .actions
+    = submit_tag t(:sure_delete), :class => 'btn danger', :disable_with => t(:submitting)
+    = link_to t(:back_to), :back, :class => "btn"

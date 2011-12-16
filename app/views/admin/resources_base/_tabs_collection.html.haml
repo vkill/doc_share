@@ -1,0 +1,7 @@
+%ul.tabs(data-tabs="tabs")
+  %li{:class => action_name.in?(%w(index)) ? :active : nil}
+    = link_to t(:index), [:admin, collection_name]
+  %li{:class => action_name.in?(%w(new create)) ? :active : nil}
+    = link_to t(:new), [:new, :admin, resource_name]
+  %li
+    = link_to t(:export), [:admin, collection_name]

@@ -1,4 +1,4 @@
-class Admin::UsersController < Admin::BaseController
+class Admin::UsersController < Admin::ResourcesBaseController
 
   add_breadcrumb proc{|c| c.t("admin.navigation.users")}, "", :only => [:index]
   
