@@ -6,7 +6,7 @@ class ApplicationController < ActionController::Base
 
   protect_from_forgery
 
-  before_filter :set_local
+  before_filter :set_locale
 
 
   private
@@ -31,7 +31,7 @@ class ApplicationController < ActionController::Base
       end
     end
 
-    def set_local
+    def set_locale
       if params[:locale].present? and params[:locale].to_sym.in?([:"zh-CN", :"en"])
          session[:locale] = params[:locale]
       end

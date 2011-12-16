@@ -108,6 +108,9 @@ gem "grit", :path => "vendor/plugins/grit-2.4.1"
 
 gem "gravtastic", '~> 3.2.3'
 
+gem "cells", "~> 3.7.0"
+
+
 gemfile_local = File.expand_path('../Gemfile.local', __FILE__)
 eval(File.read(gemfile_local)) if File.exists?(gemfile_local)
 
