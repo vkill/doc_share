@@ -1,14 +1,26 @@
 = simple_form_for([:admin, resource], :wrapper => :inline) do |f|
 
   = field_set_tag "" do
-    = f.input :username, :required => true, :input_html => { :class => "span4" }
-    = f.input :email, :autofocus => true, :input_html => { :class => "span4" }
-    = f.input :password, :required => true, :input_html => { :class => "span4" }
-    = f.input :password_confirmation, :required => true, :input_html => { :class => "span4" }
-    = f.input :name, :input_html => { :class => "span4" }
-    = f.input :site, :input_html => { :class => "span4" }
-    = f.input :company, :input_html => { :class => "span4" }
-    = f.input :location, :input_html => { :class => "span4" }
+    .row
+      .span8
+        = f.input :username, :required => true, :input_html => { :class => "span4" }
+      .span8
+        = f.input :email, :autofocus => true, :input_html => { :class => "span4" }
+    .row
+      .span8
+        = f.input :password, :required => true, :input_html => { :class => "span4" }
+      .span8
+        = f.input :password_confirmation, :required => true, :input_html => { :class => "span4" }
+    .row
+      .span8
+        = f.input :name, :input_html => { :class => "span4" }
+      .span8
+        = f.input :site, :input_html => { :class => "span4" }
+    .row
+      .span8
+        = f.input :company, :input_html => { :class => "span4" }
+      .span8
+        = f.input :location, :input_html => { :class => "span4" }
 
   .actions
     = f.button :submit, :class => 'primary', :disable_with => t(:submitting)

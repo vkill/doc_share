@@ -12,6 +12,8 @@ class Admin::ResourcesBaseController < Admin::BaseController
   end
 
   def create
+    self.send("#{_resource_name()}").save()
+    respond_with :admin, self.send("#{_resource_name()}")
   end
 
   def show
@@ -21,12 +23,16 @@ class Admin::ResourcesBaseController < Admin::BaseController
   end
 
   def update
-  end
-
-  def destroy
+    self.send("#{_resource_name()}").update_attributes(params[_resource_name()])
+    respond_with :admin, self.send("#{_resource_name()}")
   end
 
   def delete
+  end
+
+  def destroy
+    self.send("#{_resource_name()}").destroy()
+    respond_with :admin, self.send("#{_resource_name()}")
   end
 
   private
@@ -42,13 +48,15 @@ class Admin::ResourcesBaseController < Admin::BaseController
     end
   
     def build_collection
+      self.class.send :attr_accessor, "#{_collection_name()}"
       @q = _resource_class.search(params[:q])
-      self.instance_variable_set :"@#{_collection_name().to_s}", @q.result().page(params[:page])
+      self.send "#{_collection_name()}=", @q.result().page(params[:page])
     end
 
     def find_or_build_resource
-      self.instance_variable_set :"@#{_resource_name().to_s}",
-          (params[:id] ? _resource_class.find(params[:id]) : _resource_class.new(params[_resource_name().to_s]))
+      self.class.send :attr_accessor, "#{_resource_name()}"
+      self.send "#{_resource_name()}=",
+          (params[:id] ? _resource_class.find(params[:id]) : _resource_class.new(params[_resource_name()]))
     end
 
     #helpers
@@ -62,10 +70,10 @@ class Admin::ResourcesBaseController < Admin::BaseController
       _resource_name().to_sym
     end
     def collection
-      self.instance_variable_get :"@#{_collection_name().to_s}"
+      self.send "#{_collection_name()}"
     end
     def resource
-      self.instance_variable_get :"@#{_resource_name().to_s}"
+      self.send "#{_resource_name()}"
     end
 
 end

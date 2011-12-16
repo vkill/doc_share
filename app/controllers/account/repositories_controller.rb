@@ -12,7 +12,7 @@ class Account::RepositoriesController < Account::BaseController
 
   def create
     @repository.save
-    respond_with @repository, :location => after_location
+    respond_with :account, @repository, :location => after_location
   end
 
   def edit
@@ -20,12 +20,12 @@ class Account::RepositoriesController < Account::BaseController
 
   def update
     @repository.update_attributes(params[:repository])
-    respond_with @repository, :location => after_location
+    respond_with :account, @repository, :location => after_location
   end
 
   def destroy
     @repository.destroy
-    respond_with @repository
+    respond_with :account, @repository
   end
 
   private

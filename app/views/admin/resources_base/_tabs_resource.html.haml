@@ -3,5 +3,5 @@
     = link_to t(:show), [:admin, resource_name]
   %li{:class => action_name.in?(%w(edit update)) ? :active : nil}
     = link_to t(:edit), [:edit, :admin, resource_name]
-  %li{:class => action_name.in?(%w(delete)) ? :active : nil}
+  %li{:class => action_name.in?(%w(delete destroy)) ? :active : nil}
     = link_to t(:delete), [:delete, :admin, resource_name]

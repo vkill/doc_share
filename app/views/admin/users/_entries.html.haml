@@ -1,3 +1,31 @@
+%div
+  = search_form_for [:admin, q] do |f|
+    .row
+      .span14
+        .row
+          .span4.clearfix
+            = f.label :username, :class => "span1"
+            = f.text_field :username_cont, :class => "span3"
+          .span4.clearfix
+            = f.label :email, :class => "span1"
+            = f.text_field :email_cont, :class => "span3"
+          .span4.clearfix
+            = f.label :name, :class => "span1"
+            = f.text_field :name_cont, :class => "span3"
+        .row
+          .span6.clearfix
+            = f.label :created_at, :class => "span2"
+            = f.text_field :created_at_start, :class => "small", :data => {:date => true}
+            &#8254;&#8254;&#8254;
+            = f.text_field :created_at_end, :class => "small", :data => {:date => true}
+          .span6.clearfix
+            = f.label :updated_at, :class => "span2"
+            = f.text_field :updated_at_start, :class => "small", :data => {:date => true}
+            &#8254;&#8254;&#8254;
+            = f.text_field :updated_at_end, :class => "small", :data => {:date => true}
+      .span2
+        = f.submit t(:search), :class => "btn primary"
+
 %table.zebra-striped
   %thead
     %tr

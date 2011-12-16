@@ -5,8 +5,9 @@
 // the compiled file.
 //
 //= require jquery
-//= require jquery-ui
 //= require jquery_ujs
+
+//= require jquery_ui
 
 //= require i18n
 //= require i18n/translations
@@ -21,4 +22,5 @@
 //= require nested_form
 
 //= require_tree .
+
 

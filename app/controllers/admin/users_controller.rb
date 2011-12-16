@@ -9,6 +9,6 @@ class Admin::UsersController < Admin::ResourcesBaseController
                   :except => [:index, :new, :create]
   add_breadcrumb proc{|c| c.t("show")}, "", :only => [:show]
   add_breadcrumb proc{|c| c.t("edit")}, "", :only => [:edit, :update]
-  add_breadcrumb proc{|c| c.t("destory")}, "", :only => [:destroy]
+  add_breadcrumb proc{|c| c.t("delete")}, "", :only => [:delete, :destroy]
 
 end
