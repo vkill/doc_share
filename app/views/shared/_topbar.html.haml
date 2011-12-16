@@ -13,6 +13,9 @@
             %input{:placeholder => "Search", :type => "text"}
 
           - if logged_in?
+            - if admin?
+              %li
+                = link_to t("web.topbar.admin"), admin_root_path
             %li
               = link_to t("web.topbar.dashboard"), dashboard_path
             %li

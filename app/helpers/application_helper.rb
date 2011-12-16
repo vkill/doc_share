@@ -12,5 +12,10 @@ module ApplicationHelper
     return false if !user.respond_to?(:id) or !current_user.respond_to?(:id)
     user.id == current_user.id
   end
+
+  def admin?
+    return false if !current_user.respond_to?(:id)
+    current_user.has_role?("admin") or current_user.super_admin?
+  end
 end
 
