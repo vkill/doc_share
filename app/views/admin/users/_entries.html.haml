@@ -15,14 +15,14 @@
         .row
           .span6.clearfix
             = f.label :created_at, :class => "span2"
-            = f.text_field :created_at_start, :class => "small", :data => {:date => true}
+            = f.text_field :created_at_gt, :class => "small", :data => {:date => true}
             &#8254;&#8254;&#8254;
-            = f.text_field :created_at_end, :class => "small", :data => {:date => true}
+            = f.text_field :created_at_lt, :class => "small", :data => {:date => true}
           .span6.clearfix
             = f.label :updated_at, :class => "span2"
-            = f.text_field :updated_at_start, :class => "small", :data => {:date => true}
+            = f.text_field :updated_at_gt, :class => "small", :data => {:date => true}
             &#8254;&#8254;&#8254;
-            = f.text_field :updated_at_end, :class => "small", :data => {:date => true}
+            = f.text_field :updated_at_lt, :class => "small", :data => {:date => true}
       .span2
         = f.submit t(:search), :class => "btn primary"
 
