@@ -297,6 +297,7 @@ GEM
       multi_json (~> 1.0.4)
       rubyzip
     sexp_processor (3.0.8)
+    show_for (0.2.4)
     sinatra (1.3.1)
       rack (~> 1.3, >= 1.3.4)
       rack-protection (~> 1.1, >= 1.1.2)
@@ -401,6 +402,7 @@ DEPENDENCIES
   rr (~> 1.0.4)
   rspec-rails (~> 2.7)
   sass-rails (~> 3.1.4)
+  show_for (~> 0.2.4)
   simple_form!
   sorcery (~> 0.7.5)
   sqlite3 (~> 1.3.4)

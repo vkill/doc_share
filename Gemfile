@@ -110,6 +110,7 @@ gem "gravtastic", '~> 3.2.3'
 
 gem "cells", "~> 3.7.0"
 
+gem "show_for", "~> 0.2.4"
 
 gemfile_local = File.expand_path('../Gemfile.local', __FILE__)
 eval(File.read(gemfile_local)) if File.exists?(gemfile_local)
