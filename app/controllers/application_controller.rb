@@ -60,12 +60,12 @@ class ApplicationController < ActionController::Base
       I18n.locale = session[:locale] || I18n.default_locale
     end
 
-    def export_to_csv(records, attributes, filename)
+    def export_to_csv(records_chain, attributes, filename)
       require "csv"
       (filename = filename + ".csv") if File.extname(filename) != ".csv"
       csv_string = ::CSV.generate do |csv|
         csv << attributes.to_a
-        records.each do |record|
+        records_chain.find_each do |record|
           csv << attributes.map {|attribute| record.send attribute }
         end 
       end 

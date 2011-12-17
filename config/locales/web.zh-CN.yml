@@ -90,6 +90,7 @@ zh-CN:
   manage: 管理
   close: 关闭
   export: 导出
+  export_current: 导出当前
   export_to: "导出成%{type}格式"
   created_at: 创建时间
   updated_at: 更新时间

@@ -21,7 +21,7 @@ class Admin::ResourcesBaseController < Admin::BaseController
     respond_with :admin, self.send("#{_collection_name()}") do |format|
       format.csv { export_to_csv(self.send("#{_collection_name()}"),
                         (params[:column_names] || _resource_class.column_names), _collection_name()) }
-      if params[:export_all]
+      if params[:export_all] or params[:export_current]
         format.json { export_to_json(self.send("#{_collection_name()}").to_json, _collection_name()) }
       end
     end
@@ -62,32 +62,35 @@ class Admin::ResourcesBaseController < Admin::BaseController
   end
 
   private
-    def _collection_name
-      controller_name.pluralize
-    end
-    def _resource_name
-      controller_name.singularize
-    end
-
+    #Role
     def _resource_class
       controller_name.classify.constantize
     end
-    
+    #roles
+    def _collection_name
+      controller_name.pluralize
+    end
+    #role
+    def _resource_name
+      controller_name.singularize
+    end
+    #@roles
     def set_attr_collection_name
       self.class.send :attr_accessor, "#{_collection_name()}"
     end
-
+    #@role
     def set_attr_resource_name
       self.class.send :attr_accessor, "#{_resource_name()}"
     end
-
-    def build_collection
-      
+    #Role or current_user.roles
+    def association_chain
+      _resource_class
     end
-
+    #@role = Role.find(1) or @role = Role.new(params[:role])
+    #@role = current_user.roles.find(1) or @role = current_user.roles.new(params[:role])
     def find_or_build_resource
       self.send "#{_resource_name()}=",
-          (params[:id] ? _resource_class.find(params[:id]) : _resource_class.new(params[_resource_name()]))
+          (params[:id] ? association_chain().find(params[:id]) : association_chain().new(params[_resource_name()]))
     end
 
     #helpers
