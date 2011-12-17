@@ -1,0 +1,12 @@
+= simple_form_for([:admin, resource], :wrapper => :inline) do |f|
+
+  = field_set_tag "" do
+    = f.input :ancestry, :as => :select, :collection => Category.get_ancestor_categories_values(),
+                          :input_html => { :class => "span4" }
+    = f.input :name, :required => true, :autofocus => true, :input_html => { :class => "span4" }
+    = f.input :code, :required => true, :input_html => { :class => "span4" }
+
+  .actions
+    = f.button :submit, :class => 'primary', :disable_with => t(:submitting)
+    = button_tag t(:reset), :type => :reset, :class => "btn"
+

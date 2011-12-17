@@ -1,0 +1,23 @@
+%table.zebra-striped
+  %thead
+    %tr
+      %th= sort_link q, :id
+      %th= sort_link q, :ancestry
+      %th= sort_link q, :name
+      %th= sort_link q, :code
+      %th= sort_link q, :created_at
+      %th= sort_link q, :updated_at
+      %th
+  %tbody
+    - collection.each do |category|
+      %tr
+        %td= category.id
+        %td= category.ancestry
+        %td= category.name
+        %td= category.code
+        %td= time_ago category.created_at
+        %td= time_ago category.updated_at
+        %td
+          = link_to t(:show), [:admin, category], :title => t(:show)
+          = link_to t(:edit), [:edit, :admin, category], :title => t(:edit)
+          = link_to t(:delete), [:delete, :admin, category], :title => t(:delete)

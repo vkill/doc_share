@@ -1,6 +1,6 @@
 ---
 zh-CN:
   show_for:
-    blank: "Not specified"
-    "yes": "Yes"
-    "no": "No"
+    blank: "没有定义"
+    "yes": "是"
+    "no": "否"

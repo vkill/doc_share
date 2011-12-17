@@ -6,7 +6,7 @@ zh-CN:
     attributes:
       category:
         id: id
-        ancestry: 祖先
+        ancestry: 父分类
         name: 名称
         code: 标识
         created_at: 创建时间

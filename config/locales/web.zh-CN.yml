@@ -108,7 +108,7 @@ zh-CN:
       user_about: 用户相关
       users: 用户管理
       roles: 角色管理
-      messages: 消息管理
+      messages: 用户消息管理
       
       repository_about: 项目相关
       categories: 项目分类管理
