@@ -5,6 +5,11 @@
 
 .row
   %p.pull-right
+    = link_to t(:export_to, :type => :JSON), request.parameters.merge({:format => :json,
+              :export_current => true}), :class => "btn primary" 
+    = link_to t(:export_to, :type => :CSV), request.parameters.merge({:format => :csv,
+              :export_current => true}), :class => "btn primary"
+    = raw nbsp(8)
     = render_cell :resources, :per_page_display
     
 = render 'partials/pagination', :resources => collection

@@ -26,5 +26,9 @@ module ApplicationHelper
   def time_ago(time)
     t(:time_ago, :time_words => time_ago_in_words(time))
   end
+
+  def nbsp(n)
+    "&nbsp" * n
+  end
 end
 

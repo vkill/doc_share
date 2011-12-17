@@ -5,13 +5,14 @@
 /%script{:src => "//ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"}
 /%script{:src => "//ajax.googleapis.com/ajax/libs/jqueryui/1.8.16/jquery-ui.min.js"}
 = javascript_include_tag "application"
-:javascript
-  // Instantiate the object
-  var RailsSettings = RailsSettings || {};
-  // Set default development to false
-  RailsSettings.development = false;
 
+:javascript
   $(document).ready(function() {
+    // Instantiate the object
+    var RailsSettings = RailsSettings || {};
+    // Set default development to false
+    RailsSettings.development = false;
+    
     RailsSettings.development = #{ Rails.env.development? ? true : false };
   });
 
