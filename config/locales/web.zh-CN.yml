@@ -105,18 +105,21 @@ zh-CN:
       
       dashboard: 控制面板
       
-      basic: 基础资料管理
+      user_about: 用户相关
       users: 用户管理
       roles: 角色管理
+      messages: 消息管理
       
-      repository: 项目管理
+      repository_about: 项目相关
+      categories: 项目分类管理
       repositories: 项目管理
       
-      system: 系统配置
+      system_about: 系统相关
       site_configs: 全局设置
       
-      statements: 查询与统计
+      log_about: 日志相关
+      activities: 系统日志
       
-      maintenance: 数据维护
+      data_about: 数据维护
       data_export: 备份数据
       data_import: 导出数据
