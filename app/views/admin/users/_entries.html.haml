@@ -1,62 +1,49 @@
-%div
-  = search_form_for [:admin, q] do |f|
-    .row
-      .span14
-        .row
-          .span4.clearfix
-            = f.label :username, :class => "span1"
-            = f.text_field :username_cont, :class => "span3"
-          .span4.clearfix
-            = f.label :email, :class => "span1"
-            = f.text_field :email_cont, :class => "span3"
-          .span4.clearfix
-            = f.label :name, :class => "span1"
-            = f.text_field :name_cont, :class => "span3"
-        .row
-          .span6.clearfix
-            = f.label :created_at, :class => "span2"
-            = f.text_field :created_at_gt, :class => "small", :data => {:date => true}
-            &#8254;&#8254;&#8254;
-            = f.text_field :created_at_lt, :class => "small", :data => {:date => true}
-          .span6.clearfix
-            = f.label :updated_at, :class => "span2"
-            = f.text_field :updated_at_gt, :class => "small", :data => {:date => true}
-            &#8254;&#8254;&#8254;
-            = f.text_field :updated_at_lt, :class => "small", :data => {:date => true}
-      .span2
-        = f.submit t(:search), :class => "btn primary"
+= search_form_for [:admin, q] do |f|
+  .row
+    .span14
+      .row
+        .span4.clearfix
+          = f.label :username, :class => "span1"
+          = f.text_field :username_cont, :class => "span3"
+        .span4.clearfix
+          = f.label :email, :class => "span1"
+          = f.text_field :email_cont, :class => "span3"
+        .span4.clearfix
+          = f.label :name, :class => "span1"
+          = f.text_field :name_cont, :class => "span3"
+      .row
+        .span6.clearfix
+          = f.label :created_at, :class => "span2"
+          = f.text_field :created_at_gt, :class => "small", :data => {:date => true}
+          &#8254;&#8254;&#8254;
+          = f.text_field :created_at_lt, :class => "small", :data => {:date => true}
+        .span6.clearfix
+          = f.label :updated_at, :class => "span2"
+          = f.text_field :updated_at_gt, :class => "small", :data => {:date => true}
+          &#8254;&#8254;&#8254;
+          = f.text_field :updated_at_lt, :class => "small", :data => {:date => true}
+    .span2
+      = f.submit t(:search), :class => "btn primary"
 
 %table.zebra-striped
   %thead
     %tr
-      %th
-        = sort_link q, :id
-      %th
-        = sort_link q, :username
-      %th
-        = sort_link q, :email
-      %th
-        = sort_link q, :name
-      %th
-        = sort_link q, :created_at
-      %th
-        = sort_link q, :updated_at
+      %th= sort_link q, :id
+      %th= sort_link q, :username
+      %th= sort_link q, :email
+      %th= sort_link q, :name
+      %th= sort_link q, :created_at
+      %th= sort_link q, :updated_at
       %th
   %tbody
     - collection.each do |user|
       %tr
-        %td
-          = user.id
-        %td
-          = user.username
-        %td
-          = user.email
-        %td
-          = user.name
-        %td
-          = time_ago user.created_at
-        %td
-          = time_ago user.updated_at
+        %td= user.id
+        %td= user.username
+        %td= user.email
+        %td= user.name
+        %td= time_ago user.created_at
+        %td= time_ago user.updated_at
         %td
           = link_to t(:show), [:admin, user], :title => t(:show)
           = link_to t(:edit), [:edit, :admin, user], :title => t(:edit)
