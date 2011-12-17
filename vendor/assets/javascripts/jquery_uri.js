@@ -1,5 +1,7 @@
 //= require jquery_uri/jquery.uri
 
+
+// enbale per_page 
 $(document).ready(function() {
   var uri = $.uri(window.location.href);
 

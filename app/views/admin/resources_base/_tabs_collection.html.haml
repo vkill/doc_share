@@ -4,5 +4,5 @@
   %li{:class => action_name.in?(%w(new create)) ? :active : nil}
     = link_to t(:new), [:new, :admin, resource_name]
   %li{:class => action_name.in?(%w(export)) ? :active : nil}
-    = link_to t(:export), [:export, :admin, collection_name]
+    = link_to t(:export_all), [:export, :admin, collection_name]
     
