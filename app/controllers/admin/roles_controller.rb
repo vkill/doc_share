@@ -6,7 +6,7 @@ class Admin::RolesController < Admin::ResourcesBaseController
   add_breadcrumb proc{|c| c.t("new")}, "", :only => [:new, :create]
   add_breadcrumb proc{|c| c.t("export")}, "", :only => [:export]
 
-  add_breadcrumb proc{|c| "#{Role.model_name.human} ##{c.params[:id]}"}, proc{|c| c.admin_user_path},
+  add_breadcrumb proc{|c| "#{Role.model_name.human} ##{c.params[:id]}"}, proc{|c| c.admin_role_path},
                   :except => [:index, :new, :create, :export]
   add_breadcrumb proc{|c| c.t("show")}, "", :only => [:show]
   add_breadcrumb proc{|c| c.t("edit")}, "", :only => [:edit, :update]
