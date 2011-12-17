@@ -65,6 +65,22 @@ DocShare::Application.routes.draw do
       get :export, :on => :collection
       get :delete, :on=> :member
     end
+    resources :categories do
+      get :export, :on => :collection
+      get :delete, :on=> :member
+    end
+    resources :repositories do
+      get :export, :on => :collection
+      get :delete, :on=> :member
+    end
+    resources :messages do
+      get :export, :on => :collection
+      get :delete, :on=> :member
+    end
+    resources :activities, :except => [:new, :create, :edit, :update] do
+      get :export, :on => :collection
+      get :delete, :on=> :member
+    end
   end
 
 
