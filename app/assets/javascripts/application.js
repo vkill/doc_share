@@ -20,6 +20,7 @@
 //= require jquery_fileupload
 //= require jquery_tokeninput
 //= require nested_form
+//= require jquery_uri
 
 //= require_tree .
 

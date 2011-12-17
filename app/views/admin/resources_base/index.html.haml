@@ -3,6 +3,8 @@
 
 = render "entries", :collection => collection, :q => @q
 
-.pagination
-  = render 'partials/pagination', :resources => collection
-
+.row
+  %p.pull-right
+    = render_cell :resources, :per_page_display
+    
+= render 'partials/pagination', :resources => collection
