@@ -9,12 +9,8 @@
 
 //= require jquery_ui
 
-//= require i18n
-//= require i18n/translations
-
 //= require bootstrap
 //= require bootstrap_extension
-//= require i18n-js_config
 
 //= require jquery_autocomplete
 //= require jquery_fileupload
