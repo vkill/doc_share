@@ -58,12 +58,12 @@ DocShare::Application.routes.draw do
     root :to => "main#dashboard"
     get "dashboard" => "main#dashboard", :as => :dashboard
     resources :users do
-      collection do
-        get :export
-      end
-      member do
-        get :delete
-      end
+      get :export, :on => :collection
+      get :delete, :on=> :member
+    end
+    resources :roles do
+      get :export, :on => :collection
+      get :delete, :on=> :member
     end
   end
 

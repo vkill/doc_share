@@ -36,6 +36,7 @@ class Admin::ResourcesBaseController < Admin::BaseController
   end
 
   def create
+    self.send("#{_resource_name()}").save()
     respond_with :admin, self.send("#{_resource_name()}")
   end
 
