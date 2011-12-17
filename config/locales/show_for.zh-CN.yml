@@ -1,4 +1,5 @@
-en:
+---
+zh-CN:
   show_for:
     blank: "Not specified"
     "yes": "Yes"

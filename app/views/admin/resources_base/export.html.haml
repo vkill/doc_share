@@ -1,0 +1,22 @@
+
+= render "tabs_collection", :collection_name => collection_name, :resource_name => resource_name
+
+%div
+  = form_tag [:admin, collection_name], :method => :get do |f|
+    = hidden_field_tag 'export_all', 'true'
+    .row
+      .span12
+        .row
+          - resource_class.column_names.each do |column_name|
+            .span6.clearfix
+              = label_tag :column_names, resource_class.human_attribute_name(column_name), :class => "span5"
+              = check_box_tag :"column_names[]", column_name, true, :class => "span1"
+      .span4
+        = button_tag t(:export_to, :type => :JSON), :class => "btn primary",
+                      :name => "format", :value => "json"
+        %br
+        %br
+        = button_tag t(:export_to, :type => :CSV), :class => "btn primary",
+                      :name => "format", :value => "csv"
+        %br
+        %br

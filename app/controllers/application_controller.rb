@@ -60,5 +60,26 @@ class ApplicationController < ActionController::Base
       I18n.locale = session[:locale] || I18n.default_locale
     end
 
+    def export_to_csv(records, attributes, filename)
+      require "csv"
+      (filename = filename + ".csv") if File.extname(filename) != ".csv"
+      csv_string = ::CSV.generate do |csv|
+        csv << attributes.to_a
+        records.each do |record|
+          csv << attributes.map {|attribute| record.send attribute }
+        end 
+      end 
+      send_data csv_string, 
+                :type => Mime::CSV,
+                :disposition => "attachment; filename=#{filename}" 
+    end
+
+    def export_to_json(json_string, filename)
+      (filename = filename + ".json") if File.extname(filename) != ".json"
+      send_data json_string, 
+                :type => Mime::JSON,
+                :disposition => "attachment; filename=#{filename}" 
+    end
+
 end
 
