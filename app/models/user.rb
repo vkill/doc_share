@@ -42,6 +42,7 @@ class User < ActiveRecord::Base
     follower.has_many :followers, :source_type => 'User'
   end
 
+  attribute_enums :state, :in => [:actived, :paused], :default => :actived
 
   validates :username, :presence => true,
                         :length => { :within => 4..30 },

@@ -112,6 +112,15 @@ describe User do
     end
   end
 
+  context "support state" do
+    it { should have_valid(:state).when('actived', 'paused' ) }
+    it { should_not have_valid(:state).when('test') }
+
+    it "when state is paused, deny login" do
+      pending
+    end
+  end
+
 end
 # == Schema Information
 #
