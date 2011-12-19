@@ -92,15 +92,19 @@ gem "by_star", "~> 1.0.1"
 gem "high_voltage", "~> 1.0.1"
 
 gem "mail_view", "~> 1.0.2", :group => [:development]
-gem "stringex", "~> 1.3.0"
-gem "immortal", "~> 1.0.5"
+
+##.to_url
+# gem "stringex", "~> 1.3.0"
+gem "friendly_id", "~> 4.0.0.beta14"
+
+gem "rails3_acts_as_paranoid", "~> 0.1.3"
 
 gem "activevalidators", "~> 1.8.0"
 
 gem "responders", "~> 0.6.4"
+
 gem "ransack", '~> 0.5.8'
 gem "squeel", '~> 0.9.3'
-gem "friendly_id", "~> 4.0.0.beta14"
 
 #
 gem "grit", :path => "vendor/plugins/grit-2.4.1"

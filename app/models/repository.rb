@@ -1,10 +1,10 @@
 class Repository < ActiveRecord::Base
 
-  include Paramable
-
+  #
   extend FriendlyId
   friendly_id :name
 
+  #
   has_ancestry
 
   attr_accessible :user_id, :category_id, :name, :describtion, :visibility, :parent, :user, :repo_files_attributes

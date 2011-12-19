@@ -1,7 +1,7 @@
 class Message < ActiveRecord::Base
 
+  #
   has_ancestry
-  paginates_per 10
 
   attr_accessor :receiver_username
   alias_attribute :user_id, :sender_id

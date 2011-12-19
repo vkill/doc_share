@@ -1,13 +1,17 @@
 class User < ActiveRecord::Base
 
-  include Paramable
-
+  #
   extend FriendlyId
   friendly_id :username
 
+  #
   include Gravtastic
   gravtastic
 
+  #
+  acts_as_paranoid
+
+  #
   authenticates_with_sorcery!
 
   attr_accessor :login ,:remember_me
