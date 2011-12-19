@@ -29,4 +29,7 @@ zh-CN:
         gender:
           male: 男
           female: 女
+        state:
+          actived: 激活
+          paused: 暂停
 
