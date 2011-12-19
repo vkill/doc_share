@@ -8,25 +8,25 @@
 //= require bootstrap/bootstrap-buttons
 
 // enable twipsy
-$(function () {
+$(document).ready(function() {
   $("a[rel=twipsy]")
     .twipsy({
       live: true
     })
 })
-$(function () {
+$(document).ready(function() {
   $("a[rel=twipsy][data-disable-click]")
     .click(function(e) {
       e.preventDefault()
     })
 })
-$(function () {
+$(document).ready(function() {
   $("[data-twipsy]")
     .twipsy({
       live: true
     })
 })
-$(function () {
+$(document).ready(function() {
   $("[data-twipsy-title-div]").each(function(){
     $(this).twipsy({
       live: true,
@@ -41,27 +41,27 @@ $(function () {
 
 
 // enable popover on a and data-popover
-$(function () {
+$(document).ready(function() {
   $("a[rel=popover]")
     .popover({
       offset: 10,
       live: true
     })
 })
-$(function () {
+$(document).ready(function() {
   $("a[rel=popover][data-disable-click]")
     .click(function(e) {
       e.preventDefault()
     })
 })
-$(function () {
+$(document).ready(function() {
   $("[data-popover]")
     .popover({
       offset: 10,
       live: true
     })
 })
-$(function () {
+$(document).ready(function() {
   $("[data-popover-title-div]").each(function(){
     $(this).popover({
       offset: 10,
@@ -73,7 +73,7 @@ $(function () {
     })
   })
 })
-$(function () {
+$(document).ready(function() {
   $("[data-popover-content-div]").each(function(){
     $(this).popover({
       offset: 10,
@@ -85,7 +85,7 @@ $(function () {
     })
   })
 })
-$(function () {
+$(document).ready(function() {
   $("[data-popover-title-content-div]").each(function(){
     $(this).popover({
       offset: 10,

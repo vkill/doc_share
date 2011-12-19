@@ -13,3 +13,6 @@
     = render_cell :resources, :per_page_display
     
 = render 'partials/pagination', :resources => collection
+
+- content_for :popover do
+  = render_cell "bootstrap_::_twipsy_title", :sort_link
