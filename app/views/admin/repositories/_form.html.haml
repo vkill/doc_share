@@ -1,0 +1,33 @@
+= simple_nested_form_for([:admin, resource], :wrapper => :inline) do |f|
+
+  = field_set_tag "" do
+    - if resource.new_record?
+      .row
+        .span8
+          = f.input :user_id, :as => :hidden, :input_html => { :value => current_user.id }
+    - else
+      .row
+        .span8
+          = f.input :username, :input_html => { :class => "span4 disabled", :disabled => :disabled }
+    .row
+      .span8
+        = f.input :category_id, :as => :select, :collection => Category.get_ancestor_categories_values,
+                         :input_html => { :class => "span4" }
+    .row
+      .span8
+        = f.input :name, :input_html => { :class => "span4" }
+    
+    .row
+      .span12
+        = f.input :describtion, :input_html => { :class => "span8", :rows => 4 }
+
+    .row
+      .span14
+        = f.simple_fields_for :repo_files do |f_repo_files|
+          = f_repo_files.input :repo_file
+          = f_repo_files.link_to_remove t(".remove_repo_file")
+        = f.link_to_add t(".add_repo_file"), :repo_files
+  
+  .actions
+    = f.button :submit, :class => 'primary', :disable_with => t(:submitting)
+    = button_tag t(:reset), :type => :reset, :class => "btn"

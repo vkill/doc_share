@@ -1,0 +1,48 @@
+= search_form_for [:admin, q] do |f|
+  .row
+    .span14
+      .row
+        .span6.clearfix
+          = f.label :user_username, :class => "span2"
+          = f.text_field :user_username_cont, :class => "span3", :data => {:autocomplete_user => true}
+        .span6.clearfix
+          = f.label :name, :class => "span2"
+          = f.text_field :name_cont, :class => "span3"
+      .row
+        .span6.clearfix
+          = f.label :category_name, :class => "span2"
+          = f.collection_select :category_name_eq, Category.all, "id", "name", :prompt => true,
+                                :class => "span3"
+        .span6.clearfix
+          = f.label :created_at, :class => "span2"
+          = f.text_field :created_at_gt, :class => "small", :data => {:date => true}
+          &#8254;&#8254;&#8254;
+          = f.text_field :created_at_lt, :class => "small", :data => {:date => true}
+    .span2
+      = f.submit t(:search), :class => "btn primary"
+
+%table.zebra-striped
+  %thead
+    %tr
+      %th= sort_link q, :id
+      %th= sort_link q, :user_id, ta(resource_class, :user_username)
+      %th= sort_link q, :category_id, ta(resource_class, :category_name)
+      %th= sort_link q, :name
+      %th= sort_link q, :visibility
+      %th= sort_link q, :created_at
+      %th= sort_link q, :updated_at
+      %th
+  %tbody
+    - collection.each do |repository|
+      %tr
+        %td= repository.id
+        %td= repository.username
+        %td= repository.category_name
+        %td= repository.name
+        %td= repository.visibility_text
+        %td= time_ago repository.created_at
+        %td= time_ago repository.updated_at
+        %td
+          = link_to t(:show), [:admin, repository], :title => t(:show)
+          = link_to t(:edit), [:edit, :admin, repository], :title => t(:edit)
+          = link_to t(:delete), [:delete, :admin, repository], :title => t(:delete)

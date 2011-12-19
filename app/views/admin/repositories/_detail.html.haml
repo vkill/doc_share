@@ -1,0 +1,8 @@
+
+= show_for resource do |repository|
+  = repository.attributes :id
+  = repository.attribute :user_id do
+    = link_to resource.username, [:admin, resource.user]
+  = repository.attribute :category_id do
+    = link_to resource.category_name, [:admin, resource.category]
+  = repository.attributes :name, :describtion

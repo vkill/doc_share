@@ -10,7 +10,11 @@ class Repository < ActiveRecord::Base
   #
   acts_as_paranoid
   
-  attr_accessible :user_id, :category_id, :name, :describtion, :visibility, :parent, :user, :repo_files_attributes
+  basic_attr_accessible = [:user_id, :category_id, :category, :name, :describtion, :visibility,
+                          :parent, :user, :repo_files_attributes]
+  attr_accessible *(basic_attr_accessible)
+  attr_accessible *(basic_attr_accessible), :as => :admin
+
 
   belongs_to :user, :counter_cache => true
   belongs_to :category, :counter_cache => true
@@ -31,7 +35,7 @@ class Repository < ActiveRecord::Base
   attribute_enums :visibility, :in => [:public_repo, :private_repo], :default => :public_repo
 
   delegate :email, :username, :to => :user
-
+  delegate :name, :to => :category, :prefix => true
 
   def fork_by!(user)
     if forked_by_user?(user)

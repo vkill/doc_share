@@ -1,6 +1,8 @@
 class RepoFile < ActiveRecord::Base
 
-  attr_accessible :repository, :repo_file
+  basic_attr_accessible = [:repository, :repo_file]
+  attr_accessible *(basic_attr_accessible)
+  attr_accessible *(basic_attr_accessible), :as => :admin
 
   belongs_to :repository, :counter_cache => true
 

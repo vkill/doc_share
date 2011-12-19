@@ -20,4 +20,6 @@ zh-CN:
         receiver_username_post: 接收人名字
         user_id: 接收人id
         
-
+      repository:
+        user_username: 用户名
+        category_name: 分类名称

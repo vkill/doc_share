@@ -4,32 +4,5 @@
     %small
       = t("manage_info", :scope => [:web, :page, :account, :repo_file])
 
-.row
-  .span14.offset1
-    #jquery_fileupload_repo
-      = simple_form_for([:account, @repository, @repo_file], :wrapper => :inline) do |f|
-        .row
-          .span8
-            .fileinput-button
-              /%span #{ t(:add_files, :scope => [:web, :page, :account, :repo_file]) }
-              = hidden_field_tag :format, 'json'
-              = f.input_field :repo_file, :as => :file, :class => "span1"
-          .span6
-            .fileupload-buttonbar
-              %button.start{:type => "submit"}
-                = t(:start_upload_files, :scope => [:web, :page, :account, :repo_file])
-              %button.cancel{:type => "reset"}
-                = t(:cancel_files, :scope => [:web, :page, :account, :repo_file])
-              %button.delete{:type => "button"}
-                = t(:delete_choised_files, :scope => [:web, :page, :account, :repo_file])
-
-
-      .fileupload-content
-        %table.files
-
-        .fileupload-progressbar
-
-
-- content_for :javascript do
-  = render "partials/jquery_fileupload_tmpl"
+= render "manage_form", :url => [:account, @repository, @repo_file]
 
