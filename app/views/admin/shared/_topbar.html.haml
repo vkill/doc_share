@@ -13,18 +13,18 @@
             = link_to t("admin.navigation.user_about"), "javascript:void(0)", :class => "dropdown-toggle"
             %ul.dropdown-menu
               %li
-                = link_to t("admin.navigation.users"), [:admin, :users]
-              %li
                 = link_to t("admin.navigation.roles"), [:admin, :roles]
+              %li
+                = link_to t("admin.navigation.users"), [:admin, :users]
               %li
                 = link_to t("admin.navigation.messages"), [:admin, :messages]
           %li.dropdown
             = link_to t("admin.navigation.repository_about"), "javascript:void(0)", :class => "dropdown-toggle"
             %ul.dropdown-menu
               %li
-                = link_to t("admin.navigation.repositories"), [:admin, :repositories]
-              %li
                 = link_to t("admin.navigation.categories"), [:admin, :categories]
+              %li
+                = link_to t("admin.navigation.repositories"), [:admin, :repositories]
           %li.dropdown
             = link_to t("admin.navigation.system_about"), "javascript:void(0)", :class => "dropdown-toggle"
             %ul.dropdown-menu

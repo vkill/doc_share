@@ -127,3 +127,8 @@ zh-CN:
       data_about: 数据维护
       data_export: 备份数据
       data_import: 导出数据
+    users:
+      entries:
+        send_mailboxes: 发件箱
+        received_mailboxes: 收件箱
+        repositories: 项目  

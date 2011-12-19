@@ -46,3 +46,5 @@
           = link_to t(:show), [:admin, user], :title => t(:show)
           = link_to t(:edit), [:edit, :admin, user], :title => t(:edit)
           = link_to t(:delete), [:delete, :admin, user], :title => t(:delete)
+          = link_to t(".send_mailboxes"), admin_messages_path("q[sender_username_cont]" => user.username)
+          = link_to t(".repositories"), admin_repositories_path()
