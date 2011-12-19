@@ -32,7 +32,7 @@ $(function () {
       live: true,
       html: true,
       title: function(){
-        return $(".popover#" + $(this).data("title-div")).html()
+        return $(".popover#" + $(this).data("twipsy-title-div")).html()
       }
     })
   })
@@ -62,18 +62,44 @@ $(function () {
     })
 })
 $(function () {
+  $("[data-popover-title-div]").each(function(){
+    $(this).popover({
+      offset: 10,
+      live: true,
+      html: true,
+      title: function(){
+        return $(".popover#" + $(this).data("popover-title-div")).html()
+      }
+    })
+  })
+})
+$(function () {
   $("[data-popover-content-div]").each(function(){
     $(this).popover({
       offset: 10,
       live: true,
       html: true,
       content: function(){
+        return $(".popover#" + $(this).data("popover-content-div")).html()
+      }
+    })
+  })
+})
+$(function () {
+  $("[data-popover-title-content-div]").each(function(){
+    $(this).popover({
+      offset: 10,
+      live: true,
+      html: true,
+      title: function(){
+        return $(".popover#" + $(this).data("title-div")).html()
+      },
+      content: function(){
         return $(".popover#" + $(this).data("content-div")).html()
       }
     })
   })
 })
-
 
 // enable buttons, timeout append error to alerts
 function buttomRequestTimeout(requestId) {

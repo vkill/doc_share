@@ -98,6 +98,9 @@ zh-CN:
   search: 查找
   filter: 过滤
   time_ago: "大约%{time_words}前"
+  
+  twipsy:
+    sort_link: 点击可以排序哦
 
 
   admin:
