@@ -7,6 +7,9 @@ class Repository < ActiveRecord::Base
   #
   has_ancestry
 
+  #
+  acts_as_paranoid
+  
   attr_accessible :user_id, :category_id, :name, :describtion, :visibility, :parent, :user, :repo_files_attributes
 
   belongs_to :user, :counter_cache => true
@@ -90,5 +93,6 @@ end
 #  issues_count     :integer         default(0)
 #  comments_count   :integer         default(0)
 #  forks_count      :integer         default(0)
+#  deleted_at       :time
 #
 

@@ -126,7 +126,7 @@ DocShare::Application.routes.draw do
 end
 
 #== Route Map
-# Generated on 16 Dec 2011 21:26
+# Generated on 19 Dec 2011 11:26
 #
 #     autocomplete_with_username_users GET    /users/autocomplete_with_username(.:format)                      {:action=>"autocomplete_with_username", :controller=>"users"}
 #                        activate_user GET    /users/:id/activate(.:format)                                    {:action=>"activate", :controller=>"users"}
@@ -176,15 +176,56 @@ end
 #                            dashboard GET    /dashboard(.:format)                                             {:action=>"dashboard", :controller=>"account/main"}
 #                           admin_root        /admin(.:format)                                                 {:controller=>"admin/main", :action=>"dashboard"}
 #                      admin_dashboard GET    /admin/dashboard(.:format)                                       {:action=>"dashboard", :controller=>"admin/main"}
-#                           admin_user GET    /admin/users/:id(.:format)                                       {:action=>"destroy", :controller=>"admin/users"}
-#                                      PUT    /admin/users/:id(.:format)                                       {:action=>"destroy", :controller=>"admin/users"}
+#                   export_admin_users GET    /admin/users/export(.:format)                                    {:action=>"export", :controller=>"admin/users"}
+#                    delete_admin_user GET    /admin/users/:id/delete(.:format)                                {:action=>"delete", :controller=>"admin/users"}
 #                          admin_users GET    /admin/users(.:format)                                           {:action=>"index", :controller=>"admin/users"}
 #                                      POST   /admin/users(.:format)                                           {:action=>"create", :controller=>"admin/users"}
 #                       new_admin_user GET    /admin/users/new(.:format)                                       {:action=>"new", :controller=>"admin/users"}
 #                      edit_admin_user GET    /admin/users/:id/edit(.:format)                                  {:action=>"edit", :controller=>"admin/users"}
-#                                      GET    /admin/users/:id(.:format)                                       {:action=>"show", :controller=>"admin/users"}
+#                           admin_user GET    /admin/users/:id(.:format)                                       {:action=>"show", :controller=>"admin/users"}
 #                                      PUT    /admin/users/:id(.:format)                                       {:action=>"update", :controller=>"admin/users"}
 #                                      DELETE /admin/users/:id(.:format)                                       {:action=>"destroy", :controller=>"admin/users"}
+#                   export_admin_roles GET    /admin/roles/export(.:format)                                    {:action=>"export", :controller=>"admin/roles"}
+#                    delete_admin_role GET    /admin/roles/:id/delete(.:format)                                {:action=>"delete", :controller=>"admin/roles"}
+#                          admin_roles GET    /admin/roles(.:format)                                           {:action=>"index", :controller=>"admin/roles"}
+#                                      POST   /admin/roles(.:format)                                           {:action=>"create", :controller=>"admin/roles"}
+#                       new_admin_role GET    /admin/roles/new(.:format)                                       {:action=>"new", :controller=>"admin/roles"}
+#                      edit_admin_role GET    /admin/roles/:id/edit(.:format)                                  {:action=>"edit", :controller=>"admin/roles"}
+#                           admin_role GET    /admin/roles/:id(.:format)                                       {:action=>"show", :controller=>"admin/roles"}
+#                                      PUT    /admin/roles/:id(.:format)                                       {:action=>"update", :controller=>"admin/roles"}
+#                                      DELETE /admin/roles/:id(.:format)                                       {:action=>"destroy", :controller=>"admin/roles"}
+#              export_admin_categories GET    /admin/categories/export(.:format)                               {:action=>"export", :controller=>"admin/categories"}
+#                delete_admin_category GET    /admin/categories/:id/delete(.:format)                           {:action=>"delete", :controller=>"admin/categories"}
+#                     admin_categories GET    /admin/categories(.:format)                                      {:action=>"index", :controller=>"admin/categories"}
+#                                      POST   /admin/categories(.:format)                                      {:action=>"create", :controller=>"admin/categories"}
+#                   new_admin_category GET    /admin/categories/new(.:format)                                  {:action=>"new", :controller=>"admin/categories"}
+#                  edit_admin_category GET    /admin/categories/:id/edit(.:format)                             {:action=>"edit", :controller=>"admin/categories"}
+#                       admin_category GET    /admin/categories/:id(.:format)                                  {:action=>"show", :controller=>"admin/categories"}
+#                                      PUT    /admin/categories/:id(.:format)                                  {:action=>"update", :controller=>"admin/categories"}
+#                                      DELETE /admin/categories/:id(.:format)                                  {:action=>"destroy", :controller=>"admin/categories"}
+#            export_admin_repositories GET    /admin/repositories/export(.:format)                             {:action=>"export", :controller=>"admin/repositories"}
+#              delete_admin_repository GET    /admin/repositories/:id/delete(.:format)                         {:action=>"delete", :controller=>"admin/repositories"}
+#                   admin_repositories GET    /admin/repositories(.:format)                                    {:action=>"index", :controller=>"admin/repositories"}
+#                                      POST   /admin/repositories(.:format)                                    {:action=>"create", :controller=>"admin/repositories"}
+#                 new_admin_repository GET    /admin/repositories/new(.:format)                                {:action=>"new", :controller=>"admin/repositories"}
+#                edit_admin_repository GET    /admin/repositories/:id/edit(.:format)                           {:action=>"edit", :controller=>"admin/repositories"}
+#                     admin_repository GET    /admin/repositories/:id(.:format)                                {:action=>"show", :controller=>"admin/repositories"}
+#                                      PUT    /admin/repositories/:id(.:format)                                {:action=>"update", :controller=>"admin/repositories"}
+#                                      DELETE /admin/repositories/:id(.:format)                                {:action=>"destroy", :controller=>"admin/repositories"}
+#                export_admin_messages GET    /admin/messages/export(.:format)                                 {:action=>"export", :controller=>"admin/messages"}
+#                 delete_admin_message GET    /admin/messages/:id/delete(.:format)                             {:action=>"delete", :controller=>"admin/messages"}
+#                       admin_messages GET    /admin/messages(.:format)                                        {:action=>"index", :controller=>"admin/messages"}
+#                                      POST   /admin/messages(.:format)                                        {:action=>"create", :controller=>"admin/messages"}
+#                    new_admin_message GET    /admin/messages/new(.:format)                                    {:action=>"new", :controller=>"admin/messages"}
+#                   edit_admin_message GET    /admin/messages/:id/edit(.:format)                               {:action=>"edit", :controller=>"admin/messages"}
+#                        admin_message GET    /admin/messages/:id(.:format)                                    {:action=>"show", :controller=>"admin/messages"}
+#                                      PUT    /admin/messages/:id(.:format)                                    {:action=>"update", :controller=>"admin/messages"}
+#                                      DELETE /admin/messages/:id(.:format)                                    {:action=>"destroy", :controller=>"admin/messages"}
+#              export_admin_activities GET    /admin/activities/export(.:format)                               {:action=>"export", :controller=>"admin/activities"}
+#                delete_admin_activity GET    /admin/activities/:id/delete(.:format)                           {:action=>"delete", :controller=>"admin/activities"}
+#                     admin_activities GET    /admin/activities(.:format)                                      {:action=>"index", :controller=>"admin/activities"}
+#                       admin_activity GET    /admin/activities/:id(.:format)                                  {:action=>"show", :controller=>"admin/activities"}
+#                                      DELETE /admin/activities/:id(.:format)                                  {:action=>"destroy", :controller=>"admin/activities"}
 #                            user_page        /:user(.:format)                                                 {:controller=>"users", :action=>"user_page"}
 #             user_public_repositories GET    /:user/repositories(.:format)                                    {:action=>"public_repositories", :controller=>"repositories"}
 #                       user_following GET    /:user/following(.:format)                                       {:action=>"following", :controller=>"users"}

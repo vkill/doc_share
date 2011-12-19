@@ -18,7 +18,8 @@ class User < ActiveRecord::Base
   attr_accessible :username, :email, :password, :password_confirmation, :login, :remember_me,
                   :name, :site, :company, :location
 
-  has_and_belongs_to_many :roles, :join_table => :roles_users, :uniq => true
+  has_many :roles_users, :class_name => "RolesUsers"
+  has_many :roles, :through => :roles_users, :uniq => true
   has_many :comments
   has_many :issues
   has_many :sent_messages, :foreign_key => :sender_id, :class_name => "Message"
@@ -168,5 +169,6 @@ end
 #  following_users_count             :integer         default(0)
 #  unread_system_notifications_count :integer         default(0)
 #  unread_member_mailboxs_count      :integer         default(0)
+#  deleted_at                        :time
 #
 
