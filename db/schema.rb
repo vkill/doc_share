@@ -102,7 +102,7 @@ ActiveRecord::Schema.define(:version => 20111219025634) do
     t.integer  "issues_count",     :default => 0
     t.integer  "comments_count",   :default => 0
     t.integer  "forks_count",      :default => 0
-    t.time     "deleted_at"
+    t.datetime "deleted_at"
   end
 
   add_index "repositories", ["category_id"], :name => "index_repositories_on_category_id"
@@ -186,7 +186,7 @@ ActiveRecord::Schema.define(:version => 20111219025634) do
     t.integer  "following_users_count",             :default => 0
     t.integer  "unread_system_notifications_count", :default => 0
     t.integer  "unread_member_mailboxs_count",      :default => 0
-    t.time     "deleted_at"
+    t.datetime "deleted_at"
   end
 
   add_index "users", ["activation_token"], :name => "index_users_on_activation_token"

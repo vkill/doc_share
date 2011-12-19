@@ -5,7 +5,9 @@ class RolesUsers < ActiveRecord::Base
   belongs_to :user
   belongs_to :role
 
-end# == Schema Information
+end
+
+# == Schema Information
 #
 # Table name: roles_users
 #

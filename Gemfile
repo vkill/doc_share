@@ -97,7 +97,8 @@ gem "mail_view", "~> 1.0.2", :group => [:development]
 # gem "stringex", "~> 1.3.0"
 gem "friendly_id", "~> 4.0.0.beta14"
 
-gem "rails3_acts_as_paranoid", "~> 0.1.3"
+#deleted_at
+gem "paranoia", "~> 1.1.0"
 
 gem "activevalidators", "~> 1.8.0"
 

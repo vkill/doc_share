@@ -1,5 +1,5 @@
 - unless @modal_sign_in
-  = content_for :modal do
+  - content_for :modal do
     #modal-sign-in{:class => "modal hide fade", :style => "display: none; "}
       .modal-header
         %a.close{:href => "#"} ×
