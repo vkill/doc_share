@@ -1,7 +1,7 @@
 - if @follow
-  = raw %Q`$("[data-user-reverse-follow-#{@target_user.id}]").button('followComplete')`
+  = raw %Q`$("[data-user-reverse-follow-#{@user.id}]").button('followComplete')`
 - else
-  = raw %Q`$("[data-user-reverse-follow-#{@target_user.id}]").button('unfollowComplete')`
+  = raw %Q`$("[data-user-reverse-follow-#{@user.id}]").button('unfollowComplete')`
 
-= raw %Q`$("[data-user-followers-count-#{@target_user.id}]").text("#{@target_user.followers_count}")`
+= raw %Q`$("[data-user-followers-count-#{@user.id}]").text("#{@user.followers_count}")`
 
