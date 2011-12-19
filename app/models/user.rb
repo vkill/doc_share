@@ -15,8 +15,11 @@ class User < ActiveRecord::Base
   authenticates_with_sorcery!
 
   attr_accessor :login ,:remember_me
-  attr_accessible :username, :email, :password, :password_confirmation, :login, :remember_me,
-                  :name, :site, :company, :location
+
+  basic_attr_accessible = [:email, :password, :password_confirmation, :login, :remember_me,
+                  :name, :site, :company, :location]
+  attr_accessible *(basic_attr_accessible + [:username ])
+  attr_accessible *(basic_attr_accessible + [:username, :state, :roles, :role_ids]), :as => :admin
 
   has_many :roles_users, :class_name => "RolesUsers"
   has_many :roles, :through => :roles_users, :uniq => true

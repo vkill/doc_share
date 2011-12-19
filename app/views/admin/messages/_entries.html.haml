@@ -1,0 +1,47 @@
+= search_form_for [:admin, q] do |f|
+  .row
+    .span14
+      .row
+        .span5.clearfix
+          = label_tag ta(resource_class, :sender_username), nil, :class => "span2"
+          = f.text_field :sender_username_cont, :class => "span3", :data => {:autocomplete_user => true}
+        .span5.clearfix
+          = f.label ta(resource_class, :receiver_username), :class => "span2"
+          = f.text_field :receiver_username_cont, :class => "span3", :data => {:autocomplete_user => true}
+      .row
+        .span5.clearfix
+          = f.label :subject, :class => "span2"
+          = f.text_field :subject_cont, :class => "span3"
+        .span5.clearfix
+          = f.label :content, :class => "span2"
+          = f.text_field :content_cont, :class => "span3"
+      .row
+        .span6.clearfix
+          = f.label :created_at, :class => "span2"
+          = f.text_field :created_at_gt, :class => "small", :data => {:date => true}
+          &#8254;&#8254;&#8254;
+          = f.text_field :created_at_lt, :class => "small", :data => {:date => true}
+    .span2
+      = f.submit t(:search), :class => "btn primary"
+
+%table.zebra-striped
+  %thead
+    %tr
+      %th= sort_link q, :id
+      %th= sort_link q, :sender_username
+      %th= sort_link q, :receiver_username
+      %th= sort_link q, :subject
+      %th= sort_link q, :created_at
+      %th
+  %tbody
+    - collection.each do |message|
+      %tr
+        %td= message.id
+        %td= message.username
+        %td= message.receiver_username
+        %td= message.subject
+        %td= time_ago message.created_at
+        %td
+          = link_to t(:show), [:admin, message], :title => t(:show)
+          = link_to t(:edit), [:edit, :admin, message], :title => t(:edit)
+          = link_to t(:delete), [:delete, :admin, message], :title => t(:delete)

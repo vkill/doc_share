@@ -2,7 +2,7 @@ class Admin::MessagesController < Admin::ResourcesBaseController
 
   add_breadcrumb proc{|c| c.t("admin.navigation.messages")}, "", :only => [:index]
   
-  add_breadcrumb proc{|c| c.t("admin.navigation.messages")}, :admin_users_path, :except => [:index]
+  add_breadcrumb proc{|c| c.t("admin.navigation.messages")}, :admin_messages_path, :except => [:index]
   add_breadcrumb proc{|c| c.t("new")}, "", :only => [:new, :create]
   add_breadcrumb proc{|c| c.t("export_all")}, "", :only => [:export]
 

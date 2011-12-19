@@ -10,7 +10,14 @@ zh-CN:
         current_password: 原始密码
 
         state_text: 状态
+        roles: 角色
       message:
-        receiver_username: 接收人
+        sender: 发送人
+        username: 发送人名字
+        sender_username: 发送人名字
+        receiver: 接收人
+        receiver_username: 接收人名字
+        receiver_username_post: 接收人名字
         user_id: 接收人id
+        
 

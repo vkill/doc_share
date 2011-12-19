@@ -36,7 +36,7 @@ class Admin::ResourcesBaseController < Admin::BaseController
   end
 
   def create
-    self.send("#{_resource_name()}").save()
+    self.send("#{_resource_name()}").create(params[_resource_name()], :as => :admin)
     respond_with :admin, self.send("#{_resource_name()}")
   end
 
@@ -49,7 +49,8 @@ class Admin::ResourcesBaseController < Admin::BaseController
   end
 
   def update
-    self.send("#{_resource_name()}").update_attributes(params[_resource_name()])
+    self.send("#{_resource_name()}").assign_attributes(params[_resource_name()], :as => :admin)
+    self.send("#{_resource_name()}").save()
     respond_with :admin, self.send("#{_resource_name()}")
   end
 
@@ -91,7 +92,7 @@ class Admin::ResourcesBaseController < Admin::BaseController
     #@role = current_user.roles.find(1) or @role = current_user.roles.new(params[:role])
     def find_or_build_resource
       self.send "#{_resource_name()}=",
-          (params[:id] ? association_chain().find(params[:id]) : association_chain().new(params[_resource_name()]))
+          (params[:id] ? association_chain().find(params[:id]) : association_chain().new())
     end
 
     #helpers

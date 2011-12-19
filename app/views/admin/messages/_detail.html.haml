@@ -1,0 +1,9 @@
+
+= show_for resource do |message|
+  = message.attributes :id, :is_readed
+  = message.attribute :sender_username do
+    = link_to resource.username, [:admin, resource.sender]
+  = message.attribute :receiver_username do
+    = link_to resource.receiver_username, [:admin, resource.receiver]
+  = message.attributes :subject, :content
+  

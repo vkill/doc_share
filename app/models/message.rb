@@ -3,9 +3,14 @@ class Message < ActiveRecord::Base
   #
   has_ancestry
 
-  attr_accessor :receiver_username
+  attr_accessor :receiver_username_post
   alias_attribute :user_id, :sender_id
-  attr_accessible :user_id, :receiver_id, :subject, :content, :parent, :sender, :receiver, :user, :receiver_username
+  attr_accessible 
+  basic_attr_accessible = [:user_id, :receiver_id, :subject, :content, :parent, :sender, :receiver,
+                          :user, :receiver_username_post]
+  attr_accessible *(basic_attr_accessible)
+  attr_accessible *(basic_attr_accessible + [:is_readed]), :as => :admin
+
 
   belongs_to :sender, :class_name => 'User', :foreign_key => 'sender_id',
                       :counter_cache => :sent_messages_count
@@ -16,7 +21,7 @@ class Message < ActiveRecord::Base
 
   attribute_enums :category, :in => [:system_notification, :member_mailbox], :default => :member_mailbox
   attribute_enums :is_readed, :booleans => true
-  validates :receiver_username, :presence => true,
+  validates :receiver_username_post, :presence => true,
                                 :if => Proc.new { |record| record.receiver_id.blank? }
   validates :content, :presence => true,
                       :length => { :within => 6..2000 }
@@ -27,9 +32,11 @@ class Message < ActiveRecord::Base
   scope :unread, where(:is_readed => false)
   scope :by_user, lambda {|user| where{(sender_id == user.id) | (receiver_id == user.id)} }
 
-  delegate :email, :username, :to => :user
+  delegate :email, :username, :to => :sender
+  delegate :email, :username, :to => :sender, :prefix => true
+  delegate :email, :username, :to => :receiver, :prefix => true
 
-  after_validation :build_receiver_id, :if => Proc.new { |record| record.receiver_username.present? }
+  after_validation :build_receiver_id, :if => Proc.new { |record| record.receiver_username_post.present? }
 
   def readed?
     !!is_readed?
@@ -51,11 +58,11 @@ class Message < ActiveRecord::Base
 
   private
     def build_receiver_id
-      user = User.find_by_username(receiver_username.to_s)
+      user = User.find_by_username(receiver_username_post.to_s)
       if user
         self.receiver_id = user.id
       else
-        errors.add(:receiver_username, :existence)
+        errors.add(:receiver_username_post, :existence)
       end
     end
 

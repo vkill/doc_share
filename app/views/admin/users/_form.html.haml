@@ -25,6 +25,9 @@
       .span8
         = f.input :state, :as => :select, :collection => User.get_state_values,
                          :input_html => { :class => "span4" }
+    .row
+      .span16
+        = f.association :roles, :as => :check_boxes
   
   .actions
     = f.button :submit, :class => 'primary', :disable_with => t(:submitting)

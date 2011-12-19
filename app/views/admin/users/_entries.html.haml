@@ -4,7 +4,7 @@
       .row
         .span4.clearfix
           = f.label :username, :class => "span1"
-          = f.text_field :username_cont, :class => "span3"
+          = f.text_field :username_cont, :class => "span3", :data => {:autocomplete_user => true}
         .span4.clearfix
           = f.label :email, :class => "span1"
           = f.text_field :email_cont, :class => "span3"
@@ -13,15 +13,19 @@
           = f.text_field :name_cont, :class => "span3"
       .row
         .span6.clearfix
+          = f.label :roles_name, :class => "span2"
+          = f.collection_select :roles_name_eq, Role.all, "id", "name", :prompt => true, :class => "span3"
+        .span6.clearfix
           = f.label :created_at, :class => "span2"
           = f.text_field :created_at_gt, :class => "small", :data => {:date => true}
           &#8254;&#8254;&#8254;
           = f.text_field :created_at_lt, :class => "small", :data => {:date => true}
-        .span6.clearfix
-          = f.label :updated_at, :class => "span2"
-          = f.text_field :updated_at_gt, :class => "small", :data => {:date => true}
-          &#8254;&#8254;&#8254;
-          = f.text_field :updated_at_lt, :class => "small", :data => {:date => true}
+        / 
+          .span6.clearfix
+            = f.label :updated_at, :class => "span2"
+            = f.text_field :updated_at_gt, :class => "small", :data => {:date => true}
+            &#8254;&#8254;&#8254;
+            = f.text_field :updated_at_lt, :class => "small", :data => {:date => true}
     .span2
       = f.submit t(:search), :class => "btn primary"
 

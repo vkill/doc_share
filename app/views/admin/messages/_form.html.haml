@@ -1,0 +1,22 @@
+= simple_form_for([:admin, resource], :wrapper => :inline) do |f|
+
+  = field_set_tag "" do
+    .row
+      .span8
+        = f.input :sender_username, :required => true, :input_html => { :class => "span4" }
+    .row  
+      .span8
+        = f.input :receiver_username, :autofocus => true, :input_html => { :class => "span4" }
+    .row
+      .span12
+        = f.input :subject, :input_html => { :class => "span8" }
+    .row
+      .span12
+        = f.input :content, :input_html => { :class => "span8", :rows => 4 }
+    .row
+      .span8
+        = f.input :is_readed, :as => :select
+
+  .actions
+    = f.button :submit, :class => 'primary', :disable_with => t(:submitting)
+    = button_tag t(:reset), :type => :reset, :class => "btn"

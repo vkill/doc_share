@@ -13,7 +13,7 @@ class Account::MessagesController < Account::BaseController
 
   def new
     @message = Message.new
-    @message.receiver_username = params[:receiver_username]
+    @message.receiver_username_post = params[:receiver_username]
   end
 
   def create
