@@ -28,8 +28,8 @@
   %thead
     %tr
       %th= sort_link q, :id
-      %th= sort_link q, :sender_username
-      %th= sort_link q, :receiver_username
+      %th= sort_link q, :sender_username, ta(resource_class, :sender_username)
+      %th= sort_link q, :receiver_username, ta(resource_class, :receiver_username)
       %th= sort_link q, :subject
       %th= sort_link q, :created_at
       %th
