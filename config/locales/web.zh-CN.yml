@@ -125,7 +125,8 @@ zh-CN:
       site_configurations: 站点设置
       
       data_about: 数据维护
-      data_backsql: 备份SQL
+      sql_backups: 备份SQL
+      
     users:
       entries:
         send_mailboxes: 发件箱
