@@ -118,15 +118,14 @@ zh-CN:
       categories: 项目分类管理
       repositories: 项目管理
       
-      system_about: 系统相关
-      site_configs: 全局设置
-      
       log_about: 日志相关
       activities: 系统日志
       
+      system_about: 系统相关
+      site_configurations: 站点设置
+      
       data_about: 数据维护
-      data_export: 备份数据
-      data_import: 导出数据
+      data_backsql: 备份SQL
     users:
       entries:
         send_mailboxes: 发件箱

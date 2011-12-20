@@ -16,6 +16,10 @@
           = f.label :roles_name, :class => "span2"
           = f.collection_select :roles_name_eq, Role.all, "id", "name", :prompt => true, :class => "span3"
         .span6.clearfix
+          = f.label :state, :class => "span2"
+          = f.select :state_eq, User.get_state_values, :prompt => true, :class => "span3"
+      .row
+        .span6.clearfix
           = f.label :created_at, :class => "span2"
           = f.text_field :created_at_gt, :class => "small", :data => {:date => true}
           &#8254;&#8254;&#8254;
@@ -30,6 +34,7 @@
       %th= sort_link q, :username
       %th= sort_link q, :email
       %th= sort_link q, :name
+      %th= sort_link q, :state
       %th= sort_link q, :created_at
       %th= sort_link q, :updated_at
       %th
@@ -40,6 +45,7 @@
         %td= user.username
         %td= user.email
         %td= user.name
+        %td= user.state_text
         %td= time_ago user.created_at
         %td= time_ago user.updated_at
         %td

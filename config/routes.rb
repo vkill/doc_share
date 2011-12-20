@@ -22,6 +22,7 @@ DocShare::Application.routes.draw do
   get "account/edit" => "users#edit", :as => :edit_profile
   get "account/password/edit" => "users#password_edit", :as => :edit_password
 
+
   #
   resources :repositories, :only => [:index]
 
@@ -53,15 +54,20 @@ DocShare::Application.routes.draw do
   get "dashboard" => "account/main#dashboard", :as => :dashboard
 
 
+
   #admin namespace
   namespace :admin do
     root :to => "main#dashboard"
     get "dashboard" => "main#dashboard", :as => :dashboard
+    resources :roles do
+      get :export, :on => :collection
+      get :delete, :on=> :member
+    end
     resources :users do
       get :export, :on => :collection
       get :delete, :on=> :member
     end
-    resources :roles do
+    resources :messages do
       get :export, :on => :collection
       get :delete, :on=> :member
     end
@@ -73,14 +79,13 @@ DocShare::Application.routes.draw do
       get :export, :on => :collection
       get :delete, :on=> :member
     end
-    resources :messages do
-      get :export, :on => :collection
-      get :delete, :on=> :member
-    end
     resources :activities, :only => [:index, :show] do
       get :export, :on => :collection
     end
+    resources :site_configurations, :only => [:index, :edit, :update]
   end
+
+
 
 
   scope ":user" do
@@ -118,6 +123,7 @@ DocShare::Application.routes.draw do
   end
 
 
+  # mail preview
   if Rails.env.development?
     mount UserMailer::Preview => 'user_mailer_view'
   end
