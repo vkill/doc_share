@@ -2,7 +2,7 @@ class Admin::ActivitiesController < Admin::ResourcesBaseController
 
   add_breadcrumb proc{|c| c.t("admin.navigation.activities")}, "", :only => [:index]
   
-  add_breadcrumb proc{|c| c.t("admin.navigation.activities")}, :admin_users_path, :except => [:index]
+  add_breadcrumb proc{|c| c.t("admin.navigation.activities")}, :admin_activities_path, :except => [:index]
   add_breadcrumb proc{|c| c.t("new")}, "", :only => [:new, :create]
   add_breadcrumb proc{|c| c.t("export_all")}, "", :only => [:export]
 

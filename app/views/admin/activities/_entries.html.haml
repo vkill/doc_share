@@ -1,0 +1,38 @@
+= search_form_for [:admin, q] do |f|
+  .row
+    .span14
+      .row
+        .span6.clearfix
+          = f.label :user_username, :class => "span2"
+          = f.text_field :user_username_cont, :class => "span3", :data => {:autocomplete_user => true}
+        .span6.clearfix
+          = f.label :action, :class => "span2"
+          = f.select :action_eq, Activity.get_action_values, :prompt => true, :class => "span3"
+      .row
+        .span6.clearfix
+          = f.label :created_at, :class => "span2"
+          = f.text_field :created_at_gt, :class => "small", :data => {:date => true}
+          &#8254;&#8254;&#8254;
+          = f.text_field :created_at_lt, :class => "small", :data => {:date => true}
+    .span2
+      = f.submit t(:search), :class => "btn primary"
+
+%table.zebra-striped
+  %thead
+    %tr
+      %th= sort_link q, :id
+      %th= sort_link q, :username, ta(resource_class, :username)
+      %th= sort_link q, :action
+      %th= ta(resource_class, :target_link)
+      %th= sort_link q, :created_at
+      %th
+  %tbody
+    - collection.each do |activity|
+      %tr
+        %td= activity.id
+        %td= activity.username
+        %td= activity.action_text
+        %td= link_to activity.target_link_body, [:admin, activity.target]
+        %td= time_ago activity.created_at
+        %td
+          = link_to t(:show), [:admin, activity], :title => t(:show)

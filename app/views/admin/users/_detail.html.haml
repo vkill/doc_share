@@ -1,6 +1,12 @@
 
 = show_for resource do |user|
-  = user.attributes :id, :username, :email, :name, :site, :company, :location, :state_text
+  = user.attributes :id, :username, :email, :name, :site, :company, :location
+  = user.attribute :state do
+    = resource.state_text
+  = user.attribute :created_at do
+    = l resource.created_at
+  = user.attribute :updated_at do
+    = l resource.updated_at
   = user.association :roles do |role|
     = link_to role.name, [:admin, role]
     = raw " | "

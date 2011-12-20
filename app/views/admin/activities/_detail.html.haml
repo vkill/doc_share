@@ -1,0 +1,11 @@
+
+= show_for resource do |activity|
+  = activity.attributes :id, :username
+  = activity.attribute :action do
+    = resource.action_text
+  = activity.attribute :target_link do
+    = link_to resource.target_link_body, [:admin, resource.target]
+  = activity.attribute :created_at do
+    = l resource.created_at
+  = activity.attribute :updated_at do
+    = l resource.updated_at

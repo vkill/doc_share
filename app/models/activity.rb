@@ -20,6 +20,9 @@ class Activity < ActiveRecord::Base
     )
   end
 
+  def target_link_body
+    [target_type, target_id].join("#")
+  end
 
 end
 

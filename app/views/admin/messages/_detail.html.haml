@@ -6,4 +6,7 @@
   = message.attribute :receiver_username do
     = link_to resource.receiver_username, [:admin, resource.receiver]
   = message.attributes :subject, :content
-  
+  = message.attribute :created_at do
+    = l resource.created_at
+  = message.attribute :updated_at do
+    = l resource.updated_at

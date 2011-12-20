@@ -12,6 +12,13 @@ describe Activity do
     it { Activity.forked_repository.new.action.to_s.should eq('forked_repository') }
   end
 
+  context "function" do
+    it "has target_link_body method" do
+      activity = Activity.make!(:created_repository)
+      activity.target_link_body.should =  "#{activity.target_type}##{activity.target_id}"
+    end
+  end
+
 end
 # == Schema Information
 #

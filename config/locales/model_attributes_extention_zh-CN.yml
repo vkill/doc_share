@@ -8,9 +8,8 @@ zh-CN:
         login: 邮箱或用户名
         remember_me: 记住我
         current_password: 原始密码
-
-        state_text: 状态
         roles: 角色
+        
       message:
         sender: 发送人
         username: 发送人名字
@@ -23,3 +22,7 @@ zh-CN:
       repository:
         user_username: 用户名
         category_name: 分类名称
+      
+      activity:
+        username: 用户名
+        target_link: 目标链接

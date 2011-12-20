@@ -77,9 +77,8 @@ DocShare::Application.routes.draw do
       get :export, :on => :collection
       get :delete, :on=> :member
     end
-    resources :activities, :except => [:new, :create, :edit, :update] do
+    resources :activities, :only => [:index, :show] do
       get :export, :on => :collection
-      get :delete, :on=> :member
     end
   end
 

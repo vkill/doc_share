@@ -1,3 +1,7 @@
 
 = show_for resource do |role|
   = role.attributes :id, :ancestry, :name, :code
+  = role.attribute :created_at do
+    = l resource.created_at
+  = role.attribute :updated_at do
+    = l resource.updated_at

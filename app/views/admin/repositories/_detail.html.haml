@@ -6,3 +6,8 @@
   = repository.attribute :category_id do
     = link_to resource.category_name, [:admin, resource.category]
   = repository.attributes :name, :describtion
+
+  = repository.attribute :created_at do
+    = l resource.created_at
+  = repository.attribute :updated_at do
+    = l resource.updated_at

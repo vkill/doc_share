@@ -1,0 +1,3 @@
+%ul.tabs(data-tabs="tabs")
+  %li{:class => action_name.in?(%w(show)) ? :active : nil}
+    = link_to t(:show), [:admin, resource_name]
