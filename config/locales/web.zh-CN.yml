@@ -98,6 +98,8 @@ zh-CN:
   search: 查找
   filter: 过滤
   time_ago: "大约%{time_words}前"
+  download: 下载
+  backup: 备份
   
   twipsy:
     sort_link: 点击可以排序哦
@@ -125,7 +127,7 @@ zh-CN:
       site_configurations: 站点设置
       
       data_about: 数据维护
-      backups_database: 备份SQL
+      backups_databases: 备份SQL
       
     users:
       entries:
@@ -136,3 +138,11 @@ zh-CN:
       form:
         remove_repo_file: 删除文件
         add_repo_file: 新增文件
+    
+    backups:
+      entries:
+        id: 序号
+        filename: 文件名
+        filepath: 文件路径
+        backup_at: 备份时间
+      

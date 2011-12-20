@@ -5,8 +5,8 @@ class BackupModel
     Dir[Rails.root.join("backups/db_backup/*.tar.gz")].map do |path|
       OpenStruct.new(
         {
-          :filename => path,
-          :backup_at => path.sub(/.db_backup.tar.gz/, "")
+          :filepath => path,
+          :backup_at => File.basename(path).sub(/.db_backup.tar.gz/, "")
         }
       )
     end
@@ -15,7 +15,7 @@ class BackupModel
   def self.perform(trigger)
     case trigger.to_sym
     when :db_backup
-      Rake::Task['backups:db_backup'].invoke()
+      system('rake backups:db_backup')
     end
   end
 end

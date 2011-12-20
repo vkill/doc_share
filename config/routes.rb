@@ -86,8 +86,9 @@ DocShare::Application.routes.draw do
     resources :backups, :only => [] do
       collection do
         get :download
-        get :database
-        post :database_backup
+        post :delete
+        get :databases
+        post :backup_database
       end
     end
   end

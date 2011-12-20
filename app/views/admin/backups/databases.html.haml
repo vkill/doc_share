@@ -1,0 +1,7 @@
+.row
+  .span14
+    %p.pull-right
+      = link_to t(:backup), [:backup_database, :admin, :backups],
+                :method => :post, :class => "btn primary" 
+
+= render "entries", :files => @files

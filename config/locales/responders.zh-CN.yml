@@ -14,4 +14,4 @@ zh-CN:
       messages:
         reply:
           notice: '%{resource_name}回复成功.'
-
+    
