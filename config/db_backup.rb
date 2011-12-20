@@ -15,13 +15,12 @@
 
 database_yml = File.expand_path('../config/database.yml',  __FILE__)
 RAILS_ENV    = ENV['RAILS_ENV'] || 'development'
-settings_env_yml = File.expand_path('../config/settings/#{RAILS_ENV}.yml',  __FILE__)
-settings_env_hash = YAML.load_file(settings_env_yml)
-
 require 'yaml'
 database_configurations = YAML.load_file(database_yml)
+require "pry"
+binding.pry
 
-Backup::Model.new(:my_backup, 'My Backup') do
+Backup::Model.new(:db_backup, 'Backup my database') do
 
   ##
   # PostgreSQL [Database]
