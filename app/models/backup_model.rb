@@ -24,7 +24,7 @@ class BackupModel
   def self.perform(trigger)
     case trigger.to_sym
     when :db_backup
-      system('rake backups:db_backup')
+      system( %Q` rake backups:db_backup RAILS_ENV="#{Rails.env}" `)
     end
   end
 end
