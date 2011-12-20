@@ -15,4 +15,4 @@
         %td= file.backup_at
         %td
           = link_to t(:download), download_admin_backups_path(:path => file.filepath)
-          = link_to t(:delete), delete_admin_backups_path(:path => file.filepath)
+          = link_to t(:delete), delete_admin_backups_path(:path => file.filepath), :method => :put

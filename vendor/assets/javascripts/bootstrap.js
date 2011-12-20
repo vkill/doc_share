@@ -127,4 +127,15 @@ $(function() {
     })
   })
 })
+$(function() {
+  $("[data-buttons-wait]").each(function(){
+    $(this).click(function () {
+      if ($(this).attr('disabled') == 'disabled') {
+        return false
+      } else {
+        $(this).button('loading')
+      }
+    })
+  })
+})
 

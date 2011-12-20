@@ -2,6 +2,7 @@
   .span14
     %p.pull-right
       = link_to t(:backup), [:backup_database, :admin, :backups],
-                :method => :post, :class => "btn primary" 
+                :method => :post, :class => "btn primary",
+                :data => { :buttons_wait => true, :loading_text => t(:requesting) }
 
 = render "entries", :files => @files
