@@ -125,7 +125,7 @@ zh-CN:
       site_configurations: 站点设置
       
       data_about: 数据维护
-      sql_backups: 备份SQL
+      backups_database: 备份SQL
       
     users:
       entries:

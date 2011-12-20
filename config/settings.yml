@@ -10,5 +10,3 @@ web:
 sys:
   repo:
     base_dir: <%= Rails.root.join("repo").to_s %>
-
-backups_db_backup_local_dir: <%= Rails.root.join("backups").to_s %>
