@@ -6,10 +6,11 @@ class Admin::BackupsController < Admin::BaseController
   end
 
   def database
+    @files = BackupModel.db_backup_all
   end
 
   def database_backup
-    Rake::Task['backups:db_backup'].invoke()
+    BackupModel.perform(:db_backup)
     redriect_to [:database, :admin, :backups]
   end
 
