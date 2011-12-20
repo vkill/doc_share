@@ -1,17 +1,7 @@
 require "ostruct"
 class SqlBackup
-  attr_accessor :filepath, :filename, :time, :db_name
-
-  def initialize
-    self.filepath = Rails.root.join("db/backup").to_s
-    self.time = Time.zone.now
-    self.filename = "#{self.time.strftime("%Y_%m_%d_%H_%M")}.sql"
-    self.db_name = Settings.db_name
-  end
-
   def dump
-    system("mkdir -p #{filepath}")
-    system("pg_dump -Upostgres -w #{db_name} > #{filepath}/#{filename}")
+    Rake::Task['db:backup'].invoke()
   end
 
   def self.all

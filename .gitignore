@@ -21,4 +21,4 @@ repo/*
 
 Gemfile.local
 
-db/db_backup/*
+backups/*
