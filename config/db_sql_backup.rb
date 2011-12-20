@@ -13,20 +13,28 @@
 #
 # $ backup perform -t my_backup [-c <path_to_configuration_file>]
 
+database_yml = File.expand_path('../config/database.yml',  __FILE__)
+RAILS_ENV    = ENV['RAILS_ENV'] || 'development'
+settings_env_yml = File.expand_path('../config/settings/#{RAILS_ENV}.yml',  __FILE__)
+settings_env_hash = YAML.load_file(settings_env_yml)
+
+require 'yaml'
+database_configurations = YAML.load_file(database_yml)
+
 Backup::Model.new(:my_backup, 'My Backup') do
 
   ##
   # PostgreSQL [Database]
   #
   database PostgreSQL do |db|
-    db.name               = "my_database_name"
-    db.username           = "my_username"
-    db.password           = "my_password"
-    db.host               = "localhost"
-    db.port               = 5432
-    db.socket             = "/tmp/pg.sock"
-    db.skip_tables        = ['skip', 'these', 'tables']
-    db.only_tables        = ['only', 'these' 'tables']
+    db.name               = database_configurations[RAILS_ENV]["database"]
+    db.username           = database_configurations[RAILS_ENV]["username"]
+    db.password           = database_configurations[RAILS_ENV]["password"]
+    db.host               = database_configurations[RAILS_ENV]["host"]
+    db.port               = database_configurations[RAILS_ENV]["port"]
+    # db.socket             = "/tmp/pg.sock"
+    db.skip_tables        = []
+    # db.only_tables        = []
     db.additional_options = ['-xc', '-E=utf8']
   end
 
