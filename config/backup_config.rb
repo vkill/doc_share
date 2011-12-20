@@ -15,20 +15,15 @@
 
 require 'rubygems'
 require 'yaml'
-require "pry"
 
-binding.pry
-
-RAILS_ROOT = ENV['RAILS_ROOT'] || File.expand_path('..',  __FILE__)
+RAILS_ROOT = File.expand_path('..',  __FILE__)
 RAILS_ENV = ENV['RAILS_ENV'] || 'development'
 
-database_configurations = YAML.load_file(File.expand_path('../config/database.yml',  __FILE__))
+database_configurations = YAML.load_file(File.join(RAILS_ROOT, "/config/database.yml"))
 
-settings_env_hash = YAML.load_file(File.expand_path('../config/settings/#{RAILS_ENV}.yml',  __FILE__))
-settings_hash = YAML.load_file(File.expand_path('../config/settings.yml',  __FILE__))
-local_dir = settings_hash['backups_db_backup_local_dir'] || settings_env_hash['backups_db_backup_local_dir']
+backup_store_local_dir = File.join(RAILS_ROOT, "/backups")
 
-Backup::Model.new(:db_backup, 'Backup my database') do
+Backup::Model.new(:db_backup_offline, 'Backup my database offline') do
 
   ##
   # PostgreSQL [Database]
@@ -49,7 +44,7 @@ Backup::Model.new(:db_backup, 'Backup my database') do
   # Local (Copy) [Storage]
   #
   store_with Local do |local|
-    local.path = local_dir
+    local.path = backup_store_local_dir
     local.keep = 5
   end
 
