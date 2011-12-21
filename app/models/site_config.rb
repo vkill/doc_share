@@ -2,7 +2,10 @@ class SiteConfig < ActiveRecord::Base
 
   cattr_accessor :settings_attr_prefix, :settings_attrs
   self.settings_attr_prefix = "config"
-  self.settings_attrs = []
+  self.settings_attrs = Settings.site_configs.to_hash.keys.map {|x| [self.settings_attr_prefix, x].join("_")}
+  self.settings_attrs.each do |settings_attr|
+    self.send :attr_accessor, settings_attr
+  end
 
   serialize :value
 
@@ -22,21 +25,13 @@ class SiteConfig < ActiveRecord::Base
     settings = self.new
     self.find_each do |site_config|
       settings_attr = [self.settings_attr_prefix, site_config.key].join("_")
-      self.settings_attrs << settings_attr
-      self.send :attr_accessor, settings_attr
       settings.send "#{settings_attr}=", site_config.value
     end
-    self.write_cache(:_settings_attrs, self.settings_attrs)
     settings.instance_variable_set :@new_record, false
     settings
   end
   def self.save_settings(values)
     settings = self.new
-    self.settings_attrs = self.read_cache(:_settings_attrs)
-    raise "First, please use SiteConfig.build_settings()" if self.settings_attrs.blank?
-    self.settings_attrs.each do |settings_attr|
-      self.send :attr_accessor, settings_attr
-    end
     self.transaction do
       self.settings_attrs.each do |settings_attr|
         site_config = self.find_by_key!(settings_attr.sub(/^#{self.settings_attr_prefix}_/,""))
