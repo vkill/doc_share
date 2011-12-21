@@ -2,9 +2,9 @@
 site_configs:
   site_name: doc share
   site_keywords: doc share
-  site_default_title: doc_share
+  site_default_title: doc share
   site_closed: false
-  site_closed_description: ""
+  site_closed_description: "system maintaining..."
 
 # 
 repositories_git_store_paths:
