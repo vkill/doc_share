@@ -2,7 +2,7 @@ require "fileutils"
 class BackupModel
   @@backup_store_local_path = Rails.root.join("backups").to_s
 
-  def self.db_backup_all
+  def self.all_db_backup
     Dir[File.join(@@backup_store_local_path, "/db_backup/*.tar.gz")].map do |path|
       OpenStruct.new(
         {

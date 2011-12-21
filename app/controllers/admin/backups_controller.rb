@@ -12,7 +12,7 @@ class Admin::BackupsController < Admin::BaseController
   end
 
   def databases
-    @files = BackupModel.db_backup_all
+    @files = BackupModel.all_db_backup
   end
 
   def backup_database
