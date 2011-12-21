@@ -2,11 +2,11 @@
 %html{:xmlns => "http://www.w3.org/1999/xhtml"}
   %head
     %meta{"http-equiv" => "Content-Type", :content => "text/html; charset=utf-8"}
-    %meta{:name => "keywords", :content => "#{Settings.web.head.meta.keywords}"}
+    %meta{:name => "keywords", :content => "#{Settings.site_keywords}"}
     = csrf_meta_tag
 
     = favicon_link_tag
-    %title #{Settings.web.head.title}
+    %title #{Settings.site_default_title}
 
     = stylesheet_link_tag "application"
 
