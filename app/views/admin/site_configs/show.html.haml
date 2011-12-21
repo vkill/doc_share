@@ -1,7 +1,10 @@
 .row
   .span14
     %p.pull-right
-      = link_to t(:edit), edit_admin_site_config_path(@site_config), :class => "btn primary"
+      = link_to t(:edit), edit_admin_site_config_path, :class => "btn primary"
+      = link_to t(:reinitialize), reinitialize_admin_site_config_path,
+                :method => :post, :class => "btn primary",
+                :confirm => t(:confirm)
 
 %table.zebra-striped
   %thead

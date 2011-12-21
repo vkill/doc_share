@@ -15,7 +15,12 @@ class Admin::SiteConfigsController < Admin::BaseController
 
   def update
     @site_config = SiteConfig.save_settings(params[:site_config])
-    redirect_to [:admin, :site_config]
+    redirect_to [:admin, :site_config], :notice => t(:successfully_completed)
+  end
+
+  def reinitialize
+    @site_config = SiteConfig.reinitialize()
+    redirect_to [:admin, :site_config], :notice => t(:successfully_completed)
   end
 
 end

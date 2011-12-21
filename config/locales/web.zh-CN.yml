@@ -100,6 +100,9 @@ zh-CN:
   time_ago: "大约%{time_words}前"
   download: 下载
   backup: 备份
+  initialize: 初始化
+  reinitialize: 恢复到初始化
+  successfully_completed: 操作成功完成
   
   twipsy:
     sort_link: 点击可以排序哦

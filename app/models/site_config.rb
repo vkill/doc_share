@@ -40,6 +40,16 @@ class SiteConfig < ActiveRecord::Base
     end
     settings
   end
+  def self.reinitialize
+    settings = self.new
+    self.transaction do
+      Settings.site_configs.to_hash.each do |k,v|
+        site_config = self.find_by_key!(k.to_s)
+        site_config.update_attributes!(:value => v)
+      end
+    end
+    settings
+  end
 
   after_save :expire_cache
   
