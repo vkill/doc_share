@@ -17,7 +17,7 @@ Gemfile.lock
 log/*.log.*
 public/uploads/
 
-repo/*
+repositories_git_base*/*
 
 Gemfile.local
 

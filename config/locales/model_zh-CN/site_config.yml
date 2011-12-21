@@ -1,0 +1,12 @@
+---
+zh-CN:
+  activerecord:
+    models:
+      site_config: 站点设置
+    attributes:
+      site_config:
+        id: id
+        key: 键
+        value: 值
+        created_at: 创建时间
+        updated_at: 最后更新

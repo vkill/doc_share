@@ -82,7 +82,7 @@ DocShare::Application.routes.draw do
     resources :activities, :only => [:index, :show] do
       get :export, :on => :collection
     end
-    resource :site_configurations, :only => [:edit, :update]
+    resources :site_configs, :only => [:index, :edit, :update]
     resources :backups, :only => [] do
       collection do
         get :download

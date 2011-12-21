@@ -4,7 +4,7 @@
     .topbar-inner
       .container
         %h3
-          = link_to Settings.site_configurations.site_name, root_path
+          = link_to SiteConfig.q(:site_name), root_path
         %ul.nav
           %li
             = link_to t("web.topbar.repositories"), repositories_path

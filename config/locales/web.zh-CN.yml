@@ -124,7 +124,7 @@ zh-CN:
       activities: 系统日志
       
       system_about: 系统相关
-      site_configurations: 站点设置
+      site_configs: 站点设置
       
       data_about: 数据维护
       backups_databases: 备份SQL

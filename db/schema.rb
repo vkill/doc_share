@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20111219025634) do
+ActiveRecord::Schema.define(:version => 20111221080824) do
 
   create_table "activities", :force => true do |t|
     t.integer  "user_id"
@@ -134,6 +134,13 @@ ActiveRecord::Schema.define(:version => 20111219025634) do
   end
 
   add_index "setting_user_notifications", ["user_id"], :name => "index_setting_user_notifications_on_user_id"
+
+  create_table "site_configs", :force => true do |t|
+    t.string   "key"
+    t.text     "value"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
 
   create_table "target_followers", :force => true do |t|
     t.integer  "follower_id"

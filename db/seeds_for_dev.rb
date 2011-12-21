@@ -22,6 +22,7 @@ rescue LoadError
   end
 end
 
+load Rails.root.join("db", "init_seeds", "init_site_configs.rb")
 
 Dir[Rails.root.join('db', 'seeds', '*.rb').to_s].each do |file|
   puts "==  Loading #{ File.basename(file, '.rb').camelize } seed"

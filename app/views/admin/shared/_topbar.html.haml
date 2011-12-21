@@ -4,7 +4,7 @@
     .topbar-inner
       .container
         %h3
-          = link_to Settings.site_configurations.site_name, root_path
+          = link_to SiteConfig.q(:site_name), root_path
 
         %ul.nav
           %li
@@ -38,7 +38,7 @@
             = link_to t("admin.navigation.system_about"), "javascript:void(0)", :class => "dropdown-toggle"
             %ul.dropdown-menu
               %li
-                = link_to t("admin.navigation.site_configurations"), [:edit, :admin, :site_configurations]
+                = link_to t("admin.navigation.site_configs"), [:admin, :site_configs]
           
           %li.dropdown
             = link_to t("admin.navigation.data_about"), "javascript:void(0)", :class => "dropdown-toggle"
