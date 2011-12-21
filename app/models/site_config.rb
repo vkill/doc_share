@@ -29,6 +29,7 @@ class SiteConfig < ActiveRecord::Base
       settings.send "#{settings_attr}=", site_config.value
     end
     self.built_settings = true
+    settings.instance_variable_set :@new_record, false
     settings
   end
   def save_settings

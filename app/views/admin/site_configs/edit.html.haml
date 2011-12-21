@@ -1,0 +1,15 @@
+= simple_form_for(@site_configs, :url => admin_site_configs_path, :wrapper => :inline) do |f|
+
+  = field_set_tag "" do
+    = f.input :config_site_name, :required => true, :input_html => { :class => "span8" }
+    = f.input :config_site_keywords, :required => true, :input_html => { :class => "span8" }
+    = f.input :config_site_default_title, :required => true, :input_html => { :class => "span8" }
+    = f.input :config_site_closed, :required => true, :input_html => { :class => "span4" },
+                                    :as => :radio
+    = f.input :config_site_closed_description, :required => true, :input_html => { :class => "span8", :rows => 4},
+                                    :as => :text
+    = f.input :config_repositories_git_store_paths, :required => true, :input_html => { :class => "span8" }
+  
+  .actions
+    = f.button :submit, :class => 'primary', :disable_with => t(:submitting)
+    = button_tag t(:reset), :type => :reset, :class => "btn"
