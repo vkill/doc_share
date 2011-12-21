@@ -13,8 +13,3 @@ site_configs = {
 site_configs.each do |k,v|
   SiteConfig.create!(:key => k, :value => v)
 end
-
-  
-  
-
-  
