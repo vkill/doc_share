@@ -4,7 +4,7 @@ class RepositoryObserver < ActiveRecord::Observer
 
   def before_create(record)
     #generate git_repo_path
-    record.git_repo_path = File.join(SiteConfig.q("repositories_git_store_paths").first, record.username, record.name + ".git")
+    record.git_repo_path = File.join(Settings.repositories_git_store_paths.first, record.username, record.name + ".git")
   end
 
   def after_create(record)

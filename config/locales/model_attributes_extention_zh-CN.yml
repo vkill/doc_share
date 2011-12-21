@@ -33,4 +33,3 @@ zh-CN:
         config_site_default_title: 站点默认标题
         config_site_closed: 站点是否关闭
         config_site_closed_description: 站点关闭提示语
-        config_repositories_git_store_paths: 项目git存储目录集
