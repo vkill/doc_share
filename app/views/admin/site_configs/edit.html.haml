@@ -1,4 +1,4 @@
-= simple_form_for(@site_configs, :url => admin_site_configs_path, :wrapper => :inline) do |f|
+= simple_form_for(@site_config, :url => admin_site_config_path, :wrapper => :inline) do |f|
 
   = field_set_tag "" do
     = f.input :config_site_name, :required => true, :input_html => { :class => "span8" }

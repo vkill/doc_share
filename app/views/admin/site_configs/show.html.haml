@@ -1,7 +1,7 @@
 .row
   .span14
     %p.pull-right
-      = link_to t(:edit), [:edit, :admin, @site_configs], :class => "btn primary"
+      = link_to t(:edit), edit_admin_site_config_path(@site_config), :class => "btn primary"
 
 %table.zebra-striped
   %thead
@@ -9,7 +9,7 @@
       %th= ta(SiteConfig, :key)
       %th= ta(SiteConfig, :value)
   %tbody
-    - @site_configs.class.settings_attrs.each do |settings_attr|
+    - @site_config.class.settings_attrs.each do |settings_attr|
       %tr
         %td= ta(SiteConfig, settings_attr)
-        %td= @site_configs.send settings_attr
+        %td= @site_config.send settings_attr
