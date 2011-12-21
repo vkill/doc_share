@@ -1,15 +1,15 @@
 class SettingsModel
   
-  def self.settings
-    const
-  end
+  include ActiveModel::Validations
+  
+  
 
-  def self.update(hash)
-
+  def self.init
+    
   end
 
   private
-    def self.const
+    def self.rails_config_const
       RailsConfig.const_get RailsConfig.const_name
     end
 

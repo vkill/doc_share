@@ -111,3 +111,7 @@ Activity.blueprint(:forked_repository) do
   target      { Repository.make! }
 end
 
+
+SiteConfig.blueprint do
+  # Attributes here
+end

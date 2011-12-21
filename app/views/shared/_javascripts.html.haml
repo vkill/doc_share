@@ -9,11 +9,11 @@
 :javascript
   $(document).ready(function() {
     // Instantiate the object
-    var RailsSettings = RailsSettings || {};
+    var RailsSettings.site_configurations.= RailsSettings.site_configurations.|| {};
     // Set default development to false
-    RailsSettings.development = false;
+    RailsSettings.site_configurations.development = false;
     
-    RailsSettings.development = #{ Rails.env.development? ? true : false };
+    RailsSettings.site_configurations.development = #{ Rails.env.development? ? true : false };
   });
 
 = yield :javascript

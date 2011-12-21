@@ -70,7 +70,7 @@
       {{else error === 'maxNumberOfFiles'}} #{ @d_errors_maxNumberOfFiles }
       {{else error === 'uploadedBytes'}} #{ @d_errors_uploadedBytes }
       {{else error === 'emptyResult'}} #{ @d_errors_emptyResult }
-      {{else}}{{if RailsSettings.development}}${error}{{else}}#{ @ud_errors_unknow }{{/if}}
+      {{else}}{{if RailsSettings.site_configurations.development}}${error}{{else}}#{ @ud_errors_unknow }{{/if}}
       {{/if}}
     {{else}}
     %td.preview
