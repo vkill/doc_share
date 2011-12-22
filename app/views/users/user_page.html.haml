@@ -3,13 +3,7 @@
 .page-header
   .row
     .span8
-      .row
-        .span2
-          %p= ta(User, :username)
-          %p= ta(User, :website_blog)
-        .span6
-          %p= @user.username
-          %p= @user.site
+      = render "partials/user/details", :user => @user
     .span8
       %p
         = render "partials/user/count_link", :user => @user

@@ -4,7 +4,7 @@
       = link_to (image_tag user.gravatar_url(:size => 48), :class => "gravatar"),
                 "http://gravatar.com/emails/"
       = user.username
-  .span8.right
+  .span10.right
     - if logged_in?
       - if me?(user)
         = render_cell :profile, :edit_link

@@ -1,29 +1,25 @@
-/user
 
 .row
-  %div(class='span1.5')
-    - if logged_in?
-      - if me?(user)
-        %div{ :class => 'span1.5' }
-          %a{ :href => account_repositories_path }
-            %h1
-              = user.private_repositories_count
-            %span
-              = t(:private_repositories, :scope => [:web, :page, :user])
+  - if logged_in?
+    - if me?(user)
+      .span2
+        %a{ :href => account_repositories_path }
+          %h1
+            = user.private_repositories_count
+          %span
+            = t(".private_repositories")
 
-
-  %div{ :class => 'span1.5' }
+  .span2
     %a{ :href => user_public_repositories_path(user.username) }
       %h1
         = user.public_repositories_count
       %span
-        = t(:public_repositories, :scope => [:web, :page, :user])
+        = t(".public_repositories")
 
-
-  %div(class='span1.5')
+  .span2
     %a{ :href => user_followers_path(user.username) }
       %h1{"data-user-followers-count-#{user.id}" => true}
         = user.followers_count
       %span
-        = t(:followers, :scope => [:web, :page, :user])
+        = t(".followers")
 
