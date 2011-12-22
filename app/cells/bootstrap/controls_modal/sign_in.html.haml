@@ -1,0 +1,9 @@
+#modal-sign-in{:class => "modal hide fade", :style => "display: none; "}
+  .modal-header
+    %a.close{:href => "#"} ×
+    %h3
+      = t(:require_sign_in)
+  .modal-body
+    = render :file => "app/views/sessions/_form.html.haml", :locals => { :user => @user }
+  .modal-footer
+    %a.close{:href => "#"} Close

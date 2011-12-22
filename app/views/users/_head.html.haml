@@ -8,14 +8,45 @@
       - if me?(user)
         = render_cell :profile, :edit_link
       - else
-    - else
+        = mail_to @user.email,
+              t(".send_email"),
+              :class => "btn small primary"
 
-    = render "partials/user/send_email", :user => user
-    = render "partials/user/send_message", :user => user
-    = render "partials/user/reverse_follow", :user => user
+        = link_to t(".send_message"),
+              new_account_message_path(:receiver_username => @user.username),
+              :class => "btn small primary"
+        
+        - if current_user.following_user?(user)
+          - @original_text = t(".unfollow")
+        - else
+          - @original_text = t(".follow")
+        = link_to @original_text,
+                  user_reverse_follow_path(@user.username),
+                  :method => :put,
+                  :remote => true,
+                  :data => { "user_reverse_follow_#{user.id}" => true,
+                              :buttons => true,
+                              :loading_text => t(:requesting),
+                              :timeout_text => t(:request_timeout),
+                              :server_error_text => t(:request_server_error),
+                              :alerts_containers_div => "alerts",
+                              :follow_complete_text => t(".unfollow"),
+                              :unfollow_complete_text => t(".follow")},
+                  :class => "btn small primary"
+
+    - else
+      - [ t(".send_email"), t(".send_email"), t(".send_email")].each do |text|
+        = link_to text,
+                  "javascript:void(0);",
+                  :class => "btn small",
+                  :rel => "twipsy",
+                  :data => { :backdrop => 'true', :controls_modal => "modal-sign-in", :keyboard => 'true',
+                              :original_title => t(:require_sign_in), :placement => :below}
 
 - content_for :popover do
   = render_cell "bootstrap_::_twipsy_title", :change_gravatar
+- content_for :modal do
+  = render_cell "bootstrap_::_controls_modal", :sign_in
 
 .page-header
 
