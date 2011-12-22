@@ -59,7 +59,7 @@ class UsersController < ApplicationController
 
   def user_page
     @latest_public_repositories = Repository.public_repo.limit(5)
-    @latest_activities = @user.activities.limit(10)
+    @latest_activities = @user.activities.limit(15)
   end
 
   def following
