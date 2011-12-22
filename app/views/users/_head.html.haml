@@ -1,13 +1,16 @@
 .row
   .span12
     %p
-      = user.username
+      = link_to (image_tag user.gravatar_url(:size => 48), :class => "gravatar"),
+                "http://gravatar.com/emails/"
   .span4
     = render "partials/user/edit_profile", :user => user
     = render "partials/user/send_email", :user => user
     = render "partials/user/send_message", :user => user
     = render "partials/user/reverse_follow", :user => user
 
-%br
+- content_for :popover do
+  = render_cell "bootstrap_::_twipsy_title", :change_gravatar
+
 .page-header
 

@@ -4,4 +4,8 @@ class Bootstrap::TwipsyTitleCell < Cell::Rails
     render
   end
 
+  def change_gravatar
+    render
+  end
+
 end

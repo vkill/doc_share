@@ -98,11 +98,11 @@ zh-CN:
   reinitialize: 恢复到初始化
   successfully_completed: 操作成功完成
   
+  
   twipsy:
     sort_link: 点击可以排序哦
+    change_gravatar: 改变头像请上gravatar.com
   
-  
- 
   shared:
     topbar:
       main: Home
