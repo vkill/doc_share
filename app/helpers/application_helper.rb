@@ -1,7 +1,4 @@
 module ApplicationHelper
-  def new_user
-    User.new
-  end
 
   def owner?(target)
     return false if !target.respond_to?(:user_id) or !current_user.respond_to?(:id)
@@ -28,7 +25,7 @@ module ApplicationHelper
   end
 
   def nbsp(n=1)
-    "&nbsp" * n
+    raw ("&nbsp" * n)
   end
 end
 

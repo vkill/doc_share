@@ -9,7 +9,6 @@ zh-CN:
     page:
       account:
         repository:
-          manage: 管理项目
           manage_info: ""
           new: 创建新项目
           new_info: ""
@@ -25,29 +24,11 @@ zh-CN:
           delete_choised_files: 删除所选文件
 
       repository:
-        watch: 关注
-        unwatch: 取消关注
-        watchers: 被关注数
-        fork: 拷贝
-        forked: 已拷贝
-        forked_info: 你已经拷贝过此项目，点击跳转到此项目
-        forks: 被拷贝数
-        manage: 管理项目
-        back_to: 返回项目
         new: 新项目
 
       message:
         reply: 回复
 
-      activity:
-        at: 在%{ago}前
-  
-  
-  
-  
-  
-  
-  
       
 
   requesting: "请求中..."
@@ -89,6 +70,7 @@ zh-CN:
   reinitialize: 恢复到初始化
   successfully_completed: 操作成功完成
   require_sign_in: 继续操作前请先登录
+  at: 在%{ago}前
   
   twipsy:
     sort_link: 点击可以排序哦
@@ -132,6 +114,12 @@ zh-CN:
   repositories:
     public_repositories:
       public_repositories: "%{username}的共享项目"
+    head:
+      manage: 管理项目
+      back_to: 返回项目
+      
+    watchers:
+      watchers: 关注%{repository_name}的人
   
   partials:
     user:
@@ -145,6 +133,18 @@ zh-CN:
       reverse_follow:  
         follow: 关注
         unfollow: 取消关注
+    
+    repository:
+      count_link:
+        watchers: 被关注数
+        forks: 被拷贝数
+      reverse_watch:  
+        watch: 关注
+        unwatch: 取消关注
+      fork:
+        fork: 拷贝
+        forked: 已拷贝
+        forked_info: 你已经拷贝过此项目，点击跳转到此项目
   
   admin:
     shared:

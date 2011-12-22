@@ -1,18 +1,4 @@
 = render "head", :user => @user
 
-.row
-  .span16
-    .page-header
-      %h3= t(".followers", :username => @user.username)
-    .row
-      .span16
-        - @followers.each do |follower|
-          .page-header
-            .row
-              .span16
-                %p.pull-right
-                  = render "partials/user/reverse_follow", :user => follower
-                %p
-                  = render "partials/user/gravatar", :user => follower
-
-        = render 'partials/pagination', :resources => @followers
+= render "partials/followers", :followers => @followers,
+          :title => t(".followers", :username => @user.username)

@@ -1,15 +1,15 @@
 = render "head", :user => @user
 
 .row
-  .span10
+  .span9
     .page-header
       %h3= t(".following_users", :username => @user.username)
     .row
-      .span10
+      .span9
         - @following_users.each do |following_user|
           .page-header
             .row
-              .span10
+              .span9
                 %p.pull-right
                   = render "partials/user/reverse_follow", :user => following_user
                 %p
@@ -17,7 +17,7 @@
 
         = render 'partials/pagination', :resources => @following_users
   
-  .span6
+  .span6.offset1
     .page-header
       %h3= t(".following_repositories", :username => @user.username)
     .row
