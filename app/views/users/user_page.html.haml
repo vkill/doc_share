@@ -5,15 +5,11 @@
     .span8
       .row
         .span2
-          %p
-            = "username"
-          %p
-            = "website/blog"
+          %p= ta(User, :username)
+          %p= ta(User, :website_blog)
         .span6
-          %p
-            = @user.username
-          %p
-            = @user.site
+          %p= @user.username
+          %p= @user.site
     .span8
       %p
         = render "partials/user/count_link", :user => @user

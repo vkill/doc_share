@@ -9,6 +9,8 @@ zh-CN:
         remember_me: 记住我
         current_password: 原始密码
         roles: 角色
+        join_at: 加入时间
+        website_blog: Website/Blog
         
       message:
         sender: 发送人

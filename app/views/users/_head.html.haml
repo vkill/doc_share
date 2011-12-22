@@ -1,10 +1,10 @@
 .row
-  .span12
+  .span4
     %h1
       = link_to (image_tag user.gravatar_url(:size => 48), :class => "gravatar"),
                 "http://gravatar.com/emails/"
       = user.username
-  .span4
+  .span8.right
     - if logged_in?
       - if me?(user)
         = render_cell :profile, :edit_link
