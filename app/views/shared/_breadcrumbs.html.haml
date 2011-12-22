@@ -1,8 +1,9 @@
-%ul(class="breadcrumb")
-  - breadcrumb_active = @breadcrumbs.pop
-  - @breadcrumbs.each do |breadcrumb|
-    %li
-      = link_to breadcrumb[0], breadcrumb[1]
-      %span(class="divider") /
-  %li(class="active")
-    = breadcrumb_active[0]
+%section
+  %ul(class="breadcrumb")
+    - breadcrumb_active = @breadcrumbs.pop
+    - @breadcrumbs.each do |breadcrumb|
+      %li
+        = link_to breadcrumb[0], breadcrumb[1]
+        %span(class="divider") /
+    %li(class="active")
+      = breadcrumb_active[0]

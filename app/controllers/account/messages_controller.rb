@@ -1,15 +1,12 @@
 class Account::MessagesController < Account::BaseController
 
-  layout "messages"
-
-  main_nav_highlight :messages
-  sec_nav_highlight :new, :only => [:new, :create]
-  sec_nav_highlight :received, :only => [:index]
-  sec_nav_highlight :sent, :only => [:sent]
-  sec_nav_highlight :notifications, :only => [:notifications]
-
   respond_to :html
   respond_to :js, :only => [:destroy]
+
+  main_nav_highlight :messages
+
+  add_breadcrumb proc{|c| c.t("shared.topbar.main")}, :root_path
+  add_breadcrumb proc{|c| c.t("shared.topbar.profile_center")}, :account_root_path
 
   def new
     @message = Message.new

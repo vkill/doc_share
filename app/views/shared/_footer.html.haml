@@ -1,10 +1,9 @@
 %footer.footer
   .container
-    .row
-      %p.pull-right
-        = render "shared/language_choice"
-    .row
-      %p.pull-right
-        %a{:href => "#"} Back to top
-      %p
-        copyright
+    = render "shared/languages_choice"
+    %section
+      .row
+        %p.pull-right
+          %a{:href => "#"} Back to top
+        %p
+          copyright

@@ -5,7 +5,6 @@ zh-CN:
       long_only_date: "%Y年%b%d日"
       
   web:
-
     page:
       account:
         repository:
@@ -22,10 +21,6 @@ zh-CN:
           start_upload_files: 开始上传
           cancel_files: 取消
           delete_choised_files: 删除所选文件
-
-      repository:
-        new: 新项目
-
       message:
         reply: 回复
 
@@ -150,6 +145,16 @@ zh-CN:
     repositories:
       new:
         create: 我要创建项目
+    shared:
+      navigation:
+        dashboard: 控制面板
+        profile: 个人资料
+        messages: 邮件管理
+        new_message: 写邮件
+        sent_messages: 已发邮件
+        received_messages: 已收邮件
+        notifications: 系统通知
+        notifications_center: 通知管理
   
   admin:
     shared:
