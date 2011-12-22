@@ -2,7 +2,7 @@ class UsersController < ApplicationController
 
   layout :set_layout
 
-  respond_to :html, :except => [:autocomplete_with_username, :activate, :reverse_follow]
+  respond_to :html, :except => [:activate, :autocomplete_with_username, :reverse_follow]
   respond_to :json, :only => [:autocomplete_with_username]
   respond_to :js, :only => [:reverse_follow]
 
@@ -13,27 +13,20 @@ class UsersController < ApplicationController
   before_filter :find_user, :only => [:user_page, :following, :followers, :reverse_follow]
 
   main_nav_highlight :profile, :only => sorcery_actions
-  sec_nav_highlight :show_profile, :only => [:show]
-  sec_nav_highlight :edit_profile, :only => [:edit]
 
   add_breadcrumb proc{|c| c.t("shared.topbar.main")}, :root_path
   add_breadcrumb proc{|c| c.t("shared.topbar.users")}, :users_path, :only => [:index, :new, :create]
   add_breadcrumb proc{|c| c.t("shared.topbar.sign_up")}, "", :only => [:new, :create]
 
-  add_breadcrumb proc{|c| c.t("shared.topbar.profile_center")}, proc{|c| c.account_path}, :only => sorcery_actions
+  add_breadcrumb proc{|c| c.t("shared.topbar.profile_center")}, proc{|c| c.account_root_path}, :only => sorcery_actions
   add_breadcrumb proc{|c| c.t("shared.topbar.edit_profile")}, "", :only => sorcery_actions
+
+
+
 
   #################################################################
   # don't require login
   #################################################################
-  # autocomplete request
-  def autocomplete_with_username
-    @users = User.search(:username_cont => params[:q]).result().select([:username, :email]).limit(10)
-    respond_with @users do |format|
-      format.json { render :json => @users.map{|user| {:username => user.username,
-                                                      :gravatar_url => user.gravatar_url(:size => 20) } } }
-    end
-  end
 
   def index
   end
@@ -109,6 +102,15 @@ class UsersController < ApplicationController
   end
 
   ###################
+  # autocomplete request
+  def autocomplete_with_username
+    @users = User.search(:username_cont => params[:q]).result().select([:username, :email]).limit(10)
+    respond_with @users do |format|
+      format.json { render :json => @users.map{|user| {:username => user.username,
+                                                      :gravatar_url => user.gravatar_url(:size => 20) } } }
+    end
+  end
+
   def reverse_follow
     if current_user.following_user? @user
       current_user.unfollow_user(@user)
