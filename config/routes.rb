@@ -9,7 +9,6 @@ DocShare::Application.routes.draw do
     end
     member do
       get :activate
-      get :password_edit
       put :password_update
     end
   end
@@ -19,7 +18,6 @@ DocShare::Application.routes.draw do
   get "signin" => "sessions#new", :as => "signin"
   get "signout" => "sessions#destroy", :as => "signout"
   get "account/edit" => "users#edit", :as => :edit_profile
-  get "account/password/edit" => "users#password_edit", :as => :edit_password
 
 
   #

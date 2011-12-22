@@ -6,7 +6,7 @@ class UsersController < ApplicationController
   respond_to :json, :only => [:autocomplete_with_username]
   respond_to :js, :only => [:reverse_follow]
 
-  sorcery_actions = [:show, :edit, :update, :destroy, :password_edit, :password_update]
+  sorcery_actions = [:show, :edit, :update, :destroy, :password_update]
 
   before_filter :require_login, :only => sorcery_actions + [:autocomplete_with_username, :reverse_follow]
   before_filter :set_user, :only => sorcery_actions
@@ -15,7 +15,6 @@ class UsersController < ApplicationController
   main_nav_highlight :profile, :only => sorcery_actions
   sec_nav_highlight :show_profile, :only => [:show]
   sec_nav_highlight :edit_profile, :only => [:edit]
-  sec_nav_highlight :edit_password, :only => [:password_edit]
 
   add_breadcrumb proc{|c| c.t("shared.topbar.main")}, :root_path
   add_breadcrumb proc{|c| c.t("shared.topbar.users")}, :users_path, :only => [:index, :new, :create]
@@ -23,10 +22,8 @@ class UsersController < ApplicationController
 
   add_breadcrumb proc{|c| "#{User.model_name.human} ##{c.current_user.username}"}, proc{|c| c.edit_profile_path},
                           :only => sorcery_actions
-  add_breadcrumb proc{|c| c.t("show")}, "", :only => [:show]
-  add_breadcrumb proc{|c| c.t("edit")}, "", :only => [:edit, :update]
+  add_breadcrumb proc{|c| c.t("edit")}, "", :only => [:edit, :update, :password_update]
   add_breadcrumb proc{|c| c.t("delete")}, "", :only => [:destroy]
-  add_breadcrumb proc{|c| c.t("password_edit")}, "", :only => [:password_edit, :password_update]
 
   #################################################################
   # don't require login
@@ -102,9 +99,6 @@ class UsersController < ApplicationController
     redirect_to root_path, :notice => t(:notice, :scope => [:sorcery, :user, :destroy])
   end
 
-  def password_edit
-  end
-
   def password_update
     @user.password_confirmation = params[:user][:password_confirmation]
     if !User.authenticate(@user.username, params[:user][:current_password]).nil? and @user.change_password!(params[:user][:password])
@@ -112,7 +106,7 @@ class UsersController < ApplicationController
       redirect_to [:new, :session], :notice => t(:notice, :scope => [:sorcery, :user, :password_update])
     else
       @user.valid?
-      render :password_edit
+      render :edit
     end
   end
 
@@ -144,7 +138,7 @@ class UsersController < ApplicationController
         nil
       when :user_page, :following, :followers
         'users'
-      when :show, :edit, :update, :destroy, :password_edit, :password_update
+      when :show, :edit, :update, :destroy, :password_update
         'account'
       when :reverse_follow
         nil
