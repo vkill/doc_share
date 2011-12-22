@@ -121,6 +121,15 @@ describe User do
     end
   end
 
+  context "scope" do
+    it "has scope activity" do
+      pending
+    end
+    it "has scope recent_join" do
+      pending
+    end
+  end
+
 end
 # == Schema Information
 #

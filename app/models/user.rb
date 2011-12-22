@@ -114,6 +114,9 @@ class User < ActiveRecord::Base
     unread_system_notifications_count + unread_member_mailboxs_count
   end
 
+  scope :activity, lambda { |n| order("last_activity_at").limit(n) }
+  scope :recent_join, lambda { |n| order("created_at").limit(n) }
+
   private
     def follow_target(target)
       self.target_followed.create(

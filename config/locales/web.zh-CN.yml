@@ -1,19 +1,6 @@
 ---
 zh-CN:
-  web:    
-    topbar:
-      root: 网站首页
-      admin: 后台管理
-      sign_in: 登入
-      sign_up: 注册
-      forget_password: 忘记密码?
-      sign_out: 登出
-      dashboard: 控制面板
-      inbox: 收件箱
-      profile_center: 个人中心
-      user_page: 账户首页
-      repositories: 项目
-
+  web:
     modal:
       sign_in:
         require_sign_in: 继续操作前请先登录
@@ -64,7 +51,13 @@ zh-CN:
 
       activity:
         at: 在%{ago}前
-
+  
+  users:
+    index:
+      count_info: 目前已经有 %{count} 位会员加入了 Doc Share
+      activity_users: 活跃会员
+      recent_join_users: 最新加入会员
+      
 
   requesting: "请求中..."
   request_timeout: "请求超时,请稍候再试!"
@@ -106,31 +99,47 @@ zh-CN:
   
   twipsy:
     sort_link: 点击可以排序哦
-
-
-  admin:
-    navigation:
-      main: 管理中心
-      
+  
+  shared:
+    topbar:
+      repositories: 项目
+      users: 会员
+      admin: 后台管理
       dashboard: 控制面板
+      inbox: 收件箱
+      profile_center: 个人中心
+      user_page: 账户首页
+      sign_out: 登出
+      sign_up: 注册
+      forget_password: 忘记密码?
+      sign_in: 登入
       
-      user_about: 用户相关
-      users: 用户管理
-      roles: 角色管理
-      messages: 用户消息管理
+      root: 网站首页
       
-      repository_about: 项目相关
-      categories: 项目分类管理
-      repositories: 项目管理
-      
-      log_about: 日志相关
-      activities: 系统日志
-      
-      system_about: 系统相关
-      site_configs: 站点设置
-      
-      data_about: 数据维护
-      backups_databases: 备份SQL
+  admin:
+    shared:
+      topbar:
+        main: 管理中心
+        
+        dashboard: 控制面板
+        
+        user_about: 用户相关
+        users: 用户管理
+        roles: 角色管理
+        messages: 用户消息管理
+        
+        repository_about: 项目相关
+        categories: 项目分类管理
+        repositories: 项目管理
+        
+        log_about: 日志相关
+        activities: 系统日志
+        
+        system_about: 系统相关
+        site_configs: 站点设置
+        
+        data_about: 数据维护
+        backups_databases: 备份SQL
       
     users:
       entries:
