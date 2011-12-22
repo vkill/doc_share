@@ -8,7 +8,7 @@
     = favicon_link_tag
     %title #{SiteConfig.q(:site_default_title)}
 
-    = stylesheet_link_tag "application"
+    = render "shared/stylesheets"
 
   %body
     = render "admin/shared/topbar"

@@ -2,21 +2,36 @@ class UsersController < ApplicationController
 
   layout :set_layout
 
-  respond_to :html, :except => [:autocomplete_with_username, :reverse_follow]
+  respond_to :html, :except => [:autocomplete_with_username, :activate, :reverse_follow]
   respond_to :json, :only => [:autocomplete_with_username]
   respond_to :js, :only => [:reverse_follow]
 
-  before_filter :require_login, :only => [:show, :edit, :update, :destroy, :password_edit, :password_update,
-                                          :reverse_follow, :autocomplete_with_username]
-  before_filter :set_user, :only => [:show, :edit, :update, :destroy, :password_edit, :password_update]
+  sorcery_actions = [:show, :edit, :update, :destroy, :password_edit, :password_update]
+
+  before_filter :require_login, :only => sorcery_actions + [:autocomplete_with_username, :reverse_follow]
+  before_filter :set_user, :only => sorcery_actions
   before_filter :find_user, :only => [:user_page, :following, :followers, :reverse_follow]
 
-  main_nav_highlight :profile, :only => [:show, :edit, :update, :destroy, :password_edit, :password_update]
+  main_nav_highlight :profile, :only => sorcery_actions
   sec_nav_highlight :show_profile, :only => [:show]
   sec_nav_highlight :edit_profile, :only => [:edit]
   sec_nav_highlight :edit_password, :only => [:password_edit]
 
-  #
+  add_breadcrumb proc{|c| c.t("shared.topbar.main")}, :root_path
+  add_breadcrumb proc{|c| c.t("shared.topbar.users")}, :users_path, :only => [:index, :new, :create]
+  add_breadcrumb proc{|c| c.t("shared.topbar.sign_up")}, "", :only => [:new, :create]
+
+  add_breadcrumb proc{|c| "#{User.model_name.human} ##{c.current_user.username}"}, proc{|c| c.user_path(current_user)},
+                          :only => sorcery_actions
+  add_breadcrumb proc{|c| c.t("show")}, "", :only => [:show]
+  add_breadcrumb proc{|c| c.t("edit")}, "", :only => [:edit, :update]
+  add_breadcrumb proc{|c| c.t("delete")}, "", :only => [:destroy]
+  add_breadcrumb proc{|c| c.t("password_edit")}, "", :only => [:password_edit, :password_update]
+
+  #################################################################
+  # don't require login
+  #################################################################
+  # autocomplete request
   def autocomplete_with_username
     @users = User.search(:username_cont => params[:q]).result().select([:username, :email]).limit(10)
     respond_with @users do |format|
@@ -54,6 +69,23 @@ class UsersController < ApplicationController
     end
   end
 
+  def user_page
+    @new_activities = @user.activities.limit 30
+  end
+
+  def following
+    @following_users = @user.following_users
+    @watching_repositories = @user.watching_repositories
+  end
+
+  def followers
+    @followers = @user.followers
+  end
+
+  #################################################################
+  # require login
+  #################################################################
+
   def show
   end
 
@@ -87,21 +119,7 @@ class UsersController < ApplicationController
     end
   end
 
-
-  #########################################
-  def user_page
-    @new_activities = @user.activities.limit 30
-  end
-
-  def following
-    @following_users = @user.following_users
-    @watching_repositories = @user.watching_repositories
-  end
-
-  def followers
-    @followers = @user.followers
-  end
-
+  ###################
   def reverse_follow
     if current_user.following_user? @user
       current_user.unfollow_user(@user)
@@ -112,15 +130,27 @@ class UsersController < ApplicationController
   end
 
 
+
+
+
+
   private
     def set_layout
       case params[:action].to_sym
-      when :new, :create, :activate
-        'sign'
-      when :show, :edit, :update, :destroy, :password_edit, :password_update
-        'users'
-      else
+      when :autocomplete_with_username
+        nil
+      when :index
         'application'
+      when :new, :create
+        'sign'
+      when :activate
+        nil
+      when :user_page, :following, :followers
+        'users'
+      when :show, :edit, :update, :destroy, :password_edit, :password_update
+        'account'
+      when :reverse_follow
+        nil
       end
     end
     def set_user

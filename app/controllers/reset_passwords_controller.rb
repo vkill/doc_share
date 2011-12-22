@@ -2,6 +2,11 @@ class ResetPasswordsController < ApplicationController
 
   layout 'sign'
 
+  add_breadcrumb proc{|c| c.t("shared.topbar.main")}, :root_path
+  add_breadcrumb proc{|c| c.t("shared.topbar.users")}, :users_path
+  add_breadcrumb proc{|c| c.t("shared.topbar.forget_password")}, "", :only => [:new, :create]
+  add_breadcrumb proc{|c| c.t("shared.topbar.reset_password")}, "", :only => [:edit, :update]
+
   def new
     @user = User.new
   end

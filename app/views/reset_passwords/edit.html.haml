@@ -1,5 +1,3 @@
-%h2 Change your password
-
 = simple_form_for(@user, :url => reset_password_path(@user), :wrapper => :inline) do |f|
 
   = render "partials/simple_form_error_notification", :f => f

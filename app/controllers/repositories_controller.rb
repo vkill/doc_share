@@ -6,7 +6,10 @@ class RepositoriesController < ApplicationController
   before_filter :require_login, :only => [:reverse_watch, :fork, :admin]
   before_filter :find_user_public_repositories, :except => [:index]
   before_filter :find_repository, :except => [:index, :public_repositories]
-  before_filter :set_tag, :only => [:tree, :blob]
+  before_filter :set_git_tag, :only => [:tree, :blob]
+
+  add_breadcrumb proc{|c| c.t("shared.topbar.main")}, :root_path
+  add_breadcrumb proc{|c| c.t("shared.topbar.repositories")}, "", :only => [:index]
 
   def index
     @repositories = Repository.public_repo.page(params[:page])
@@ -46,12 +49,12 @@ class RepositoriesController < ApplicationController
 
   def tree
     @tree_path = params[:tree_path]
-    @contents = @repository.git_repo.tree(@tag, @tree_path).contents
+    @contents = @repository.git_repo.tree(@git_tag, @tree_path).contents
   end
 
   def blob
     @blob_path = params[:blob_path]
-    @blob = @repository.git_repo.tree(@tag, @blob_path).contents.first
+    @blob = @repository.git_repo.tree(@git_tag, @blob_path).contents.first
   end
 
   private
@@ -64,8 +67,8 @@ class RepositoriesController < ApplicationController
       @repository = @repositories.find(params[:repository])
     end
 
-    def set_tag
-      @tag = params[:tag] || 'master'
+    def set_git_tag
+      @git_tag = params[:git_tag] || 'master'
     end
 
     def after_location

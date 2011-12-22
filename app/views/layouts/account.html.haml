@@ -17,9 +17,11 @@
       .row
         = render "account/shared/navigation"
       .row
-        = render "shared/flash", :flash => flash
-      .row
-        = yield
+        .span4
+          = render "shared/users_navigation"
+        .span12
+          = render "shared/flash", :flash => flash
+          = yield
 
     = render "shared/footer"
     = render "shared/javascripts"

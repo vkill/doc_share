@@ -1,5 +1,3 @@
-%h2 Forgot your password?
-
 = simple_form_for(@user, :url => reset_passwords_path, :html => { :method => :post }, :wrapper => :inline) do |f|
 
   = field_set_tag "" do
@@ -11,8 +9,8 @@
     = button_tag t(:reset), :type => :reset, :class => "btn"
 
     %p.pull-right
-      = link_to t(:sign_in, :scope => [:web, :topbar]), signin_path
-      /= link_to t(:forget_password, :scope => [:web, :topbar]), new_reset_password_path
+      = link_to t("shared.topbar.sign_in"), signin_path
       |
-      = link_to t(:sign_up, :scope => [:web, :topbar]), signup_path
-
+      /= link_to t("shared.topbar.forget_password"), new_reset_password_path
+      /|
+      = link_to t("shared.topbar.sign_up"), signup_path

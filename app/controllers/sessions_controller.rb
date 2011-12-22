@@ -1,8 +1,10 @@
 class SessionsController < ApplicationController
 
   layout 'sign'
-
-  before_filter :require_login, :only => [:destroy]
+  
+  add_breadcrumb proc{|c| c.t("shared.topbar.main")}, :root_path
+  add_breadcrumb proc{|c| c.t("shared.topbar.users")}, :users_path
+  add_breadcrumb proc{|c| c.t("shared.topbar.sign_in")}, "", :only => [:new, :create]
 
   def new
     @user = User.new
