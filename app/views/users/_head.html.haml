@@ -1,27 +1,24 @@
 .row
   .span12
-    %p
+    %h1
       = link_to (image_tag user.gravatar_url(:size => 48), :class => "gravatar"),
                 "http://gravatar.com/emails/"
+      = user.username
   .span4
     - if logged_in?
       - if me?(user)
         = render_cell :profile, :edit_link
       - else
-        = mail_to @user.email,
+        = mail_to user.email,
               t(".send_email"),
               :class => "btn small primary"
 
         = link_to t(".send_message"),
-              new_account_message_path(:receiver_username => @user.username),
+              new_account_message_path(:receiver_username => user.username),
               :class => "btn small primary"
-        
-        - if current_user.following_user?(user)
-          - @original_text = t(".unfollow")
-        - else
-          - @original_text = t(".follow")
-        = link_to @original_text,
-                  user_reverse_follow_path(@user.username),
+
+        = link_to (current_user.following_user?(user) ? t(".unfollow") : t(".follow")),
+                  user_reverse_follow_path(user.username),
                   :method => :put,
                   :remote => true,
                   :data => { "user_reverse_follow_#{user.id}" => true,
@@ -35,7 +32,7 @@
                   :class => "btn small primary"
 
     - else
-      - [ t(".send_email"), t(".send_email"), t(".send_email")].each do |text|
+      - [ t(".send_email"), t(".send_message"), t(".follow")].each do |text|
         = link_to text,
                   "javascript:void(0);",
                   :class => "btn small",
