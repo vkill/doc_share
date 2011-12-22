@@ -70,6 +70,7 @@ zh-CN:
   reset: 恢复
   back_to: 返回
   view_all: 查看全部
+  more: 更多...
   select_options: 请选择一个选项
   manage: 管理
   close: 关闭
@@ -127,7 +128,11 @@ zh-CN:
     following:
       following_users: "%{username}关注的人"
       following_repositories: "%{username}关注的项目"
-    
+  
+  repositories:
+    public_repositories:
+      public_repositories: "%{username}的共享项目"
+  
   partials:
     user:
       count_link:

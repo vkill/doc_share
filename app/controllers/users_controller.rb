@@ -145,9 +145,11 @@ class UsersController < ApplicationController
         nil
       end
     end
+
     def set_user
       @user = current_user
     end
+    
     def find_user
       @user = User.find(params[:user])
     end

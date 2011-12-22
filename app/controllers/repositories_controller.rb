@@ -1,5 +1,7 @@
 class RepositoriesController < ApplicationController
 
+  layout :set_layout
+
   respond_to :html, :except => [:reverse_watch]
   respond_to :js, :only => [:reverse_watch]
 
@@ -16,7 +18,7 @@ class RepositoriesController < ApplicationController
   end
 
   def public_repositories
-    @repositories = @repositories.page(params[:page])
+    @public_repositories = @repositories.page(params[:page])
   end
 
   def watchers
@@ -58,6 +60,15 @@ class RepositoriesController < ApplicationController
   end
 
   private
+    def set_layout
+      case params[:action].to_sym
+      when :index
+        'application'
+      else
+        'users'
+      end
+    end
+
     def find_user_public_repositories
       @user = User.find(params[:user])
       @repositories = @user.repositories.public_repo
