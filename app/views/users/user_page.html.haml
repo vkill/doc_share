@@ -14,10 +14,22 @@
 %br
 .page-header
   .row
-    .span9
-    .span7
-      - @new_activities.each do |activity|
-        %br
-        .page-header
-          = render "partials/activity_display", :activity => activity
-
+    .span8
+      .page-header
+        %h3= t(".latest_public_repositories", :username => @user.username)
+      .row
+        .span8
+          - @latest_public_repositories.each do |public_repository|
+            .page-header
+              .row
+                .span8
+                  
+    .span8
+      .page-header
+        %h3= t(".latest_activities", :username => @user.username)
+      .row
+        .span8
+          - @latest_activities.each do |activity|
+            %br
+            .page-header
+              = render "partials/activity_display", :activity => activity

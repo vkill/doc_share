@@ -119,8 +119,14 @@ zh-CN:
     head:
       send_email: 发邮件
       send_message: 发消息
-      follow: 关注
-      unfollow: 取消关注
+    user_page:
+      latest_public_repositories: 最新共享项目
+      latest_activities: 最近事件
+    followers:
+      followers: 关注%{username}的人
+    following:
+      following_users: "%{username}关注的人"
+      following_repositories: "%{username}关注的项目"
     
   partials:
     user:
@@ -131,7 +137,9 @@ zh-CN:
       details:
       following_link:
         following: 他/她关注有%{following_users_count}个人、关注有%{watching_repositories_count}个项目
-  
+      reverse_follow:  
+        follow: 关注
+        unfollow: 取消关注
   
   admin:
     shared:

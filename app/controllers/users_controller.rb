@@ -58,16 +58,17 @@ class UsersController < ApplicationController
   end
 
   def user_page
-    @new_activities = @user.activities.limit 30
+    @latest_public_repositories = Repository.public_repo.limit(5)
+    @latest_activities = @user.activities.limit(10)
   end
 
   def following
-    @following_users = @user.following_users
-    @watching_repositories = @user.watching_repositories
+    @following_users = @user.following_users.page(params[:page])
+    @watching_repositories = @user.watching_repositories.page(params[:page])
   end
 
   def followers
-    @followers = @user.followers
+    @followers = @user.followers.page(params[:page])
   end
 
   #################################################################
