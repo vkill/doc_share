@@ -6,7 +6,7 @@
   %ul.pills
     %li{:class => @sec_nav == :show_profile ? :active : nil}
       %h4
-        = link_to "profile", profile_path
+        = link_to "profile", edit_profile_path
     .row
 
     %li{:class => @sec_nav == :edit_profile ? :active : nil}

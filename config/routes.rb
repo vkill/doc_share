@@ -3,7 +3,7 @@ DocShare::Application.routes.draw do
   root :to => 'home#index'
 
   #user signup signin signout, user edit profile
-  resources :users, :except => [:index] do
+  resources :users, :except => [:index, :show] do
     collection do
       get :autocomplete_with_username
     end
@@ -18,7 +18,6 @@ DocShare::Application.routes.draw do
   get "signup" => "users#new", :as => "signup"
   get "signin" => "sessions#new", :as => "signin"
   get "signout" => "sessions#destroy", :as => "signout"
-  get "account" => "users#show", :as => :profile
   get "account/edit" => "users#edit", :as => :edit_profile
   get "account/password/edit" => "users#password_edit", :as => :edit_password
 

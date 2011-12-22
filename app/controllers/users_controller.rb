@@ -21,7 +21,7 @@ class UsersController < ApplicationController
   add_breadcrumb proc{|c| c.t("shared.topbar.users")}, :users_path, :only => [:index, :new, :create]
   add_breadcrumb proc{|c| c.t("shared.topbar.sign_up")}, "", :only => [:new, :create]
 
-  add_breadcrumb proc{|c| "#{User.model_name.human} ##{c.current_user.username}"}, proc{|c| c.user_path(current_user)},
+  add_breadcrumb proc{|c| "#{User.model_name.human} ##{c.current_user.username}"}, proc{|c| c.edit_profile_path},
                           :only => sorcery_actions
   add_breadcrumb proc{|c| c.t("show")}, "", :only => [:show]
   add_breadcrumb proc{|c| c.t("edit")}, "", :only => [:edit, :update]
@@ -85,9 +85,6 @@ class UsersController < ApplicationController
   #################################################################
   # require login
   #################################################################
-
-  def show
-  end
 
   def edit
   end
