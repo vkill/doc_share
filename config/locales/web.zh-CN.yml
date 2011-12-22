@@ -68,7 +68,6 @@ zh-CN:
   new: 新建
   show: 查看
   edit: 编辑
-  password_edit: 修改密码
   delete: 删除
   destroy: 删除
   sure_delete: 我确认删除
@@ -120,6 +119,7 @@ zh-CN:
       sign_in: 登入
       reset_password: 重置密码
       root: 网站首页
+      edit_profile: 编辑个人资料
   
   users:
     index:
