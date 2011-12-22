@@ -1,6 +1,6 @@
 class Admin::SiteConfigsController < Admin::BaseController
   
-  add_breadcrumb proc{|c| c.t("admin.navigation.site_configs")}, :admin_site_config_path
+  add_breadcrumb proc{|c| c.t("admin.shared.topbar.site_configs")}, :admin_site_config_path
 
   add_breadcrumb proc{|c| c.t("show")}, "", :only => [:show]
   add_breadcrumb proc{|c| c.t("edit")}, "", :only => [:edit, :update]

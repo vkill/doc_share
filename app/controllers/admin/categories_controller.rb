@@ -1,8 +1,8 @@
 class Admin::CategoriesController < Admin::ResourcesBaseController
 
-  add_breadcrumb proc{|c| c.t("admin.navigation.categories")}, "", :only => [:index]
+  add_breadcrumb proc{|c| c.t("admin.shared.topbar.categories")}, "", :only => [:index]
   
-  add_breadcrumb proc{|c| c.t("admin.navigation.categories")}, :admin_categories_path, :except => [:index]
+  add_breadcrumb proc{|c| c.t("admin.shared.topbar.categories")}, :admin_categories_path, :except => [:index]
   add_breadcrumb proc{|c| c.t("new")}, "", :only => [:new, :create]
   add_breadcrumb proc{|c| c.t("export_all")}, "", :only => [:export]
 

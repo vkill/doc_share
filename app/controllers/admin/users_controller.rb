@@ -1,8 +1,8 @@
 class Admin::UsersController < Admin::ResourcesBaseController
 
-  add_breadcrumb proc{|c| c.t("admin.navigation.users")}, "", :only => [:index]
+  add_breadcrumb proc{|c| c.t("admin.shared.topbar.users")}, "", :only => [:index]
   
-  add_breadcrumb proc{|c| c.t("admin.navigation.users")}, :admin_users_path, :except => [:index]
+  add_breadcrumb proc{|c| c.t("admin.shared.topbar.users")}, :admin_users_path, :except => [:index]
   add_breadcrumb proc{|c| c.t("new")}, "", :only => [:new, :create]
   add_breadcrumb proc{|c| c.t("export_all")}, "", :only => [:export]
 

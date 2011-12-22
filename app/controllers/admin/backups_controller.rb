@@ -1,6 +1,6 @@
 class Admin::BackupsController < Admin::BaseController
 
-  add_breadcrumb proc{|c| c.t("admin.navigation.backups_databases")}, "", :only => [:databases]
+  add_breadcrumb proc{|c| c.t("admin.shared.topbar.backups_databases")}, "", :only => [:databases]
 
   def download
     send_file BackupModel.build_path(params[:path])

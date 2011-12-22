@@ -4,6 +4,6 @@ class Admin::BaseController < ApplicationController
 
   before_filter :require_login
   
-  add_breadcrumb proc{|c| c.t("admin.navigation.main")}, :admin_root_path
+  add_breadcrumb proc{|c| c.t("admin.shared.topbar.main")}, :admin_root_path
   
 end

@@ -1,8 +1,8 @@
 class Admin::RepositoriesController < Admin::ResourcesBaseController
 
-  add_breadcrumb proc{|c| c.t("admin.navigation.repositories")}, "", :only => [:index]
+  add_breadcrumb proc{|c| c.t("admin.shared.topbar.repositories")}, "", :only => [:index]
   
-  add_breadcrumb proc{|c| c.t("admin.navigation.repositories")}, :admin_repositories_path, :except => [:index]
+  add_breadcrumb proc{|c| c.t("admin.shared.topbar.repositories")}, :admin_repositories_path, :except => [:index]
   add_breadcrumb proc{|c| c.t("new")}, "", :only => [:new, :create]
   add_breadcrumb proc{|c| c.t("export_all")}, "", :only => [:export]
 
