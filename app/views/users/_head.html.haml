@@ -1,8 +1,12 @@
 .row
   .span4
     %h1
-      = link_to (image_tag user.gravatar_url(:size => 48), :class => "gravatar"),
-                "http://gravatar.com/emails/"
+      - if logged_in? and me?(user)
+        = link_to (image_tag user.gravatar_url(:size => 48), :class => "gravatar"),
+                  user_page_path(user), :data => {:twipst_change_gravatar => true}
+      - else
+        = link_to (image_tag user.gravatar_url(:size => 48), :class => "gravatar"),
+                    user_page_path(user)
       = link_to user.username, user_page_path(user)
   .span10.right
     - if logged_in?

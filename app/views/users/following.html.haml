@@ -1,34 +1,35 @@
 = render "head", :user => @user
 
-.row
-  .span9
-    .page-header
-      %h3= t(".following_users", :username => @user.username)
-    .row
-      .span9
-        - @following_users.each do |following_user|
-          .page-header
-            .row
-              .span9
-                %p.pull-right
-                  = render "partials/user/reverse_follow", :user => following_user
-                %p
-                  = render "partials/user/gravatar", :user => following_user
+%section
+  .row
+    .span9
+      .page-header
+        %h3= t(".following_users", :username => @user.username)
+      .row
+        .span9
+          - @following_users.each do |following_user|
+            .page-header
+              .row
+                .span9
+                  %p.pull-right
+                    = render "partials/user/reverse_follow", :user => following_user
+                  %p
+                    = render "partials/user/gravatar", :user => following_user
 
-        = render 'partials/pagination', :resources => @following_users
-  
-  .span6.offset1
-    .page-header
-      %h3= t(".following_repositories", :username => @user.username)
-    .row
-      .span6
-        - @watching_repositories.each do |watching_repository|
-          .page-header
-            .row
-              .span6
-                %p
-                  = render "partials/repository/link", :repository => watching_repository
+          = render 'partials/pagination', :resources => @following_users
+    
+    .span6.offset1
+      .page-header
+        %h3= t(".following_repositories", :username => @user.username)
+      .row
+        .span6
+          - @watching_repositories.each do |watching_repository|
+            .page-header
+              .row
+                .span6
+                  %p
+                    = render "partials/repository/link", :repository => watching_repository
 
-        = render 'partials/pagination', :resources => @watching_repositories
+          = render 'partials/pagination', :resources => @watching_repositories
 
 

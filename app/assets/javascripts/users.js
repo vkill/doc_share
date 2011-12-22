@@ -1,9 +1,9 @@
 $(document).ready(function() {
-  $("a img.gravatar").each(function(){
+  $("[data-twipst-change-gravatar]").each(function(){
     $(this).twipsy({
       live: true,
       html: true,
-      placement: 'right',
+      placement: 'below',
       title: function(){
         return $("#popover-twipsy-change-gravatar").html()
       }

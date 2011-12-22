@@ -1,18 +1,19 @@
 = render "head", :user => @user
 
-.page-header
+%section
   .row
     .span8
       = render "partials/user/details", :user => @user
-    .span8
+    .span7.offset1
       %p
         = render "partials/user/count_link", :user => @user
       %br
       %p
         = render "partials/user/following_link", :user => @user
 
-%br
 .page-header
+
+%section
   .row
     .span8
       .page-header

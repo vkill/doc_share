@@ -74,7 +74,7 @@ zh-CN:
   
   twipsy:
     sort_link: 点击可以排序哦
-    change_gravatar: 改变头像请上gravatar.com
+    change_gravatar: 改变头像请前往 gravatar.com 修改
   
   shared:
     topbar:
@@ -145,6 +145,11 @@ zh-CN:
         fork: 拷贝
         forked: 已拷贝
         forked_info: 你已经拷贝过此项目，点击跳转到此项目
+  
+  account:
+    repositories:
+      new:
+        create: 我要创建项目
   
   admin:
     shared:
