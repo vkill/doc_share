@@ -14,7 +14,7 @@ class SiteConfig < ActiveRecord::Base
   #
   def self.q(key)
     unless self.cache_exist?(:_wrote_cache)
-      self.all.each {|site_config| self.write_cache(site_config.key, site_config.value)}
+      SiteConfig.find_each {|site_config| self.write_cache(site_config.key, site_config.value)}
       self.write_cache(:_wrote_cache, true)
     end
     self.read_cache(key)
