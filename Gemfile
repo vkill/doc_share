@@ -34,7 +34,6 @@ gem "capybara", "~> 1.1.2", :group => [:test]
 gem "guard", "~> 0.8.8", :group => [:test]
 gem "guard-rspec", "~> 0.5.4", :group => [:test]
 gem "guard-spork", "~> 0.3.1", :group => [:test]
-gem "guard-livereload", "~> 0.3.1", :group => [:test]
 
 gem "machinist", ">= 2.0.0.beta2", :group => [:test]
 gem "database_cleaner", "~> 0.7.0", :group => [:test]
