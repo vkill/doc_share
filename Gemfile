@@ -51,7 +51,6 @@ gem "annotate", "~> 2.4.1.beta1", :require => false, :group => [:development]
 gem "thin", "~> 1.3.1", :require => false, :group => [:development]
 
 gem "pry", "~> 0.9.7.4", :group => [:development]
-gem "pry-padrino", "~> 0.1.2", :group => [:development]
 
 gem "foreman", "~> 0.26.1", :require => false, :group => [:development]
 
