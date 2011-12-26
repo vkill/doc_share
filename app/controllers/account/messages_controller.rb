@@ -8,6 +8,20 @@ class Account::MessagesController < Account::BaseController
   add_breadcrumb proc{|c| c.t("shared.topbar.main")}, :root_path
   add_breadcrumb proc{|c| c.t("shared.topbar.profile_center")}, :account_root_path
 
+  add_breadcrumb proc{|c| c.t("account.shared.navigation.messages")}, :account_messages_path
+  
+  add_breadcrumb proc{|c| c.t("new")}, "", :only => [:new, :create]
+  add_breadcrumb proc{|c| [c.t("show"), c.t("reply")].join("&")}, "", :only => [:show, :reply]
+  add_breadcrumb proc{|c| c.t("delete")}, "", :only => [:delete, :destroy]
+
+  add_breadcrumb proc{|c| c.t("account.shared.navigation.sent_messages")}, :sent_account_messages_path,
+                          :only => [:sent]
+  add_breadcrumb proc{|c| c.t("account.shared.navigation.received_messages")}, :account_messages_path,
+                          :only => [:index]
+  add_breadcrumb proc{|c| c.t("account.shared.navigation.notifications")}, :notifications_account_messages_path,
+                          :only => [:notifications]
+
+
   def new
     @message = Message.new
     @message.receiver_username_post = params[:receiver_username]

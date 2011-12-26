@@ -66,6 +66,7 @@ zh-CN:
   successfully_completed: 操作成功完成
   require_sign_in: 继续操作前请先登录
   at: 在%{ago}前
+  reply: 回复
   
   twipsy:
     sort_link: 点击可以排序哦

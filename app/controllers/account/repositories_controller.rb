@@ -5,6 +5,13 @@ class Account::RepositoriesController < Account::BaseController
   add_breadcrumb proc{|c| c.t("shared.topbar.main")}, :root_path
   add_breadcrumb proc{|c| c.t("shared.topbar.profile_center")}, :account_root_path
 
+  add_breadcrumb proc{|c| c.t("account.shared.navigation.repositories")}, :account_repositories_path
+  
+  add_breadcrumb proc{|c| c.t("new")}, "", :only => [:new, :create]
+
+  add_breadcrumb proc{|c| c.t("edit")}, "", :only => [:edit, :update]
+  add_breadcrumb proc{|c| c.t("delete")}, "", :only => [:delete, :destroy]                  
+
   before_filter :find_or_build_repository, :except => [:index]
 
   def index

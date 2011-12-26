@@ -1,35 +1,36 @@
-.row
-  .span4
-    %h3
-      = render "partials/repository/link", :repository => repository
-  .span12.right
-    - if action_name == "admin"
-      = link_to t(:back_to, :scope => [:web, :page, :repository]),
-                user_repository_path(current_user.username, repository.name),
-                :class => "btn small primary"
-    - else
-      - if logged_in?
-        - if owner?(repository)
-          = link_to t(".manage"),
-                admin_user_repository_path(current_user.username, repository.name),
-                :class => "btn small primary"
-        - else
-          = render "partials/repository/reverse_watch", :repository => repository
-          = render "partials/repository/fork", :repository => repository
+%section
+  .row
+    .span12
+      %h3
+        = render "partials/repository/link", :repository => repository
+    .span4.right
+      - if action_name == "admin"
+        = link_to t(".back_to"),
+                  user_repository_path(current_user.username, repository.name),
+                  :class => "btn small primary"
       - else
-        - [ t("partials.repository.reverse_watch.watch"),
-            t("partials.repository.fork.fork")].each do |text|
-          = link_to text,
-                    "javascript:void(0);",
-                    :class => "btn small",
-                    :rel => "twipsy",
-                    :data => { :backdrop => 'true', :controls_modal => "modal-sign-in", :keyboard => 'true',
-                                :original_title => t(:require_sign_in), :placement => :below}
+        - if logged_in?
+          - if owner?(repository)
+            = link_to t(".manage"),
+                  admin_user_repository_path(current_user.username, repository.name),
+                  :class => "btn small primary"
+          - else
+            = render "partials/repository/reverse_watch", :repository => repository
+            = render "partials/repository/fork", :repository => repository
+        - else
+          - [ t("partials.repository.reverse_watch.watch"),
+              t("partials.repository.fork.fork")].each do |text|
+            = link_to text,
+                      "javascript:void(0);",
+                      :class => "btn small",
+                      :rel => "twipsy",
+                      :data => { :backdrop => 'true', :controls_modal => "modal-sign-in", :keyboard => 'true',
+                                  :original_title => t(:require_sign_in), :placement => :below}
 
-      = nbsp(4)
-      = render "partials/repository/count_link", :repository => repository
+        = nbsp(4)
+        = render "partials/repository/count_link", :repository => repository
+
+.page-header
 
 - content_for :modal do
   = render_cell "bootstrap_::_controls_modal", :sign_in
-
-.page-header
