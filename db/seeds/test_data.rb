@@ -21,6 +21,7 @@ vkill = User.find_by_email "vkill.net@gmail.com"
 
 10.times {
   repository = Repository.make!(:user => vkill)
+  RepoFile.make!(:repository => repository)
   Repository.make!(:user => hyp, :parent => repository) if rand(2) == 0 #hyp fork vkill'repository
   target_follower = TargetFollower.make!(:follower => hyp, :target => repository) #hyp watch vkill'repository
   target_follower.destroy if rand(2) == 0 #vkill unwatch hyp'repository
@@ -28,7 +29,7 @@ vkill = User.find_by_email "vkill.net@gmail.com"
   issue = Issue.make!(:user => vkill, :repository => repository)
   Comment.make!(:user => vkill, :commentable => repository)
   Comment.make!(:user => vkill, :commentable => issue)
-  RepoFile.make!(:repository => repository)
+  
 }
 
 10.times {

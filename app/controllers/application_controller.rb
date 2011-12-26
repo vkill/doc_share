@@ -5,7 +5,11 @@ class ApplicationController < ActionController::Base
   respond_to :html
 
   enable_authorization do |exception|
-    redirect_to root_url, :alert => exception.message
+    if current_user
+      redirect_to root_url, :alert => exception.message
+    else
+      redirect_to new_session_path(:ok_url => request.path), :alert => t(:require_sign_in)
+    end
   end
   
   

@@ -1,5 +1,8 @@
 class Account::RepositoriesController < Account::BaseController
 
+  add_breadcrumb proc{|c| c.t("shared.topbar.main")}, :root_path
+  add_breadcrumb proc{|c| c.t("shared.topbar.profile_center")}, :account_root_path
+
   before_filter :find_or_build_repository, :except => [:index]
 
   def index
