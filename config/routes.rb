@@ -14,9 +14,9 @@ DocShare::Application.routes.draw do
   end
   resources :sessions, :only => [:new, :create]
   resources :reset_passwords, :only => [:new, :create, :edit, :update]
-  get "signup" => "users#new", :as => "signup"
-  get "signin" => "sessions#new", :as => "signin"
-  get "signout" => "sessions#destroy", :as => "signout"
+  get "auth/signup" => "users#new", :as => "signup"
+  get "auth/signin" => "sessions#new", :as => "signin"
+  get "auth/signout" => "sessions#destroy", :as => "signout"
   get "account/edit" => "users#edit", :as => :edit_profile
 
 

@@ -50,7 +50,8 @@ class User < ActiveRecord::Base
   validates :username, :presence => true,
                         :length => { :within => 4..30 },
                         :uniqueness => true,
-                        :format => { :with => /^[A-Za-z0-9_]+$/ }
+                        :format => { :with => /^[A-Za-z0-9_]+$/ },
+                        :exclusion => { :in => Settings.user_username_exclusion_in.split(" ") }
   validates :email, :presence => true,
                     :email => true
   validates :password, :confirmation => true,
