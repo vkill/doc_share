@@ -111,7 +111,7 @@ gem "grit", :path => "vendor/plugins/grit-2.4.1"
 
 gem "gravtastic", '~> 3.2.3'
 
-gem "cells", "~> 3.7.0"
+gem "cells", "~> 3.8.0"
 
 gem "show_for", "~> 0.2.4"
 
