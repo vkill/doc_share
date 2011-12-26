@@ -8,12 +8,13 @@ class SessionsController < ApplicationController
 
   def new
     @user = User.new
+    @ok_url = params[:ok_url]
   end
 
   def create
     if User.authenticate(params[:user][:login],params[:user][:password])
       @user = login(params[:user][:login],params[:user][:password],params[:user][:remember_me])
-      redirect_to root_path, :notice => t(:notice, :scope => [:sorcery, :session, :create])
+      redirect_to params[:ok_url] || root_path, :notice => t(:notice, :scope => [:sorcery, :session, :create])
     else
       @user = User.new(params[:user])
       flash[:alert] = t(:alert, :scope => [:sorcery, :session, :create])

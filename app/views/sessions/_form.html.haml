@@ -1,6 +1,7 @@
 = simple_form_for(user, :url => sessions_path, :wrapper => :inline) do |f|
 
   = field_set_tag "" do
+    = hidden_field_tag :ok_url, @ok_url
     = f.input :login, :required => true, :autofocus => true, :input_html => { :class => "span4" }
     = f.input :password, :required => true, :input_html => { :class => "span4" }
     = f.input :remember_me, :as => :boolean
