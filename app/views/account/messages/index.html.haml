@@ -1,11 +1,3 @@
-.page-header
-  - if action_name == "index"
-    %h2 received_messages
-  - elsif action_name ==  "sent"
-    %h2 sent_messages
-  - elsif action_name ==  "notifications"
-    %h2 notifications
-
 .row
   - @messages.each do |message|
     .page-header

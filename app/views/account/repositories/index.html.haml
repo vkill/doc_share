@@ -1,5 +1,30 @@
-= search_form_for @q do |f|
-  = f.label :name_cont
-  = f.text_field :name_cont
-  = f.submit
 
+= search_form_for @q, :url => [:account, :repositories] do |f|
+  .row
+    .span14
+      .row
+        .span7.clearfix
+          = f.label :name, :class => "span2"
+          = f.text_field :name_cont, :class => "span4"
+    .span2
+      = f.submit t(:search), :class => "btn primary"
+
+%section
+  .row
+    .span16
+      - @repositories.each do |repository|
+        .page-header
+          .row
+            .span16
+              %p.pull-right
+                = render "partials/repository/count_link", :repository => repository
+              %p
+                = render "partials/repository/link_only_name", :repository => repository
+              %p
+                = repository.describtion
+              %p
+                %em
+                  = t(:updated_at)
+                  = l repository.updated_at, :format => :long_only_date
+
+      = render 'partials/pagination', :resources => @repositories

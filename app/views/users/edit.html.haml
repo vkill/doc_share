@@ -1,3 +1,6 @@
-= render "form", :user => @user
-
-= render "form_password", :user => @user
+%section
+  .row
+    .span8
+      = render "form", :user => @user
+    .span8
+      = render "form_password", :user => @user
