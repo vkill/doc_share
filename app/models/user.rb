@@ -30,7 +30,7 @@ class User < ActiveRecord::Base
 
   has_many :repositories, :dependent => :destroy
 
-  has_many :activities
+  has_many :activities, :dependent => :destroy
 
   has_one :setting_user_notification
 
