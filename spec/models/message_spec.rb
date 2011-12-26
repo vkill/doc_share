@@ -15,7 +15,6 @@ describe Message do
     it { should_not have_valid(:subject).when('s'*3, 's'*31, nil) }
 
     context "receiver_username_post" do
-      User.make!
       it { should_not have_valid(:receiver_username_post).when('test_123' ) }
       it { should_not have_valid(:receiver_username_post).when(nil) }
       it { should have_valid(:receiver_username_post).when(User.first.username ) }
