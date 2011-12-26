@@ -154,6 +154,8 @@ zh-CN:
         sent_messages: 已发邮件
         received_messages: 已收邮件
         notifications: 系统通知
+        repositories: 项目管理
+        new_repository: 创建新项目
         notifications_center: 通知管理
   
   admin:

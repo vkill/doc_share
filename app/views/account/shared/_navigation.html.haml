@@ -18,6 +18,14 @@
           = link_to t(".received_messages"), [:account, :messages]
         %li
           = link_to t(".notifications"), [:notifications, :account, :messages]
+    
+    %li.dropdown{"data-dropdown" => "dropdown", :class => @main_nav == :repositories ? :active : nil}
+      %a.dropdown-toggle{:href => "javascript:void(0)"}= t(".repositories")
+      %ul.dropdown-menu
+        %li
+          = link_to t(".new_repository"), [:new, :account, :repository]
+        %li
+          = link_to t(".repositories"), [:account, :repositories]
 
     %li{:class => @main_nav == :notifications_center ? :active : nil}
       = link_to t(".notifications_center"), account_notifications_center_path
