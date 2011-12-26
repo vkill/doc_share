@@ -58,8 +58,8 @@ class UsersController < ApplicationController
   end
 
   def user_page
-    @latest_public_repositories = Repository.public_repo.limit(5)
-    @latest_activities = @user.activities.limit(15)
+    @latest_public_repositories = @user.repositories.public_repo.limit(5).order('updated_at')
+    @latest_activities = @user.activities.limit(15).order('created_at')
   end
 
   def following
