@@ -7,6 +7,13 @@ GIT
       activemodel (~> 3.0)
 
 GIT
+  remote: git://github.com/ryanb/cancan.git
+  revision: c94de4ab1805d2e080ebd658051c59d0ec5147ce
+  branch: 2.0
+  specs:
+    cancan (2.0.0.alpha)
+
+GIT
   remote: git://github.com/ryanb/nested_form.git
   revision: 57f32788f1952bcd633057b4b56b69b51df17610
   specs:
@@ -73,7 +80,6 @@ GEM
     by_star (1.0.1)
       activerecord (>= 2.0.0)
       chronic
-    cancan (1.6.7)
     capistrano (2.9.0)
       highline
       net-scp (>= 1.0.0)
@@ -355,7 +361,7 @@ DEPENDENCIES
   attribute_enums (~> 0.1.4)
   backup (~> 3.0.19)
   by_star (~> 1.0.1)
-  cancan (~> 1.6.7)
+  cancan!
   capistrano (~> 2.9.0)
   capybara (~> 1.1.2)
   carrierwave (~> 0.5.8)

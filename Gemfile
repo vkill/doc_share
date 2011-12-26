@@ -58,7 +58,7 @@ gem "foreman", "~> 0.26.1", :require => false, :group => [:development]
 gem "rails-i18n", "~> 0.1.10"
 gem "exception_notification", "~> 2.5.2"
 gem "sorcery", "~> 0.7.5"
-gem "cancan", "~> 1.6.7"
+gem "cancan", :git => "git://github.com/ryanb/cancan.git", :branch => "2.0"
 
 gem "resque", "~> 1.19.0"
 gem "redis-store", "~> 1.0.0.1"
