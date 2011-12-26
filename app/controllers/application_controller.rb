@@ -4,10 +4,14 @@ class ApplicationController < ActionController::Base
   self.responder = ApplicationResponder
   respond_to :html
 
+  enable_authorization do |exception|
+    redirect_to root_url, :alert => exception.message
+  end
+  
+  
   protect_from_forgery
 
   before_filter :set_locale
-
 
   private
     def set_current_user(resource_name=nil, attribute_name="user_id")
