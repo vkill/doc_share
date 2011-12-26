@@ -77,13 +77,13 @@ class User < ActiveRecord::Base
   end
 
   def has_role?(role)
-    return true if role.to_s == "admin"
-    !self.roles.where(:code => role.to_s).blank?
+    return true if super_admin?
+    self.roles.exists?(:code => role.to_s)
   end
 
   def has_any_role?(*roles)
-    return true if roles.map{|x| x.to_s == 'admin'}.index(true)
-    !self.roles.where(:code => roles).blank?
+    return true if super_admin?
+    self.roles.exists?(:code => roles)
   end
 
   def following_user?(user)
