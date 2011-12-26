@@ -6,4 +6,8 @@ class Admin::BaseController < ApplicationController
   
   add_breadcrumb proc{|c| c.t("admin.shared.topbar.main")}, :admin_root_path
   
+  def current_ability
+    @current_ability ||= AbilityAdmin.new(current_user)
+  end
+
 end

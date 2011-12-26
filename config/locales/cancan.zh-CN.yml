@@ -1,0 +1,4 @@
+---
+zh-CN:
+  unauthorized:
+    default: 访问被拒绝！你可能没权限。

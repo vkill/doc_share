@@ -55,6 +55,7 @@ class ApplicationController < ActionController::Base
           } ,options.extract_options!.slice(:only, :except)
         end
       end
+
     end
 
     def set_locale
