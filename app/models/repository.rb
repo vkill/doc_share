@@ -18,11 +18,11 @@ class Repository < ActiveRecord::Base
 
   belongs_to :user, :counter_cache => true
   belongs_to :category, :counter_cache => true
-  has_many :repo_files
+  has_many :repo_files, :dependent => :destroy
   accepts_nested_attributes_for :repo_files, :allow_destroy => true,
                                               :reject_if => Proc.new { |repo_file| repo_file['repo_file'].blank? }
-  has_many :issues
-  has_many :comments, :as => :commentable
+  has_many :issues, :dependent => :destroy
+  has_many :comments, :as => :commentable, :dependent => :destroy
 
   has_many :follower_followed, :as => :target, :class_name => 'TargetFollower', :readonly => true
   with_options :through => :follower_followed, :source => :follower do |follower|

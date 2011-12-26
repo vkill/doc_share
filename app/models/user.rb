@@ -22,13 +22,13 @@ class User < ActiveRecord::Base
   attr_accessible *(basic_attr_accessible + [:username, :state, :roles, :role_ids]), :as => :admin
 
   has_many :roles_users, :class_name => "RolesUsers"
-  has_many :roles, :through => :roles_users, :uniq => true
-  has_many :comments
-  has_many :issues
-  has_many :sent_messages, :foreign_key => :sender_id, :class_name => "Message"
+  has_many :roles, :through => :roles_users, :uniq => true, :dependent => :destroy
+  has_many :comments, :dependent => :destroy
+  has_many :issues, :dependent => :destroy
+  has_many :sent_messages, :foreign_key => :sender_id, :class_name => "Message", :dependent => :destroy
   has_many :received_messages, :foreign_key => :receiver_id, :class_name => "Message"
 
-  has_many :repositories
+  has_many :repositories, :dependent => :destroy
 
   has_many :activities
 
