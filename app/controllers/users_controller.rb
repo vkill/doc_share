@@ -80,7 +80,7 @@ class UsersController < ApplicationController
 
   def update
     if @user.update_attributes(params[:user])
-      redirect_to @user, :notice => t(:notice, :scope => [:sorcery, :user, :update])
+      redirect_to [:edit, @user], :notice => t(:notice, :scope => [:sorcery, :user, :update])
     else
       render :edit
     end
