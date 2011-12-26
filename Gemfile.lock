@@ -158,6 +158,8 @@ GEM
     json (1.6.3)
     kaminari (0.12.4)
       rails (>= 3.0.0)
+    libnotify (0.6.0)
+      ffi (~> 1.0.0)
     libv8 (3.3.10.4)
     livereload (1.6.1)
       em-dir-watcher (>= 0.1)
@@ -389,6 +391,7 @@ DEPENDENCIES
   high_voltage (~> 1.0.1)
   jquery-rails
   kaminari (~> 0.12.4)
+  libnotify
   livereload (~> 1.6.1)
   machinist (>= 2.0.0.beta2)
   mail_view (~> 1.0.2)
