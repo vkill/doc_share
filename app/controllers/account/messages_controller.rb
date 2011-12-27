@@ -42,7 +42,7 @@ class Account::MessagesController < Account::BaseController
   def destroy
     @message = Message.by_user(current_user).find(params[:id])
     @message.destroy
-    respond_with :account, @message
+    respond_with :account, @message, :location => location_url
   end
 
   def reply
@@ -67,5 +67,13 @@ class Account::MessagesController < Account::BaseController
     respond_with :account, @message, :template => "account/messages/index"
   end
 
+  private
+    def location_url
+      if @message.sender_id == current_user.id
+        [:sent, :account, :messages]
+      elsif @message.receiver_id == current_user.id
+        [:account, :messages]
+      end
+    end
 end
 
