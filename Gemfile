@@ -1,7 +1,6 @@
 source 'http://rubygems.org'
 
-# gem 'rails', '3.1.3'
-gem 'rails', '3.2.0.rc1'
+gem 'rails', '3.1.3'
 
 # Bundle edge Rails instead:
 # gem 'rails',     :git => 'git://github.com/rails/rails.git'
@@ -11,10 +10,8 @@ gem 'sqlite3', "~> 1.3.4", :group => [:development]
 # Gems used only for assets and not required
 # in production environments by default.
 group :assets do
-  # gem 'sass-rails',   '~> 3.1.4'
-  # gem 'coffee-rails', '~> 3.1.1'
-  gem 'sass-rails',   "~> 3.2.2"
-  gem "coffee-rails", "~> 3.2.0"
+  gem 'sass-rails',   '~> 3.1.4'
+  gem 'coffee-rails', '~> 3.1.1'
   gem 'uglifier', '>= 1.0.3'
 end
 
@@ -53,7 +50,7 @@ gem "annotate", "~> 2.4.1.beta1", :require => false, :group => [:development]
 gem "thin", "~> 1.3.1", :require => false, :group => [:development]
 
 gem "pry", "~> 0.9.7.4", :group => [:development]
-# gem 'pry-rails', :group => [:development]
+gem 'pry-rails', :group => [:development]
 
 gem "foreman", "~> 0.26.1", :require => false, :group => [:development]
 
@@ -121,6 +118,7 @@ gem "show_for", "~> 0.2.4"
 
 gem "backup", "~> 3.0.19"
 
+gem "active_reload", "~> 0.6.1", :group => [:development]
 
 gemfile_local = File.expand_path('../Gemfile.local', __FILE__)
 eval(File.read(gemfile_local)) if File.exists?(gemfile_local)
