@@ -1,4 +1,5 @@
-= link_to (current_user.following_user?(user) ? t(".unfollow") : t(".follow")),
+- unless me?(user)
+  = link_to (current_user.following_user?(user) ? t(".unfollow") : t(".follow")),
                   user_reverse_follow_path(user.username),
                   :method => :put,
                   :remote => true,
