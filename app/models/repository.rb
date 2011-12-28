@@ -28,7 +28,8 @@ class Repository < ActiveRecord::Base
   with_options :through => :follower_followed, :source => :follower do |follower|
     follower.has_many :watchers, :source_type => 'User'
   end
-
+  
+  validates :category_id, :presence => true
   validates :name, :presence => true,
                       :length => { :within => 6..30 }
   validates :describtion, :length => { :maximum => 1000 },
@@ -47,6 +48,7 @@ class Repository < ActiveRecord::Base
     has user_id, created_at, updated_at
   end
 
+  before_validation :build_category_id, :unless => lambda { category_id? }
 
   def fork_by!(user)
     if forked_by_user?(user)
@@ -84,6 +86,10 @@ class Repository < ActiveRecord::Base
   end
 
   private
+    
+    def build_category_id
+      self.category_id = Category.first.id
+    end
 
 end
 

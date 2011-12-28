@@ -85,6 +85,10 @@ describe Repository do
     it "has forked_by_user? method" do
       pending
     end
+
+    it "when category_id blank, build category_id with Category.first" do
+      pending
+    end
   end
 
 end
