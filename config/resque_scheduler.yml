@@ -5,3 +5,8 @@ resque_scheduler_test_work:
   class: ResqueSchedulerTestWork
   args:
 
+resque_scheduler_ts_index_work:
+  cron: "5 * * * * *"
+  queue: resque_scheduler
+  class: ResqueSchedulerTsIndexWork
+  args:
