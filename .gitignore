@@ -22,3 +22,6 @@ repositories_git_base*/*
 Gemfile.local
 
 backups/*
+
+config/*.sphinx.conf
+
