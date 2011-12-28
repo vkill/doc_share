@@ -10,13 +10,6 @@ class Repository < ActiveRecord::Base
   #
   acts_as_paranoid
   
-  #
-  include Redis::Search
-  redis_search_index(:title_field => :name,
-                     :score_field => :watchers_count,
-                     :condition_fields => [:user_id, :category_id],
-                     :ext_fields => [:email, :gravatar_url, :username, :describtion, :updated_at,
-                                      :watchers_count, :forks_count])
 
   basic_attr_accessible = [:user_id, :category_id, :category, :name, :describtion, :visibility,
                           :parent, :user, :repo_files_attributes]

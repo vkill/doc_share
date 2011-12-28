@@ -120,8 +120,6 @@ gem "backup", "~> 3.0.19"
 
 gem "active_reload", "~> 0.6.1", :group => [:development]
 
-#search
-gem "redis-search", "~> 0.7.0"
 
 gemfile_local = File.expand_path('../Gemfile.local', __FILE__)
 eval(File.read(gemfile_local)) if File.exists?(gemfile_local)
