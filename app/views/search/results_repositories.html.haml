@@ -1,0 +1,5 @@
+= render "head", :search => @search
+
+= render "repositories", :repositories => @repositories
+
+= render 'partials/pagination', :resources => @repositories

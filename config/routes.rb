@@ -24,7 +24,8 @@ DocShare::Application.routes.draw do
   resources :users, :only => [:index]
   #
   resources :repositories, :only => [:index]
-
+  #
+  get "search" => "search#index", :as => :search
 
 
   #account namespace

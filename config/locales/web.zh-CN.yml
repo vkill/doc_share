@@ -77,6 +77,7 @@ zh-CN:
       main: Home
       repositories: 项目
       users: 会员
+      search: 搜索
       admin: 后台管理
       dashboard: 控制面板
       inbox: 收件箱
@@ -89,6 +90,7 @@ zh-CN:
       reset_password: 重置密码
       root: 网站首页
       edit_profile: 编辑个人资料
+      
   
   users:
     index:

@@ -62,6 +62,13 @@ class User < ActiveRecord::Base
                     :if => Proc.new { |record| record.name? }
   validates :site, :url => true,
                   :if => Proc.new { |record| record.site? }
+  
+  # Thinking Sphinx Indexing
+  define_index do
+    indexes username, :sortable => true
+    indexes name
+    has created_at, updated_at
+  end
 
   class << self
     def current=(user)

@@ -122,6 +122,7 @@ gem "active_reload", "~> 0.6.1", :group => [:development]
 
 gem 'thinking-sphinx', '~> 2.0.10'
 
+gem "basic_model", '~> 0.3.2'
 
 gemfile_local = File.expand_path('../Gemfile.local', __FILE__)
 eval(File.read(gemfile_local)) if File.exists?(gemfile_local)

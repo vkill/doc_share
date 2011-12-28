@@ -1,0 +1,4 @@
+= simple_form_for(search, :url => search_path, :wrapper => :inline, :method => :get) do |f|
+  = f.input :type, :as => :select, :collection => Search.get_type_values, :prompt => false
+  = f.input :q
+  = f.button :submit, t(:search), :class => 'primary'

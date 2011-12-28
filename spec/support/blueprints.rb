@@ -38,7 +38,7 @@ end
 Comment.blueprint do
   user            { User.make! }
   commentable     { Repository.make! }
-  content         { Faker::Lorem.paragraph }
+  content         { Faker::LoremCN.paragraph }
 end
 
 TargetFollower.blueprint do
@@ -50,7 +50,7 @@ Repository.blueprint do
   user        { User.make! }
   category    { Category.make! }
   name        { "repo_#{sn}" }
-  describtion { Faker::Lorem.paragraph }
+  describtion { Faker::LoremCN.paragraph }
   visibility  { :public_repo }
 end
 
@@ -58,14 +58,14 @@ Issue.blueprint do
   user        { User.make! }
   repository  { Repository.make! }
   title       { "title_#{sn}" }
-  content     { Faker::Lorem.paragraph }
+  content     { Faker::LoremCN.paragraph }
 end
 
 Message.blueprint do
   sender { User.make! }
   receiver { User.make! }
   subject     { "subject_#{sn}" }
-  content     { Faker::Lorem.paragraph }
+  content     { Faker::LoremCN.paragraph }
 end
 
 SettingUserNotification.blueprint do

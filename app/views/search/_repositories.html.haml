@@ -1,0 +1,18 @@
+%section
+  .page-header
+    %h1 Repositories
+  .row
+    - repositories.each do |repository|
+      - next if repository.blank?
+      %p.pull-right
+        = render "partials/repository/count_link", :repository => repository
+      %p
+        %h4= render "partials/repository/link", :repository => repository
+      %p
+        = repository.describtion
+      %p
+        %em
+          = t(:updated_at)
+          = l repository.updated_at, :format => :long_only_date
+  
+    
