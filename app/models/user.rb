@@ -14,7 +14,6 @@ class User < ActiveRecord::Base
   #
   authenticates_with_sorcery!
 
-
   attr_accessor :login ,:remember_me
 
   basic_attr_accessible = [:email, :password, :password_confirmation, :login, :remember_me,

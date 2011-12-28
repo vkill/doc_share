@@ -10,6 +10,13 @@ class Repository < ActiveRecord::Base
   #
   acts_as_paranoid
   
+  #
+  define_index do
+    indexes name, :sortable => true
+    indexes describtion
+    indexes username
+    has created_at, updated_at
+  end
 
   basic_attr_accessible = [:user_id, :category_id, :category, :name, :describtion, :visibility,
                           :parent, :user, :repo_files_attributes]
