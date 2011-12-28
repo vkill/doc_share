@@ -15,9 +15,8 @@ describe User do
     it { should have_valid(:username).when('test_123' ) }
     it { should_not have_valid(:username).when('s'*3, 's'*31, 'test_+', nil) }
 
-    it { should_not have_valid(:username).when('home', 'users', 'sessions', 'reset_passwords', 'auth',
-                                                'repositories', 'account',  'dashboard', 'admin',
-                                                'superuser', 'superadmin') }
+    #more, see config/settings.yml # user_username_exclusion_in
+    it { should_not have_valid(:username).when('home') }
 
     it { should have_valid(:email).when('test@test.com', 'test+spam@gmail.com') }
     it { should_not have_valid(:email).when('test', nil) }
