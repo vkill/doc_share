@@ -4,7 +4,7 @@ class SettingUserNotification < ActiveRecord::Base
 
   belongs_to :user
 
-  delegate :email, :username, :to => :user
+  delegate :email, :username, :gravatar_url , :to => :user
 
 
 end

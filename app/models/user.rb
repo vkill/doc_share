@@ -14,6 +14,14 @@ class User < ActiveRecord::Base
   #
   authenticates_with_sorcery!
 
+  #
+  include Redis::Search
+  redis_search_index(:title_field => :username,
+                     :score_field => :repositories_count,
+                     :condition_fields => [:gender, :state],
+                     :ext_fields => [:email, :gravatar_url, :username, :location, :created_at,
+                                      :repositories_count, :followers_count])
+
   attr_accessor :login ,:remember_me
 
   basic_attr_accessible = [:email, :password, :password_confirmation, :login, :remember_me,

@@ -13,7 +13,7 @@ class Issue < ActiveRecord::Base
   attribute_enums :state, :in => [:open, :closed], :default => :open
 
 
-  delegate :email, :username, :to => :user
+  delegate :email, :username, :gravatar_url , :to => :user
 
 
 end

@@ -8,7 +8,7 @@ class Comment < ActiveRecord::Base
   validates :content, :presence => true,
                       :length => { :within => 6..2000 }
 
-  delegate :email, :username, :to => :user
+  delegate :email, :username, :gravatar_url , :to => :user
 
 
 end

@@ -10,6 +10,14 @@ class Repository < ActiveRecord::Base
   #
   acts_as_paranoid
   
+  #
+  include Redis::Search
+  redis_search_index(:title_field => :name,
+                     :score_field => :watchers_count,
+                     :condition_fields => [:user_id, :category_id],
+                     :ext_fields => [:email, :gravatar_url, :username, :describtion, :updated_at,
+                                      :watchers_count, :forks_count])
+
   basic_attr_accessible = [:user_id, :category_id, :category, :name, :describtion, :visibility,
                           :parent, :user, :repo_files_attributes]
   attr_accessible *(basic_attr_accessible)
@@ -36,7 +44,7 @@ class Repository < ActiveRecord::Base
   validates_uniqueness_of :name, :scope => :user_id
   attribute_enums :visibility, :in => [:public_repo, :private_repo], :default => :public_repo
 
-  delegate :email, :username, :to => :user
+  delegate :email, :username, :gravatar_url , :to => :user
   delegate :name, :to => :category, :prefix => true
 
   def fork_by!(user)

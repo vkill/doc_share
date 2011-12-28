@@ -8,7 +8,7 @@ class Activity < ActiveRecord::Base
                               :forked_repository,
                               ]
 
-  delegate :email, :username, :to => :user
+  delegate :email, :username, :gravatar_url , :to => :user
 
   def self.log!(attrs)
     self.create!(
