@@ -17,11 +17,21 @@ Gemfile.lock
 log/*.log.*
 public/uploads/
 
+
+#
 repositories_git_base*/*
 
+
+#
 Gemfile.local
 
+
+#backup
 backups/*
 
+
+
+#sphinx
 config/*.sphinx.conf
+db/sphinx/*
 
