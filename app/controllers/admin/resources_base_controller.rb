@@ -16,7 +16,8 @@ class Admin::ResourcesBaseController < Admin::BaseController
     else
       @q = _resource_class.ransack(params[:q])
       self.send "#{_collection_name()}=", @q.result().\
-                        page(params[:page]).per(params[:per_page] || _resource_class.send(:default_per_page))
+                        page(params[:page]).per(params[:per_page] || _resource_class.send(:default_per_page)).\
+                        order("updated_at DESC")
     end
     respond_with :admin, self.send("#{_collection_name()}") do |format|
       format.csv { export_to_csv(self.send("#{_collection_name()}"),
