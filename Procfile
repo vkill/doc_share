@@ -6,5 +6,5 @@ resque_web: bundle exec resque-web --foreground --server thin --port 45678 --no-
 
 resque_scheduler: bundle exec rake resque:scheduler INITIALIZER_PATH=config/initializers/resque.rb
 
-sphinx_searchd: bundle exec rake ts:start
+sphinx_searchd: killall sphinx-searchd & bundle exec rake ts:run_in_foreground
 
