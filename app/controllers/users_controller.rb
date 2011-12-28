@@ -105,7 +105,7 @@ class UsersController < ApplicationController
   ###################
   # autocomplete request
   def autocomplete_with_username
-    @users = User.search(:username_cont => params[:q]).result().select([:username, :email]).limit(10)
+    @users = User.ransack(:username_cont => params[:q]).result().select([:username, :email]).limit(10)
     respond_with @users do |format|
       format.json { render :json => @users.map{|user| {:username => user.username,
                                                       :gravatar_url => user.gravatar_url(:size => 20) } } }

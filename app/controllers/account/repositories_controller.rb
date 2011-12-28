@@ -16,7 +16,7 @@ class Account::RepositoriesController < Account::BaseController
 
   def index
     @user = current_user
-    @q = current_user.repositories.search(params[:q])
+    @q = current_user.repositories.ransack(params[:q])
     @repositories = @q.result().page(params[:page])
   end
 

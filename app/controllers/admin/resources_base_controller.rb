@@ -14,7 +14,7 @@ class Admin::ResourcesBaseController < Admin::BaseController
     if params[:export_all]
       self.send "#{_collection_name()}=", _resource_class.select(params[:column_names].to_a)
     else
-      @q = _resource_class.search(params[:q])
+      @q = _resource_class.ransack(params[:q])
       self.send "#{_collection_name()}=", @q.result().\
                         page(params[:page]).per(params[:per_page] || _resource_class.send(:default_per_page))
     end
