@@ -55,9 +55,13 @@ Generate [environment].sphinx.conf
 
     > rake ts:conf
 
-Create index
+Indexing
 
     > rake ts:index
+
+Start searchd, like this `/usr/bin/sphinx-searchd --pidfile --config /doc_share/config/development.sphinx.conf`
+    
+    > rake ts:start
 
 To run foreman
 
@@ -72,6 +76,7 @@ To run test
     > guard
 
 Use this user signin and test
+
     login: vkill  or  vkill.net@gmail.com
     password: 123456
 

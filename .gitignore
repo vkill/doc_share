@@ -34,4 +34,6 @@ backups/*
 #sphinx
 config/*.sphinx.conf
 db/sphinx/*
+log/searchd.*.pid
+
 
