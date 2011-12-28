@@ -52,7 +52,7 @@ module DocShare
       g.template_engine :haml
     end
 
-    config.cache_store = :redis_store, "redis://#{ YAML.load_file(%Q`#{config.root}/config/resque.yml`)[Rails.env] }"
+    config.cache_store = :redis_store, "redis://#{ YAML.load_file(%Q`#{config.root}/config/redis.yml`)[Rails.env] }"
 
 #    config.middleware.use ExceptionNotifier,
 #                    :email_prefix => "[Whatever] ",

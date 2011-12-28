@@ -12,6 +12,7 @@ describe Repository do
 
     it { should have_valid(:name).when('test_123' * 2 ) }
     it { should_not have_valid(:name).when('s'*5, 's'*31, nil) }
+    it { should_not have_valid(:describtion).when('s'*1001) }
     it { should have_valid(:visibility).when('public_repo', 'private_repo' ) }
     it { should_not have_valid(:visibility).when('test') }
 

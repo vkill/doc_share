@@ -31,6 +31,8 @@ class Repository < ActiveRecord::Base
 
   validates :name, :presence => true,
                       :length => { :within => 6..30 }
+  validates :describtion, :length => { :maximum => 1000 },
+                          :if => lambda{ describtion? }
   validates_uniqueness_of :name, :scope => :user_id
   attribute_enums :visibility, :in => [:public_repo, :private_repo], :default => :public_repo
 
