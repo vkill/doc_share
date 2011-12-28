@@ -1,4 +1,5 @@
 
+require 'rubygems'
 require 'yaml'
 
 RAILS_ROOT = File.expand_path('..',  __FILE__)
