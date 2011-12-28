@@ -15,7 +15,7 @@ Doc Discover and Share
 
 * ImageMagick should be installed
 
-* Sphinx should be installed, read http://freelancing-god.github.com/ts/en/installing_sphinx.html
+* Sphinx should be installed, read http://freelancing-god.github.com/ts/en/installing_sphinx.html, `/usr/bin/sphinx-indexer` and `/usr/bin/sphinx-searchd` should be existed.
 
 * Git should be installed
 
