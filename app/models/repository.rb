@@ -15,7 +15,8 @@ class Repository < ActiveRecord::Base
     indexes name, :sortable => true
     indexes describtion
     indexes username
-    has created_at, updated_at
+    indexes user(:username), :as => :username, :sortable => true
+    has user_id, created_at, updated_at
   end
 
   basic_attr_accessible = [:user_id, :category_id, :category, :name, :describtion, :visibility,
