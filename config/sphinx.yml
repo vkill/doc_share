@@ -1,0 +1,13 @@
+common: &common
+  ngram_len: 1
+  ngram_chars: "U+3000..U+2FA1F"
+  bin_path: /usr/bin/
+  searchd_binary_name: sphinx-searchd
+  indexer_binary_name: sphinx-indexer
+
+development:
+  <<: *common
+test:
+  <<: *common
+production:
+  <<: *common
