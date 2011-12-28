@@ -15,6 +15,8 @@ Doc Discover and Share
 
 * ImageMagick should be installed
 
+* Sphinx should be installed, read http://freelancing-god.github.com/ts/en/installing_sphinx.html
+
 * Git should be installed
 
 * RVM should be installed and execute `rvm install 1.9.3`
@@ -48,6 +50,14 @@ Copy yaml configuration files from example, after your need edit it.
 To run this rake, it init application
 
     > bundle exec rake app:dev:init
+
+Generate [environment].sphinx.conf
+
+    > rake ts:conf
+
+Create index
+
+    > rake ts:index
 
 To run foreman
 
