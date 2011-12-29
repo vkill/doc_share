@@ -15,7 +15,7 @@ describe Activity do
   context "function" do
     it "has target_link_body method" do
       activity = Activity.make!(:created_repository)
-      activity.target_link_body.should == "#{activity.target_type}##{activity.target_id}"
+      activity.target_link_body.should == "#{activity.activityable_type}##{activity.activityable_id}"
     end
   end
 

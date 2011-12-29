@@ -8,10 +8,10 @@ describe TargetFollowerObserver do
       user_b = User.make!
 
       user_a.follow_user(user_b)
-      Activity.followed_user.where(:target_id => user_b, :target_type => 'User').blank?.should be_false
+      Activity.followed_user.where(:activityable_id => user_b, :activityable_type => 'User').blank?.should be_false
 
       user_a.unfollow_user(user_b)
-      Activity.unfollowed_user.where(:target_id => user_b, :target_type => 'User').blank?.should be_false
+      Activity.unfollowed_user.where(:activityable_id => user_b, :activityable_type => 'User').blank?.should be_false
     end
 
     it "should log activities when user watch or unwatch repository" do
@@ -19,10 +19,10 @@ describe TargetFollowerObserver do
       repository = Repository.make!
 
       user.watch_repository(repository)
-      Activity.watched_repository.where(:target_id => repository, :target_type => 'Repository').blank?.should be_false
+      Activity.watched_repository.where(:activityable_id => repository, :activityable_type => 'Repository').blank?.should be_false
 
       user.unwatch_repository(repository)
-      Activity.unwatched_repository.where(:target_id => repository, :target_type => 'Repository').blank?.should be_false
+      Activity.unwatched_repository.where(:activityable_id => repository, :activityable_type => 'Repository').blank?.should be_false
     end
   end
 
