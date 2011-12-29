@@ -1,7 +1,7 @@
 class Activity < ActiveRecord::Base
 
   belongs_to :user
-  belongs_to :target, :polymorphic => true
+  belongs_to :activityable, :polymorphic => true
 
   attribute_enums :action, :in => [:created_repository, :destroyed_repository,
                               :followed_user, :unfollowed_user, :watched_repository, :unwatched_repository,
