@@ -30,13 +30,13 @@ end
 #
 # Table name: activities
 #
-#  id          :integer         not null, primary key
-#  user_id     :integer
-#  user_name   :string(255)
-#  action      :string(255)
-#  target_id   :integer
-#  target_type :string(255)
-#  created_at  :datetime
-#  updated_at  :datetime
+#  id                :integer         not null, primary key
+#  user_id           :integer
+#  user_name         :string(255)
+#  action            :string(255)
+#  activityable_id   :integer
+#  activityable_type :string(255)
+#  created_at        :datetime
+#  updated_at        :datetime
 #
 

@@ -83,8 +83,6 @@ end
 #  content     :text
 #  ancestry    :string(255)
 #  is_readed   :boolean         default(FALSE)
-#  target_id   :integer
-#  target_type :string(255)
 #  created_at  :datetime
 #  updated_at  :datetime
 #

@@ -100,7 +100,6 @@ end
 #  user_id          :integer
 #  category_id      :integer
 #  ancestry         :string(255)
-#  deleted          :boolean         default(FALSE)
 #  name             :string(255)
 #  describtion      :text
 #  visibility       :string(255)

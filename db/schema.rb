@@ -17,13 +17,13 @@ ActiveRecord::Schema.define(:version => 20111221080824) do
     t.integer  "user_id"
     t.string   "user_name"
     t.string   "action"
-    t.integer  "target_id"
-    t.string   "target_type"
+    t.integer  "activityable_id"
+    t.string   "activityable_type"
     t.datetime "created_at"
     t.datetime "updated_at"
   end
 
-  add_index "activities", ["target_id"], :name => "index_activities_on_target_id"
+  add_index "activities", ["activityable_id"], :name => "index_activities_on_activityable_id"
   add_index "activities", ["user_id"], :name => "index_activities_on_user_id"
 
   create_table "categories", :force => true do |t|
@@ -70,8 +70,6 @@ ActiveRecord::Schema.define(:version => 20111221080824) do
     t.text     "content"
     t.string   "ancestry"
     t.boolean  "is_readed",   :default => false
-    t.integer  "target_id"
-    t.string   "target_type"
     t.datetime "created_at"
     t.datetime "updated_at"
   end
@@ -89,7 +87,6 @@ ActiveRecord::Schema.define(:version => 20111221080824) do
     t.integer  "user_id"
     t.integer  "category_id"
     t.string   "ancestry"
-    t.boolean  "deleted",          :default => false
     t.string   "name"
     t.text     "describtion"
     t.string   "visibility"
