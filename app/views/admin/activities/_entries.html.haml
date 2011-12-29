@@ -32,7 +32,7 @@
         %td= activity.id
         %td= activity.username
         %td= activity.action_text
-        %td= link_to activity.target_link_body, [:admin, activity.target]
+        %td= link_to activity.target_link_body, [:admin, activity.activityable]
         %td= time_ago activity.created_at
         %td
           = link_to t(:show), [:admin, activity], :title => t(:show)

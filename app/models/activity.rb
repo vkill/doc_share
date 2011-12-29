@@ -15,13 +15,13 @@ class Activity < ActiveRecord::Base
       :user_id      => attrs[:user].id,
       :user_name    => attrs[:user].username,
       :action       => attrs[:action],
-      :target_id    => attrs[:activity_target].id,
-      :target_type  => attrs[:activity_target].class.model_name
+      :activityable_id    => attrs[:activity_target].id,
+      :activityable_type  => attrs[:activity_target].class.model_name
     )
   end
 
   def target_link_body
-    [target_type, target_id].join("#")
+    [activityable_type, activityable_id].join("#")
   end
 
 end

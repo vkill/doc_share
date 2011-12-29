@@ -4,12 +4,12 @@ class CreateActivities < ActiveRecord::Migration
       t.references :user
       t.string :user_name
       t.string :action
-      t.references :target, :polymorphic => {}
+      t.references :activityable, :polymorphic => {}
 
       t.timestamps
     end
     add_index :activities, :user_id
-    add_index :activities, :target_id
+    add_index :activities, :activityable_id
   end
 end
 
