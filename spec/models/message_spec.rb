@@ -25,9 +25,9 @@ describe Message do
     end
   end
 
-  context "associations" do
-    it { subject.association(:target).should be_instance_of(ActiveRecord::Associations::BelongsToPolymorphicAssociation) }
-  end
+  # context "associations" do
+  #   it { subject.association(:target).should be_instance_of(ActiveRecord::Associations::BelongsToPolymorphicAssociation) }
+  # end
 
   context "define scopes" do
     it { Message.unread.new.is_readed.should be_false }
