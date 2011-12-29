@@ -3,6 +3,7 @@ class TargetFollower < ActiveRecord::Base
   belongs_to :user, :primary_key => :follower_id
   belongs_to :follower, :polymorphic => true
   belongs_to :target, :polymorphic => true
+  has_many :activities, :as => :activityable, :dependent => :destroy
 
 end
 

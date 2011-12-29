@@ -28,6 +28,7 @@ class Repository < ActiveRecord::Base
   with_options :through => :follower_followed, :source => :follower do |follower|
     follower.has_many :watchers, :source_type => 'User'
   end
+  has_many :activities, :as => :activityable, :dependent => :destroy
   
   validates :category_id, :presence => true
   validates :name, :presence => true,
