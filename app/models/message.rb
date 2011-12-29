@@ -16,7 +16,6 @@ class Message < ActiveRecord::Base
                       :counter_cache => :sent_messages_count
   belongs_to :receiver, :class_name => 'User', :foreign_key => 'receiver_id',
                         :counter_cache => :received_messages_count
-  belongs_to :target, :polymorphic => true
 
 
   attribute_enums :category, :in => [:system_notification, :member_mailbox], :default => :member_mailbox

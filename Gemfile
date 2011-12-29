@@ -45,7 +45,7 @@ gem "valid_attribute", "~> 1.2.0", :group => [:test]
 
 gem "annotate", "~> 2.4.1.beta1", :require => false, :group => [:development]
 
-#gem "rails-erd", "~> 0.4.5", :group => [:development]
+gem "rails-erd", "~> 0.4.5", :group => [:development]
 
 gem "thin", "~> 1.3.1", :require => false, :group => [:development]
 

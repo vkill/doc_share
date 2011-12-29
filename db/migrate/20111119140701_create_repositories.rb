@@ -4,7 +4,6 @@ class CreateRepositories < ActiveRecord::Migration
       t.references :user
       t.references :category
       t.string :ancestry
-      t.boolean :deleted,     :default => false
       t.string :name
       t.text :describtion
       t.string :visibility

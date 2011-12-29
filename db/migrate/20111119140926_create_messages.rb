@@ -8,7 +8,6 @@ class CreateMessages < ActiveRecord::Migration
       t.text :content
       t.string :ancestry
       t.boolean :is_readed,   :default => false
-      t.references :target, :polymorphic => {}
 
       t.timestamps
     end
