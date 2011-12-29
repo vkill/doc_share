@@ -44,28 +44,22 @@ To install bendler and run bundle
 Copy yaml configuration files from example, after your need edit it.
 
     > cp config/database.yml.example config/database.yml
-    > cp config/resque.yml.example config/resque.yml
+    > cp config/redis.yml.example config/redis.yml
     > cp config/smtp_settings.yml.example config/smtp_settings.yml
 
 To run this rake, it init application
 
     > bundle exec rake app:dev:init
 
-Generate [environment].sphinx.conf
-
-    > rake ts:conf
-
-Indexing
-
-    > rake ts:index
-
-Start searchd, like this `/usr/bin/sphinx-searchd --pidfile --config /doc_share/config/development.sphinx.conf`
-    
-    > rake ts:start
-
 To run foreman
 
     > foreman start
+    # Start searchd, like this `/usr/bin/sphinx-searchd --pidfile --config /doc_share/config/development.sphinx.conf`
+
+If foreman error, to run killall ruby and rerun `foreman start`
+
+    > killall ruby
+    > killall sphinx-searchd
 
 To view resque web application
 
