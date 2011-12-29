@@ -113,6 +113,6 @@ end
 #  issues_count     :integer         default(0)
 #  comments_count   :integer         default(0)
 #  forks_count      :integer         default(0)
-#  deleted_at       :time
+#  deleted_at       :datetime
 #
 

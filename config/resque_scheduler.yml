@@ -1,12 +1,12 @@
 
 resque_scheduler_test_work:
-  cron: "30 * * * * *"
+  cron: "* */5 * * *"
   queue: resque_scheduler
   class: ResqueSchedulerTestWork
   args:
 
 resque_scheduler_ts_index_work:
-  cron: "5 * * * * *"
+  cron: "* */5 * * *"
   queue: resque_scheduler
   class: ResqueSchedulerTsIndexWork
   args:

@@ -184,6 +184,6 @@ end
 #  following_users_count             :integer         default(0)
 #  unread_system_notifications_count :integer         default(0)
 #  unread_member_mailboxs_count      :integer         default(0)
-#  deleted_at                        :time
+#  deleted_at                        :datetime
 #
 
