@@ -114,6 +114,9 @@ describe User do
       user.reload
       user.unread_any_messages_count.should eq(1)
     end
+    it "should has roles_names" do
+      pending
+    end
   end
 
   context "support state" do

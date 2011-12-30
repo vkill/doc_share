@@ -14,7 +14,7 @@
       .row
         .span6.clearfix
           = f.label :roles_name, :class => "span2"
-          = f.collection_select :roles_name_eq, Role.all, "id", "name", :prompt => true, :class => "span3"
+          = f.collection_select :roles_name_eq, Role.all, "name", "name", :prompt => true, :class => "span3"
         .span6.clearfix
           = f.label :state, :class => "span2"
           = f.select :state_eq, User.get_state_values, :prompt => true, :class => "span3"
@@ -47,7 +47,7 @@
         %td= user.email
         %td= user.name
         %td= user.state_text
-        %td= user.rolesnames
+        %td= user.roles_names
         %td= time_ago user.created_at
         /%td= time_ago user.updated_at
         %td

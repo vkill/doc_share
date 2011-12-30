@@ -124,7 +124,7 @@ class User < ActiveRecord::Base
   scope :activity, lambda { |n| order("last_activity_at").limit(n) }
   scope :recent_join, lambda { |n| order("created_at").limit(n) }
 
-  def rolesnames
+  def roles_names
     roles.map(&:name).join(",")
   end
 
