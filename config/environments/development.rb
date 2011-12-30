@@ -34,5 +34,6 @@ DocShare::Application.configure do
       Rack::Lock, Rack::LiveReload
     )
   end
+
 end
 

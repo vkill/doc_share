@@ -6,21 +6,21 @@ class UserMailer < ActionMailer::Base
     @user = user
     @url = "http://0.0.0.0:3000/reset_passwords/#{user.reset_password_token}/edit"
     mail(:to => user.email,
-         :subject => "Your password reset request")
+         :subject => t("user_mailer.reset_password_email"))
   end
 
   def activation_needed_email(user)
     @user = user
     @url = "http://0.0.0.0:3000/users/#{user.activation_token}/activate"
     mail(:to => user.email,
-         :subject => "Welcome to My Awesome Site")
+         :subject => t("user_mailer.activation_needed_email"))
   end
 
   def activation_success_email(user)
     @user = user
     @url = "http://0.0.0.0:3000/login"
     mail(:to => user.email,
-         :subject => "Your account is now activated")
+         :subject => t("user_mailer.activation_success_email"))
   end
 
   if Rails.env.development?

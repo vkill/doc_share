@@ -90,6 +90,12 @@ module DocShare
     config.action_mailer.delivery_method = :smtp
     config.action_mailer.smtp_settings =
         Hash[ YAML.load_file(%Q`#{config.root}/config/smtp_settings.yml`)[Rails.env].map {|k,v| [k.to_sym, v]} ]
+  
+    config.action_mailer.default_url_options = {
+      :host => "localhost",
+      :port => 3000
+    }
+
 
     # Enable the asset pipeline
     config.assets.enabled = true
