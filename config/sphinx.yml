@@ -1,6 +1,10 @@
 common: &common
   ngram_len: 1
   ngram_chars: "U+3000..U+2FA1F"
+  
+  charset_dictpath: /usr/local/mmseg3/etc/
+  charset_type: zh_cn.utf-8
+
   bin_path: /usr/local/coreseek/bin
   searchd_binary_name: searchd
   indexer_binary_name: indexer

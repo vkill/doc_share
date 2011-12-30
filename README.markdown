@@ -15,7 +15,11 @@ Doc Discover and Share
 
 * ImageMagick should be installed
 
-* coreseek 4.1 should be installed, read http://www.coreseek.cn/products-install/install_on_bsd_linux/, `/usr/local/coreseek/bin/indexer` and `/usr/local/coreseek/bin/searchd` should be existed.
+* coreseek 4.1 should be installed, read http://www.coreseek.cn/products-install/install_on_bsd_linux/.
+    Note:
+        configure csft-4.1 add `--with-pgsql` option.
+        `/usr/local/coreseek/bin/indexer` and `/usr/local/coreseek/bin/searchd` should be existed.
+        `/usr/local/mmseg3/etc/uni.lib` should be existed.
 
 * Git should be installed
 

@@ -3,11 +3,12 @@
 %section
   .row
     .span9
-      
-        = render "repositories", :repositories => @repositories
-      %p.pull-right
-        = link_to t(:more), search_path("search[type]" => :repositories, "search[q]" => @search.q)
+      = render "repositories", :repositories => @repositories
+      - if @repositories.total_entries > 5
+        %p.pull-right
+          = link_to t(:more), search_path("search[type]" => :repositories, "search[q]" => @search.q)
     .span7
       = render "users", :users => @users
-      %p.pull-right
-        = link_to t(:more), search_path("search[type]" => :users, "search[q]" => @search.q)
+      - if @users.total_entries > 5
+        %p.pull-right
+          = link_to t(:more), search_path("search[type]" => :users, "search[q]" => @search.q)
