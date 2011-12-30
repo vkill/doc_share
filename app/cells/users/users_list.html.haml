@@ -1,7 +1,8 @@
 .row
   - @users.each_with_index do |user, i|
     .span-one-ten
-      .center
+      .center.user_avatar
         = link_to (image_tag user.gravatar_url(:size => 48)), user_page_path(user)
       .center
         = link_to user.username, user_page_path(user)
+        
