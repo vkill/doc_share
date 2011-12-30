@@ -1,4 +1,8 @@
-= simple_form_for(search, :url => search_path, :wrapper => :inline, :method => :get) do |f|
-  = f.input :type, :as => :select, :collection => Search.get_type_values, :prompt => false
-  = f.input :q
-  = f.button :submit, t(:search), :class => 'primary'
+= simple_form_for(search, :url => search_path, :method => :get) do |f|
+  .row
+    .span2
+      = f.input_field :type, :as => :select, :collection => Search.get_type_values, :prompt => false, :class => "span2"
+    .span6
+      = f.input_field :q, :class => "span6"
+    .span2.offset1
+      = f.button :submit, t(:search), :class => 'primary'
