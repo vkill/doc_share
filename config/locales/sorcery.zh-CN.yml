@@ -30,8 +30,8 @@ zh-CN:
 
     mailer:
       reset_password_email:
-        subject: 请重置你在xx网的账户密码
+        subject: 请重置你在%{site_name}网的账户密码
       activation_needed_email:
-        subject: xx网邀请你激活账号
+        subject: "%{site_name}网邀请你激活账号"
       activation_success_email:
-        subject: 你在xx网的账户已激活
+        subject: 你在%{site_name}网的账户已激活

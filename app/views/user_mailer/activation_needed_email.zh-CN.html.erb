@@ -1,17 +1,21 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <meta content="text/html; charset=UTF-8" http-equiv="Content-Type" />
+    <meta content="text/html; charset=UTF-8" http-equiv="content-type" />
   </head>
   <body>
-    <h1>Welcome to example.com, <%= @user.email %></h1>
-    <p>
-      You have successfully signed up to example.com,
-      your username is: <%= @user.email %>.<br/>
-    </p>
-    <p>
-      To login to the site, just follow this link: <%= @url %>.
-    </p>
-    <p>Thanks for joining and have a great day!</p>
+    <div>
+      <span>亲爱的<%= @user.username %>：</span>
+      <br />
+      <span>欢迎加入<%= SiteConfig.q(:site_name) %>！</span>
+      <br />
+      <span>请点击下面的链接完成注册：</span>
+      <br />
+      <span><%= link_to @url, @url %></span>
+      <br />
+      <span>如果以上链接无法点击，请将上面的地址复制到你的浏览器(如IE)的地址栏进入<%= SiteConfig.q(:site_name) %>。</span>
+      <br />
+    </div>
   </body>
 </html>
+
