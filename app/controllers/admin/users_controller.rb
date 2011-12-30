@@ -12,4 +12,8 @@ class Admin::UsersController < Admin::ResourcesBaseController
   add_breadcrumb proc{|c| c.t("edit")}, "", :only => [:edit, :update]
   add_breadcrumb proc{|c| c.t("delete")}, "", :only => [:delete, :destroy]
   
+  private
+    def association_chain
+      User.includes([:roles])
+    end
 end
