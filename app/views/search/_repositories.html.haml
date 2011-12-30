@@ -1,18 +1,18 @@
-%section
+%section#search
   .page-header
-    %h1 Repositories
-  .row
-    - repositories.each do |repository|
-      - next if repository.blank?
-      %p.pull-right
-        = render "partials/repository/count_link", :repository => repository
-      %p
-        %h4= render "partials/repository/link", :repository => repository
-      %p
-        = repository.describtion
-      %p
-        %em
-          = t(:updated_at)
-          = l repository.updated_at, :format => :long_only_date
-  
-    
+    %h3
+      = t(".repositories")
+      = "(#{repositories.total_entries})"
+  - repositories.each do |repository|
+    - next if repository.blank?
+    %p
+      %h4= render "partials/repository/link", :repository => repository
+    %p
+      = raw repository.excerpts.describtion
+    %p
+      %em
+        = [t(:updated_at), l(repository.updated_at, :format => :long_only_date)].join(":")
+        |
+        = [t(:"partials.repository.count_link.watchers"), repository.watchers_count].join(":")
+        |
+        = [t(:"partials.repository.count_link.forks"), repository.forks_count].join(":")

@@ -56,7 +56,7 @@ zh-CN:
   export_to: "导出成%{type}格式"
   created_at: 创建时间
   updated_at: 更新时间
-  search: 查找
+  to_search: 查找
   filter: 过滤
   time_ago: "大约%{time_words}前"
   download: 下载
@@ -71,6 +71,12 @@ zh-CN:
   twipsy:
     sort_link: 点击可以排序哦
     change_gravatar: 改变头像请前往 gravatar.com 修改
+  
+  search:
+    repositories:
+      repositories: 项目
+    users:
+      users: 用户
   
   shared:
     topbar:

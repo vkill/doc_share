@@ -3,7 +3,8 @@
 %section
   .row
     .span9
-      = render "repositories", :repositories => @repositories
+      
+        = render "repositories", :repositories => @repositories
       %p.pull-right
         = link_to t(:more), search_path("search[type]" => :repositories, "search[q]" => @search.q)
     .span7

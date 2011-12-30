@@ -1,9 +1,9 @@
 common: &common
   ngram_len: 1
   ngram_chars: "U+3000..U+2FA1F"
-  bin_path: /usr/bin/
-  searchd_binary_name: sphinx-searchd
-  indexer_binary_name: sphinx-indexer
+  bin_path: /usr/local/coreseek/bin
+  searchd_binary_name: searchd
+  indexer_binary_name: indexer
 
 development:
   <<: *common

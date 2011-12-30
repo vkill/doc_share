@@ -15,7 +15,7 @@ Doc Discover and Share
 
 * ImageMagick should be installed
 
-* Sphinx should be installed, read http://freelancing-god.github.com/ts/en/installing_sphinx.html, `/usr/bin/sphinx-indexer` and `/usr/bin/sphinx-searchd` should be existed.
+* coreseek 4.1 should be installed, read http://www.coreseek.cn/products-install/install_on_bsd_linux/, `/usr/local/coreseek/bin/indexer` and `/usr/local/coreseek/bin/searchd` should be existed.
 
 * Git should be installed
 
@@ -46,6 +46,10 @@ Copy yaml configuration files from example, after your need edit it.
     > cp config/database.yml.example config/database.yml
     > cp config/redis.yml.example config/redis.yml
     > cp config/smtp_settings.yml.example config/smtp_settings.yml
+
+Processing your Index
+    
+    > rake ts:index
 
 To run this rake, it init application
 
