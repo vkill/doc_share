@@ -12,4 +12,9 @@ class Admin::RepositoriesController < Admin::ResourcesBaseController
   add_breadcrumb proc{|c| c.t("edit")}, "", :only => [:edit, :update]
   add_breadcrumb proc{|c| c.t("delete")}, "", :only => [:delete, :destroy]
   
+
+  private
+    def association_chain
+      Repository.includes([:user, :category])
+    end
 end
