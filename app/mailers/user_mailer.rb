@@ -6,21 +6,21 @@ class UserMailer < ActionMailer::Base
     @user = user
     @url = url_for(:controller => :reset_passwords, :action => :edit, :id => user.reset_password_token)
     mail(:to => user.email,
-         :subject => t("user_mailer.reset_password_email.title"))
+         :subject => t("sorcery.mailer.reset_password_email.subject"))
   end
 
   def activation_needed_email(user)
     @user = user
     @url = url_for(:controller => :users, :action => :activate, :id => user.activation_token)
     mail(:to => user.email,
-         :subject => t("user_mailer.activation_needed_email.title"))
+         :subject => t("sorcery.mailer.activation_needed_email.subject"))
   end
 
   def activation_success_email(user)
     @user = user
     @url = signin_path(:only_path => false)
     mail(:to => user.email,
-         :subject => t("user_mailer.activation_success_email.title"))
+         :subject => t("sorcery.mailer.activation_success_email.subject"))
   end
 
   if Rails.env.development?

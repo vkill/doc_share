@@ -203,11 +203,5 @@ zh-CN:
         backup_at: 备份时间
 
 
-  user_mailer:
-    reset_password_email:
-      title: 请重置你在xx网的账户密码
-    activation_needed_email:
-      title: xx网邀请你激活账号
-    activation_success_email:
-      title: 你在xx网的账户已激活
+  
       

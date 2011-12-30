@@ -28,3 +28,10 @@ zh-CN:
       password_update:
         notice: 密码更新成功,请重新登录
 
+    mailer:
+      reset_password_email:
+        subject: 请重置你在xx网的账户密码
+      activation_needed_email:
+        subject: xx网邀请你激活账号
+      activation_success_email:
+        subject: 你在xx网的账户已激活
