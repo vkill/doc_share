@@ -90,5 +90,6 @@ Enter the app directory, and run
     > git pull
     > bundle install
     > bundle exec rake app:dev:reload
+    > rake ts:index
     > foreman start
 

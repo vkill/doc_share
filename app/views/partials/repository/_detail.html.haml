@@ -1,0 +1,6 @@
+%em
+  = [t(:updated_at), l(repository.updated_at, :format => :long_only_date)].join(":")
+  |
+  = [t(:"partials.repository.count_link.watchers"), repository.watchers_count].join(":")
+  |
+  = [t(:"partials.repository.count_link.forks"), repository.forks_count].join(":")

@@ -24,15 +24,11 @@
             .row
               .span8
                 .page-header
-                  %p.pull-right
-                    = render "partials/repository/count_link", :repository => repository
                   %h4
                     = render "partials/repository/link_only_name", :repository => repository
                 .page-header
                   = repository.describtion
-                %em
-                  = t(:updated_at)
-                  = l repository.updated_at, :format => :long_only_date
+                = render "partials/repository/detail", :repository => repository
                 %br
                 %br
 

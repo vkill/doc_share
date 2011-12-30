@@ -45,7 +45,6 @@ class Repository < ActiveRecord::Base
   define_index do
     indexes name, :sortable => true
     indexes describtion
-    indexes user(:username), :as => :username, :sortable => true
     has user_id, created_at, updated_at
   end
 
