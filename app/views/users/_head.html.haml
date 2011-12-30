@@ -1,13 +1,16 @@
 .row
   .span4
     %h1
-      - if logged_in? and me?(user)
-        = link_to (image_tag user.gravatar_url(:size => 48), :class => "gravatar"),
-                  user_page_path(user), :data => {:twipst_change_gravatar => true}
-      - else
-        = link_to (image_tag user.gravatar_url(:size => 48), :class => "gravatar"),
-                    user_page_path(user)
-      = link_to user.username, user_page_path(user)
+      .row
+        .span-one-ten.user_avatar
+          - if logged_in? and me?(user)
+            = link_to (image_tag user.gravatar_url(:size => 48), :class => "gravatar"),
+                      user_page_path(user), :data => {:twipst_change_gravatar => true}
+          - else
+            = link_to (image_tag user.gravatar_url(:size => 48), :class => "gravatar"),
+                        user_page_path(user)
+        .span2
+          = link_to user.username, user_page_path(user)
   .span10.right
     - if logged_in?
       - if me?(user)
