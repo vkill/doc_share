@@ -33,3 +33,10 @@ zh-CN:
           actived: 激活
           paused: 暂停
 
+  activemodel:
+    enums:
+      search:
+        type:
+          users: 用户
+          repositories: 项目
+          everything: 所有
