@@ -4,24 +4,23 @@ class UserMailer < ActionMailer::Base
 
   def reset_password_email(user)
     @user = user
-    @url = url_for("/")
-    # @url = "http://0.0.0.0:3000/reset_passwords/#{user.reset_password_token}/edit"
+    @url = url_for(:controller => :reset_passwords, :action => :edit, :id => user.reset_password_token)
     mail(:to => user.email,
-         :subject => t("user_mailer.reset_password_email"))
+         :subject => t("user_mailer.reset_password_email.title"))
   end
 
   def activation_needed_email(user)
     @user = user
-    @url = "http://0.0.0.0:3000/users/#{user.activation_token}/activate"
+    @url = url_for(:controller => :users, :action => :activate, :id => user.activation_token)
     mail(:to => user.email,
-         :subject => t("user_mailer.activation_needed_email"))
+         :subject => t("user_mailer.activation_needed_email.title"))
   end
 
   def activation_success_email(user)
     @user = user
-    @url = "http://0.0.0.0:3000/login"
+    @url = signin_path(:only_path => false)
     mail(:to => user.email,
-         :subject => t("user_mailer.activation_success_email"))
+         :subject => t("user_mailer.activation_success_email.title"))
   end
 
   if Rails.env.development?
