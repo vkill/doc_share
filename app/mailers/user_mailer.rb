@@ -4,7 +4,8 @@ class UserMailer < ActionMailer::Base
 
   def reset_password_email(user)
     @user = user
-    @url = "http://0.0.0.0:3000/reset_passwords/#{user.reset_password_token}/edit"
+    @url = url_for("/")
+    # @url = "http://0.0.0.0:3000/reset_passwords/#{user.reset_password_token}/edit"
     mail(:to => user.email,
          :subject => t("user_mailer.reset_password_email"))
   end

@@ -96,6 +96,10 @@ DocShare::Application.routes.draw do
   end
 
 
+  # mail preview
+  if Rails.env.development?
+    mount UserMailer::Preview => 'user_mailer_view'
+  end
 
 
   scope ":user" do
@@ -133,10 +137,7 @@ DocShare::Application.routes.draw do
   end
 
 
-  # mail preview
-  if Rails.env.development?
-    mount UserMailer::Preview => 'user_mailer_view'
-  end
+  
 
 end
 
