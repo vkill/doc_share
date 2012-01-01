@@ -11,7 +11,7 @@ Doc Discover and Share
 
 * Redis should be installed and running
 
-* Cornd should be installed and running
+* Cronie should be installed and running
 
 * ImageMagick should be installed
 
@@ -25,9 +25,9 @@ Doc Discover and Share
 
 * RVM should be installed and execute `rvm install 1.9.3`
 
-* sshd
+* Openssh
 
-* sudo
+* Sudo
 
 
 ##Make application run on your local
@@ -51,13 +51,13 @@ Copy yaml configuration files from example, after your need edit it.
     > cp config/redis.yml.example config/redis.yml
     > cp config/smtp_settings.yml.example config/smtp_settings.yml
 
+To run this rake, it init application
+    > bundle exec rake db:create:all
+    > bundle exec rake app:dev:init
+
 Processing your Index
     
-    > rake ts:index
-
-To run this rake, it init application
-
-    > bundle exec rake app:dev:init
+    > bundle exec rake ts:index
 
 To run foreman
 
@@ -90,6 +90,6 @@ Enter the app directory, and run
     > git pull
     > bundle install
     > bundle exec rake app:dev:reload
-    > rake ts:index
+    > bundle exec rake ts:index
     > foreman start
 
