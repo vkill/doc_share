@@ -13,7 +13,7 @@
           = f.label :category_name, :class => "span2"
           = f.collection_select :category_name_eq, Category.all, "id", "name", :prompt => true,
                                 :class => "span3"
-        .span6.clearfix
+        .span12.clearfix
           = f.label :created_at, :class => "span2"
           = f.text_field :created_at_gt, :class => "small", :data => {:date => true}
           &#8254;&#8254;&#8254;
