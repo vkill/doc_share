@@ -2,8 +2,8 @@
 zh-CN:
   user_notifications_mailer:
     user_followed_email:
-      subject: "%{user}刚刚关注了你"
+      subject: "[%{site_name}]%{user}刚刚关注了你"
     repository_watched_email:
-      subject: "%{user}刚刚关注了你的%{repository}项目"
+      subject: "[%{site_name}]%{user}刚刚关注了你的%{repository}项目"
     repository_forked_email:
-      subject: "%{user}刚刚拷贝了你的%{repository}项目"
+      subject: "[%{site_name}]%{user}刚刚拷贝了你的%{repository}项目"

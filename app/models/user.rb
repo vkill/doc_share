@@ -118,7 +118,7 @@ class User < ActiveRecord::Base
 
   def watch_repository(repository)
     follow_target(repository)
-    UserNotificationsMailer.repository_watched_email(repository.user, repository, self).deliver! if repository.user.notification_code_watched.present?
+    UserNotificationsMailer.repository_watched_email(repository.user, repository, self).deliver! if repository.user.notification_repository_watched.present?
   end
 
   def unwatch_repository(repository)

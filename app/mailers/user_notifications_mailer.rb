@@ -9,7 +9,8 @@ class UserNotificationsMailer < ActionMailer::Base
     @follower = follower
     @follower_url = user_page_url(@follower.username)
     mail(:to => @user.email,
-         :subject => t("user_notifications_mailer.user_followed_email.subject", :user => @follower.username)
+         :subject => t("user_notifications_mailer.user_followed_email.subject", :user => @follower.username,
+                                                                                :site_name => SiteConfig.q(:site_name))
          )
   end
 
@@ -20,7 +21,8 @@ class UserNotificationsMailer < ActionMailer::Base
     @watcher_url = user_page_url(@watcher.username)
     mail(:to => @user.email,
          :subject => t("user_notifications_mailer.repository_watched_email.subject", :user => @watcher.username,
-                                                                                    :repository => @repository.name)
+                                                                                    :repository => @repository.name,
+                                                                                    :site_name => SiteConfig.q(:site_name))
         )
   end
 
@@ -31,7 +33,8 @@ class UserNotificationsMailer < ActionMailer::Base
     @forker_url = user_page_url(@forker.username)
     mail(:to => @user.email,
          :subject => t("user_notifications_mailer.repository_forked_email.subject", :user => @forker.username,
-                                                                                    :repository => @repository.name)
+                                                                                    :repository => @repository.name,
+                                                                                    :site_name => SiteConfig.q(:site_name))
         )
   end
 

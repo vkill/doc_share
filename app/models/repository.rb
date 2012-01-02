@@ -61,10 +61,8 @@ class Repository < ActiveRecord::Base
         :parent => self,
         :user => user
       )
-      new_repository
-
-      UserNotificationsMailer.repository_forked_email(repository.user, repository, user).deliver! if repository.user.notification_code_watched.present?
-
+      UserNotificationsMailer.repository_forked_email(self.user, self, user).deliver! if self.user.notification_repository_watched.present?
+      return new_repository
     end
   end
 
