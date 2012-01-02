@@ -7,9 +7,9 @@ zh-CN:
       setting_user_notification:
         id: id
         user_id: 用户id
-        user_followed: 用户被关注
-        code_watched: 项目被关注
-        code_forked: 项目被拷贝
+        user_followed: 当用户关注你时是否通知?
+        repository_watched: 当用户关注你的项目时是否通知?
+        repository_forked: 当用户拷贝你的项目时是否通知?
         created_at: 创建时间
         updated_at: 最后更新
 

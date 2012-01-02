@@ -15,6 +15,7 @@ group :assets do
   gem 'uglifier', '>= 1.0.3'
 end
 
+
 gem "therubyracer", "~> 0.9.9", :require => "v8"
 
 gem "eventmachine", "~> 1.0.0.beta.4"

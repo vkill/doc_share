@@ -43,11 +43,12 @@ describe User do
   end
 
   context "user follow user" do
-    it "should follow and unfollow user" do
+    before { 
       user_a = User.make!
       user_b = User.make!
-
       user_a.follow_user(user_b)
+    }
+    it "should follow and unfollow user" do
       user_a.following_users.find(user_b).id.should eq(user_b.id)
       user_b.followers.find(user_a).id.should eq(user_a.id)
       user_a.unfollow_user(user_b)
@@ -55,6 +56,9 @@ describe User do
       lambda { user_b.followers.find(user_a) }.should raise_error(ActiveRecord::RecordNotFound)
     end
 
+    it "should notify user" do
+      pending
+    end
   end
 
   context "user watch repository" do

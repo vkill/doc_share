@@ -39,11 +39,12 @@ zh-CN:
   sure_delete: 我确认删除
   confirm: 确定执行此操作?
   delete_confirm: 确定要执行删除操作吗?
-  submitting: 提交中...
   add: 添加
   remove: 删除
   cancel: 取消
+  submit: 提交
   reset: 恢复
+  submitting: 提交中...
   back_to: 返回
   view_all: 查看全部
   more: 更多...

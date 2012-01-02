@@ -16,6 +16,7 @@ class Account::MainController < Account::BaseController
   end
 
   def notifications_center
+    @user = current_user
   end
 
 end

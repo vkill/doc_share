@@ -80,9 +80,17 @@ class UsersController < ApplicationController
 
   def update
     if @user.update_attributes(params[:user])
-      redirect_to [:edit, @user], :notice => t(:notice, :scope => [:sorcery, :user, :update])
+      if params[:user][:setting_user_notification_attributes].present?
+        redirect_to [:account, :notifications_center], :notice => t(:notice_notification, :scope => [:sorcery, :user, :update])
+      else
+        redirect_to [:edit, @user], :notice => t(:notice, :scope => [:sorcery, :user, :update])
+      end
     else
-      render :edit
+      if params[:user][:setting_user_notification_attributes].present?
+        render :edit
+      else
+        render :template => "account/main/notifications_center"
+      end
     end
   end
 

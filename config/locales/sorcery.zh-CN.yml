@@ -23,6 +23,7 @@ zh-CN:
         notice: 账户已激活,请登录
       update:
         notice: 个人资料更新成功
+        notice_notification: 通知管理更新成功
       destroy:
         notice: 用户删除成功
       password_update:

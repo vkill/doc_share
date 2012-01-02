@@ -17,7 +17,8 @@ class User < ActiveRecord::Base
   attr_accessor :login ,:remember_me
 
   basic_attr_accessible = [:email, :password, :password_confirmation, :login, :remember_me,
-                  :name, :site, :company, :location]
+                  :name, :site, :company, :location,
+                  :setting_user_notification_attributes ]
   attr_accessible *(basic_attr_accessible + [:username ])
   attr_accessible *(basic_attr_accessible + [:username, :state, :roles, :role_ids]), :as => :admin
 
@@ -32,6 +33,7 @@ class User < ActiveRecord::Base
   has_many :activities, :dependent => :destroy
 
   has_one :setting_user_notification
+  accepts_nested_attributes_for :setting_user_notification, :allow_destroy => true
 
   has_many :target_followed, :as => :follower, :class_name => 'TargetFollower'
   with_options :through => :target_followed, :source => :target, :readonly => true do |target|
@@ -107,7 +109,7 @@ class User < ActiveRecord::Base
 
   def follow_user(user)
     follow_target(user)
-    UserNotificationsMailer.user_followed_email(user, self).deliver if user.notification_user_followed.present?
+    UserNotificationsMailer.user_followed_email(user, self).deliver! if user.notification_user_followed.present?
   end
 
   def unfollow_user(user)
@@ -116,7 +118,7 @@ class User < ActiveRecord::Base
 
   def watch_repository(repository)
     follow_target(repository)
-    UserNotificationsMailer.repository_watched_email(repository.user, repository, self).deliver if repository.user.notification_code_watched.present?
+    UserNotificationsMailer.repository_watched_email(repository.user, repository, self).deliver! if repository.user.notification_code_watched.present?
   end
 
   def unwatch_repository(repository)

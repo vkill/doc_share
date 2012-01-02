@@ -1,2 +1,15 @@
-%h1 Account::Main#notifications_center
-%p Find me in app/views/account/main/notifications_center.html.haml
+= simple_form_for(@user, :url => (user_path(@user)), :wrapper => :inline) do |f|
+  = f.simple_fields_for :setting_user_notification do |f_setting_user_notification|
+    = field_set_tag "" do
+      = f_setting_user_notification.input :user_followed, :as => :radio, :input_html => { :class => "span4" },
+                                                                          :label_html => { :class => "span5" }
+      = f_setting_user_notification.input :repository_watched, :as => :radio, :input_html => { :class => "span4" },
+                                                                              :label_html => { :class => "span5" }
+      = f_setting_user_notification.input :repository_forked, :as => :radio, :input_html => { :class => "span4" },
+                                                                            :label_html => { :class => "span5" }
+
+  .actions
+    = f.button :submit, t(:submit),
+                        :class => 'primary', :disable_with => t(:submitting)
+    = button_tag t(:reset), :type => :reset, :class => "btn"
+

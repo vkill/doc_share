@@ -11,12 +11,12 @@ end
 #
 # Table name: setting_user_notifications
 #
-#  id            :integer         not null, primary key
-#  user_id       :integer
-#  user_followed :boolean         default(TRUE)
-#  code_watched  :boolean         default(TRUE)
-#  code_forked   :boolean         default(TRUE)
-#  created_at    :datetime
-#  updated_at    :datetime
+#  id                 :integer         not null, primary key
+#  user_id            :integer
+#  user_followed      :boolean         default(TRUE)
+#  repository_watched :boolean         default(TRUE)
+#  repository_forked  :boolean         default(TRUE)
+#  created_at         :datetime
+#  updated_at         :datetime
 #
 
