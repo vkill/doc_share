@@ -136,7 +136,6 @@ describe User do
       pending
     end
   end
-
 end
 # == Schema Information
 #
