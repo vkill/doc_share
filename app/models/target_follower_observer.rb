@@ -2,6 +2,7 @@ class TargetFollowerObserver < ActiveRecord::Observer
 
   observe :target_follower
 
+  # user follow user or watch repository
   def after_create(record)
     #count
     case record.target_type.to_s
@@ -13,14 +14,16 @@ class TargetFollowerObserver < ActiveRecord::Observer
         Repository.increment_counter(:watchers_count, record.target_id)
     end
 
-    #log
+    #log activity
     action = case record.target_type.to_s
       when "User" then :followed_user
       when "Repository" then :watched_repository
     end
     log(record, action)
+
   end
 
+  # user unfollow user or unwatch repository
   def after_destroy(record)
     #count
     case record.target_type.to_s
@@ -32,12 +35,13 @@ class TargetFollowerObserver < ActiveRecord::Observer
         Repository.decrement_counter(:watchers_count, record.target_id)
     end
 
-    #log
+    #log activity
     action = case record.target_type.to_s
       when "User" then :unfollowed_user
       when "Repository" then :unwatched_repository
     end
     log(record, action)
+    
   end
 
   private

@@ -7,9 +7,6 @@ describe UserObserver do
     it "should have setting_user_notification" do
       user.setting_user_notification.should be_kind_of(SettingUserNotification)
     end
-    it "should have notification_user_followed" do
-      user.should respond_to(:notification_user_followed)
-    end
   end
 
 end

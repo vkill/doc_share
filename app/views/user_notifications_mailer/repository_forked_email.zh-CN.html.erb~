@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta content="text/html; charset=UTF-8" http-equiv="content-type" />
+  </head>
+  <body>
+    <div>
+      <span>亲爱的<%= @user.username %>：</span>
+      <br />
+      <span><%= @forker.username %>刚刚关注了你的项目<%= @repository.name %></span>
+      <br />
+      <span>快去看看他／她<%= link_to @forker_url, @forker_url %></span>
+      <br />
+    </div>
+  </body>
+</html>

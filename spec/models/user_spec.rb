@@ -136,6 +136,13 @@ describe User do
       pending
     end
   end
+
+  context "notification" do
+    let(:user)  { User.make! }
+    it { user.should respond_to(:notification_user_followed) }
+    it { user.should respond_to(:notification_repository_watched) }
+    it { user.should respond_to(:notification_repository_forked) }
+  end
 end
 # == Schema Information
 #

@@ -123,9 +123,9 @@ ActiveRecord::Schema.define(:version => 20111221080824) do
 
   create_table "setting_user_notifications", :force => true do |t|
     t.integer  "user_id"
-    t.boolean  "user_followed", :default => true
-    t.boolean  "code_watched",  :default => true
-    t.boolean  "code_forked",   :default => true
+    t.boolean  "user_followed",      :default => true
+    t.boolean  "repository_watched", :default => true
+    t.boolean  "repository_forked",  :default => true
     t.datetime "created_at"
     t.datetime "updated_at"
   end

@@ -98,9 +98,9 @@ DocShare::Application.routes.draw do
 
   # mail preview
   if Rails.env.development?
-    mount UserMailer::Preview => 'user_mailer_view'
+    # mount UserMailer::Preview => 'mailer_view_user'
+    mount UserNotificationsMailer::Preview => 'mailer_view_user_notifications'
   end
-
 
   scope ":user" do
     root :to => "users#user_page", :as => :user_page

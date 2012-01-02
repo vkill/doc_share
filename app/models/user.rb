@@ -69,6 +69,10 @@ class User < ActiveRecord::Base
     has created_at, updated_at
   end
 
+  delegate :user_followed, :repository_watched, :repository_forked,
+            :to => :setting_user_notification, :prefix => :notification
+
+
   class << self
     def current=(user)
       Thread.current[:user] = user
@@ -103,6 +107,7 @@ class User < ActiveRecord::Base
 
   def follow_user(user)
     follow_target(user)
+    UserNotificationsMailer.user_followed_email(user, self).deliver if user.notification_user_followed.present?
   end
 
   def unfollow_user(user)
@@ -111,6 +116,7 @@ class User < ActiveRecord::Base
 
   def watch_repository(repository)
     follow_target(repository)
+    UserNotificationsMailer.repository_watched_email(repository.user, repository, self).deliver if repository.user.notification_code_watched.present?
   end
 
   def unwatch_repository(repository)
