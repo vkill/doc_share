@@ -14,4 +14,7 @@ class Admin::FeedbacksController < Admin::ResourcesBaseController
   add_breadcrumb proc{|c| c.t("edit")}, "", :only => [:edit, :update]
   add_breadcrumb proc{|c| c.t("delete")}, "", :only => [:delete, :destroy]
 
+  def download_attachment
+    send_file @feedback.attachment.file.to_file
+  end
 end

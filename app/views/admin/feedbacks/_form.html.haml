@@ -13,6 +13,10 @@
       .span8
         = f.input :state, :as => :select, :collection => Feedback.get_state_values,
                          :input_html => { :class => "span4" }
+      .span8
+        = f.input :attachment, :wrapper => :prepend do
+          = content_tag :label, :class => "add-on" do
+            = link_to resource.attachment, [:download_attachment, :admin, resource]
     .row
       .span14
         = f.input :result, :input_html => { :class => "span14", :rows => 3 }

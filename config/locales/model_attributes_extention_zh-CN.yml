@@ -23,6 +23,7 @@ zh-CN:
       repository:
         user_username: 用户名
         category_name: 分类名称
+        repo_files: 文件
       
       activity:
         username: 用户名

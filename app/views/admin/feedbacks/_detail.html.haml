@@ -7,7 +7,9 @@
     = l resource.created_at
   = feedback.attribute :updated_at do
     = l resource.updated_at
-
+  = feedback.attribute :attachment do
+    = link_to resource.attachment, [:download_attachment, :admin, resource]
+  
   - if resource.processing? or resource.processed?
     = feedback.attributes :result
     = feedback.attribute :handler_id do

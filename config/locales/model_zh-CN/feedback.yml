@@ -13,5 +13,6 @@ zh-CN:
         result: 处理结果
         handler_id: 处理人
         handle_at: 处理时间
+        attachment: 附件
         created_at: 创建时间
         updated_at: 最后更新

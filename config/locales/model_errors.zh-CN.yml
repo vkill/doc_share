@@ -10,6 +10,6 @@
   #https://gist.github.com/1009861
   errors:
     messages:
-      wrong_size: "is the wrong size (should be %{file_size})"
-      size_too_small: "is too small (should be at least %{file_size})"
-      size_too_big: "is too big (should be at most %{file_size})"
+      wrong_size: "文件太小，超出限制 (最大%{file_size})"
+      size_too_small: "文件太小 (最小%{file_size})"
+      size_too_big: "文件太大，超出限制 (最大%{file_size})"

@@ -82,6 +82,9 @@ DocShare::Application.routes.draw do
     resources :repositories do
       get :export, :on => :collection
       get :delete, :on=> :member
+      resources :repo_files, :only => [] do
+        get :download_repo_file, :on => :member
+      end
     end
     resources :activities, :only => [:index, :show] do
       get :export, :on => :collection
@@ -100,6 +103,7 @@ DocShare::Application.routes.draw do
     resources :feedbacks, :except => [:new, :create] do
       get :export, :on => :collection
       get :delete, :on=> :member
+      get :download_attachment, :on => :member
     end
     resources :posts do
       get :export, :on => :collection

@@ -24,8 +24,13 @@
     .row
       .span14
         = f.simple_fields_for :repo_files do |f_repo_files|
-          = f_repo_files.input :repo_file
-          = f_repo_files.link_to_remove t(".remove_repo_file")
+          - if f_repo_files.object.new_record?
+            = f_repo_files.input :repo_file
+          - else
+            = f_repo_files.input :repo_file, :wrapper => :prepend do
+              = content_tag :label, :class => "add-on" do
+                = link_to f_repo_files.object.repo_file, [:download_repo_file, :admin, resource, f_repo_files.object]
+            = f_repo_files.link_to_remove t(".remove_repo_file")
         = f.link_to_add t(".add_repo_file"), :repo_files
   
   .actions

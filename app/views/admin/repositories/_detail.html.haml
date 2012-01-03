@@ -11,3 +11,8 @@
     = l resource.created_at
   = repository.attribute :updated_at do
     = l resource.updated_at
+  
+  = repository.association :repo_files do |repo_file|
+    = link_to repo_file.repo_file, [:download_repo_file, :admin, resource, repo_file]
+    = raw " <br/> "
+    
