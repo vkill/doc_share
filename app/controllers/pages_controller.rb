@@ -5,7 +5,7 @@ class PagesController < ApplicationController
   def page_not_found
   end
 
-  def interior_server_mistake
+  def internal_server_error
   end
 
 end

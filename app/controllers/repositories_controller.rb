@@ -75,7 +75,7 @@ class RepositoriesController < ApplicationController
     end
 
     def find_repository
-      @repository = @repositories.find(params[:repository])
+      @repository = @repositories.find_by_name!(params[:repository])
     end
 
     def set_git_tag

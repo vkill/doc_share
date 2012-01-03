@@ -159,7 +159,7 @@ class UsersController < ApplicationController
     end
     
     def find_user
-      @user = User.find_by_username(params[:user])
+      @user = User.find_by_username!(params[:user])
     end
 end
 

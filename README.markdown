@@ -93,3 +93,10 @@ Enter the app directory, and run
     > bundle exec rake ts:index
     > foreman start
 
+##Production
+
+Init production
+    
+    > bundle exec rake app:production:init RAILS_ENV=production
+
+    

@@ -378,6 +378,8 @@ GEM
     valid_attribute (1.2.0)
     vegas (0.1.8)
       rack (>= 1.0.0)
+    vidibus-routing_error (0.2.0)
+      rails (>= 3.0.0.rc)
     xpath (0.1.4)
       nokogiri (~> 1.3)
     yard (0.7.4)
@@ -455,3 +457,4 @@ DEPENDENCIES
   timecop (~> 0.3.5)
   uglifier (>= 1.0.3)
   valid_attribute (~> 1.2.0)
+  vidibus-routing_error

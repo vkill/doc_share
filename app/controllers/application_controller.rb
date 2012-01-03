@@ -8,7 +8,17 @@ class ApplicationController < ActionController::Base
   self.responder = ApplicationResponder
   respond_to :html
 
-  #cancan
+  ###rescue_from
+  def self.rescue_errors
+    rescue_from Exception,                            :with => :render_error
+    rescue_from RuntimeError,                         :with => :render_error
+    rescue_from ActiveRecord::RecordNotFound,         :with => :render_404
+    rescue_from ActionController::RoutingError,       :with => :render_404
+    rescue_from ActionController::UnknownController,  :with => :render_error
+    rescue_from ActionController::UnknownAction,      :with => :render_error
+  end
+  rescue_errors unless Rails.env.development?
+  #cancan exception, must be define on the Exception defined 
   enable_authorization do |exception|
     if current_user
       redirect_to root_url, :alert => exception.message
@@ -16,9 +26,7 @@ class ApplicationController < ActionController::Base
       redirect_to new_session_path(:ok_url => request.path), :alert => t(:require_sign_in)
     end
   end
-  
-  #airbrake
-  rescue_from Exception, :with => :render_error
+  ###rescue_from end
   
   before_filter :set_locale, :check_site_closed
 
@@ -48,20 +56,20 @@ class ApplicationController < ActionController::Base
     def render_site_closed
       render 'pages/site_closed', :status => 200, :layout => false
     end
-    def render_404
+    def render_404(exception=nil)
+      Rails.logger.error(exception)
       render 'pages/page_not_found', :status => 404, :layout => false
     end
-    def render_500
-      render 'pages/interior_server_mistake', :status => 500, :layout => false
+    def render_500(exception=nil)
+      Rails.logger.error(exception)
+      render 'pages/internal_server_error', :status => 500, :layout => false
     end
 
-    #airbrake
     def render_error(exception)
+      Rails.logger.error(exception)
       render_500
-      notify_airbrake(exception)
+      notify_airbrake(exception)  #airbrake
     end
-
-
 
     class << self
       def main_nav_highlight(name, *options)

@@ -136,9 +136,6 @@ DocShare::Application.routes.draw do
     end
   end
 
-
-  
-
 end
 
 #== Route Map
