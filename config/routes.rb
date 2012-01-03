@@ -82,8 +82,8 @@ DocShare::Application.routes.draw do
     resources :activities, :only => [:index, :show] do
       get :export, :on => :collection
     end
-    resource :site_config, :only => [:show, :edit, :update] do
-      post :reinitialize
+    resources :site_configs, :only => [:index, :update] do
+      post :reinitialize, :on => :collection
     end
     resources :backups, :only => [] do
       collection do

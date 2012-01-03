@@ -1,26 +1,10 @@
-class Admin::SiteConfigsController < Admin::BaseController
+class Admin::SiteConfigsController < Admin::ResourcesBaseController
   
-  add_breadcrumb proc{|c| c.t("admin.shared.topbar.site_configs")}, :admin_site_config_path
-
-  add_breadcrumb proc{|c| c.t("show")}, "", :only => [:show]
-  add_breadcrumb proc{|c| c.t("edit")}, "", :only => [:edit, :update]
-
-  def show
-    @site_config = SiteConfig.build_settings()
-  end
-
-  def edit
-    @site_config = SiteConfig.build_settings()
-  end
-
-  def update
-    @site_config = SiteConfig.save_settings(params[:site_config])
-    redirect_to [:admin, :site_config], :notice => t(:successfully_completed)
-  end
+  add_breadcrumb proc{|c| c.t("admin.shared.topbar.site_configs")}, "", :only => [:index]
 
   def reinitialize
     @site_config = SiteConfig.reinitialize()
-    redirect_to [:admin, :site_config], :notice => t(:successfully_completed)
+    redirect_to [:admin, :site_configs], :notice => t(:successfully_completed)
   end
 
 end

@@ -29,11 +29,11 @@ zh-CN:
         target_link: 目标链接
         
       site_config:
-        config_site_name: 站点名
-        config_site_keywords: 站点关键字
-        config_site_default_title: 站点默认标题
-        config_site_closed: 站点是否关闭
-        config_site_closed_description: 站点关闭提示语
+        site_name: 站点名
+        site_keywords: 站点关键字
+        site_default_title: 站点默认标题
+        site_closed: 站点是否关闭
+        site_closed_description: 站点关闭提示语
         
   activemodel:
     models:

@@ -1,0 +1,17 @@
+.row
+  .span14
+    %p.pull-right
+      = link_to t(:reinitialize), [:reinitialize, :admin, :site_configs],
+                :method => :post, :class => "btn primary",
+                :confirm => t(:confirm)
+
+%table.zebra-striped
+  %thead
+    %tr
+      %th= ta(SiteConfig, :key)
+      %th= ta(SiteConfig, :value)
+  %tbody
+    - @site_configs.each do |site_config|
+      %tr
+        %td= ta(SiteConfig, site_config.key)
+        %td= site_config.value

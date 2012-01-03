@@ -18,6 +18,8 @@
 //= require nested_form
 //= require jquery_uri
 
+//= require best_in_place
+
 //= require_tree .
 
 
