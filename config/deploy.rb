@@ -53,3 +53,6 @@ before "deploy:assets:precompile", "deploy:copy_config_files"
 before "deploy:assets:precompile", "deploy:migrate"
 after "deploy:update_code", "deploy:copy_config_files"
 
+
+        require './config/boot'
+        require 'airbrake/capistrano'

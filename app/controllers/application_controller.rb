@@ -1,9 +1,14 @@
 require "application_responder"
 
 class ApplicationController < ActionController::Base
+    
+  protect_from_forgery
+
+  #responders
   self.responder = ApplicationResponder
   respond_to :html
 
+  #cancan
   enable_authorization do |exception|
     if current_user
       redirect_to root_url, :alert => exception.message
@@ -12,9 +17,9 @@ class ApplicationController < ActionController::Base
     end
   end
   
+  #airbrake
+  rescue_from Exception, :with => :render_error
   
-  protect_from_forgery
-
   before_filter :set_locale, :check_site_closed
 
   private
@@ -49,6 +54,13 @@ class ApplicationController < ActionController::Base
     def render_500
       render 'pages/interior_server_mistake', :status => 500, :layout => false
     end
+
+    #airbrake
+    def render_error(exception)
+      render_500
+      notify_airbrake(exception)
+    end
+
 
 
     class << self

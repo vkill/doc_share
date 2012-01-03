@@ -66,6 +66,9 @@ GEM
       mail
       rake (>= 0.8.7)
     addressable (2.2.6)
+    airbrake (3.0.9)
+      activesupport
+      builder
     ancestry (1.2.4)
       activerecord (>= 2.2.2)
     annotate (2.4.1.beta1)
@@ -385,6 +388,7 @@ PLATFORMS
 DEPENDENCIES
   active_reload (~> 0.6.1)
   activevalidators (~> 1.8.0)
+  airbrake
   ancestry (~> 1.2.4)
   annotate (~> 2.4.1.beta1)
   attribute_enums (~> 0.1.4)
