@@ -19,6 +19,11 @@ describe Activity do
     end
   end
 
+  context "scope" do
+    it "should has about_user" do
+      pending
+    end
+  end
 end
 # == Schema Information
 #

@@ -1,0 +1,9 @@
+%section
+  .row
+    .span8
+      - @activities.each do |activity|
+        %br
+        .page-header
+          = render "partials/activity_display", :activity => activity
+
+= render 'partials/pagination', :resources => @activities

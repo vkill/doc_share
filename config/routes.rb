@@ -50,6 +50,9 @@ DocShare::Application.routes.draw do
         put :reply
       end
     end
+    resources :activities, :only => [:index] do
+      get :about_me, :on => :collection
+    end
   end
   get "dashboard" => "account/main#dashboard", :as => :dashboard
 

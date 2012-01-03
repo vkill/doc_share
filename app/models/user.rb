@@ -30,7 +30,7 @@ class User < ActiveRecord::Base
 
   has_many :repositories, :dependent => :destroy
 
-  has_many :activities, :dependent => :destroy
+  has_many :activities
 
   has_one :setting_user_notification
   accepts_nested_attributes_for :setting_user_notification, :allow_destroy => true

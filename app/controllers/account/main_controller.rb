@@ -9,7 +9,7 @@ class Account::MainController < Account::BaseController
   add_breadcrumb proc{|c| c.t("account.shared.navigation.notifications_center")}, "", :only => [:notifications_center]
 
   def dashboard
-    @new_activities = Activity.limit 20
+    @about_me_activities = Activity.about_user(current_user).limit(10)
 
     @repositories = current_user.repositories
     @watching_repositories = current_user.watching_repositories

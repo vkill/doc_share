@@ -169,10 +169,13 @@ zh-CN:
         repositories: 项目管理
         new_repository: 创建新项目
         notifications_center: 通知管理
+        activities: 事件查看
+        my_activities: 我的事件
+        about_me_activities: 我关注中的人和项目的事件
+        
     main:
       dashboard:
-        your_repositories: 你的项目
-        watching_repositories: 你关注中的项目
+        watching_repositories: 我关注中的项目
   
   admin:
     shared:

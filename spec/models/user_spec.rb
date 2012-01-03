@@ -139,6 +139,7 @@ describe User do
     it "has scope recent_join" do
       pending
     end
+    
   end
 
   context "notification" do
@@ -147,6 +148,7 @@ describe User do
     it { user.should respond_to(:notification_repository_watched) }
     it { user.should respond_to(:notification_repository_forked) }
   end
+
 end
 # == Schema Information
 #

@@ -10,6 +10,10 @@ class Activity < ActiveRecord::Base
 
   delegate :email, :username, :gravatar_url , :to => :user
 
+  scope :about_user, lambda { |user| where{(user_id >> user.following_user_ids) | \
+                        ( (activityable_id >> user.watching_repository_ids) & (activityable_type == 'Repository') & \
+                            (user_id != user.id) )} }
+
   def self.log!(attrs)
     self.create!(
       :user_id      => attrs[:user].id,

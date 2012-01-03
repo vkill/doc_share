@@ -2,17 +2,17 @@
 
 - case activity.action.to_sym
 - when :created_repository, :destroyed_repository, :watched_repository, :unwatched_repository, :forked_repository
-  = link_to activity.username, user_page_path(activity.username)
+  = link_to activity.user_name, user_page_path(activity.user_name)
   = activity.action_text
   = render "partials/repository/link", :repository => activity.activityable
   = t(:at, :ago => time_ago_in_words(activity.created_at))
 - when :followed_user, :unfollowed_user
-  = link_to activity.username, user_page_path(activity.username)
+  = link_to activity.user_name, user_page_path(activity.user_name)
   = activity.action_text
   = link_to activity.activityable.username, user_page_path(activity.activityable.username)
   = t(:at, :ago => time_ago_in_words(activity.created_at))
 - else
-  = link_to activity.username, user_page_path(activity.username)
+  = link_to activity.user_name, user_page_path(activity.user_name)
   = activity.action_text
   = t(:at, :ago => time_ago_in_words(activity.created_at))
 

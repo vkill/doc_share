@@ -1,31 +1,24 @@
 %section
   .row
-    .span8
-      - @new_activities.each do |activity|
-        %br
-        .page-header
-          = render "partials/activity_display", :activity => activity
+    .span4.offset12
+      .row.center
+        %h1
+          = render_cell :repositories, :new_link
 
-    .span7.offset1
-      %section
-        .row.center
-          %h1
-            = render_cell :repositories, :new_link
-      
-      %br
+  .row
+    .span8
       %section
         .page-header
           %h1
-            = t(".your_repositories")
-        - @repositories.each do |repository|
+            = t("account.shared.navigation.about_me_activities")
+        - @about_me_activities.each do |activity|
+          %br
           .page-header
-            .row
-              .span5
-                = render "partials/repository/link", :repository => repository
-              .span2.right
-                = render "partials/repository/count_link", :repository => repository
-      
-      %br
+            = render "partials/activity_display", :activity => activity
+        %p.pull-right
+          = link_to t(:more), [:about_me, :account, :activities]
+    
+    .span7.offset1  
       %section
         .page-header
           %h1

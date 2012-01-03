@@ -29,4 +29,11 @@
 
     %li{:class => @main_nav == :notifications_center ? :active : nil}
       = link_to t(".notifications_center"), account_notifications_center_path
-
+    
+    %li.dropdown{"data-dropdown" => "dropdown", :class => @main_nav == :activities ? :active : nil}
+      %a.dropdown-toggle{:href => "javascript:void(0)"}= t(".activities")
+      %ul.dropdown-menu
+        %li
+          = link_to t(".my_activities"), [:account, :activities]
+        %li
+          = link_to t(".about_me_activities"), [:about_me, :account, :activities]
