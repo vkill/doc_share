@@ -130,6 +130,7 @@ gem "best_in_place", "~> 1.0.4"
 
 #log exception
 gem "airbrake"
+
 gem "vidibus-routing_error"
 
 gemfile_local = File.expand_path('../Gemfile.local', __FILE__)

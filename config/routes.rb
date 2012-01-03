@@ -102,6 +102,9 @@ DocShare::Application.routes.draw do
     mount UserNotificationsMailer::Preview => 'mailer_view_user_notifications'
   end
 
+  # high_voltage
+  resources :pages
+
   scope ":user" do
     root :to => "users#user_page", :as => :user_page
 
@@ -135,6 +138,11 @@ DocShare::Application.routes.draw do
       resources :issues
     end
   end
+
+  # vidibus-routing_error
+  # match "routing_error" => "home#rescue_404"
+  # when use vidibus-routing_error, please drop this
+  match "*path" => "home#rescue_404"
 
 end
 
