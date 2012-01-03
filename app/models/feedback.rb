@@ -10,6 +10,9 @@ class Feedback < ActiveRecord::Base
   attr_accessible *(basic_attr_accessible)
   attr_accessible *(basic_attr_accessible + [:state, :result, :handler_id, :user_id]), :as => :admin
 
+  mount_uploader :attachment, FeedbackAttachmentUploader 
+  validates :attachment, :file_size => { :maximum => 0.5.megabytes.to_i },
+                          :if => lambda { attachment? }
   validates :username, :presence => true,
                         :length => { :within => 4..30 },
                         :exclusion => { :in => Settings.user_username_exclusion_in.split(" ") }

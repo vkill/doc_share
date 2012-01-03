@@ -55,6 +55,7 @@ ActiveRecord::Schema.define(:version => 20120103130359) do
     t.text     "result"
     t.integer  "handler_id"
     t.datetime "handle_at"
+    t.string   "attachment"
     t.datetime "created_at"
     t.datetime "updated_at"
   end

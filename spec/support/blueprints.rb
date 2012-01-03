@@ -120,4 +120,5 @@ Feedback.blueprint do
   username    { "user_#{sn}" }
   email       { Faker::Internet.email(object.username) }
   body        { Faker::LoremCN.paragraph }
+  attachment  { File.open(Rails.root.join("spec", "support", "file.txt").to_s) }
 end

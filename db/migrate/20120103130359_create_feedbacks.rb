@@ -8,6 +8,7 @@ class CreateFeedbacks < ActiveRecord::Migration
       t.text :result
       t.integer :handler_id
       t.datetime :handle_at
+      t.string :attachment
 
       t.timestamps
     end
