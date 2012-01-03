@@ -6,7 +6,7 @@ class RepoFile < ActiveRecord::Base
 
   belongs_to :repository, :counter_cache => true
 
-  mount_uploader :repo_file, FileUploader
+  mount_uploader :repo_file, RepoFileUploader
 
   validates :repo_file, :presence => true
 

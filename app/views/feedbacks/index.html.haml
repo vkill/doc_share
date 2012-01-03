@@ -13,7 +13,9 @@
                 = feedback.body
               - if feedback.result?
                 %p
-                  = feedback.result
+                  = nbsp(4) << ta(Feedback, :result) << ": " << feedback.result
+                %p
+                  = nbsp(4) << ta(Feedback, :handle_at) << ": " << l(feedback.handle_at, :format => :long)
               %p
                 %em
                   = [t(:created_at), l(feedback.created_at, :format => :long_only_date)].join(":")

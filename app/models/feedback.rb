@@ -16,7 +16,7 @@ class Feedback < ActiveRecord::Base
   validates :email, :presence => true,
                     :email => true
   validates :body, :presence => true,
-                      :length => { :within => 6..2000 }
+                      :length => { :within => 6..300 }
   with_options :if => lambda { processed? } do |processed|
     processed.validates :result, :presence => true
   end
