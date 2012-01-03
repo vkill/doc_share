@@ -15,6 +15,7 @@ end
 #  result     :text
 #  handler_id :integer
 #  handle_at  :datetime
+#  attachment :string(255)
 #  created_at :datetime
 #  updated_at :datetime
 #
