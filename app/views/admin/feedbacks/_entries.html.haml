@@ -1,0 +1,37 @@
+= search_form_for [:admin, q] do |f|
+  .row
+    .span14
+      .row
+        .span6.clearfix
+          = f.label :state, :class => "span2"
+          = f.select :state_eq, Feedback.get_state_values, :prompt => true, :class => "span3"
+      .row
+        .span12.clearfix
+          = f.label :created_at, :class => "span2"
+          = f.text_field :created_at_gt, :class => "small", :data => {:date => true}
+          &#8254;&#8254;&#8254;
+          = f.text_field :created_at_lt, :class => "small", :data => {:date => true}
+    .span2
+      = f.submit t(:to_search), :class => "btn primary"
+
+%table.zebra-striped
+  %thead
+    %tr
+      %th= sort_link q, :id
+      %th= sort_link q, :body
+      %th= sort_link q, :state
+      %th= sort_link q, :result
+      %th= sort_link q, :created_at
+      %th
+  %tbody
+    - collection.each do |feedback|
+      %tr
+        %td= feedback.id
+        %td= truncate feedback.body
+        %td= feedback.state_text
+        %td= truncate feedback.result
+        %td= time_ago feedback.created_at
+        %td
+          = link_to t(:show), [:admin, feedback], :title => t(:show)
+          = link_to t(:edit), [:edit, :admin, feedback], :title => t(:edit)
+          = link_to t(:delete), [:delete, :admin, feedback], :title => t(:delete)

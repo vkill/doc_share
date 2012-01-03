@@ -98,7 +98,9 @@ zh-CN:
       reset_password: 重置密码
       root: 网站首页
       edit_profile: 编辑个人资料
-      
+    
+    footer:
+      feedbacks: 反馈  
   
   users:
     index:
@@ -127,6 +129,10 @@ zh-CN:
       
     watchers:
       watchers: 关注%{repository_name}的人
+  
+  feedbacks:
+    index:
+      new: 我要反馈
   
   partials:
     user:
@@ -193,8 +199,11 @@ zh-CN:
         activities: 系统日志
         system_about: 系统相关
         site_configs: 站点设置
+        feedbacks: 反馈管理
+        posts: 新闻管理
         data_about: 数据维护
         backups_databases: 备份SQL
+        
       
     users:
       entries:

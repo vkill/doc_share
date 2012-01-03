@@ -39,6 +39,10 @@
             %ul.dropdown-menu
               %li
                 = link_to t(".site_configs"), [:admin, :site_configs]
+              %li
+                = link_to t(".feedbacks"), [:admin, :feedbacks]
+              %li
+                = link_to t(".posts"), [:admin, :posts]
           
           %li.dropdown
             = link_to t(".data_about"), "javascript:void(0)", :class => "dropdown-toggle"

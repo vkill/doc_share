@@ -117,5 +117,7 @@ SiteConfig.blueprint do
 end
 
 Feedback.blueprint do
-  # Attributes here
+  username    { "user_#{sn}" }
+  email       { Faker::Internet.email(object.username) }
+  body        { Faker::LoremCN.paragraph }
 end

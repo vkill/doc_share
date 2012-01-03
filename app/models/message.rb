@@ -4,8 +4,9 @@ class Message < ActiveRecord::Base
   has_ancestry
 
   attr_accessor :receiver_username_post
+
   alias_attribute :user_id, :sender_id
-  attr_accessible 
+
   basic_attr_accessible = [:user_id, :receiver_id, :subject, :content, :parent, :sender, :receiver,
                           :user, :receiver_username_post]
   attr_accessible *(basic_attr_accessible)

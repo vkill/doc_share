@@ -1,0 +1,26 @@
+%section
+  .row
+    .span4.center
+      %h1
+        = link_to t(".new"), [:new, :feedback]
+        
+    .span12
+      - @feedbacks.each do |feedback|
+        .page-header
+          .row
+            .span12
+              %p
+                = feedback.body
+              - if feedback.result?
+                %p
+                  = feedback.result
+              %p
+                %em
+                  = [t(:created_at), l(feedback.created_at, :format => :long_only_date)].join(":")
+                  |
+                  = [ta(Feedback, :username), feedback.username].join(":")
+                  |
+                  = [ta(Feedback, :state), feedback.state_text].join(":")
+
+      = render 'partials/pagination', :resources => @feedbacks
+    

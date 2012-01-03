@@ -11,4 +11,4 @@ repositories_git_store_paths:
   - <%= Rails.root.join("repositories_git_base1").to_s %>
   - <%= Rails.root.join("repositories_git_base2").to_s %>
 
-user_username_exclusion_in: "home users repositories sessions reset_passwords auth account dashboard admin superuser superadmin search blog"
+user_username_exclusion_in: "home users repositories sessions reset_passwords auth account dashboard admin superuser superadmin search blog feedbacks"

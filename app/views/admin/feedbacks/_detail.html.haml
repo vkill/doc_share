@@ -1,0 +1,16 @@
+
+= show_for resource do |feedback|
+  = feedback.attributes :id, :username, :email, :body
+  = feedback.attribute :state do
+    = resource.state_text
+  = feedback.attribute :created_at do
+    = l resource.created_at
+  = feedback.attribute :updated_at do
+    = l resource.updated_at
+
+  - if resource.processing? or resource.processed?
+    = feedback.attributes :result
+    = feedback.attribute :handler_id do
+      = link_to resource.handler_username, [:admin, resource.handler]
+    = feedback.attribute :handle_at do
+      = l resource.handle_at

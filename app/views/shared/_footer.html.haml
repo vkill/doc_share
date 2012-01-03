@@ -3,7 +3,10 @@
     = render "shared/languages_choice"
     %section
       .row
-        %p.pull-right
-          %a{:href => "#"} Back to top
-        %p
-          copyright
+        .span16
+          %p.pull-right
+            %a{:href => "#"} Back to top
+          %p
+            = link_to t(".feedbacks"), [:feedbacks]
+            |
+            copyright

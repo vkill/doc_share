@@ -1,0 +1,22 @@
+= simple_form_for([:admin, resource], :wrapper => :inline) do |f|
+
+  = field_set_tag "" do
+    .row
+      .span8
+        = f.input :username, :required => true, :input_html => { :class => "span4" }
+      .span8
+        = f.input :email, :autofocus => true, :input_html => { :class => "span4" }
+    .row
+      .span14
+        = f.input :body, :input_html => { :class => "span14", :rows => 3 }
+    .row
+      .span8
+        = f.input :state, :as => :select, :collection => Feedback.get_state_values,
+                         :input_html => { :class => "span4" }
+    .row
+      .span14
+        = f.input :result, :input_html => { :class => "span14", :rows => 3 }
+  
+  .actions
+    = f.button :submit, :class => 'primary', :disable_with => t(:submitting)
+    = button_tag t(:reset), :type => :reset, :class => "btn"

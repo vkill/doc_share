@@ -32,7 +32,13 @@ zh-CN:
         state:
           actived: 激活
           paused: 暂停
-
+      
+      feedback:
+        state:
+          pending: 待处理
+          processing: 处理中
+          processed: 已处理
+        
   activemodel:
     enums:
       search:

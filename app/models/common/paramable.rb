@@ -10,7 +10,6 @@ module Paramable
       # "%s-%s" % [id, human_name.parameterize]
     end
   end
-
-
+  
 end
 

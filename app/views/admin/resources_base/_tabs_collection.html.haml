@@ -1,8 +1,12 @@
 %ul.tabs(data-tabs="tabs")
   %li{:class => action_name.in?(%w(index)) ? :active : nil}
     = link_to t(:index), [:admin, collection_name]
-  %li{:class => action_name.in?(%w(new create)) ? :active : nil}
-    = link_to t(:new), [:new, :admin, resource_name]
-  %li{:class => action_name.in?(%w(export)) ? :active : nil}
-    = link_to t(:export_all), [:export, :admin, collection_name]
-    
+  
+  - if respond_to?("new_admin_#{resource_name}_path")
+    %li{:class => action_name.in?(%w(new create)) ? :active : nil}
+      = link_to t(:new), [:new, :admin, resource_name]
+  
+  - if respond_to?("export_admin_#{collection_name}_path")
+    %li{:class => action_name.in?(%w(export)) ? :active : nil}
+      = link_to t(:export_all), [:export, :admin, collection_name]
+      
