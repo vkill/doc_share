@@ -8,8 +8,8 @@
 %table.zebra-striped
   %thead
     %tr
-      %th= ta(SiteConfig, :key)
-      %th= ta(SiteConfig, :value) << "(#{t(:best_in_place_note)})"
+      %th(style="width: 30%")= ta(SiteConfig, :key)
+      %th(style="width: 70%")= ta(SiteConfig, :value) << "(#{t(:best_in_place_note)})"
   %tbody
     - @site_configs.each do |site_config|
       %tr
