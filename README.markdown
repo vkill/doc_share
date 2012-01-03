@@ -98,5 +98,3 @@ Enter the app directory, and run
 Init production
     
     > bundle exec rake app:production:init RAILS_ENV=production
-
-    
