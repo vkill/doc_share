@@ -8,12 +8,9 @@
 
 :javascript
   $(document).ready(function() {
-    // Instantiate the object
-    var RailsSettings.site_configurations.= RailsSettings.site_configurations.|| {};
-    // Set default development to false
-    RailsSettings.site_configurations.development = false;
-    
-    RailsSettings.site_configurations.development = #{ Rails.env.development? ? true : false };
+    var RailsSettings = RailsSettings || {};
+    RailsSettings.development = false;    
+    RailsSettings.development = #{ Rails.env.development? ? true : false };
   });
 
 = yield :javascript

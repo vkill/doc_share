@@ -14,4 +14,4 @@
     - @site_configs.each do |site_config|
       %tr
         %td= ta(SiteConfig, site_config.key)
-        %td= site_config.value
+        %td= best_in_place site_config, :key, :type => :input, :path => [:admin, site_config]
