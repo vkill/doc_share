@@ -8,7 +8,8 @@ class RepoFile < ActiveRecord::Base
 
   mount_uploader :repo_file, RepoFileUploader
 
-  validates :repo_file, :presence => true
+  validates :repo_file, :presence => true,
+                        :file_size => { :maximum => 2.megabytes.to_i }
 
   scope :repo_file_exist?, Proc.new{|repo_file_name| where(:repo_file => repo_file_name).exists? }
 
