@@ -33,11 +33,21 @@ class ApplicationController < ActionController::Base
       I18n.locale = session[:locale] || I18n.default_locale
     end
     #filter
-    # Note: admin namespace must skip this filter
+    # Note: admin namespace and signin controller must skip this filter
     def check_site_closed
-      if SiteConfig.q(:site_closed).present?
-        render_cell :site, :closed
-      end
+      render_site_closed() if SiteConfig.q(:site_closed).to_s == "true"
+    end
+
+
+    #render, controller use
+    def render_site_closed
+      render 'pages/site_closed', :status => 200, :layout => false
+    end
+    def render_404
+      render 'pages/page_not_found', :status => 404, :layout => false
+    end
+    def render_500
+      render 'pages/interior_server_mistake', :status => 500, :layout => false
     end
 
 

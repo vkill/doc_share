@@ -14,20 +14,42 @@ class SiteConfig < ActiveRecord::Base
 
   def self.reinitialize
     SiteConfig.transaction do
+      SiteConfig.destroy_all
       Settings.site_configs.to_hash.each do |k,v|
-        site_config = SiteConfig.find_by_key!(k.to_s)
-        site_config.update_attributes!(:value => v)
+        SiteConfig.create!(:key => k, :value => v)
       end
     end
   end
 
+  after_validation :build_value
   after_save :expire_cache
+  attr_accessor :best_in_place_type
+  after_find do |site_config|
+    site_config.send :build_best_in_place_type
+  end
   
   private
+    def build_value
+      case self.key.to_sym
+      when :site_closed
+        self.value = [false, nil, 'false', 0].index(value) ? false : true
+      end
+    end
+
     def expire_cache
       self.config_hash[self.key] = self.value
     end
 
+    def build_best_in_place_type
+      self.best_in_place_type = case self.key.to_sym
+      when :site_closed_description
+        :textarea
+      when :site_closed
+        :checkbox
+      else
+        :input
+      end
+    end
 end
 # == Schema Information
 #

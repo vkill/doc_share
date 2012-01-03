@@ -1,6 +1,8 @@
 class SessionsController < ApplicationController
 
   layout 'sign'
+
+  skip_before_filter :check_site_closed
   
   add_breadcrumb proc{|c| c.t("shared.topbar.main")}, :root_path
   add_breadcrumb proc{|c| c.t("shared.topbar.users")}, :users_path

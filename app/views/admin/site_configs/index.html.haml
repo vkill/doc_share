@@ -9,9 +9,9 @@
   %thead
     %tr
       %th= ta(SiteConfig, :key)
-      %th= ta(SiteConfig, :value)
+      %th= ta(SiteConfig, :value) << "(#{t(:best_in_place_note)})"
   %tbody
     - @site_configs.each do |site_config|
       %tr
         %td= ta(SiteConfig, site_config.key)
-        %td= best_in_place site_config, :key, :type => :input, :path => [:admin, site_config]
+        %td= best_in_place site_config, :value, :type => site_config.best_in_place_type, :path => [:admin, site_config]

@@ -68,6 +68,7 @@ zh-CN:
   require_sign_in: 继续操作前请先登录
   at: 在%{ago}前
   reply: 回复
+  best_in_place_note: 点击即可编辑哦～
   
   twipsy:
     sort_link: 点击可以排序哦

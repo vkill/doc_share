@@ -7,7 +7,7 @@
 //= require jquery
 //= require jquery_ujs
 
-//= require jquery_ui
+//= require jquery_ui_
 
 //= require bootstrap
 //= require bootstrap_extension
@@ -18,7 +18,7 @@
 //= require nested_form
 //= require jquery_uri
 
-//= require best_in_place
+//= require best_in_place_
 
 //= require_tree .
 
