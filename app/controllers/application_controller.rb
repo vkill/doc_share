@@ -92,8 +92,6 @@ class ApplicationController < ActionController::Base
     end
 
 
-
-
     def render_site_closed
       render 'pages/site_closed', :status => 200, :layout => false
     end
@@ -111,11 +109,9 @@ class ApplicationController < ActionController::Base
     def render_error(exception)
       Rails.logger.error(exception)
       render_500
-      notify_airbrake(exception)  #airbrake
+      #airbrake
+      notify_airbrake(exception)
     end
-
-
-
 
     def export_to_csv(model_chain, attributes, filename)
       require "csv"
