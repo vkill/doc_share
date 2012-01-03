@@ -1,11 +1,7 @@
 class SiteConfig < ActiveRecord::Base
 
-  cattr_accessor :settings_attr_prefix, :settings_attrs
-  self.settings_attr_prefix = "config"
-  self.settings_attrs = Settings.site_configs.to_hash.keys.map {|x| [self.settings_attr_prefix, x].join("_")}
-  self.settings_attrs.each do |settings_attr|
-    self.send :attr_accessor, settings_attr
-  end
+  include Redis::Objects
+  hash_key :config_hash, :global => true
 
   serialize :value
 
@@ -13,11 +9,7 @@ class SiteConfig < ActiveRecord::Base
 
   #
   def self.q(key)
-    unless self.cache_exist?(:_wrote_cache)
-      SiteConfig.find_each {|site_config| self.write_cache(site_config.key, site_config.value)}
-      self.write_cache(:_wrote_cache, true)
-    end
-    self.read_cache(key)
+    self.config_hash[key]
   end
 
   # build and save settings
@@ -55,20 +47,7 @@ class SiteConfig < ActiveRecord::Base
   
   private
     def expire_cache
-      self.class.write_cache(self.key, self.value)
-    end
-
-    def self.write_cache(key, value)
-      Rails.cache.write(build_cache_key(key), value)
-    end
-    def self.read_cache(key)
-      Rails.cache.read(build_cache_key(key))
-    end
-    def self.cache_exist?(key)
-      Rails.cache.exist?(build_cache_key(key))
-    end
-    def self.build_cache_key(key)
-      "site_config:#{key.to_s}"
+      self.config_hash[self.key] = self.value
     end
 
 end
