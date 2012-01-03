@@ -126,6 +126,8 @@ gem 'thinking-sphinx', '~> 2.0.10'
 
 gem "basic_model", '~> 0.3.2'
 
+gem "best_in_place", "~> 1.0.4"
+
 gemfile_local = File.expand_path('../Gemfile.local', __FILE__)
 eval(File.read(gemfile_local)) if File.exists?(gemfile_local)
 

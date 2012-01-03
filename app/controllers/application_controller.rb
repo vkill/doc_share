@@ -15,15 +15,31 @@ class ApplicationController < ActionController::Base
   
   protect_from_forgery
 
-  before_filter :set_locale
+  before_filter :set_locale, :check_site_closed
 
   private
+    #filter
     def set_current_user(resource_name=nil, attribute_name="user_id")
       return unless current_user.respond_to?(:id)
       resource_name ||= controller_name.singularize
       params[resource_name] ||= {}
       params[resource_name][attribute_name] = current_user.id
     end
+    #filter
+    def set_locale
+      if params[:locale].present? and params[:locale].to_sym.in?([:"zh-CN", :"en"])
+         session[:locale] = params[:locale]
+      end
+      I18n.locale = session[:locale] || I18n.default_locale
+    end
+    #filter
+    # Note: admin namespace must skip this filter
+    def check_site_closed
+      if SiteConfig.q(:site_closed).present?
+        render_cell :site, :closed
+      end
+    end
+
 
     class << self
       def main_nav_highlight(name, *options)
@@ -62,13 +78,6 @@ class ApplicationController < ActionController::Base
 
     end
 
-    def set_locale
-      if params[:locale].present? and params[:locale].to_sym.in?([:"zh-CN", :"en"])
-         session[:locale] = params[:locale]
-      end
-      I18n.locale = session[:locale] || I18n.default_locale
-    end
-
     def export_to_csv(model_chain, attributes, filename)
       require "csv"
       (filename = filename + ".csv") if File.extname(filename) != ".csv"
@@ -89,6 +98,5 @@ class ApplicationController < ActionController::Base
                 :type => Mime::JSON,
                 :disposition => "attachment; filename=#{filename}" 
     end
-
 end
 
