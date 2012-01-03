@@ -1,6 +1,6 @@
 %ul.tabs(data-tabs="tabs")
   %li{:class => action_name.in?(%w(index)) ? :active : nil}
-    = link_to t(:index), [:admin, collection_name]
+    = link_to t(:index) << "(#{ resource_class.count })", [:admin, collection_name]
   
   - if respond_to?("new_admin_#{resource_name}_path")
     %li{:class => action_name.in?(%w(new create)) ? :active : nil}
