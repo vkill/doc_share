@@ -5,7 +5,7 @@ class CreatePosts < ActiveRecord::Migration
       t.string :title
       t.string :permalink
       t.text :content
-      t.boolean :is_top
+      t.boolean :is_top, :default => false
       t.string :category
       
       t.timestamps

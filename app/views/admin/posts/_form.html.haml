@@ -1,0 +1,22 @@
+= simple_nested_form_for([:admin, resource], :wrapper => :inline) do |f|
+
+  = field_set_tag "" do
+    .row
+      .span8
+        = f.input :category, :as => :select, :collection => Post.get_category_values,
+                         :input_html => { :class => "span4" }
+    .row
+      .span8
+        = f.input :title, :input_html => { :class => "span4" }
+    
+    .row
+      .span12
+        = f.input :content, :input_html => { :class => "span8", :rows => 4 }
+    .row
+      .span8
+        = f.input :is_top, :as => :select, :collection => Post.get_is_top_values,
+                         :input_html => { :class => "span4" }
+  
+  .actions
+    = f.button :submit, :class => 'primary', :disable_with => t(:submitting)
+    = button_tag t(:reset), :type => :reset, :class => "btn"

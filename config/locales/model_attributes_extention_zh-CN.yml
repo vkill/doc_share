@@ -35,6 +35,9 @@ zh-CN:
         site_default_title: 站点默认标题
         site_closed: 站点是否关闭
         site_closed_description: 站点关闭提示语
+      
+      post:
+        issuer: 发布人
         
   activemodel:
     models:

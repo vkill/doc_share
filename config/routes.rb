@@ -28,6 +28,8 @@ DocShare::Application.routes.draw do
   get "search" => "search#index", :as => :search
   #
   resources :feedbacks, :only => [:index, :new, :create]
+  #
+  resources :posts, :only => [:index, :show], :path => "/blog"
 
   #account namespace
   namespace :account do
@@ -163,7 +165,7 @@ DocShare::Application.routes.draw do
 end
 
 #== Route Map
-# Generated on 04 Jan 2012 02:30
+# Generated on 05 Jan 2012 11:17
 #
 #              autocomplete_with_username_users GET    /users/autocomplete_with_username(.:format)                                    {:action=>"autocomplete_with_username", :controller=>"users"}
 #                                 activate_user GET    /users/:id/activate(.:format)                                                  {:action=>"activate", :controller=>"users"}
@@ -189,6 +191,8 @@ end
 #                                     feedbacks GET    /feedbacks(.:format)                                                           {:action=>"index", :controller=>"feedbacks"}
 #                                               POST   /feedbacks(.:format)                                                           {:action=>"create", :controller=>"feedbacks"}
 #                                  new_feedback GET    /feedbacks/new(.:format)                                                       {:action=>"new", :controller=>"feedbacks"}
+#                                         posts GET    /blog(.:format)                                                                {:action=>"index", :controller=>"posts"}
+#                                          post GET    /blog/:id(.:format)                                                            {:action=>"show", :controller=>"posts"}
 #                                  account_root        /account(.:format)                                                             {:controller=>"account/main", :action=>"dashboard"}
 #                             account_dashboard GET    /account/dashboard(.:format)                                                   {:action=>"dashboard", :controller=>"account/main"}
 #                  account_notifications_center GET    /account/notifications_center(.:format)                                        {:action=>"notifications_center", :controller=>"account/main"}

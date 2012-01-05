@@ -3,13 +3,13 @@ class Post < ActiveRecord::Base
   #stringex
   acts_as_url :title, :url_attribute => :permalink
   def to_param
-    permalink
+    "#{id}-#{permalink}"
   end
 
   belongs_to :user
   has_many :comments, :as => :commentable, :dependent => :destroy
 
-  attribute_enums :is_top, :booleans => true, :default => :false
+  attribute_enums :is_top, :booleans => true
   attribute_enums :category, :in => [:notification, :blog], :default => :blog
 
   validates :title, :presence => true,
@@ -18,6 +18,8 @@ class Post < ActiveRecord::Base
   validates :content, :presence => true,
                       :length => { :minimum => 2 }
   
+  delegate :email, :username, :gravatar_url , :to => :user
+
 end
 # == Schema Information
 #
@@ -26,6 +28,7 @@ end
 #  id             :integer         not null, primary key
 #  user_id        :integer
 #  title          :string(255)
+#  permalink      :string(255)
 #  content        :text
 #  is_top         :boolean
 #  category       :string(255)

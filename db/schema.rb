@@ -32,7 +32,7 @@ ActiveRecord::Schema.define(:version => 20120105023728) do
     t.string   "code"
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.integer  "repositories_count"
+    t.integer  "repositories_count", :default => 0
   end
 
   create_table "comments", :force => true do |t|
@@ -92,11 +92,11 @@ ActiveRecord::Schema.define(:version => 20120105023728) do
     t.string   "title"
     t.string   "permalink"
     t.text     "content"
-    t.boolean  "is_top"
+    t.boolean  "is_top",         :default => false
     t.string   "category"
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.integer  "comments_count"
+    t.integer  "comments_count", :default => 0
   end
 
   add_index "posts", ["user_id"], :name => "index_posts_on_user_id"

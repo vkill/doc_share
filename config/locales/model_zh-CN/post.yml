@@ -8,6 +8,7 @@ zh-CN:
         id: 序号
         user_id: 用户id
         title: 标题
+        permalink: 静态链接
         content: 正文
         is_top: 是否置顶
         category: 分类
