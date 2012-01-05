@@ -85,6 +85,7 @@ zh-CN:
       main: Home
       repositories: 项目
       users: 会员
+      blog: blog
       search: 搜索
       admin: 后台管理
       dashboard: 控制面板
@@ -100,7 +101,8 @@ zh-CN:
       edit_profile: 编辑个人资料
     
     footer:
-      feedbacks: 反馈  
+      feedbacks: 反馈
+    
   
   users:
     index:
@@ -133,6 +135,11 @@ zh-CN:
   feedbacks:
     index:
       new: 我要反馈
+  
+  posts:
+    index:
+      latest_posts: 近期文章
+      follow_me: 关注我们
   
   partials:
     user:

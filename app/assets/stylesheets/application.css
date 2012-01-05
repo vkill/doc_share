@@ -15,6 +15,7 @@
 *= require simple_form_extension
 *= require bootstrap
 *= require bootstrap_extension
-*
+
+*= require_tree ./sprites/
 */
 

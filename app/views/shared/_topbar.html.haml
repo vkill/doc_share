@@ -11,9 +11,8 @@
             = link_to t(".repositories"), repositories_path
           %li
             = link_to t(".users"), users_path
-          /
-            %li
-              = link_to t(".search"), search_path
+          %li
+            = link_to t(".blog"), posts_path
 
         %ul.nav.secondary-nav
           %form.pull-left{:action => search_path, :method => :get}

@@ -1,0 +1,6 @@
+%ul.unstyled
+  - @posts.each do |post|
+    %li
+      %h6= link_to post.title, [post]
+      %em
+        = Post.human_attribute_name(:created_at) << ": " << l(post.created_at, :format => :long)

@@ -28,7 +28,6 @@ PATH
 
 GEM
   remote: http://ruby.taobao.org/
-  remote: http://rubygems.org/
   specs:
     Platform (0.4.0)
     actionmailer (3.1.3)
@@ -112,6 +111,7 @@ GEM
     childprocess (0.2.3)
       ffi (~> 1.0.6)
     chronic (0.6.6)
+    chunky_png (1.2.5)
     coderay (0.9.8)
     coffee-rails (3.1.1)
       coffee-script (>= 2.2.0)
@@ -298,6 +298,7 @@ GEM
       actionmailer (>= 3.0.0)
       resque (>= 1.2.3)
     riddle (1.5.0)
+    rmagick (2.13.1)
     rr (1.0.4)
     rspec (2.7.0)
       rspec-core (~> 2.7.0)
@@ -343,6 +344,7 @@ GEM
       oauth2 (~> 0.4.1)
       oauth2 (~> 0.4.1)
     spork (0.8.5)
+    sprite-factory (1.4.1)
     sprockets (2.0.3)
       hike (~> 1.2)
       rack (~> 1.0)
@@ -380,8 +382,6 @@ GEM
     valid_attribute (1.2.0)
     vegas (0.1.8)
       rack (>= 1.0.0)
-    vidibus-routing_error (0.2.0)
-      rails (>= 3.0.0.rc)
     xpath (0.1.4)
       nokogiri (~> 1.3)
     yard (0.7.4)
@@ -405,6 +405,7 @@ DEPENDENCIES
   capybara (~> 1.1.2)
   carrierwave (~> 0.5.8)
   cells (~> 3.8.0)
+  chunky_png (~> 1.2.5)
   coffee-rails (~> 3.1.1)
   database_cleaner (~> 0.7.0)
   eventmachine (~> 1.0.0.beta.4)
@@ -445,12 +446,14 @@ DEPENDENCIES
   resque-scheduler (~> 1.9.9)
   resque-status (~> 0.2.4)
   resque_mailer (~> 2.0.2)
+  rmagick (~> 2.13.1)
   rr (~> 1.0.4)
   rspec-rails (~> 2.7)
   sass-rails (~> 3.1.4)
   show_for (~> 0.2.4)
   simple_form!
   sorcery (~> 0.7.5)
+  sprite-factory (~> 1.4.1)
   sqlite3 (~> 1.3.4)
   squeel (~> 0.9.3)
   stringex (~> 1.3.0)
@@ -460,4 +463,3 @@ DEPENDENCIES
   timecop (~> 0.3.5)
   uglifier (>= 1.0.3)
   valid_attribute (~> 1.2.0)
-  vidibus-routing_error

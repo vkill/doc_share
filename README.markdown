@@ -15,6 +15,8 @@ Doc Discover and Share
 
 * ImageMagick should be installed
 
+* pngcrush should be installed. (development)
+
 * coreseek 4.1 should be installed, read http://www.coreseek.cn/products-install/install_on_bsd_linux/.
     Note:
         configure csft-4.1 add `--with-pgsql` option.

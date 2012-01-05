@@ -1,0 +1,18 @@
+/*
+
+        Creating a sprite from following images:
+        
+        app/assets/images/sprites/follow/twitter.png (32x32)
+        app/assets/images/sprites/follow/weibo.png (32x32)
+
+        Output files:
+          app/assets/images/sprites/follow.png
+          app/assets/stylesheets/sprites/follow.scss.erb
+
+        Output size:
+          64x32
+
+
+*/
+.follow_twitter { width: 32px; height: 32px; background: url(<%= asset_path 'sprites/follow.png' %>) 0px 0px no-repeat; }
+.follow_weibo { width: 32px; height: 32px; background: url(<%= asset_path 'sprites/follow.png' %>) -32px 0px no-repeat; }

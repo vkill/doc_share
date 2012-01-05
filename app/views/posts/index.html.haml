@@ -1,10 +1,33 @@
-%section
+%section#posts
   .row
-    .span12
+    .span10
       - @posts.each do |post|
+        - next
+        %section
+          .page-header
+            %h2= link_to post.title, [post]
+            .row
+              .span4
+                = link_to post.comments_count.to_s << " comments", post_path(post) << "#comments"
+              .span5.right
+                = ta(Post, :issuer) << ":"
+                = link_to post.username, user_page_path(post.user)
+                = nbsp(4)
+                = l post.updated_at, :format => :long
+          .row
+            .span10
+              = raw post.content
+      = render 'partials/pagination', :resources => @posts
+    .span6
+      %section#latest_posts
         .page-header
-          %p= post.title
-          %p= post.username << nbsp(4) << (l post.updated_at, :format => :long)
-          %p= post.comments_count
-          %p= post.content
-    .span4
+          %h3= t(".latest_posts")
+        .row
+          .span6
+            = render_cell :posts, :latest
+      %section#follow_me
+        .page-header
+          %h3= t(".follow_me")
+        .row
+          .span6
+            = link_to "twitter", "#", :class => "icon follow_twitter"

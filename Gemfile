@@ -1,5 +1,4 @@
 source 'http://ruby.taobao.org'
-source 'http://rubygems.org'
 
 gem 'rails', '3.1.3'
 
@@ -132,7 +131,12 @@ gem "best_in_place", "~> 1.0.4"
 #log exception
 gem "airbrake"
 
-gem "vidibus-routing_error"
+#
+gem "rmagick", "~> 2.13.1", :group => [:development]
+gem "chunky_png", "~> 1.2.5", :group => [:development]
+gem "sprite-factory", "~> 1.4.1", :group => [:development]
+
+
 
 gemfile_local = File.expand_path('../Gemfile.local', __FILE__)
 eval(File.read(gemfile_local)) if File.exists?(gemfile_local)
