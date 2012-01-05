@@ -48,8 +48,6 @@ class User < ActiveRecord::Base
     follower.has_many :followers, :source_type => 'User'
   end
 
-  attribute_enums :state, :in => [:actived, :paused], :default => :actived
-
   validates :username, :presence => true,
                         :length => { :within => 4..30 },
                         :uniqueness => true,
@@ -61,6 +59,7 @@ class User < ActiveRecord::Base
                       :length => { :within => 6..30 },
                       :on => :create
   attribute_enums :gender, :in => [:male, :female], :allow_blank => true
+  attribute_enums :state, :in => [:actived, :paused], :default => :actived
   validates :name, :length => { :within => 2..30 },
                     :if => Proc.new { |record| record.name? }
   validates :site, :url => true,

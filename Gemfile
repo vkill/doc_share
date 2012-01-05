@@ -1,4 +1,5 @@
 source 'http://ruby.taobao.org'
+source 'http://rubygems.org'
 
 gem 'rails', '3.1.3'
 
@@ -82,7 +83,7 @@ gem "kaminari", "~> 0.12.4"
 #gem "i18n_attributes", "~> 0.1.6", :group => [:development]
 #gem "seed_upgrade", "~> 0.1.2", :group => [:development]
 
-gem "attribute_enums", "~> 0.1.4"
+gem "attribute_enums", "~> 0.1.7"
 
 #gem "client_side_validations", "~> 3.1.3"
 

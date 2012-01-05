@@ -1,0 +1,10 @@
+%section
+  .row
+    .span12
+      - @posts.each do |post|
+        .page-header
+          %p= post.title
+          %p= post.username << nbsp(4) << (l post.updated_at, :format => :long)
+          %p= post.comments_count
+          %p= post.content
+    .span4
