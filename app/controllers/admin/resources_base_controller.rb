@@ -6,7 +6,7 @@ class Admin::ResourcesBaseController < Admin::BaseController
 
   before_filter :set_attr_collection_name, :only => [:index, :export]
   before_filter :set_attr_resource_name, :except => [:index, :export]
-  before_filter :find_or_build_resource, :except => [:index, :export]
+  before_filter :find_resource, :except => [:index, :export, :new, :create]
 
   helper_method :resource_class, :collection_name, :resource_name, :collection, :resource
 
@@ -33,10 +33,16 @@ class Admin::ResourcesBaseController < Admin::BaseController
   end
 
   def new
+    # @role = Role.new()
+    # @role = current_user.roles.new()
+    self.send "#{_resource_name()}=", association_chain().new()
     respond_with :admin, self.send("#{_resource_name()}")
   end
 
   def create
+    # @role = Role.new(params[:role])
+    # @role = current_user.roles.new(params[:role])
+    self.send "#{_resource_name()}=", association_chain().new(params[_resource_name()], :as => :admin)
     self.send("#{_resource_name()}").save
     respond_with :admin, self.send("#{_resource_name()}")
   end
@@ -89,11 +95,10 @@ class Admin::ResourcesBaseController < Admin::BaseController
     def association_chain
       _resource_class
     end
-    #@role = Role.find(1) or @role = Role.new(params[:role])
-    #@role = current_user.roles.find(1) or @role = current_user.roles.new(params[:role])
-    def find_or_build_resource
-      self.send "#{_resource_name()}=",
-          (params[:id] ? association_chain().find(params[:id]) : association_chain().new(params[_resource_name()], :as => :admin))
+    #@role = Role.find(1)
+    #@role = current_user.roles.find(1) 
+    def find_resource
+      self.send "#{_resource_name()}=", association_chain().find(params[:id])
     end
 
     #helpers

@@ -1,5 +1,7 @@
 class Admin::PostsController < Admin::ResourcesBaseController
 
+  before_filter :set_current_user, :only => [:create, :update]
+
   add_breadcrumb proc{|c| c.t("admin.shared.topbar.posts")}, "", :only => [:index]
   
   add_breadcrumb proc{|c| c.t("admin.shared.topbar.posts")}, :admin_posts_path, :except => [:index]
