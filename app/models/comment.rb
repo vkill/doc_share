@@ -10,6 +10,9 @@ class Comment < ActiveRecord::Base
 
   delegate :email, :username, :gravatar_url , :to => :user
 
+  def html_anchor
+    "comment-#{id}"
+  end
 
 end
 

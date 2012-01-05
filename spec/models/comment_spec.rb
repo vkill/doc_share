@@ -13,6 +13,12 @@ describe Comment do
     it { subject.association(:commentable).should be_a(ActiveRecord::Associations::BelongsToPolymorphicAssociation) }
   end
 
+  context "methods" do
+    it "has html_anchor method" do
+      pending
+    end
+  end
+
 end
 # == Schema Information
 #

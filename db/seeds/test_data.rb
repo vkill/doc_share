@@ -47,3 +47,11 @@ vkill = User.find_by_email "vkill.net@gmail.com"
   target_follower.destroy if rand(2) == 0 #user unfollow vkill
 }
 
+#create top blogs and comment it
+5.times {
+  post = Post.make!(:category => :blog, :is_top => true)
+  10.times {
+    Comment.make!(:user => vkill, :commentable => post)
+    Comment.make!(:user => hyp, :commentable => post)
+  }
+}

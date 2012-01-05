@@ -69,6 +69,8 @@ zh-CN:
   at: 在%{ago}前
   reply: 回复
   best_in_place_note: 点击即可编辑哦～
+  permalink: 静态链接
+  commented_at: 回复于
   
   twipsy:
     sort_link: 点击可以排序哦
@@ -85,7 +87,7 @@ zh-CN:
       main: Home
       repositories: 项目
       users: 会员
-      blog: blog
+      blog: Blog
       search: 搜索
       admin: 后台管理
       dashboard: 控制面板
@@ -137,7 +139,7 @@ zh-CN:
       new: 我要反馈
   
   posts:
-    index:
+    right_bar:
       latest_posts: 近期文章
       follow_me: 关注我们
   

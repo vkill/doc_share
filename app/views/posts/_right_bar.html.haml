@@ -1,0 +1,17 @@
+.span6
+  %section#follow_me
+    .page-header
+      %h3= t(".follow_me")
+    .row
+      .span6
+        = link_to "", "#", :class => "icon follow_twitter"
+        = link_to "", "#", :class => "icon follow_weibo"
+  
+  %br
+
+  %section#latest_posts
+    .page-header
+      %h3= t(".latest_posts")
+    .row
+      .span6
+        = render_cell :posts, :latest

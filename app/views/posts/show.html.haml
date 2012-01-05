@@ -1,0 +1,39 @@
+%section#post
+  .row
+    .span10
+      .page-header
+        %h2= link_to @post.title, [@post]
+        .row
+          .span4
+            = link_to @post.comments_count.to_s << " comments", post_path(@post) << "#comments"
+          .span5.right
+            = ta(Post, :issuer) << ":"
+            = link_to @post.username, user_page_path(@post.user)
+            = nbsp(4)
+            = l @post.updated_at, :format => :long
+      .row
+        .span10
+          = @post.content
+      
+      .page-header
+      %br
+      %br
+      .row#comments
+        .span10
+          %h4= @post.comments_count.to_s << " comments"
+          - @comments.each do |comment|
+            %div{:id => comment.html_anchor}
+              .page-header
+                .row
+                  .span5
+                    = link_to comment.username, user_page_path(comment.username)
+                    = t(:commented_at)
+                    = l comment.created_at, :format => :long
+                  .span5.right
+                    = link_to t(:permalink), "##{ comment.html_anchor }"
+              .row
+                .span10
+                  = comment.content
+              %br
+
+    = render "right_bar"
