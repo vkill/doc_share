@@ -29,7 +29,9 @@ DocShare::Application.routes.draw do
   #
   resources :feedbacks, :only => [:index, :new, :create]
   #
-  resources :posts, :only => [:index, :show], :path => "/blog"
+  resources :posts, :only => [:index, :show], :path => "/blog" do
+    resources :comments
+  end
 
   #account namespace
   namespace :account do

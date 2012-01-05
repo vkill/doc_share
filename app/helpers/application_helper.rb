@@ -27,5 +27,18 @@ module ApplicationHelper
   def nbsp(n=1)
     raw ("&nbsp" * n)
   end
+
+  # def namespace_name_hash
+  #   path_hash = params[:controller].split("/")
+  #   path_hash.pop
+  #   path_hash.map(&:to_sym)
+  # end
+
+  def namespace_name
+    path_hash = params[:controller].split("/")
+    path_hash.pop
+    path_hash.first
+  end
+
 end
 

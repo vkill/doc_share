@@ -1,0 +1,5 @@
+- if logged_in?
+  = render "comments/form", :comment => @comment
+- else
+  = t(:comment_require_sign_in)
+  = link_to t("shared.topbar.sign_in"), signin_path(:ok_url => request.path)
