@@ -123,6 +123,8 @@ Feedback.blueprint do
   attachment  { File.open(Rails.root.join("spec", "support", "file.txt").to_s) }
 end
 
-Posts.blueprint do
-  # Attributes here
+Post.blueprint do
+  user        { User.make! }
+  title       { Faker::LoremCN.words.join }
+  content     { Faker::LoremCN.paragraph }
 end

@@ -1,0 +1,16 @@
+---
+zh-CN:
+  activerecord:
+    models:
+      post: 文章
+    attributes:
+      post:
+        id: 序号
+        user_id: 用户id
+        title: 标题
+        content: 正文
+        is_top: 是否置顶
+        category: 分类
+        created_at: 创建时间
+        updated_at: 最后更新
+        comments_count: 回复数

@@ -38,7 +38,15 @@ zh-CN:
           pending: 待处理
           processing: 处理中
           processed: 已处理
-        
+      
+      post:
+        is_top:
+          'true': "置顶"
+          'false': "普通"
+        category:
+          notification: 通知
+          blog: 博客
+      
   activemodel:
     enums:
       search:

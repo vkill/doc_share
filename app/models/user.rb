@@ -32,6 +32,8 @@ class User < ActiveRecord::Base
 
   has_many :activities
 
+  has_many :posts, :dependent => :destroy
+
   has_one :setting_user_notification
   accepts_nested_attributes_for :setting_user_notification, :allow_destroy => true
 
