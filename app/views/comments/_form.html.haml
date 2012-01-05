@@ -1,10 +1,15 @@
-- url = [comment.commentable, comment]
+- if logged_in?
+  = simple_form_for(comment, :url => [comment.commentable, comment], :wrapper => :inline) do |f|
+    = render "partials/simple_form_error_notification", :f => f
 
-= simple_form_for(comment, :url => url, :wrapper => :inline) do |f|
-  = render "partials/simple_form_error_notification", :f => f
+    = field_set_tag "" do
+      = f.input :content, :input_html => { :class => "span6", :rows => 3 }
 
-  = field_set_tag "" do
-    = f.input :content, :input_html => { :class => "span6", :rows => 3 }
+    .actions
+      = f.button :submit, :class => 'primary', :disable_with => t(:submitting)
 
-  .actions
-    = f.button :submit, :class => 'primary', :disable_with => t(:submitting)
+- else
+  = t(:comment_require_sign_in)
+  = link_to t("shared.topbar.sign_in"), signin_path(:ok_url => request.path)
+
+

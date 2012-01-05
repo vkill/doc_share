@@ -21,21 +21,8 @@
       .row#comments
         .span10
           %h4= @post.comments_count.to_s << " comments"
-          - @comments.each do |comment|
-            %div{:id => comment.html_anchor}
-              .page-header
-                .row
-                  .span5
-                    = link_to comment.username, user_page_path(comment.username)
-                    = t(:commented_at)
-                    = l comment.created_at, :format => :long
-                  .span5.right
-                    = link_to t(:permalink), "##{ comment.html_anchor }"
-              .row
-                .span10
-                  = comment.content
-              %br
+          = render "comments/entries", :comments => @comments
       %br
-      = render :template => "comments/new"  
+      = render "comments/form", :comment => @comment  
 
     = render "right_bar"

@@ -7,6 +7,9 @@
           = t(:commented_at)
           = l comment.created_at, :format => :long
         .span5.right
+          - if owner?(comment)
+            = link_to t(:edit), [:edit, comment.commentable, comment], :title => t(:edit)
+            = link_to t(:delete), [comment.commentable, comment], :title => t(:delete), :method => :delete
           = link_to t(:permalink), "##{ comment.html_anchor }"
     .row
       .span10
