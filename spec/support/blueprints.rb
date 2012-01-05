@@ -122,3 +122,7 @@ Feedback.blueprint do
   body        { Faker::LoremCN.paragraph }
   attachment  { File.open(Rails.root.join("spec", "support", "file.txt").to_s) }
 end
+
+Posts.blueprint do
+  # Attributes here
+end

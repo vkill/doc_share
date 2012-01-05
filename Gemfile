@@ -95,7 +95,7 @@ gem "high_voltage", "~> 1.0.1"
 gem "mail_view", "~> 1.0.2", :group => [:development]
 
 ##.to_url
-# gem "stringex", "~> 1.3.0"
+gem "stringex", "~> 1.3.0"
 gem "friendly_id", "~> 4.0.0.beta14"
 
 #deleted_at
