@@ -2,7 +2,7 @@
   .row
     .span4.center
       %h1
-        = link_to t(".new"), [:new, :feedback]
+        = link_to t(".new"), [:new, :feedback], :class => "btn primary"
         
     .span12
       - @feedbacks.each do |feedback|
