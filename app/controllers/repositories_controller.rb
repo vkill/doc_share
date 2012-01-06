@@ -18,6 +18,7 @@ class RepositoriesController < ApplicationController
     @repositories = Repository.public_repo.page(params[:page])
   end
 
+  # GET /repositories/tags.json
   def tags
     @tags = ActsAsTaggableOn::Tag.where("tags.name LIKE ?", "%#{params[:q]}%") 
     respond_to do |format|
@@ -25,9 +26,11 @@ class RepositoriesController < ApplicationController
     end
   end
 
+  # GET /repositories/tagged/tag1
+  # GET /repositories/tagged/tag1+tag2
   def tagged
-    if params[:tag_name]
-      @repositories = Repository.public_repo.tagged_with([params[:tag_name]], :match_all => :true).page(params[:page])
+    if params[:tags_name]
+      @repositories = Repository.public_repo.tagged_with(params[:tags_name].split("+")).page(params[:page])
       render :index
     else
       redirect_to [:repositories]

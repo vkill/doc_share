@@ -28,7 +28,7 @@ DocShare::Application.routes.draw do
   resources :repositories, :only => [:index] do
     get :tags, :on => :collection
   end
-  match "repositories/tagged(/:tag_name)" => "repositories#tagged"
+  match "repositories/tagged(/:tags_name)" => "repositories#tagged"
 
   #
   get "search" => "search#index", :as => :search
