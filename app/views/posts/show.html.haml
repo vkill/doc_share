@@ -23,6 +23,6 @@
           %h4= @post.comments_count.to_s << " comments"
           = render "comments/entries", :comments => @comments
       %br
-      = render "comments/form", :comment => @comment  
+      = render "comments/form", :comment => @comment
 
     = render "right_bar"
