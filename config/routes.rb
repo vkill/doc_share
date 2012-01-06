@@ -30,7 +30,7 @@ DocShare::Application.routes.draw do
   resources :feedbacks, :only => [:index, :new, :create]
   #
   resources :posts, :only => [:index, :show], :path => "/blog" do
-    resources :comments
+    resources :comments, :except => [:destroy]
   end
 
   #account namespace

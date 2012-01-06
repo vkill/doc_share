@@ -31,11 +31,6 @@ class CommentsController < ApplicationController
     @comment.update_attributes(params[:comment])
     respond_with @comment, :location => location_url
   end
-
-  def destroy
-    @comment.destroy
-    respond_with @comment, :location => location_url
-  end
   
   private
     def set_layout
