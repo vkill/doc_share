@@ -1,3 +1,7 @@
 %ul.tabs(data-tabs="tabs")
   %li{:class => action_name.in?(%w(show)) ? :active : nil}
-    = link_to t(:show), [:admin, resource_name]
+    = link_to t(:show) <<"#"<< resource.id.to_s, [:admin, resource_name]
+  %li
+    = link_to t(:previous) <<"#"<< resource.previous.id.to_s, [:admin, resource.previous ] if resource.previous.present?
+  %li
+    = link_to t(:next) <<"#"<< resource.next.id.to_s, [:admin, resource.next ] if resource.next.present?
