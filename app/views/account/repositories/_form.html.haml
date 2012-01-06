@@ -7,6 +7,7 @@
     = f.input :name, :input_html => { :class => "span8" }
     = f.input :describtion, :input_html => { :class => "span8", :rows => 2 }
     = f.input :visibility, :as => :radio, :collection => Repository.get_visibility_values
+    = f.input :tag_list, :as => :token
 
   .actions
     = f.button :submit, :class => 'primary', :disable_with => t(:submitting)

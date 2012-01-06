@@ -31,6 +31,7 @@ var DEFAULT_SETTINGS = {
     deleteText: "&times;",
     animateDropdown: true,
     theme: null,
+    zindex: 999,
     resultsFormatter: function(item){ return "<li>" + item[this.propertyToSearch]+ "</li>" },
     tokenFormatter: function(item) { return "<li><p>" + item[this.propertyToSearch] + "</p></li>" },
 
@@ -673,8 +674,8 @@ $.TokenList = function (input, url_or_data, settings) {
                 position: "absolute",
                 top: $(token_list).offset().top + $(token_list).outerHeight(),
                 left: $(token_list).offset().left,
-                width: $(token_list).width(),
-                'z-index': 999
+                width: $(token_list).outerWidth(),
+                'z-index': settings.zindex
             })
             .show();
     }
@@ -862,7 +863,7 @@ $.TokenList = function (input, url_or_data, settings) {
     function computeURL() {
         var url = settings.url;
         if(typeof settings.url == 'function') {
-            url = settings.url.call();
+            url = settings.url.call(settings);
         }
         return url;
     }
