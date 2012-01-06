@@ -4,10 +4,11 @@ class RepositoriesController < ApplicationController
 
   respond_to :html, :except => [:reverse_watch]
   respond_to :js, :only => [:reverse_watch]
+  respond_to :json, :only => [:tags]
 
   before_filter :require_login, :only => [:reverse_watch, :fork, :admin]
-  before_filter :find_user_public_repositories, :except => [:index]
-  before_filter :find_repository, :except => [:index, :public_repositories]
+  before_filter :find_user_public_repositories, :except => [:index, :tags, :tagged]
+  before_filter :find_repository, :except => [:index, :tags, :tagged, :public_repositories]
   before_filter :set_git_tag, :only => [:tree, :blob]
 
   add_breadcrumb proc{|c| c.t("shared.topbar.main")}, :root_path
@@ -15,6 +16,22 @@ class RepositoriesController < ApplicationController
 
   def index
     @repositories = Repository.public_repo.page(params[:page])
+  end
+
+  def tags
+    @tags = ActsAsTaggableOn::Tag.where("tags.name LIKE ?", "%#{params[:q]}%") 
+    respond_to do |format|
+      format.json { render :json => @tags.map(&:attributes) }
+    end
+  end
+
+  def tagged
+    if params[:tag_name]
+      @repositories = Repository.public_repo.tagged_with([params[:tag_name]], :match_all => :true).page(params[:page])
+      render :index
+    else
+      redirect_to [:repositories]
+    end
   end
 
   def public_repositories

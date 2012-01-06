@@ -10,8 +10,11 @@ class Repository < ActiveRecord::Base
   #
   acts_as_paranoid
 
+  #acts-as-taggable-on
+  acts_as_taggable
+
   basic_attr_accessible = [:user_id, :category_id, :category, :name, :describtion, :visibility,
-                          :parent, :user, :repo_files_attributes]
+                          :parent, :user, :repo_files_attributes, :tag_list]
   attr_accessible *(basic_attr_accessible)
   attr_accessible *(basic_attr_accessible), :as => :admin
 

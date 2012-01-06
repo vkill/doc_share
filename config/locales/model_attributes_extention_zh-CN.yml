@@ -25,6 +25,7 @@ zh-CN:
         category_name: 分类名称
         repo_files: 文件
         category: 分类
+        tag_list: Tags
       
       activity:
         username: 用户名
