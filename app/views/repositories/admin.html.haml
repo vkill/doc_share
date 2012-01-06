@@ -2,7 +2,17 @@
 
 .row
   .span14.offset1
-    = render :template => "account/repositories/edit"
+    .page-header
+      %h1
+        = t("edit", :scope => [:web, :page, :account, :repository])
+        %small
+          = t("edit_info", :scope => [:web, :page, :account, :repository])
+    = render "account/repositories/form", :repository => @repository
 
-    = render :template => "account/repo_files/manage"
+    .page-header
+      %h1
+        = t("manage", :scope => [:web, :page, :account, :repo_file])
+        %small
+          = t("manage_info", :scope => [:web, :page, :account, :repo_file])
+    = render "account/repo_files/manage_form", :url => [:account, @repository, @repo_file]
 

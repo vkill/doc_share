@@ -1,8 +1,2 @@
-.page-header
-  %h1
-    = t("manage", :scope => [:web, :page, :account, :repo_file])
-    %small
-      = t("manage_info", :scope => [:web, :page, :account, :repo_file])
-
-= render "account/repo_files/manage_form", :url => [:account, @repository, @repo_file]
+= render "manage_form", :url => [:account, @repository, @repo_file]
 

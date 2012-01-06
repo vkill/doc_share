@@ -1,0 +1,15 @@
+.page-header
+  .row
+    .span16
+      %p.pull-right
+        = link_to t(:edit), [:edit, :account, repository]
+        = render "partials/repository/count_link", :repository => repository
+      %p
+        = render "partials/repository/link_only_name", :repository => repository
+      %p
+        = repository.describtion
+      %p
+        %em
+          = t(:updated_at)
+          = l repository.updated_at, :format => :long_only_date
+        

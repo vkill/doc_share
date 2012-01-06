@@ -1,8 +1,2 @@
-.page-header
-  %h1
-    = t("edit", :scope => [:web, :page, :account, :repository])
-    %small
-      = t("edit_info", :scope => [:web, :page, :account, :repository])
-.row
-  = render "account/repositories/form"
+= render "form", :repository => @repository
 
