@@ -39,3 +39,6 @@ log/searchd.*.pid
 
 #
 doc/.~lock.*.doc#
+
+#
+public/ckeditor_assets/

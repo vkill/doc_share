@@ -75,7 +75,7 @@ module DocShare
     
     # ckeditor
     config.autoload_paths += %W(#{config.root}/app/models/ckeditor)
-
+    
     #
     config.time_zone = 'Beijing'
     config.active_record.default_timezone = :local

@@ -1,4 +1,12 @@
 GIT
+  remote: git://github.com/galetahub/ckeditor.git
+  revision: f54e6c45de170cad42a32a096f4cdca10f7bf43c
+  specs:
+    ckeditor (3.7.0)
+      mime-types (~> 1.16)
+      orm_adapter (~> 0.0.5)
+
+GIT
   remote: git://github.com/plataformatec/simple_form.git
   revision: de3f1dfce9e884569d2982e9776afae038fa0c11
   specs:
@@ -112,9 +120,6 @@ GEM
       ffi (~> 1.0.6)
     chronic (0.6.6)
     chunky_png (1.2.5)
-    ckeditor (3.6.3)
-      mime-types (~> 1.16)
-      orm_adapter (~> 0.0.5)
     coderay (0.9.8)
     coffee-rails (3.1.1)
       coffee-script (>= 2.2.0)
@@ -413,7 +418,7 @@ DEPENDENCIES
   carrierwave (~> 0.5.8)
   cells (~> 3.8.0)
   chunky_png (~> 1.2.5)
-  ckeditor
+  ckeditor!
   coffee-rails (~> 3.1.1)
   database_cleaner (~> 0.7.0)
   eventmachine (~> 1.0.0.beta.4)

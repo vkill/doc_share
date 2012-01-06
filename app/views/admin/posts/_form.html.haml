@@ -11,9 +11,10 @@
     
     .row
       .span12
-        /= f.input :content, :input_html => { :class => "span8", :rows => 4 }
-        = cktext_area_tag("content", "Ckeditor", :input_html => {:cols => 10, :rows => 20}, :toolbar => 'Easy')
-        = cktext_area_tag("test_area", "Ckeditor is the best")
+        = f.input :content do
+          = cktext_area_tag "content", raw(f.object.content), :input_html => {:cols => 10, :rows => 20,
+                                    :value => raw(f.object.content)},
+                                      :toolbar => 'Full'
     .row
       .span8
         = f.input :is_top, :as => :select, :collection => Post.get_is_top_values,

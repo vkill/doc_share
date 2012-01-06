@@ -30,7 +30,28 @@ class ApplicationController < ActionController::Base
   
   
   before_filter :set_locale, :check_site_closed
-  
+  protected
+    #cheditor begin
+    def ckeditor_filebrowser_scope(options = {})
+      super({ :assetable_id => current_user.id, :assetable_type => 'User' }.merge(options))
+    end
+    def ckeditor_pictures_scope(options = {})
+      ckeditor_filebrowser_scope(options)
+    end
+    def ckeditor_attachment_files_scope(options = {})
+      ckeditor_filebrowser_scope(options)
+    end
+    # Cancan example
+    def ckeditor_authenticate
+      authorize! action_name, @asset
+    end
+    # Set current_user as assetable
+    def ckeditor_before_create_asset(asset)
+      asset.assetable = current_user
+      return true
+    end
+    #cheditor end
+
   private
     #filter
     def set_current_user(resource_name=nil, attribute_name="user_id")

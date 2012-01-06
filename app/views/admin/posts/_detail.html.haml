@@ -1,17 +1,19 @@
 
-= show_for resource do |repository|
-  = repository.attributes :id
-  = repository.attribute :issuer do
+= show_for resource do |post|
+  = post.attributes :id
+  = post.attribute :issuer do
     = link_to resource.username, [:admin, resource.user]
-  = repository.attributes :title, :permalink, :content
-  = repository.attribute :is_top do
+  = post.attributes :title, :permalink
+  = post.attribute :content do
+    = raw resource.content
+  = post.attribute :is_top do
     = resource.is_top_text
-  = repository.attribute :category do
+  = post.attribute :category do
     = resource.category_text
 
-  = repository.attribute :created_at do
+  = post.attribute :created_at do
     = l resource.created_at
-  = repository.attribute :updated_at do
+  = post.attribute :updated_at do
     = l resource.updated_at
   
     

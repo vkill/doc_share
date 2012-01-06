@@ -1,5 +1,7 @@
 DocShare::Application.routes.draw do
 
+  mount Ckeditor::Engine => '/ckeditor'
+
   root :to => 'home#index'
 
   #user signup signin signout, user edit profile
@@ -115,19 +117,19 @@ DocShare::Application.routes.draw do
     end
   end
 
-  #ckeditor
-  mount Ckeditor::Engine => '/ckeditor'
-
   # mail preview
   if Rails.env.development?
     # mount UserMailer::Preview => 'mailer_view_user'
-    mount UserNotificationsMailer::Preview => 'mailer_view_user_notifications'
+    # mount UserNotificationsMailer::Preview => 'mailer_view_user_notifications'
   end
+
+  #ckeditor
+  mount Ckeditor::Engine => 'ckeditor'
 
   # high_voltage
   resources :pages
 
-  scope ":user" do
+  scope "~:user" do
     root :to => "users#user_page", :as => :user_page
 
     get "repositories" => "repositories#public_repositories", :as => :user_public_repositories
