@@ -35,6 +35,15 @@ SimpleForm.setup do |config|
     end
   end
 
+  config.wrappers :comment, :class => "clearfix", :error_class => :error do |b|
+    b.use :placeholder
+    b.use :tag => 'div', :class => '' do |input|
+      input.use :input
+      input.use :hint,  :tag => :span, :class => :'help-block'
+      input.use :error, :tag => :span, :class => :'help-block'
+    end
+  end
+
 
   config.wrappers :prepend, :class => "clearfix", :error_class => :error do |b|
     b.use :placeholder

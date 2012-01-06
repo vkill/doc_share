@@ -14,7 +14,6 @@ class Feedback < ActiveRecord::Base
   validates :attachment, :file_size => { :maximum => 0.5.megabytes.to_i },
                           :if => lambda { attachment? }
   validates :username, :presence => true,
-                        :length => { :within => 4..30 },
                         :exclusion => { :in => Settings.user_username_exclusion_in.split(" ") }
   validates :email, :presence => true,
                     :email => true

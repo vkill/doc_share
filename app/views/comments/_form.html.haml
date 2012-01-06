@@ -3,7 +3,8 @@
     = render "partials/simple_form_error_notification", :f => f
 
     = field_set_tag "" do
-      = f.input :content, :input_html => { :class => "span6", :rows => 3 }
+      = f.input :content, :wrapper => :comment do
+        = f.input_field :content, :class => "span8", :rows => 3
 
     .actions
       = f.button :submit, :class => 'primary', :disable_with => t(:submitting)

@@ -13,3 +13,11 @@
       wrong_size: "文件太小，超出限制 (最大%{file_size})"
       size_too_small: "文件太小 (最小%{file_size})"
       size_too_big: "文件太大，超出限制 (最大%{file_size})"
+      
+  #tag_list_size_validator
+  errors:
+    messages:
+      tag_list_wrong_size: "标签只能有%{tag_list_size}个)"
+      tag_list_size_too_much: "标签数量太多，(最多%{tag_list_size})"
+      tag_list_size_too_less: "标签数量太少，(最少%{tag_list_size})"
+

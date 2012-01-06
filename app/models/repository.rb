@@ -12,6 +12,8 @@ class Repository < ActiveRecord::Base
 
   #acts-as-taggable-on
   acts_as_taggable
+  validates :tag_list, :tag_list_size => { :maximum => 3 },
+                      :unless => lambda{ tag_list.blank? }
 
   basic_attr_accessible = [:user_id, :category_id, :category, :name, :describtion, :visibility,
                           :parent, :user, :repo_files_attributes, :tag_list]

@@ -30,8 +30,28 @@ zh-CN:
         email: "密码遗忘或被盗时，可通过邮箱重置密码"
         password: "6~18个字符，区分大小写"
         password_confirmation: "请再次输入密码"
+        name: "将在个人主页显示"
+        location: "填中文城市，如：上海"
       
-        
+      repository:
+        name: "6~30个字符,唯一"
+        describtion: "支持搜索哦～"
+        tag_list: "多个标签用请 , 分割（英文逗号），最多可定义3个标签"
+      
+      message:
+        receiver_username_post: "支持自动完成哦～"
+        subject: "4~30个字符"
+        content: "最少6个字符"
+      
+      comment:
+        content: "最少6个字符"
+      
+      feedback:
+        username:
+        email: "方便与你联系"
+        body: "最少6个字符"
+        attachment: "如果你的反馈在内容中表述不清楚，请上传附近，支持图片、文本、word文件"
+      
     actions:
       submit:
         user:
