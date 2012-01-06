@@ -4,8 +4,6 @@
   = post.attribute :issuer do
     = link_to resource.username, [:admin, resource.user]
   = post.attributes :title, :permalink
-  = post.attribute :content do
-    = raw resource.content
   = post.attribute :is_top do
     = resource.is_top_text
   = post.attribute :category do
@@ -16,4 +14,5 @@
   = post.attribute :updated_at do
     = l resource.updated_at
   
-    
+  = post.attribute :content do
+    = raw resource.content

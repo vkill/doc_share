@@ -12,8 +12,8 @@
     .row
       .span12
         = f.input :content do
-          = cktext_area_tag "content", raw(f.object.content), :input_html => {:cols => 10, :rows => 20,
-                                    :value => raw(f.object.content)},
+          = cktext_area_tag "content", f.object.content,
+                                      :input_html => {:cols => 10, :rows => 20, :name => "post[content]"},
                                       :toolbar => 'Full'
     .row
       .span8
