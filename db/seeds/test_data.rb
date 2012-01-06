@@ -33,7 +33,7 @@ vkill = User.find_by_email "vkill.net@gmail.com"
   Comment.make!(:user => vkill, :commentable => issue)
   
   #create tag
-  repository.tag_list = TAG_LIST.sort_by!{rand}.take(5)
+  repository.tag_list = TAG_LIST.sort_by!{rand}.take(3)
   repository.save!
 }
 

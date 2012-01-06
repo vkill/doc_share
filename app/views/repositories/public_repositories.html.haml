@@ -6,20 +6,7 @@
     %h3= t(".public_repositories", :username => @user.username)
   .row
     .span16
-      - @public_repositories.each do |repository|
-        .page-header
-          .row
-            .span16
-              %p.pull-right
-                = render "partials/repository/count_link", :repository => repository
-              %p
-                = render "partials/repository/link_only_name", :repository => repository
-              %p
-                = repository.describtion
-              %p
-                %em
-                  = t(:updated_at)
-                  = l repository.updated_at, :format => :long_only_date
+      = render @public_repositories
 
       = render 'partials/pagination', :resources => @public_repositories
 
