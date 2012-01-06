@@ -49,14 +49,14 @@ class User < ActiveRecord::Base
   end
 
   validates :username, :presence => true,
-                        :length => { :within => 4..30 },
+                        :length => { :within => 4..18 },
                         :uniqueness => true,
                         :format => { :with => /^[A-Za-z0-9_]+$/ },
                         :exclusion => { :in => Settings.user_username_exclusion_in.split(" ") }
   validates :email, :presence => true,
                     :email => true
   validates :password, :confirmation => true,
-                      :length => { :within => 6..30 },
+                      :length => { :within => 6..18 },
                       :on => :create
   attribute_enums :gender, :in => [:male, :female], :allow_blank => true
   attribute_enums :state, :in => [:actived, :paused], :default => :actived

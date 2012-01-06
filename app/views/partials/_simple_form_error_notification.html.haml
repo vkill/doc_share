@@ -1,6 +1,7 @@
-- if f.error_notification
-  .alert-message.warning.fade.in(data-alert=".close" data-close=true)
-    %a(class="close" href="#") ×
-    %p
-      = f.error_notification
+/
+  - if f.error_notification
+    .alert-message.warning.fade.in(data-alert=".close" data-close=true)
+      %a(class="close" href="#") ×
+      %p
+        = f.error_notification
 

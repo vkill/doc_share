@@ -13,7 +13,7 @@ describe User do
     it { should have_valid(:activities).when( [Activity.make!] ) }
 
     it { should have_valid(:username).when('test_123' ) }
-    it { should_not have_valid(:username).when('s'*3, 's'*31, 'test_+', nil) }
+    it { should_not have_valid(:username).when('s'*3, 's'*19, 'test_+', nil) }
 
     #more, see config/settings.yml # user_username_exclusion_in
     it { should_not have_valid(:username).when('home') }
@@ -26,7 +26,7 @@ describe User do
       it { should_not have_valid(:password).when(nil) }
     end
     it { should have_valid(:name).when('test_123', nil) }
-    it { should_not have_valid(:name).when('s'*1, 's'*31) }
+    it { should_not have_valid(:name).when('s'*1, 's'*19) }
     it { should have_valid(:gender).when('male', 'female', nil ) }
     it { should_not have_valid(:gender).when('test') }
     it { should have_valid(:site).when('http://google.com', 'google.com', nil) }
