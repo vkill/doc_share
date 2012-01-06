@@ -1,22 +1,7 @@
-
 %section
   .row
     .span12
-      - @repositories.each do |repository|
-        .page-header
-          .row
-            .span12
-              %p.pull-right
-                = render "partials/repository/count_link", :repository => repository
-              %p
-                %h4= render "partials/repository/link", :repository => repository
-              %p
-                = repository.describtion
-              %p
-                %em
-                  = t(:updated_at)
-                  = l repository.updated_at, :format => :long_only_date
-
+      = render @repositories
       = render 'partials/pagination', :resources => @repositories
     .span4.center
       %h1
