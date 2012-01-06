@@ -26,7 +26,7 @@ describe User do
       it { should_not have_valid(:password).when(nil) }
     end
     it { should have_valid(:name).when('test_123', nil) }
-    it { should_not have_valid(:name).when('s'*1, 's'*19) }
+    it { should_not have_valid(:name).when('s'*1, 's'*31) }
     it { should have_valid(:gender).when('male', 'female', nil ) }
     it { should_not have_valid(:gender).when('test') }
     it { should have_valid(:site).when('http://google.com', 'google.com', nil) }
@@ -43,12 +43,10 @@ describe User do
   end
 
   context "user follow user" do
-    before { 
+    it "should follow and unfollow user" do
       user_a = User.make!
       user_b = User.make!
       user_a.follow_user(user_b)
-    }
-    it "should follow and unfollow user" do
       user_a.following_users.find(user_b).id.should eq(user_b.id)
       user_b.followers.find(user_a).id.should eq(user_a.id)
       user_a.unfollow_user(user_b)
