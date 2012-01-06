@@ -20,6 +20,8 @@
 
 //= require best_in_place_
 
+//= require ckeditor/ckeditor
+
 //= require_tree .
 
 

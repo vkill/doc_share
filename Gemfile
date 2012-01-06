@@ -131,12 +131,14 @@ gem "best_in_place", "~> 1.0.4"
 #log exception
 gem "airbrake"
 
-#
+# sprite-factory
 gem "rmagick", "~> 2.13.1", :group => [:development]
 gem "chunky_png", "~> 1.2.5", :group => [:development]
 gem "sprite-factory", "~> 1.4.1", :group => [:development]
 
-
+# ckeditor
+gem "mini_magick"
+gem "ckeditor"
 
 gemfile_local = File.expand_path('../Gemfile.local', __FILE__)
 eval(File.read(gemfile_local)) if File.exists?(gemfile_local)

@@ -72,6 +72,9 @@ module DocShare
       #{config.root}/lib
       #{config.root}/app/models/common
       )
+    
+    # ckeditor
+    config.autoload_paths += %W(#{config.root}/app/models/ckeditor)
 
     #
     config.time_zone = 'Beijing'
@@ -104,6 +107,7 @@ module DocShare
     config.assets.version = '1.0'
 
     config.assets.paths << %Q`#{config.root}/app/assets/flash`
+    config.assets.paths << %Q`#{config.root}/public/javascripts`
   end
 end
 ActiveSupport::XmlMini.backend = 'Nokogiri'

@@ -1,0 +1,17 @@
+%section
+  .page-header
+    %h2= link_to post.is_top? ? t(:is_top) << post.title : post.title, [post]
+    .row
+      .span4
+        = link_to post.comments_count.to_s << " comments", post_path(post) << "#comments"
+      .span5.right
+        = ta(Post, :issuer) << ":"
+        = link_to post.username, user_page_path(post.user)
+        = nbsp(4)
+        = l post.updated_at, :format => :long
+  
+  .row
+    .span10
+      = raw post.content
+  %br
+  %br

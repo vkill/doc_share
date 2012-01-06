@@ -1,0 +1,9 @@
+---
+zh-CN:
+  ckeditor:
+    page_title: "CKEditor文件管理"
+    confirm_delete: "确认删除?"
+    buttons:
+      cancel: "取消"
+      upload: "上传"
+      delete: "删除"

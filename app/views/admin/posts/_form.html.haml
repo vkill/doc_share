@@ -11,7 +11,8 @@
     
     .row
       .span12
-        = f.input :content, :input_html => { :class => "span8", :rows => 4 }
+        /= f.input :content, :input_html => { :class => "span8", :rows => 4 }
+        f.ckeditor :content, :label => false, :input_html => { :toolbar => 'Full' }
     .row
       .span8
         = f.input :is_top, :as => :select, :collection => Post.get_is_top_values,
