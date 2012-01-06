@@ -115,6 +115,8 @@ DocShare::Application.routes.draw do
     end
   end
 
+  #ckeditor
+  mount Ckeditor::Engine => '/ckeditor'
 
   # mail preview
   if Rails.env.development?
