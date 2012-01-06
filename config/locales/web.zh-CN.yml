@@ -73,6 +73,8 @@ zh-CN:
   commented_at: 回复于
   comment_require_sign_in: 请先登录后再评论
   is_top: "[置顶]"
+  previous: 上一个
+  next: 下一个
   
   twipsy:
     sort_link: 点击可以排序哦

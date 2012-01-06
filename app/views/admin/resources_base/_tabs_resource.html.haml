@@ -1,7 +1,11 @@
 %ul.tabs(data-tabs="tabs")
   %li{:class => action_name.in?(%w(show)) ? :active : nil}
-    = link_to t(:show), [:admin, resource_name]
+    = link_to t(:show) <<"#"<< resource.id.to_s, [:admin, resource]
   %li{:class => action_name.in?(%w(edit update)) ? :active : nil}
-    = link_to t(:edit), [:edit, :admin, resource_name]
+    = link_to t(:edit)<<"#"<< resource.id.to_s, [:edit, :admin, resource]
   %li{:class => action_name.in?(%w(delete destroy)) ? :active : nil}
-    = link_to t(:delete), [:delete, :admin, resource_name]
+    = link_to t(:delete)<<"#"<< resource.id.to_s, [:delete, :admin, resource]
+  %li
+    = link_to t(:previous) <<"#"<< resource.previous.id.to_s, [:admin, resource.previous ] if resource.previous.present?
+  %li
+    = link_to t(:next) <<"#"<< resource.next.id.to_s, [:admin, resource.next ] if resource.next.present?
