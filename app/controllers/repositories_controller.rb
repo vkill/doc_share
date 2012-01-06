@@ -15,7 +15,7 @@ class RepositoriesController < ApplicationController
   add_breadcrumb proc{|c| c.t("shared.topbar.repositories")}, "", :only => [:index]
 
   def index
-    @repositories = Repository.public_repo.page(params[:page])
+    @repositories = Repository.includes([:user, :category]).public_repo.order("created_at DESC").page(params[:page])
   end
 
   # GET /repositories/tags.json
@@ -30,7 +30,7 @@ class RepositoriesController < ApplicationController
   # GET /repositories/tagged/tag1+tag2
   def tagged
     if params[:tags_name]
-      @repositories = Repository.public_repo.tagged_with(params[:tags_name].split("+")).page(params[:page])
+      @repositories = Repository.includes([:user, :category]).public_repo.tagged_with(params[:tags_name].split("+")).page(params[:page])
       render :index
     else
       redirect_to [:repositories]

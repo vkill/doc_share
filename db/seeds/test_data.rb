@@ -1,3 +1,5 @@
+TAG_LIST = %w( tag1 tag2 tag3 tag4 tag5 tag6 tag7 tag8 tag9 tag10 )
+
 hyp = User.make!(:email => '122755990@qq.com', :username => 'hyphyp',
                   :password => 123456, :password_confirmation => 123456)
 hyp.activate! if Rails.application.config.sorcery.submodules.include?(:user_activation)
@@ -30,6 +32,9 @@ vkill = User.find_by_email "vkill.net@gmail.com"
   Comment.make!(:user => vkill, :commentable => repository)
   Comment.make!(:user => vkill, :commentable => issue)
   
+  #create tag
+  repository.tag_list = TAG_LIST.sort_by!{rand}.take(5)
+  repository.save!
 }
 
 10.times {
