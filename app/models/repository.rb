@@ -48,7 +48,7 @@ class Repository < ActiveRecord::Base
     has user_id, created_at, updated_at
   end
 
-  before_validation :build_category_id, :unless => lambda { category_id? }
+  # before_validation :build_category_id, :unless => lambda { category_id? }
 
   def fork_by!(user)
     if forked_by_user?(user)

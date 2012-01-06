@@ -73,6 +73,8 @@ GEM
       date_validator
       mail
       rake (>= 0.8.7)
+    acts-as-taggable-on (2.2.1)
+      rails (~> 3.1)
     addressable (2.2.6)
     airbrake (3.0.9)
       activesupport
@@ -404,6 +406,7 @@ PLATFORMS
 DEPENDENCIES
   active_reload (~> 0.6.1)
   activevalidators (~> 1.8.0)
+  acts-as-taggable-on (~> 2.2.1)
   airbrake
   ancestry (~> 1.2.4)
   annotate (~> 2.4.1.beta1)

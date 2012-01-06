@@ -6,6 +6,9 @@ class Post < ActiveRecord::Base
     "#{id}-#{permalink}"
   end
 
+  #acts-as-taggable-on
+  acts_as_taggable
+
   belongs_to :user
   has_many :comments, :as => :commentable, :dependent => :destroy
 

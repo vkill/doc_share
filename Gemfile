@@ -140,6 +140,11 @@ gem "sprite-factory", "~> 1.4.1", :group => [:development]
 gem "mini_magick"
 gem "ckeditor", :git => "git://github.com/galetahub/ckeditor.git"
 
+
+# tag
+gem 'acts-as-taggable-on', '~>2.2.1'
+
+
 gemfile_local = File.expand_path('../Gemfile.local', __FILE__)
 eval(File.read(gemfile_local)) if File.exists?(gemfile_local)
 
