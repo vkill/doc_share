@@ -1,14 +1,50 @@
-- comments.each do |comment|
-  %div{:id => comment.html_anchor}
-    .page-header
+= search_form_for [:admin, q] do |f|
+  .row
+    .span14
       .row
-        .span5
-          = link_to comment.username, user_page_path(comment.username)
-          = t(:commented_at)
-          = l comment.created_at, :format => :long
-        .span5.right
-          = link_to t(:permalink), "##{ comment.html_anchor }"
-    .row
-      .span10
-        = comment.content
-    %br
+        .span6.clearfix
+          = f.label :user_username, :class => "span2"
+          = f.text_field :user_username_cont, :class => "span3", :data => {:autocomplete_user => true}
+        .span6.clearfix
+          = f.label :category, :class => "span2"
+          = f.select :category_eq, Post.get_category_values, :prompt => true,
+                                :class => "span3"
+      .row
+        .span6.clearfix
+          = f.label :title, :class => "span2"
+          = f.text_field :title_cont, :class => "span3"
+        .span6.clearfix
+          = f.label :content, :class => "span2"
+          = f.text_field :content_cont, :class => "span3"
+      .row
+        .span12.clearfix
+          = f.label :created_at, :class => "span2"
+          = f.text_field :created_at_gt, :class => "small", :data => {:date => true}
+          &#8254;&#8254;&#8254;
+          = f.text_field :created_at_lt, :class => "small", :data => {:date => true}
+    .span2
+      = f.submit t(:to_search), :class => "btn primary"
+
+%table.zebra-striped
+  %thead
+    %tr
+      %th= sort_link q, :id
+      %th= sort_link q, :user_id, ta(User, :username)
+      %th= sort_link q, :title
+      %th= sort_link q, :is_top
+      %th= sort_link q, :category
+      %th= sort_link q, :created_at
+      %th
+  %tbody
+    - collection.each do |post|
+      %tr
+        %td= post.id
+        %td= post.username
+        %td= post.title
+        %td= post.is_top_text
+        %td= post.category_text
+        %td= time_ago post.created_at
+        %td
+          = link_to t(:show), [:admin, post], :title => t(:show)
+          = link_to t(:edit), [:edit, :admin, post], :title => t(:edit)
+          = link_to t(:delete), [:delete, :admin, post], :title => t(:delete)
