@@ -1,4 +1,9 @@
 = render "head", :repository => @repository
 
-= render "partials/followers", :followers => @watchers,
-          :title => t(".watchers", :repository_name => [@user.username, @repository.name].join("/"))
+%section
+  .page-header
+    %h3= t(".watchers", :repository_name => [@user.username, @repository.name].join("/"))
+  .row
+    .span16
+      = render :partial => 'users/user_by_follow', :collection => @watchers, :as => :user
+      = render 'partials/pagination', :resources => @watchers

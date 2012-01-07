@@ -1,4 +1,10 @@
 = render "head", :user => @user
 
-= render "partials/followers", :followers => @followers,
-          :title => t(".followers", :username => @user.username)
+%section
+  .page-header
+    %h3= t(".followers", :username => @user.username)
+  .row
+    .span16
+      = render :partial => 'user_by_follow', :collection => @followers, :as => :user
+      = render 'partials/pagination', :resources => @followers
+

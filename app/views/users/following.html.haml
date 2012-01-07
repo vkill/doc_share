@@ -7,15 +7,7 @@
         %h3= t(".following_users", :username => @user.username)
       .row
         .span9
-          - @following_users.each do |following_user|
-            .page-header
-              .row
-                .span9
-                  %p.pull-right
-                    = user_reverse_follow_link(following_user)
-                  %p
-                    = render "partials/user/gravatar", :user => following_user
-
+          = render :partial => 'user_by_follow', :collection => @following_users, :as => :user
           = render 'partials/pagination', :resources => @following_users
     
     .span6.offset1
@@ -28,7 +20,7 @@
               .row
                 .span6
                   %p
-                    = repository_link_full(repository)
+                    = repository_link_full(watching_repository)
 
           = render 'partials/pagination', :resources => @watching_repositories
 
