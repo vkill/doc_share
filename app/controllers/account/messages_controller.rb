@@ -71,9 +71,9 @@ class Account::MessagesController < Account::BaseController
 
   private
     def after_destroy_location_url
-      if @message.sender_id == current_user.id
+      if @message.sent_messageable == current_user
         [:sent, :account, :messages]
-      elsif @message.receiver_id == current_user.id
+      elsif @message.received_messageable == current_user
         [:account, :messages]
       end
     end

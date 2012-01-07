@@ -15,7 +15,7 @@ class User < ActiveRecord::Base
   authenticates_with_sorcery!
 
   #
-  acts_as_messageable :required => [:body], :class_name => "Message"
+  acts_as_messageable :class_name => "Message"
 
   attr_accessor :login ,:remember_me
 
