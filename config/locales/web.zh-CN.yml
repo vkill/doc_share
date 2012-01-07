@@ -190,7 +190,7 @@ zh-CN:
     main:
       dashboard:
         watching_repositories: 我关注中的项目
-  
+      
   admin:
     shared:
       topbar:

@@ -9,8 +9,7 @@
     .span8
       %section
         .page-header
-          %h1
-            = t("account.shared.navigation.about_me_activities")
+          %h1= t("account.shared.navigation.about_me_activities")
         = render :partial => "activities/activity", :collection => @about_me_activities, :as => :activity
         %p.pull-right
           = link_to t(:more), [:about_me, :account, :activities]
@@ -18,8 +17,7 @@
     .span7.offset1  
       %section
         .page-header
-          %h1
-            = t(".watching_repositories")
+          %h1= t(".watching_repositories")
         = render :partial => "repositories/repository_by_watch", :collection => @watching_repositories,
                                                                   :as => :repository
 

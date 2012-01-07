@@ -1,18 +1,2 @@
-.row
-  - @messages.each do |message|
-    .page-header
-      .row
-        %p.pull-right
-          - if @can_reply
-            = link_to t(:reply, :scope => [:web, :page, :message]), [:account, message]
-          = link_to t(:delete), [:account, message], :method => :delete, :confirm => t(:delete_confirm)
-      .row
-        .offset1
-          %p
-            = message.subject
-          %p
-            = message.content
-
-  .pagination
-    = render 'partials/pagination', :resources => @messages
-
+= render @messages
+= render 'partials/pagination', :resources => @messages

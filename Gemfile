@@ -66,6 +66,8 @@ gem 'acts-as-taggable-on', '~>2.2.1'
 #sphinx
 gem 'thinking-sphinx', '~> 2.0.10'
 gem "backup", "~> 3.0.19"
+#message
+gem 'acts-as-messageable', "~> 0.4.4"
 
 group :development do
   gem 'sqlite3', "~> 1.3.4"

@@ -1,0 +1,11 @@
+.page-header
+  %p.pull-right
+    - if @can_reply
+      = link_to t(:reply, :scope => [:web, :page, :message]), [:account, message]
+    = link_to t(:delete), [:account, message], :method => :delete, :confirm => t(:delete_confirm)
+
+  %p
+    = message.is_readed_text
+    = link_to message.subject, [:account, message]
+  %p
+    = message.content

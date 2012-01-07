@@ -17,8 +17,8 @@ hyp = User.find_by_email "122755990@qq.com"
 vkill = User.find_by_email "vkill.net@gmail.com"
 
 10.times {
-  Message.make!(:sender => vkill, :receiver => hyp)
-  Message.make!(:sender => hyp, :receiver => vkill)
+  Message.make!(:sent_messageable => vkill, :received_messageable => hyp)
+  Message.make!(:sent_messageable => hyp, :received_messageable => vkill)
 }
 
 10.times {

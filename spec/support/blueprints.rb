@@ -62,10 +62,10 @@ Issue.blueprint do
 end
 
 Message.blueprint do
-  sender { User.make! }
-  receiver { User.make! }
-  subject     { "subject_#{sn}" }
-  content     { Faker::LoremCN.paragraph }
+  sent_messageable      { User.make! }
+  received_messageable  { User.make! }
+  topic                 { "subject_#{sn}" }
+  body                  { Faker::LoremCN.paragraph }
 end
 
 SettingUserNotification.blueprint do
@@ -128,3 +128,4 @@ Post.blueprint do
   title       { Faker::LoremCN.words.join }
   content     { Faker::LoremCN.paragraph }
 end
+

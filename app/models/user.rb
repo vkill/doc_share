@@ -14,6 +14,9 @@ class User < ActiveRecord::Base
   #
   authenticates_with_sorcery!
 
+  #
+  acts_as_messageable :required => [:body], :class_name => "Message"
+
   attr_accessor :login ,:remember_me
 
   basic_attr_accessible = [:email, :password, :password_confirmation, :login, :remember_me,
@@ -25,8 +28,6 @@ class User < ActiveRecord::Base
   has_and_belongs_to_many :roles, :uniq => true
   has_many :comments, :dependent => :destroy
   has_many :issues, :dependent => :destroy
-  has_many :sent_messages, :foreign_key => :sender_id, :class_name => "Message", :dependent => :destroy
-  has_many :received_messages, :foreign_key => :receiver_id, :class_name => "Message"
 
   has_many :repositories, :dependent => :destroy, :include => [:user, :category]
 
