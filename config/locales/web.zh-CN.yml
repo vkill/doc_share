@@ -129,8 +129,8 @@ zh-CN:
       following_repositories: "%{username}关注的项目"
   
   repositories:
-    public_repositories:
-      public_repositories: "%{username}的共享项目"
+    index_by_user:
+      repositories: "%{username}的项目"
     head:
       manage: 管理项目
       back_to: 返回项目

@@ -28,7 +28,7 @@ class User < ActiveRecord::Base
   has_many :sent_messages, :foreign_key => :sender_id, :class_name => "Message", :dependent => :destroy
   has_many :received_messages, :foreign_key => :receiver_id, :class_name => "Message"
 
-  has_many :repositories, :dependent => :destroy
+  has_many :repositories, :dependent => :destroy, :include => [:user, :category]
 
   has_many :activities
 

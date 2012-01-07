@@ -10,7 +10,7 @@
             = t(".private_repositories")
 
   .span2
-    %a{ :href => user_public_repositories_path(user.username) }
+    %a{ :href => user_repositories_path(user.username) }
       %h1
         = user.public_repositories_count
       %span

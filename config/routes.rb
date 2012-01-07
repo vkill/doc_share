@@ -133,10 +133,10 @@ DocShare::Application.routes.draw do
   # high_voltage
   resources :pages
 
-  scope "~:user" do
+  scope "~:user_username" do
     root :to => "users#user_page", :as => :user_page
 
-    get "repositories" => "repositories#public_repositories", :as => :user_public_repositories
+    get "repositories" => "repositories#index", :as => :user_repositories
 
     get "following" => "users#following", :as => :user_following  #following users and watching repositories
 
@@ -144,7 +144,7 @@ DocShare::Application.routes.draw do
 
     match "reverse_follow" => "users#reverse_follow", :as => :user_reverse_follow, :via => :put
 
-    scope ":repository" do
+    scope ":repository_name" do
       root :to => "repositories#tree", :as => :user_repository
 
       get "watchers" => "repositories#watchers", :as => :user_repository_watchers

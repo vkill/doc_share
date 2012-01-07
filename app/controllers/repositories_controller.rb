@@ -7,20 +7,16 @@ class RepositoriesController < ApplicationController
   respond_to :json, :only => [:tags]
 
   before_filter :require_login, :only => [:reverse_watch, :fork, :admin]
-  before_filter :find_user_public_repositories, :except => [:index, :tags, :tagged]
-  before_filter :find_repository, :except => [:index, :tags, :tagged, :public_repositories]
+  before_filter :find_repositories, :except => [:tags, :tagged]
+  before_filter :find_repository, :except => [:tags, :tagged, :index, :public_repositories]
   before_filter :set_git_tag, :only => [:tree, :blob]
 
   add_breadcrumb proc{|c| c.t("shared.topbar.main")}, :root_path
   add_breadcrumb proc{|c| c.t("shared.topbar.repositories")}, "", :only => [:index]
 
-  def index
-    @repositories = Repository.includes([:user, :category]).public_repo.order("created_at DESC").page(params[:page])
-  end
-
   # GET /repositories/tags.json
   def tags
-    @tags = ActsAsTaggableOn::Tag.where("tags.name LIKE ?", "%#{params[:q]}%") 
+    @tags = Repository.tag_counts_on(:tags).where("tags.name LIKE ?", "%#{params[:q]}%") 
     respond_to do |format|
       format.json { render :json => @tags.map(&:attributes) }
     end
@@ -37,8 +33,13 @@ class RepositoriesController < ApplicationController
     end
   end
 
-  def public_repositories
-    @public_repositories = @repositories.page(params[:page])
+  def index
+    @repositories = @repositories.order("created_at DESC").page(params[:page])
+    if params[:user_username]
+      render :index_by_user
+    else
+      render :index
+    end
   end
 
   def watchers
@@ -89,13 +90,22 @@ class RepositoriesController < ApplicationController
       end
     end
 
-    def find_user_public_repositories
-      @user = User.find(params[:user])
-      @repositories = @user.repositories.public_repo
+    def find_repositories
+      if params[:user_username]
+        if current_user.username === params[:user_username]
+          @user = current_user
+          @repositories = @user.repositories
+        else
+          @user = User.find_by_username!(params[:user_username])
+          @repositories = @user.repositories.public_repo
+        end
+      else
+        @repositories = Repository.includes([:user, :category]).public_repo
+      end
     end
 
     def find_repository
-      @repository = @repositories.find_by_name!(params[:repository])
+      @repository = @repositories.find(params[:repository_name])
     end
 
     def set_git_tag
