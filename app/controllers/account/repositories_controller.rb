@@ -14,12 +14,6 @@ class Account::RepositoriesController < Account::BaseController
 
   before_filter :find_or_build_repository, :except => [:index]
 
-  def index
-    @user = current_user
-    @q = current_user.repositories.ransack(params[:q])
-    @repositories = @q.result().page(params[:page])
-  end
-
   def new
   end
 

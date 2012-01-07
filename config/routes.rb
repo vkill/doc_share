@@ -44,7 +44,7 @@ DocShare::Application.routes.draw do
     root :to => "main#dashboard"
     get "dashboard" => "main#dashboard"
     get "notifications_center" => "main#notifications_center", :as => :notifications_center
-    resources :repositories, :except => [:show] do
+    resources :repositories, :except => [:index, :show] do
       resources :repo_files, :only => [:index, :create, :destroy] do
         collection do
           get :manage

@@ -3,14 +3,14 @@
   - if logged_in?
     - if me?(user)
       .span2
-        %a{ :href => account_repositories_path }
+        %a{ :href => user_repositories_path(user.username, "q[visibility_eq]" => :private_repo) }
           %h1
             = user.private_repositories_count
           %span
             = t(".private_repositories")
 
   .span2
-    %a{ :href => user_repositories_path(user.username) }
+    %a{ :href => user_repositories_path(user.username, "q[visibility_eq]" => :public_repo) }
       %h1
         = user.public_repositories_count
       %span

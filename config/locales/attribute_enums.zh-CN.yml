@@ -22,7 +22,7 @@ zh-CN:
 
       repository:
         visibility:
-          public_repo: 公有
+          public_repo: 共享
           private_repo: 私有
 
       user:
