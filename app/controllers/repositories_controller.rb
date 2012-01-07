@@ -38,7 +38,7 @@ class RepositoriesController < ApplicationController
   end
 
   def index_by_user
-    @repositories = @repositories.order("created_at DESC").page(params[:page])
+    @repositories = @repositories.order("updated_at DESC").page(params[:page])
   end
 
   def watchers

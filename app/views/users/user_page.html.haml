@@ -20,7 +20,7 @@
         %h3= t(".latest_repositories", :username => @user.username)
       .row
         .span8
-          - @latest_public_repositories.each do |repository|
+          - @latest_repositories.each do |repository|
             .row
               .span8
                 .page-header
