@@ -11,10 +11,7 @@
         .page-header
           %h1
             = t("account.shared.navigation.about_me_activities")
-        - @about_me_activities.each do |activity|
-          %br
-          .page-header
-            = render "partials/activity_display", :activity => activity
+        = render :partial => "activities/activity", :collection => @about_me_activities, :as => :activity
         %p.pull-right
           = link_to t(:more), [:about_me, :account, :activities]
     
@@ -23,12 +20,6 @@
         .page-header
           %h1
             = t(".watching_repositories")
-        - @watching_repositories.each do |repository|
-          .page-header
-            .row
-              .span5
-                = repository_link_full(repository)
-              .span2.right
-                = repository_watchers_count_link(repository)
-                = repository_forks_count_link(repository)
+        = render :partial => "repositories/repository_by_watch", :collection => @watching_repositories,
+                                                                  :as => :repository
 
