@@ -16,10 +16,6 @@
       - if me?(user)
         = render_cell :profile, :edit_link
       - else
-        = mail_to user.email,
-              t(".send_email"),
-              :class => "btn small primary"
-
         = link_to t(".send_message"),
               new_account_message_path(:receiver_username => user.username),
               :class => "btn small primary"
