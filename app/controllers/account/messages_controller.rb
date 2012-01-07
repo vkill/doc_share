@@ -49,7 +49,7 @@ class Account::MessagesController < Account::BaseController
 
   def reply
     @message = current_user.received_messages.member_mailbox.find(params[:id])
-    @new_message = @message.reply!(params[:new_message][:content])
+    @new_message = @message.reply(:topic => @message.reply_topic, :body => params[:new_message][:body])
     respond_with :account, @new_message, :location => [:account, :messages], :action => "show"
   end
 

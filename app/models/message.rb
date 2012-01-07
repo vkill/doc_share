@@ -35,6 +35,10 @@ class Message < ActsAsMessageable::Message
 
   after_validation :build_received_messageable, :if => lambda { receiver_username_post.present? }
 
+  def reply_topic
+    "Re: #{self.topic}"
+  end
+
   private
     def build_received_messageable
       user = User.find_by_username(receiver_username_post.to_s)
