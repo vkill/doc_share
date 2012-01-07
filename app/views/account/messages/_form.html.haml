@@ -5,8 +5,8 @@
   = field_set_tag "" do
     = f.input :receiver_username_post, :input_html => { :class => "span5", :autocomplete => "false",
                                               :data => { :autocomplete_user => true }}
-    = f.input :subject, :autofocus => true, :input_html => { :class => "span5" }
-    = f.input :content, :input_html => { :class => "span5", :rows => 5 }
+    = f.input :topic, :autofocus => true, :input_html => { :class => "span5" }
+    = f.input :body, :input_html => { :class => "span5", :rows => 5 }
 
   .actions
     = f.button :submit, :class => 'primary', :disable_with => t(:submitting)

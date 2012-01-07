@@ -6,15 +6,18 @@ zh-CN:
     attributes:
       message:
         id: id
-        sender_id: 发送人id
-        receiver_id: 接收人id
+        topic: 标题
+        body: 内容
+        received_messageable_id:
+        received_messageable_type: 
+        sent_messageable_id:
+        sent_messageable_type:
+        opened: 已读
+        recipient_delete:
+        sender_delete:        
+        recipient_permanent_delete:
+        sender_permanent_delete:        
         category: 分类
-        subject: 标题
-        content: 内容
-        ancestry: 父类
-        is_readed: 已读
-        target_id: 目标id
-        target_type: 目标类型
         created_at: 创建时间
         updated_at: 最后更新
 

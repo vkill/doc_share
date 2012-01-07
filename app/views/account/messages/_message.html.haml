@@ -5,7 +5,7 @@
     = link_to t(:delete), [:account, message], :method => :delete, :confirm => t(:delete_confirm)
 
   %p
-    = message.is_readed_text
-    = link_to message.subject, [:account, message]
+    = message.opened_text
+    = link_to message.topic, [:account, message]
   %p
-    = message.content
+    = message.body

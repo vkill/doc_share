@@ -16,7 +16,7 @@ zh-CN:
         category:
           system_notification: 系统通知
           member_mailbox: 个人邮件
-        is_readed:
+        opened:
           "true": "已读"
           "false": "未读"
 

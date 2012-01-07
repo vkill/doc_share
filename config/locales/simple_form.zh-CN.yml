@@ -40,8 +40,8 @@ zh-CN:
       
       message:
         receiver_username_post: "支持自动完成哦～"
-        subject: "4~30个字符"
-        content: "最少6个字符"
+        topic: "4~30个字符"
+        body: "最少6个字符"
       
       comment:
         content: "最少6个字符"

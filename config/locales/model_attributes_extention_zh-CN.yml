@@ -18,7 +18,6 @@ zh-CN:
         receiver: 接收人
         receiver_username: 接收人名字
         receiver_username_post: 接收人名字
-        user_id: 接收人id
         
       repository:
         user_username: 用户名

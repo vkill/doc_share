@@ -28,20 +28,22 @@ class Account::MessagesController < Account::BaseController
   end
 
   def create
+    params[:message][:sent_messageable_id] = current_user.id
+    params[:message][:sent_messageable_type] = current_user.class.name
     @message = Message.new(params[:message])
     @message.save
     respond_with :account, @message, :location => [:sent, :account, :messages]
   end
 
   def show
-    @message = Message.by_user(current_user).find(params[:id])
-    @message.read!
+    @message = current_user.messages.find(params[:id])
+    @message.mark_as_read
     @new_message = Message.new
   end
 
   def destroy
-    @message = Message.by_user(current_user).find(params[:id])
-    @message.destroy
+    @message = current_user.messages.find(params[:id])
+    current_user.delete_message(@message)
     respond_with :account, @message, :location => after_destroy_location_url
   end
 
