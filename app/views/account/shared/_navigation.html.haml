@@ -25,7 +25,7 @@
         %li
           = link_to t(".new_repository"), [:new, :account, :repository]
         %li
-          = link_to t(".repositories"), [:account, :repositories]
+          = link_to t(".repositories"), user_repositories_path(current_user.username)
 
     %li{:class => @main_nav == :notifications_center ? :active : nil}
       = link_to t(".notifications_center"), account_notifications_center_path
