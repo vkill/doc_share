@@ -111,6 +111,9 @@ zh-CN:
     
   
   users:
+    helper:
+      follow: 关注
+      unfollow: 取消关注
     index:
       count_info: 目前已经有 %{count} 位会员加入了 Doc Share
       activity_users: 活跃会员
@@ -165,9 +168,7 @@ zh-CN:
       details:
       following_link:
         following: 他/她关注有%{following_users_count}个人、关注有%{watching_repositories_count}个项目
-      reverse_follow:  
-        follow: 关注
-        unfollow: 取消关注
+      
       
   account:
     repositories:

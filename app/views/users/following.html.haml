@@ -12,7 +12,7 @@
               .row
                 .span9
                   %p.pull-right
-                    = render "partials/user/reverse_follow", :user => following_user
+                    = user_reverse_follow_link(following_user)
                   %p
                     = render "partials/user/gravatar", :user => following_user
 

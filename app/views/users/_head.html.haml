@@ -24,7 +24,7 @@
               new_account_message_path(:receiver_username => user.username),
               :class => "btn small primary"
 
-        = render "partials/user/reverse_follow", :user => user
+        = user_reverse_follow_link(user)
 
     - else
       - [ t(".send_email"), t(".send_message"), t(".follow")].each do |text|

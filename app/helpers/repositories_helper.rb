@@ -1,9 +1,5 @@
 module RepositoriesHelper
 
-  def user_link(user)
-    raw (link_to user.username, user_page_path(user.username))
-  end
-
   def repository_link(repository)
     raw (link_to repository.name, user_repository_path(repository.username, repository.name))
   end
