@@ -125,6 +125,14 @@ zh-CN:
     user_page:
       latest_repositories: 最新项目
       latest_activities: 最近事件
+      following: 他/她关注有%{following_users_count}个人、关注有%{watching_repositories_count}个项目
+      
+    count_link:
+      followers: 关注他/她的人
+      public_repositories: 共享项目
+      private_repositories: 私有项目
+      
+      
     followers:
       followers: 关注%{username}的人
     following:
@@ -158,18 +166,7 @@ zh-CN:
     right_bar:
       latest_posts: 近期文章
       follow_me: 关注我们
-  
-  partials:
-    user:
-      count_link:
-        followers: 关注他/她的人
-        public_repositories: 共享项目
-        private_repositories: 私有项目
-      details:
-      following_link:
-        following: 他/她关注有%{following_users_count}个人、关注有%{watching_repositories_count}个项目
-      
-      
+          
   account:
     repositories:
       new:

@@ -25,4 +25,5 @@ module UsersHelper
   def user_gravatar_link_by_follow(user)
     raw link_to (image_tag user.gravatar_url(:size => 24)), user_page_path(user)
   end
+
 end
