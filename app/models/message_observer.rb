@@ -6,9 +6,11 @@ class MessageObserver < ActiveRecord::Observer
     #count
     case record.category.to_sym
     when :system_notification
-      User.increment_counter(:unread_system_notifications_count, record.receiver_id)
+      record.received_messageable_type.constantize.increment_counter(:unread_system_notifications_count,
+                                                                      record.received_messageable_id)
     when :member_mailbox
-      User.increment_counter(:unread_member_mailboxs_count, record.receiver_id)
+      record.received_messageable_type.constantize.increment_counter(:unread_member_mailboxs_count,
+                                                                      record.received_messageable_id)
     end
   end
 
@@ -17,9 +19,11 @@ class MessageObserver < ActiveRecord::Observer
     if record.open?
       case record.category.to_sym
       when :system_notification
-        User.decrement_counter(:unread_system_notifications_count, record.receiver_id)
+        record.received_messageable_type.constantize.decrement_counter(:unread_system_notifications_count,
+                                                                        record.received_messageable_id)
       when :member_mailbox
-        User.decrement_counter(:unread_member_mailboxs_count, record.receiver_id)
+        record.received_messageable_type.constantize.decrement_counter(:unread_member_mailboxs_count,
+                                                                        record.received_messageable_id)
       end
     end
   end
