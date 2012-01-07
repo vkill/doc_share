@@ -5,7 +5,7 @@
   = render "partials/simple_form_error_notification", :f => f
 
   = field_set_tag "", :class => 'fieldset-nolabel' do
-    = f.input :content, :required => true, :autofocus => true, :wrapper => :nolabel,
+    = f.input :body, :required => true, :autofocus => true, :wrapper => :nolabel,
                       :input_html => {:rows => 5, :class => :span8}
 
   .actions

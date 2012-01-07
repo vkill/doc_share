@@ -1,6 +1,6 @@
 .page-header
   %h2
-    = @message.subject
+    = @message.topic
 
 .row
   .page-header
@@ -10,7 +10,7 @@
     .row
       .offset1
         %p
-          = @message.content
+          = @message.body
 
         .page-header
           = render "form_reply", :message => @message, :new_message => @new_message
