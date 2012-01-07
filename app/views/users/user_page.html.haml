@@ -20,17 +20,7 @@
         %h3= t(".latest_repositories", :username => @user.username)
       .row
         .span8
-          - @latest_repositories.each do |repository|
-            .row
-              .span8
-                .page-header
-                  %h4
-                    = render "partials/repository/link_only_name", :repository => repository
-                .page-header
-                  = repository.describtion
-                = render "partials/repository/detail", :repository => repository
-                %br
-                %br
+          = render @latest_repositories
 
         %p.pull-right
           = link_to t(:more), user_repositories_path(@user)
@@ -40,7 +30,4 @@
         %h3= t(".latest_activities", :username => @user.username)
       .row
         .span7
-          - @latest_activities.each do |activity|
-            %br
-            .page-header
-              = render "partials/activity_display", :activity => activity
+          = render @latest_activities

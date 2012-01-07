@@ -28,7 +28,7 @@
               .row
                 .span6
                   %p
-                    = render "partials/repository/link", :repository => watching_repository
+                    = repository_link_full(repository)
 
           = render 'partials/pagination', :resources => @watching_repositories
 

@@ -6,7 +6,7 @@
   - repositories.each do |repository|
     - next if repository.blank?
     %p
-      %h4= render "partials/repository/link", :repository => repository
+      %h4= repository_link_full(repository)
     %p
       = raw repository.excerpts.describtion
     %p

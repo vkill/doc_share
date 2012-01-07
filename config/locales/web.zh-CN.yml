@@ -129,6 +129,15 @@ zh-CN:
       following_repositories: "%{username}关注的项目"
   
   repositories:
+    repository:
+      watchers: 被关注数
+      forks: 被拷贝数
+      watch: 关注
+      unwatch: 取消关注
+      fork: 拷贝
+      forked: 已拷贝
+      forked_info: 你已经拷贝过此项目，点击跳转到此项目
+    
     index_by_user:
       repositories: "%{username}的项目"
     head:
@@ -159,19 +168,7 @@ zh-CN:
       reverse_follow:  
         follow: 关注
         unfollow: 取消关注
-    
-    repository:
-      count_link:
-        watchers: 被关注数
-        forks: 被拷贝数
-      reverse_watch:  
-        watch: 关注
-        unwatch: 取消关注
-      fork:
-        fork: 拷贝
-        forked: 已拷贝
-        forked_info: 你已经拷贝过此项目，点击跳转到此项目
-  
+      
   account:
     repositories:
       new:

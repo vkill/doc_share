@@ -1,14 +1,14 @@
 .page-header
   %p.pull-right
-    = render "partials/repository/count_link", :repository => repository
+    = repository_watchers_count_link(repository)
+    = repository_forks_count_link(repository)
   %p
-    %h4= render "partials/repository/link", :repository => repository
+    %h4= action_name == 'index' ? repository_link_full(repository) : repository_link(repository)
   %p
     = repository.describtion
   %p
     %em
-      = t(:updated_at)
-      = l repository.updated_at, :format => :long_only_date
+      = t(:updated_at) << ":" << l(repository.updated_at, :format => :long_only_date)
   %p
     = ta(Repository, :tag_list)
     - repository.tag_list.each do |tag|

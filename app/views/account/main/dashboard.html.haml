@@ -27,7 +27,8 @@
           .page-header
             .row
               .span5
-                = render "partials/repository/link", :repository => repository
+                = repository_link_full(repository)
               .span2.right
-                = render "partials/repository/count_link", :repository => repository
+                = repository_watchers_count_link(repository)
+                = repository_forks_count_link(repository)
 
