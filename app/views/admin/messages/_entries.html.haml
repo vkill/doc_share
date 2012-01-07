@@ -4,10 +4,10 @@
       .row
         .span5.clearfix
           = label_tag ta(resource_class, :sent_messageable_username), nil, :class => "span2"
-          = f.text_field :sent_messageable_username_cont, :class => "span3", :data => {:autocomplete_user => true}
+          = f.text_field :sent_messageable_of_User_type_username_cont, :class => "span3", :data => {:autocomplete_user => true}
         .span5.clearfix
           = f.label ta(resource_class, :received_messageable_username), :class => "span2"
-          = f.text_field :received_messageable_username_cont, :class => "span3", :data => {:autocomplete_user => true}
+          = f.text_field :received_messageable_of_User_type_username_cont, :class => "span3", :data => {:autocomplete_user => true}
       .row
         .span5.clearfix
           = f.label :topic, :class => "span2"
