@@ -129,7 +129,7 @@ zh-CN:
       following_repositories: "%{username}关注的项目"
   
   repositories:
-    repository:
+    helper:
       watchers: 被关注数
       forks: 被拷贝数
       watch: 关注
