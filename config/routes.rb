@@ -136,7 +136,7 @@ DocShare::Application.routes.draw do
   scope "~:user_username" do
     root :to => "users#user_page", :as => :user_page
 
-    get "repositories" => "repositories#index", :as => :user_repositories
+    get "repositories" => "repositories#index_by_user", :as => :user_repositories
 
     get "following" => "users#following", :as => :user_following  #following users and watching repositories
 

@@ -120,7 +120,7 @@ zh-CN:
       send_message: 发消息
       follow: 关注
     user_page:
-      latest_public_repositories: 最新共享项目
+      latest_repositories: 最新项目
       latest_activities: 最近事件
     followers:
       followers: 关注%{username}的人

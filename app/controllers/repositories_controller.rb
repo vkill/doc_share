@@ -8,7 +8,7 @@ class RepositoriesController < ApplicationController
 
   before_filter :require_login, :only => [:reverse_watch, :fork, :admin]
   before_filter :find_repositories, :except => [:tags, :tagged]
-  before_filter :find_repository, :except => [:tags, :tagged, :index, :public_repositories]
+  before_filter :find_repository, :except => [:tags, :tagged, :index, :index_by_user]
   before_filter :set_git_tag, :only => [:tree, :blob]
 
   add_breadcrumb proc{|c| c.t("shared.topbar.main")}, :root_path
@@ -35,11 +35,10 @@ class RepositoriesController < ApplicationController
 
   def index
     @repositories = @repositories.order("created_at DESC").page(params[:page])
-    if params[:user_username]
-      render :index_by_user
-    else
-      render :index
-    end
+  end
+
+  def index_by_user
+    @repositories = @repositories.order("created_at DESC").page(params[:page])
   end
 
   def watchers
