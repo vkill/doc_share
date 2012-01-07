@@ -18,8 +18,8 @@
             = repository_reverse_watch_link(repository)
             = repository_fork_link(repository)
         - else
-          - [ t("partials.repository.reverse_watch.watch"),
-              t("partials.repository.fork.fork")].each do |text|
+          - [ t("repositories.helper.watch"),
+              t("repositories.helper.fork")].each do |text|
             = link_to text,
                       "javascript:void(0);",
                       :class => "btn small",

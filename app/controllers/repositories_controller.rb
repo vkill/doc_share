@@ -91,7 +91,7 @@ class RepositoriesController < ApplicationController
 
     def find_repositories
       if params[:user_username]
-        if current_user.username === params[:user_username]
+        if current_user and current_user.username === params[:user_username]
           #support search
           @user = current_user
           @q = current_user.repositories.ransack(params[:q])
