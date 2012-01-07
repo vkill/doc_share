@@ -15,8 +15,8 @@ class Message < ActsAsMessageable::Message
                             :sender_permanent_delete,
                             :created_at,
                             :updated_at]
-  attr_accessible *(basic_attr_accessible)
-  attr_accessible *(basic_attr_accessible + [:category]), :as => :admin
+  attr_accessible *(basic_attr_accessible + [:receiver_username_post])
+  attr_accessible *(basic_attr_accessible + [:receiver_username_post, :category]), :as => :admin
 
   belongs_to :received_messageable, :polymorphic => true, :counter_cache => :received_messages_count
   belongs_to :sent_messageable, :polymorphic => true, :counter_cache => :sent_messages_count

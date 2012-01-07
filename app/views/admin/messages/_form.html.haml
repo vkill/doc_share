@@ -4,7 +4,8 @@
     - if resource.new_record?
       .row
         .span8
-          = f.input :user_id, :as => :hidden, :input_html => { :value => current_user.id }
+          = f.input :sent_messageable_id, :as => :hidden, :input_html => { :value => current_user.id }
+          = f.input :sent_messageable_type, :as => :hidden, :input_html => { :value => current_user.class.name }
       .row  
         .span8
           = f.input :receiver_username_post, :required => true, :autofocus => true,
@@ -18,14 +19,14 @@
           = f.input :receiver_username, :input_html => { :class => "span4 disabled", :disabled => :disabled }
       .row
       .span8
-        = f.input :is_readed, :as => :select
+        = f.input :opened, :as => :select
 
     .row
       .span12
-        = f.input :subject, :input_html => { :class => "span8" }
+        = f.input :topic, :input_html => { :class => "span8" }
     .row
       .span12
-        = f.input :content, :input_html => { :class => "span8", :rows => 4 }
+        = f.input :body, :input_html => { :class => "span8", :rows => 4 }
   
   .actions
     = f.button :submit, :class => 'primary', :disable_with => t(:submitting)

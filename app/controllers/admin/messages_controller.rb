@@ -14,6 +14,6 @@ class Admin::MessagesController < Admin::ResourcesBaseController
 
   private
     def association_chain
-      Message.includes([:sender, :receiver])
+      Message.includes([:received_messageable, :sent_messageable])
     end
 end

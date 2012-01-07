@@ -1,11 +1,11 @@
 
 = show_for resource do |message|
-  = message.attributes :id, :is_readed
+  = message.attributes :id, :opened
   = message.attribute :sender_username do
-    = link_to resource.username, [:admin, resource.sender]
+    = link_to resource.username, [:admin, resource.sent_messageable]
   = message.attribute :receiver_username do
-    = link_to resource.receiver_username, [:admin, resource.receiver]
-  = message.attributes :subject, :content
+    = link_to resource.receiver_username, [:admin, resource.received_messageable]
+  = message.attributes :topic, :body
   = message.attribute :created_at do
     = l resource.created_at
   = message.attribute :updated_at do

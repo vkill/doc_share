@@ -3,18 +3,18 @@
     .span14
       .row
         .span5.clearfix
-          = label_tag ta(resource_class, :sender_username), nil, :class => "span2"
-          = f.text_field :sender_username_cont, :class => "span3", :data => {:autocomplete_user => true}
+          = label_tag ta(resource_class, :sent_messageable_username), nil, :class => "span2"
+          = f.text_field :sent_messageable_username_cont, :class => "span3", :data => {:autocomplete_user => true}
         .span5.clearfix
-          = f.label ta(resource_class, :receiver_username), :class => "span2"
-          = f.text_field :receiver_username_cont, :class => "span3", :data => {:autocomplete_user => true}
+          = f.label ta(resource_class, :received_messageable_username), :class => "span2"
+          = f.text_field :received_messageable_username_cont, :class => "span3", :data => {:autocomplete_user => true}
       .row
         .span5.clearfix
-          = f.label :subject, :class => "span2"
-          = f.text_field :subject_cont, :class => "span3"
+          = f.label :topic, :class => "span2"
+          = f.text_field :topic_cont, :class => "span3"
         .span5.clearfix
-          = f.label :content, :class => "span2"
-          = f.text_field :content_cont, :class => "span3"
+          = f.label :body, :class => "span2"
+          = f.text_field :body_cont, :class => "span3"
       .row
         .span12.clearfix
           = f.label :created_at, :class => "span2"
@@ -28,9 +28,9 @@
   %thead
     %tr
       %th= sort_link q, :id
-      %th= sort_link q, :sender_username, ta(resource_class, :sender_username)
-      %th= sort_link q, :receiver_username, ta(resource_class, :receiver_username)
-      %th= sort_link q, :subject
+      %th= sort_link q, :sender_username, ta(resource_class, :sent_messageable_username)
+      %th= sort_link q, :receiver_username, ta(resource_class, :received_messageable_username)
+      %th= sort_link q, :topic
       %th= sort_link q, :created_at
       %th
   %tbody
@@ -39,7 +39,7 @@
         %td= message.id
         %td= message.username
         %td= message.receiver_username
-        %td= message.subject
+        %td= message.topic
         %td= time_ago message.created_at
         %td
           = link_to t(:show), [:admin, message], :title => t(:show)
