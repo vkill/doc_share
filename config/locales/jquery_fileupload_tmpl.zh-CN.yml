@@ -6,7 +6,7 @@ zh-CN:
       errors:
         unknow: "未知"
         maxFileSize: 文件大小超过最大限制
-        minFileSize: 文件大小低于最小限制
+        minFileSize: "文件内容不能为空"#文件大小低于最小限制
         acceptFileTypes: 不容许此文件格式
         maxNumberOfFiles: 文件数量超过限制
         uploadedBytes: 已上传的字节超过文件大小

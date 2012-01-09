@@ -6,12 +6,12 @@
 
 %script
   var fileUploadErrors = {
-  maxFileSize: '<%= t("jquery_fileupload.tmpl.errors.maxFileSize") %>',
-  minFileSize: '<%= t("jquery_fileupload.tmpl.errors.minFileSize") %>',
-  acceptFileTypes: '<%= t("jquery_fileupload.tmpl.errors.acceptFileTypes") %>',
-  maxNumberOfFiles: '<%= t("jquery_fileupload.tmpl.errors.maxNumberOfFiles") %>',
-  uploadedBytes: '<%= t("jquery_fileupload.tmpl.errors.uploadedBytes") %>',
-  emptyResult: '<%= t("jquery_fileupload.tmpl.errors.emptyResult") %>'
+  maxFileSize: '#{ t("jquery_fileupload.tmpl.errors.maxFileSize") }',
+  minFileSize: '#{ t("jquery_fileupload.tmpl.errors.minFileSize") }',
+  acceptFileTypes: '#{ t("jquery_fileupload.tmpl.errors.acceptFileTypes") }',
+  maxNumberOfFiles: '#{ t("jquery_fileupload.tmpl.errors.maxNumberOfFiles") }',
+  uploadedBytes: '#{ t("jquery_fileupload.tmpl.errors.uploadedBytes") }',
+  emptyResult: '#{ t("jquery_fileupload.tmpl.errors.emptyResult") }'
   };
 
 %script#template-upload{:type => "text/x-jquery-tmpl"}
