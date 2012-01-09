@@ -87,12 +87,12 @@ group :development do
 end
 
 group :test do
-  gem "rspec-rails", "~> 2.7"
+  gem "rspec-rails", "~> 2.8"
   gem "rr", "~> 1.0.4"
   gem "capybara", "~> 1.1.2"
-  gem "guard", "~> 0.8.8"
-  gem "guard-rspec", "~> 0.5.4"
-  gem "guard-spork", "~> 0.3.1"
+  gem "guard", "~> 0.10.0"
+  gem "guard-rspec", "~> 0.6.0"
+  gem "guard-spork", "~> 0.5.0"
   gem "machinist", ">= 2.0.0.beta2"
   gem "database_cleaner", "~> 0.7.0"
   gem "ffaker", "~> 1.10.1"
