@@ -1,11 +1,16 @@
 class PagesController < HighVoltage::PagesController
 
-  layout false
+  layout :layout_for_page
 
-  def page_not_found
-  end
+  private
 
-  def internal_server_error
-  end
+    def layout_for_page
+      case params[:id]
+      when ""
+        ''
+      else
+        'blog'
+      end
+    end
 
 end
