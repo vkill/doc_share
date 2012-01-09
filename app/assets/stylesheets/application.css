@@ -8,13 +8,15 @@
 
 /*
 
+*= require bootstrap
+*= require bootstrap_extension
+
 *= require jquery_autocomplete
 *= require jquery_fileupload
 *= require jquery_tokeninput
 *= require jquery_ui
 *= require simple_form_extension
-*= require bootstrap
-*= require bootstrap_extension
+
 
 */
 

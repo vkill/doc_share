@@ -1,7 +1,6 @@
 $(document).ready(function() {
-  // Initialize the jQuery File Upload widget
-  $('#jquery_fileupload_repo').fileupload({
-  });
+  // Initialize the jQuery File Upload widget:
+  $('#jquery_fileupload_repo').fileupload(); 
 
   // Set jQuery File Upload options
   $('#jquery_fileupload_repo').fileupload('option', {
@@ -13,23 +12,20 @@ $(document).ready(function() {
   $('#jquery_fileupload_repo').each(function(){
     // Load existing files:
     $.getJSON($('#jquery_fileupload_repo form').prop('action'), function (files) {
-      var fu = $('#jquery_fileupload_repo').data('fileupload');
+      var fu = $('#jquery_fileupload_repo').data('fileupload'),
+      template;
       fu._adjustMaxNumberOfFiles(-files.length);
-      fu._renderDownload(files)
-        .appendTo($('#jquery_fileupload_repo .files'))
-        .fadeIn(function () {
-          // Fix for IE7 and lower:
-          $(this).show();
-        });
+      template = fu._renderDownload(files)
+      .appendTo($('#jquery_fileupload_repo .files'));
+      // Force reflow:
+      fu._reflow = fu._transition && template.length &&
+      template[0].offsetWidth;
+      template.addClass('in'); 
     });
   })
   
-  $('#fileupload .files a:not([target^=_blank])').live('click', function (e) {
-    e.preventDefault();
-    $('<iframe style="display:none;"></iframe>')
-    .prop('src', this.href)
-    .appendTo('body');
-  });
+  // Initialize the Bootstrap Image Gallery plugin:
+  $('#jquery_fileupload_repo .files').imagegallery();
 
 });
 

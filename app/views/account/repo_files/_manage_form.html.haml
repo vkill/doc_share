@@ -2,26 +2,26 @@
   .span14.offset1
     #jquery_fileupload_repo
       = simple_form_for(url, :wrapper => :inline) do |f|
+        = hidden_field_tag :format, 'json'
+                      
         .row
-          .span8
-            .fileinput-button
-              = hidden_field_tag :format, 'json'
-              = f.input_field :repo_file, :as => :file, :class => "span1"
-          .span6
-            .fileupload-buttonbar
-              %button.start{:type => "submit"}
-                = t(:start_upload_files, :scope => [:web, :page, :account, :repo_file])
-              %button.cancel{:type => "reset"}
-                = t(:cancel_files, :scope => [:web, :page, :account, :repo_file])
-              %button.delete{:type => "button"}
-                = t(:delete_choised_files, :scope => [:web, :page, :account, :repo_file])
-
-
-      .fileupload-content
-        %table.files
-
-        .fileupload-progressbar
+          .span16.fileupload-buttonbar
+            .progressbar.fileupload-progressbar
+              %div{:style => "width:0%;"}
+            %span.btn.success.fileinput-button
+              %span= t(".add_files")
+              %input{:multiple => "", :name => "files[]", :type => "file"}
+            %button.btn.primary.start{:type => "submit"}= t(".start_upload_files")
+            %button.btn.info.cancel{:type => "reset"}= t(".cancel_files")
+            %button.btn.danger.delete{:type => "button"}= t(".delete_choised_files")
+            %input.toggle{:type => "checkbox"}
+        
+        %br
+          .row
+            .span16
+              %table.zebra-striped
+                %tbody.files
 
 
 - content_for :javascript do
-  = render "partials/jquery_fileupload_tmpl"
+  = render "partials/jquery_fileupload_tmpl_new"

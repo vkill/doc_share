@@ -17,10 +17,7 @@ zh-CN:
         repo_file:
           manage: 管理项目文件
           manage_info: ""
-          add_files: 添加文件
-          start_upload_files: 开始上传
-          cancel_files: 取消
-          delete_choised_files: 删除所选文件
+          
 
 
       
@@ -194,7 +191,14 @@ zh-CN:
     messages:
       show:
         sent_info: "%{sender}发送给%{receiver},发送时间:%{send_time}" 
-        
+    
+    repo_files:
+      manage_form:
+        add_files: 添加文件
+        start_upload_files: 开始上传
+        cancel_files: 取消
+        delete_choised_files: 删除所选文件
+   
   admin:
     shared:
       topbar:

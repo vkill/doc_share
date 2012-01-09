@@ -1,12 +1,12 @@
 /*
- * jQuery File Upload Plugin 5.5.2
+ * jQuery File Upload Plugin 5.5.4
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
  * https://blueimp.net
  *
  * Licensed under the MIT license:
- * http://creativecommons.org/licenses/MIT/
+ * http://www.opensource.org/licenses/MIT
  */
 
 /*jslint nomen: true, unparam: true, regexp: true */
@@ -210,10 +210,15 @@
                 xhr = options.xhr ? options.xhr() : $.ajaxSettings.xhr();
             // Accesss to the native XHR object is required to add event listeners
             // for the upload progress event:
-            if (xhr.upload && xhr.upload.addEventListener) {
-                xhr.upload.addEventListener('progress', function (e) {
+            if (xhr.upload) {
+                $(xhr.upload).bind('progress', function (e) {
+                    var oe = e.originalEvent;
+                    // Make sure the progress event properties get copied over:
+                    e.lengthComputable = oe.lengthComputable;
+                    e.loaded = oe.loaded;
+                    e.total = oe.total;
                     that._onProgress(e, options);
-                }, false);
+                });
                 options.xhr = function () {
                     return xhr;
                 };
@@ -716,7 +721,7 @@
         },
 
         _initEventHandlers: function () {
-            var ns = this.options.namespace || this.widgetName;
+            var ns = this.options.namespace;
             this.options.dropZone
                 .bind('dragover.' + ns, {fileupload: this}, this._onDragOver)
                 .bind('drop.' + ns, {fileupload: this}, this._onDrop)
@@ -726,7 +731,7 @@
         },
 
         _destroyEventHandlers: function () {
-            var ns = this.options.namespace || this.widgetName;
+            var ns = this.options.namespace;
             this.options.dropZone
                 .unbind('dragover.' + ns, this._onDragOver)
                 .unbind('drop.' + ns, this._onDrop)
@@ -763,6 +768,7 @@
 
         _create: function () {
             var options = this.options;
+            options.namespace = options.namespace || this.widgetName;
             if (options.fileInput === undefined) {
                 options.fileInput = this.element.is('input:file') ?
                         this.element : this.element.find('input:file');
