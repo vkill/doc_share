@@ -1,0 +1,18 @@
+/*
+
+        Creating a sprite from following images:
+        
+        app/assets/images/sprites/file_type/dir.png (16x16)
+        app/assets/images/sprites/file_type/txt.png (16x16)
+
+        Output files:
+          app/assets/images/sprites/file_type.png
+          app/assets/stylesheets/sprites/file_type.scss.erb
+
+        Output size:
+          32x16
+
+
+*/
+.file_type_dir { width: 16px; height: 16px; background: url(<%= asset_path 'sprites/file_type.png' %>) 0px 0px no-repeat; }
+.file_type_txt { width: 16px; height: 16px; background: url(<%= asset_path 'sprites/file_type.png' %>) -16px 0px no-repeat; }
