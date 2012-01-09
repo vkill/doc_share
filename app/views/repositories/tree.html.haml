@@ -4,11 +4,27 @@
   .page-header
     = @repository.describtion
   
-  .page-header
-    - @contents.each do |content|
-      - if content.is_a?(Grit::Blob)
-        = link_to content.name, blob_user_repository_path(@user.username, @repository.name, content.name)
-      - elsif content.is_a?(Grit::Tree)
-        = link_to content.name, tree_user_repository_path(@user.username, @repository.name, content.name)
-      .row
+  %table.zebra-striped
+    %thead
+      %tr
+        %th("width=10%")
+        %th("width=70%")
+        %th("width=20%")
+    %tbody
+      - collection.each do |post|
+        %tr
+          %td
+            - if content.is_a?(Grit::Blob)
+              %span.file_type_txt
+            - elsif content.is_a?(Grit::Tree)
+              %span
+          %td
+            - if content.is_a?(Grit::Blob)
+              = link_to content.name, blob_user_repository_path(@user.username, @repository.name, content.name)
+            - elsif content.is_a?(Grit::Tree)
+              = link_to content.name, tree_user_repository_path(@user.username, @repository.name, content.name)
+          %td
+            = 
+
+
 
