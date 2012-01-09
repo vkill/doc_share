@@ -34,6 +34,7 @@ class Message < ActsAsMessageable::Message
   delegate :email, :username, :to => :received_messageable, :prefix => :receiver
 
   after_validation :build_received_messageable, :if => lambda { receiver_username_post.present? }
+  after_validation :check_received_messageable
 
   def reply_topic
     "Re: #{self.topic}"
@@ -47,6 +48,12 @@ class Message < ActsAsMessageable::Message
         self.received_messageable_id = user.id
       else
         errors.add(:receiver_username_post, :existence)
+      end
+    end
+
+    def check_received_messageable
+      if received_messageable == sent_messageable
+        errors.add(:receiver_username_post, :do_not_send_me)
       end
     end
 end

@@ -16,9 +16,9 @@ class MessageObserver < ActiveRecord::Observer
     end
   end
 
-  def after_update(record)
+  def before_update(record)
     #count
-    if record.open? and record.received_messageable_id?
+    if record.opened_changed? and record.received_messageable_id?
       case record.category.to_sym
       when :system_notification
         record.received_messageable_type.constantize.decrement_counter(:unread_system_notifications_count,

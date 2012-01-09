@@ -5,7 +5,7 @@
     = link_to t(:delete), [:account, message], :method => :delete, :confirm => t(:delete_confirm)
 
   %p
-    = message.opened_text
+    = message.opened_text if message.received_messageable == current_user
     = link_to message.topic, [:account, message]
   %p
     = message.body
