@@ -1,7 +1,18 @@
 
+- @ud_error = t("jquery_fileupload.tmpl.error")
 - @u_start = t("jquery_fileupload.tmpl.upload.start")
 - @u_cancel = t("jquery_fileupload.tmpl.upload.cancel")
 - @d_delete = t("jquery_fileupload.tmpl.download.delete")
+
+%script
+  var fileUploadErrors = {
+  maxFileSize: '<%= t("jquery_fileupload.tmpl.errors.maxFileSize") %>',
+  minFileSize: '<%= t("jquery_fileupload.tmpl.errors.minFileSize") %>',
+  acceptFileTypes: '<%= t("jquery_fileupload.tmpl.errors.acceptFileTypes") %>',
+  maxNumberOfFiles: '<%= t("jquery_fileupload.tmpl.errors.maxNumberOfFiles") %>',
+  uploadedBytes: '<%= t("jquery_fileupload.tmpl.errors.uploadedBytes") %>',
+  emptyResult: '<%= t("jquery_fileupload.tmpl.errors.emptyResult") %>'
+  };
 
 %script#template-upload{:type => "text/x-jquery-tmpl"}
   {% for (var i=0, files=o.files, l=files.length, file=files[0]; i<l; file=files[++i]) { %}
@@ -12,7 +23,7 @@
     %td.size {%=o.formatFileSize(file.size)%}
     {% if (file.error) { %}
     %td.error{:colspan => "2"}
-      %span.label.important Error
+      %span.label.important= @ud_error
       {%=fileUploadErrors[file.error] || file.error%}
     {% } else if (o.files.valid && !i) { %}
     %td.progress
@@ -39,7 +50,7 @@
     %td.name {%=file.name%}
     %td.size {%=o.formatFileSize(file.size)%}
     %td.error{:colspan => "2"}
-      %span.label.important Error
+      %span.label.important= @ud_error
       {%=fileUploadErrors[file.error] || file.error%}
     {% } else { %}
     %td.preview
@@ -48,7 +59,7 @@
         %img{:src => "{%=file.thumbnail_url%}"}/
       {% } %}
     %td.name
-      %a{:href => "{%=file.url%}", :rel => "{%=file.thumbnail_url&&'gallery'%}", :title => "{%=file.name%}"} {%=file.name%}
+      %a{:href => "{%=file.url%}", :rel => "{%=file.thumbnail_url%}", :title => "{%=file.name%}"} {%=file.name%}
     %td.size {%=o.formatFileSize(file.size)%}
     %td{:colspan => "2"}
     {% } %}

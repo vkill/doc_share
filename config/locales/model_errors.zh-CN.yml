@@ -7,6 +7,14 @@
             receiver_username_post:
               existence: 未找到此人
               do_not_send_me: 不能自己给自己发送邮件
+              
+  activerecord:
+    errors:
+      models:
+        repo_file:
+          attributes:
+            repo_file:
+              existed: 已经有一个同名的文件了
 
   #https://gist.github.com/1009861
   errors:

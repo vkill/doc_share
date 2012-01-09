@@ -32,7 +32,7 @@ class RepoFile < ActiveRecord::Base
 
   private
     def repo_file_uniqueness_with_repository
-      errors.add :repo_file, :taken if RepoFile.where(:repository_id => self.repository_id).where(:repo_file => self.repo_file.filename).exists?
+      errors.add :repo_file, :existed if RepoFile.where(:repository_id => self.repository_id).where(:repo_file => self.repo_file.filename).exists?
     end
 end
 

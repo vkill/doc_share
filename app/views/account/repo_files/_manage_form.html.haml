@@ -1,5 +1,5 @@
 .row
-  .span14.offset1
+  .span16
     #jquery_fileupload_repo
       = simple_form_for(url, :wrapper => :inline) do |f|
         = hidden_field_tag :format, 'json'
@@ -10,7 +10,7 @@
               %div{:style => "width:0%;"}
             %span.btn.success.fileinput-button
               %span= t(".add_files")
-              %input{:multiple => "", :name => "files[]", :type => "file"}
+              %input{:multiple => "", :name => "repo_file[repo_file]", :type => "file"}
             %button.btn.primary.start{:type => "submit"}= t(".start_upload_files")
             %button.btn.info.cancel{:type => "reset"}= t(".cancel_files")
             %button.btn.danger.delete{:type => "button"}= t(".delete_choised_files")
@@ -20,6 +20,14 @@
           .row
             .span16
               %table.zebra-striped
+                %thead
+                  %tr
+                    %th(width="15%")
+                    %th(width="35%")
+                    %th(width="8%")
+                    %th(width="10%")
+                    %th(width="10%")
+                    %th(width="12%")
                 %tbody.files
 
 
