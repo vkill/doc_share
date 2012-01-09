@@ -1,5 +1,7 @@
 class Account::ActivitiesController < Account::BaseController
 
+  main_nav_highlight :activities
+
   add_breadcrumb proc{|c| c.t("shared.topbar.main")}, :root_path
   add_breadcrumb proc{|c| c.t("shared.topbar.profile_center")}, :account_root_path
   add_breadcrumb proc{|c| c.t("account.shared.navigation.my_activities")}, "", :only => [:index]

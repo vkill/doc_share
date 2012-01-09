@@ -5,10 +5,11 @@
         .span6.clearfix
           = f.label :user_username, :class => "span2"
           = f.text_field :user_username_cont, :class => "span3", :data => {:autocomplete_user => true}
-        .span6.clearfix
-          = f.label :category, :class => "span2"
-          = f.select :category_eq, Post.get_category_values, :prompt => true,
-                                :class => "span3"
+        /
+          .span6.clearfix
+            = f.label :category, :class => "span2"
+            = f.select :category_eq, Post.get_category_values, :prompt => true,
+                                  :class => "span3"
       .row
         .span6.clearfix
           = f.label :title, :class => "span2"

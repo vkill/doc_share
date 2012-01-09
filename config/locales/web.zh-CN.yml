@@ -218,7 +218,7 @@ zh-CN:
         system_about: 系统相关
         site_configs: 站点设置
         feedbacks: 反馈管理
-        posts: 通知&Blog管理
+        posts: Blog文章管理
         data_about: 数据维护
         backups_databases: 备份SQL
         
