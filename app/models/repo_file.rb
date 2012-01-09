@@ -23,7 +23,7 @@ class RepoFile < ActiveRecord::Base
     {
       "name" => read_attribute(:repo_file),
       "size" => repo_file.size,
-      "url" => repo_file.url,
+      "url" => blob_user_repository_path(repository.username, repository.name, read_attribute(:repo_file)), #repo_file.url,
       "thumbnail_url" => repo_file.url,
       "delete_url" => account_repository_repo_file_path(repository, id),
       "delete_type" => "DELETE"
@@ -34,6 +34,7 @@ class RepoFile < ActiveRecord::Base
     def repo_file_uniqueness_with_repository
       errors.add :repo_file, :existed if RepoFile.where(:repository_id => self.repository_id).where(:repo_file => self.repo_file.filename).exists?
     end
+    
 end
 
 # == Schema Information
