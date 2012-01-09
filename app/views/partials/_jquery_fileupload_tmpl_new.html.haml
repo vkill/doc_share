@@ -59,7 +59,8 @@
         %img{:src => "{%=file.thumbnail_url%}"}/
       {% } %}
     %td.name
-      %a{:href => "{%=file.url%}", :rel => "{%=file.thumbnail_url%}", :title => "{%=file.name%}"} {%=file.name%}
+      %a{:href => "{%=file.url%}", :rel => "{%=file.thumbnail_url%}", :title => "{%=file.name%}",
+                                  :target => "_blank"} {%=file.name%}
     %td.size {%=o.formatFileSize(file.size)%}
     %td{:colspan => "2"}
     {% } %}
