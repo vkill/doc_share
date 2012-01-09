@@ -42,3 +42,8 @@ doc/.~lock.*.doc#
 
 #
 public/ckeditor_assets/
+
+
+#
+vendor/bundle/
+
