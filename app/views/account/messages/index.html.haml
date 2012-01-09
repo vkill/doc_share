@@ -1,2 +1,31 @@
-= render @messages
+%table.zebra-striped
+  %thead
+    %tr
+      %th(width="50%")= ta(Message, :topic)
+      %th(width="25%")
+        - if @action == "index"
+          = ta(Message, :sent_messageable)
+        - elsif @action == "sent"
+          = ta(Message, :received_messageable)
+        - elsif @action = "notifications"
+          = ta(Message, :sent_messageable)
+      %th(width="15%")= ta(Message, :created_at)
+      %th(width="10%")
+  %tbody
+    - @messages.each do |message|
+      %tr
+        %td
+          = "[" << message.opened_text << "]" if message.received_messageable == current_user
+          = link_to truncate(message.topic, :length => 40), [:account, message]
+        %td
+          - if @action == "index"
+            = link_to message.sender_username, user_page_path(message.sender_username)
+          - elsif @action == "sent"
+            = link_to message.receiver_username, user_page_path(message.receiver_username)
+          - elsif @action = "notifications"
+            = t(:system)
+        %td= time_ago message.created_at
+        %td
+          = link_to t(:reply), [:account, message] if message.can_reply?(current_user)
+          = link_to t(:delete), [:account, message], :method => :delete, :confirm => t(:delete_confirm)
 = render 'partials/pagination', :resources => @messages

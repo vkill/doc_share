@@ -3,15 +3,19 @@
     = @message.topic
 
 .row
-  .page-header
-    .row
-      %p.pull-right
-        = link_to t(:delete), [:account, @message], :method => :delete, :confirm => t(:delete_confirm)
-    .row
-      .offset1
-        %p
-          = @message.body
+  .span16
+    = raw t(".sent_info", :sender => message_sender_link(@message), :receiver => message_receiver_link(@message),
+                      :send_time => l(@message.created_at, :format => :long) )
 
-        .page-header
-          = render "form_reply", :message => @message, :new_message => @new_message
+.row.right
+  = link_to t(:delete), [:account, @message], :method => :delete, :confirm => t(:delete_confirm)
+
+%br
+
+.row
+  .span16
+    = raw @message.body
+
+    - if @message.can_reply?(current_user)
+      = render "form_reply", :message => @message, :new_message => @new_message
 

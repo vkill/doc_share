@@ -15,8 +15,12 @@ zh-CN:
         username: 发送人名字
         sent_messageable: 发送人
         sent_messageable_username: 发送人名字
+        sender_username: 发送人名字
+        
         received_messageable: 接收人
         received_messageable_username: 接收人名字
+        receiver_username: 接收人名字
+        
         receiver_username_post: 接收人名字
         
       repository:

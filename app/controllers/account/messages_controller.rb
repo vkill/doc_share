@@ -54,17 +54,19 @@ class Account::MessagesController < Account::BaseController
   end
 
   def index
+    @action = "index"
     @messages = current_user.received_messages.member_mailbox.page(params[:page])
-    @can_reply = true
     respond_with :account, @message
   end
 
   def sent
+    @action = "sent"
     @messages = current_user.sent_messages.page(params[:page])
     respond_with :account, @message, :template => "account/messages/index"
   end
 
   def notifications
+    @action = "notifications"
     @messages = current_user.received_messages.system_notification.page(params[:page])
     respond_with :account, @message, :template => "account/messages/index"
   end

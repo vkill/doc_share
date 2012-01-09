@@ -40,6 +40,10 @@ class Message < ActsAsMessageable::Message
     "Re: #{self.topic}"
   end
 
+  def can_reply?(user)
+    received_messageable == user and category.to_sym == :member_mailbox
+  end
+
   private
     def build_received_messageable
       user = User.find_by_username(receiver_username_post.to_s)

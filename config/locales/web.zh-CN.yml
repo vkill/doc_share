@@ -21,8 +21,7 @@ zh-CN:
           start_upload_files: 开始上传
           cancel_files: 取消
           delete_choised_files: 删除所选文件
-      message:
-        reply: 回复
+
 
       
 
@@ -75,6 +74,7 @@ zh-CN:
   is_top: "[置顶]"
   previous: 上一个
   next: 下一个
+  system: 系统
   
   twipsy:
     sort_link: 点击可以排序哦
@@ -190,7 +190,11 @@ zh-CN:
     main:
       dashboard:
         watching_repositories: 我关注中的项目
-      
+    
+    messages:
+      show:
+        sent_info: "%{sender}发送给%{receiver},发送时间:%{send_time}" 
+        
   admin:
     shared:
       topbar:
