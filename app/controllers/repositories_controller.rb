@@ -71,12 +71,15 @@ class RepositoriesController < ApplicationController
 
   def tree
     @tree_path = params[:tree_path]
-    @contents = @repository.git_repo.tree(@git_tag, @tree_path).contents
+    @contents = @git_repo.tree(@git_tag, @tree_path).contents
+    @contents_latest_commit = @contents.map do |content|
+      @git_repo.log(@git_tag, content.name, :max_count => 1).first
+    end
   end
 
   def blob
     @blob_path = params[:blob_path]
-    @blob = @repository.git_repo.tree(@git_tag, @blob_path).contents.first
+    @blob = @git_repo.tree(@git_tag, @blob_path).contents.first
   end
 
   private
@@ -107,6 +110,7 @@ class RepositoriesController < ApplicationController
 
     def find_repository
       @repository = @repositories.find(params[:repository_name])
+      @git_repo = @repository.git_repo
     end
 
     def set_git_tag
