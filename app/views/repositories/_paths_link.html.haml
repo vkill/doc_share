@@ -1,0 +1,10 @@
+.row
+  .span16
+    - paths_hash = paths.nil? ? [] : paths.split("/")
+    - latest_path = paths_hash.pop
+    = link_to "ROOT", tree_user_repository_path(repository.username, repository.name)
+    = "/"
+    - paths_hash.each_with_index do |path, index|
+      = link_to path, tree_user_repository_path(repository.username, repository.name, paths_hash.to(index).join("/"))
+      = "/"
+    = latest_path

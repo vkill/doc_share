@@ -157,11 +157,9 @@ DocShare::Application.routes.draw do
 
       get "admin" => "repositories#admin", :as => :admin_user_repository
 
-      match "tree(/:tree_path)" => "repositories#tree", :as => :tree_user_repository,
-                                                        :constraints => { :blob_path => /.*/ }
+      match "tree(/*paths)" => "repositories#tree", :as => :tree_user_repository, :format => false
 
-      match "blob/:blob_path" => "repositories#blob", :as => :blob_user_repository,
-                                                      :constraints => { :blob_path => /.*/ }
+      match "blob/*paths" => "repositories#blob", :as => :blob_user_repository, :format => false
 
       resources :issues
     end

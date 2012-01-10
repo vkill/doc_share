@@ -4,6 +4,8 @@
   .page-header
     = @repository.describtion
   
+  = render "paths_link", :paths => @paths, :repository => @repository
+
   %table.zebra-striped
     %thead
       %tr
@@ -20,9 +22,9 @@
               .icon.file_type_dir
           %td
             - if content.is_a?(Grit::Blob)
-              = link_to content.name, blob_user_repository_path(@user.username, @repository.name, content.name)
+              = link_to content.basename, blob_user_repository_path(@user.username, @repository.name, content.name)
             - elsif content.is_a?(Grit::Tree)
-              = link_to content.name, tree_user_repository_path(@user.username, @repository.name, content.name)
+              = link_to content.basename, tree_user_repository_path(@user.username, @repository.name, content.name)
           %td
             = l @contents_latest_commit[index].date, :format => :long
 

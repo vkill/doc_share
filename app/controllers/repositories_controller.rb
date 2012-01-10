@@ -70,16 +70,16 @@ class RepositoriesController < ApplicationController
   end
 
   def tree
-    @tree_path = params[:tree_path]
-    @contents = @git_repo.tree(@git_tag, @tree_path).contents
+    @paths = params[:paths] ?  (params[:paths].to_s + "/") : nil
+    @contents = @git_repo.tree(@git_tag, @paths).contents
     @contents_latest_commit = @contents.map do |content|
       @git_repo.log(@git_tag, content.name, :max_count => 1).first
     end
   end
 
   def blob
-    @blob_path = params[:blob_path]
-    @blob = @git_repo.tree(@git_tag, @blob_path).contents.first
+    @paths = params[:paths]
+    @blob = @git_repo.tree(@git_tag, @paths).contents.first
   end
 
   private
@@ -111,6 +111,7 @@ class RepositoriesController < ApplicationController
     def find_repository
       @repository = @repositories.find(params[:repository_name])
       @git_repo = @repository.git_repo
+      @git_repo = Grit::Repo.new(Rails.root)
     end
 
     def set_git_tag

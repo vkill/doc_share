@@ -1,10 +1,13 @@
 = render "head", :repository => @repository
 
-.row
-  .span14.offset1
-    .page-header
-      = @repository.describtion
-    .page-header
-      %pre
-        = @blob.data.force_encoding(Encoding::UTF_8)
+%section
+  .page-header
+    = @repository.describtion
+  
+  = render "paths_link", :paths => @paths, :repository => @repository
+
+  %br
+
+  %pre
+    = @blob.data.force_encoding(Encoding::UTF_8)
 
