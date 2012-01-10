@@ -9,7 +9,7 @@ class RepositoriesController < ApplicationController
   before_filter :require_login, :only => [:reverse_watch, :fork, :admin]
   before_filter :find_repositories, :except => [:tags, :tagged]
   before_filter :find_repository, :except => [:tags, :tagged, :index, :index_by_user]
-  before_filter :set_git_tag, :only => [:tree, :blob]
+  before_filter :set_git_tag, :only => [:tree, :blob, :commits]
 
   add_breadcrumb proc{|c| c.t("shared.topbar.main")}, :root_path
   add_breadcrumb proc{|c| c.t("shared.topbar.repositories")}, "", :only => [:index]
@@ -80,6 +80,16 @@ class RepositoriesController < ApplicationController
   def blob
     @paths = params[:paths]
     @blob = @git_repo.tree(@git_tag, @paths).contents.first
+  end
+
+  def commits
+    @paths = params[:paths]
+    @commits = @git_repo.log(@git_tag, @paths)
+  end
+
+  def commit
+    @commit = @git_repo.commit(params[:commit_id])
+    @diffs = @commit.diffs
   end
 
   private

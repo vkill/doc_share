@@ -1,0 +1,20 @@
+= render "head", :repository => @repository
+
+%section
+  .page-header
+    = @repository.describtion
+  
+  = render "paths_link", :paths => @paths, :repository => @repository
+
+  %table.zebra-striped
+    %thead
+      %tr
+        %th(width="30%")
+        %th(width="45%")
+        %th(width="25%")
+    %tbody
+      - @commits.each do |commit|
+        %tr
+          %td= link_to commit.id, commit_user_repository_path(@repository.username, @repository.name, commit.id)
+          %td= commit.message
+          %td= l commit.date, :format => :long

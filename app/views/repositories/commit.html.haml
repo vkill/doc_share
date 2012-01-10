@@ -1,0 +1,21 @@
+= render "head", :repository => @repository
+
+%section
+  .page-header
+    = @repository.describtion
+
+  %table.zebra-striped
+    %thead
+      %tr
+        %th
+    %tbody
+      - @diffs.each do |diff|
+        %tr
+          %td= diff.a_path
+
+  .diffs
+    - @diffs.each do |diff|
+      .diff
+        %pre
+          = raw diff.diff
+      .page-header

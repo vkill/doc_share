@@ -161,6 +161,10 @@ DocShare::Application.routes.draw do
 
       match "blob/*paths" => "repositories#blob", :as => :blob_user_repository, :format => false
 
+      match "commits(/*paths)" => "repositories#commits", :as => :commits_user_repository, :format => false
+
+      match "commit/:commit_id" => "repositories#commit", :as => :commit_user_repository
+
       resources :issues
     end
   end
