@@ -7,6 +7,15 @@ GIT
       orm_adapter (~> 0.0.5)
 
 GIT
+  remote: git://github.com/mojombo/grit.git
+  revision: 8b5449e559879d74224bce3c9c52b0d17bbc0b4b
+  specs:
+    grit (2.4.1)
+      diff-lcs (~> 1.1)
+      mime-types (~> 1.15)
+      posix-spawn (~> 0.3.6)
+
+GIT
   remote: git://github.com/plataformatec/simple_form.git
   revision: de3f1dfce9e884569d2982e9776afae038fa0c11
   specs:
@@ -26,13 +35,6 @@ GIT
   revision: 57f32788f1952bcd633057b4b56b69b51df17610
   specs:
     nested_form (0.1.1)
-
-PATH
-  remote: vendor/plugins/grit-2.4.1
-  specs:
-    grit (2.4.1)
-      diff-lcs (~> 1.1)
-      mime-types (~> 1.15)
 
 GEM
   remote: http://ruby.taobao.org/
@@ -229,6 +231,7 @@ GEM
     popen4 (0.1.2)
       Platform (>= 0.4.0)
       open4 (>= 0.4.0)
+    posix-spawn (0.3.6)
     pry (0.9.7.4)
       coderay (~> 0.9.8)
       method_source (~> 0.6.7)

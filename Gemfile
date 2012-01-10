@@ -34,7 +34,7 @@ gem "responders", "~> 0.6.4"
 gem "high_voltage", "~> 1.0.1"
 #log exception
 gem "airbrake"
-gem "grit", :path => "vendor/plugins/grit-2.4.1"
+gem "grit", :git => "git://github.com/mojombo/grit.git"
 gem "cells", "~> 3.8.0"
 
 gem "haml-rails", "~> 0.3.4"
