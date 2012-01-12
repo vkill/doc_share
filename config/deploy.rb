@@ -41,7 +41,6 @@ namespace :deploy do
   task :restart, :roles => :app, :except => { :no_release => true } do
     run "#{try_sudo} touch #{File.join(current_path,'tmp','restart.txt')}"
   end
-
   task :copy_config_files, :roles => [:app] do
     run "cp #{shared_path}/config/database.yml #{release_path}/config/database.yml"
     run "cp #{shared_path}/config/redis.yml #{release_path}/config/redis.yml"
@@ -49,20 +48,52 @@ namespace :deploy do
   end
 end
 
-before "deploy:assets:precompile", "deploy:copy_config_files"
-before "deploy:assets:precompile", "deploy:migrate"
 after "deploy:update_code", "deploy:copy_config_files"
+
 
 # airbrake support
 require './config/boot'
 require 'airbrake/capistrano'
 
 
-# Thinking Sphinx
+
+############# Thinking Sphinx
+############# http://ayaya.tw/blog/2011/11/02/setup-thinking-sphinx-with-chinese-support/
 require 'thinking_sphinx/deploy/capistrano'
-after "deploy:update_code", "thinking_sphinx:stop"
-after "deploy:update_code", "thinking_sphinx:configure"
-after "deploy:update_code", "thinking_sphinx:index"
-after "deploy:update_code", "thinking_sphinx:start"
+namespace :deploy do
+  namespace :thinking_sphinx do
+    task :rebuild, :roles => :app do
+      run "cd #{release_path} && RAILS_ENV=#{rails_env} bundle exec rake ts:stop ts:rebuild"
+    end
+  end
+  after 'deploy:restart', 'deploy:thinking_sphinx:rebuild'
+end
 
 
+
+############# resque workers and resque scheduler
+############# http://balazs.kutilovi.cz/blog/2011/12/04/deploying-resque-scheduler-with-capistrano/
+after "deploy:symlink", "deploy:restart_workers"
+after "deploy:restart_workers", "deploy:restart_scheduler"
+##
+# Rake helper task.
+# http://pastie.org/255489
+# http://geminstallthat.wordpress.com/2008/01/27/rake-tasks-through-capistrano/
+# http://ananelson.com/said/on/2007/12/30/remote-rake-tasks-with-capistrano/
+def run_remote_rake(rake_cmd)
+  rake_args = ENV['RAKE_ARGS'].to_s.split(',')
+  cmd = "cd #{fetch(:latest_release)} && #{fetch(:rake, "rake")} RAILS_ENV=#{fetch(:rails_env, "production")} #{rake_cmd}"
+  cmd += "['#{rake_args.join("','")}']" unless rake_args.empty?
+  run cmd
+  set :rakefile, nil if exists?(:rakefile)
+end
+namespace :deploy do
+  desc "Restart Resque Workers"
+  task :restart_workers, :roles => :db do
+    run_remote_rake "resque:restart_workers"
+  end
+  desc "Restart Resque scheduler"
+  task :restart_scheduler, :roles => :db do
+    run_remote_rake "resque:restart_scheduler"
+  end
+end
