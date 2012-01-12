@@ -13,7 +13,7 @@ class ApplicationController < ActionController::Base
     rescue_from Exception,                            :with => :render_error
     rescue_from RuntimeError,                         :with => :render_error
     rescue_from ActiveRecord::RecordNotFound,         :with => :render_404
-    # rescue_from ActionController::RoutingError,       :with => :render_404
+    rescue_from ActionController::RoutingError,       :with => :render_404
     rescue_from ActionController::UnknownController,  :with => :render_error
     rescue_from ActionController::UnknownAction,      :with => :render_error
   end
