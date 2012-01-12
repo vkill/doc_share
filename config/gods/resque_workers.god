@@ -1,6 +1,6 @@
 rails_env = ENV['RAILS_ENV'] || "production"
-shared_root = "/home/railsapp/rails_apps/doc_share/shared"
-rails_root = ENV['RAILS_ROOT'] || "/home/railsapp/rails_apps/doc_share/current"
+rails_root = ENV['RAILS_ROOT'] || File.expand_path('../../../',  __FILE__)
+
 num_workers = rails_env == 'production' ? 5 : 2
 
 num_workers.times do |num|
@@ -10,10 +10,10 @@ num_workers.times do |num|
     w.group = 'resque_workers'
     w.interval = 30.seconds
     w.env = {"QUEUE"=>"critical,high,low", "RAILS_ENV"=>rails_env}
-    w.start = "#{shared_root}/bundle/ruby/1.9.1/bin/rake -f #{rails_root}/Rakefile environment resque:work"
+    w.start = "bundle exec rake resque:work"
 
-    w.uid = 'railsapp'
-    w.gid = 'railsapp'
+    w.uid = 'vkill'
+    w.gid = 'vkill'
 
     # restart if memory gets too high
     w.transition(:up, :restart) do |on|
