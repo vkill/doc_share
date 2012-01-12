@@ -72,8 +72,8 @@ end
 
 # resque-web
 namespace :deploy do
-  namespace :resque_web do
-    run "#{try_sudo} resque-web --foreground --server thin --port 45678 #{current_path}/config/initializers/resque.rb"
+  task :resque_web do
+    run "bundle exec resque-web --foreground --server thin --port 45678 #{current_path}/config/initializers/resque.rb"
   end
 end
 
