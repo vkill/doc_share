@@ -2,6 +2,8 @@ source 'http://ruby.taobao.org'
 
 gem 'rails', '3.1.3'
 
+gem 'pg', "~> 0.12.0pre258"
+
 group :assets do
   gem 'sass-rails',   '~> 3.1.4'
   gem 'coffee-rails', '~> 3.1.1'
@@ -84,6 +86,20 @@ group :development do
   #gem "youdao_fanyi", "~> 0.1.2.2"
   #gem "i18n_attributes", "~> 0.1.6"
   #gem "seed_upgrade", "~> 0.1.2"
+
+  # guard notify
+  gem "libnotify"
+
+  # livereload 1 and 2
+  gem "rb-inotify", "~> 0.8.8", :require => false
+  gem "livereload", "~> 1.6.1", :require => false
+  gem "rack-livereload"
+
+  # sprite-factory
+  gem "rmagick", "~> 2.13.1"
+  gem "chunky_png", "~> 1.2.5"
+  gem "sprite-factory", "~> 1.4.1"
+
 end
 
 group :test do
@@ -100,6 +116,4 @@ group :test do
   gem "valid_attribute", "~> 1.2.0"
 end
 
-gemfile_local = File.expand_path('../Gemfile.local', __FILE__)
-eval(File.read(gemfile_local)) if File.exists?(gemfile_local)
 
