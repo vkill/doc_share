@@ -132,6 +132,6 @@ namespace :deploy do
   end
 
   task :start_thinking_sphinx, :roles => :db do
-    run_remote_rake "thinking_sphinx:start"
+    run_remote_rake "thinking_sphinx:rebuild"
   end
 end
