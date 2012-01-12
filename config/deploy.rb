@@ -72,8 +72,10 @@ end
 
 # resque-web
 namespace :deploy do
-  task :resque_web do
-    run "bundle exec resque-web --foreground --server thin --port 45678 #{current_path}/config/initializers/resque.rb"
+  task :start_resque_web, :roles => [:app] do
+    cmd = "cd #{fetch(:latest_release)} && "
+    cmd += "bundle exec resque-web --port 45678 config/initializers/resque.rb"
+    run cmd
   end
 end
 
@@ -130,7 +132,7 @@ namespace :deploy do
   task :start_thinking_sphinx, :roles => :db do
     run_remote_rake "ts:config"
     run_remote_rake "ts:index"
-    run_remote_rake "ts:run"
+    run_remote_rake "ts:start"
   end
   task :stop_thinking_sphinx, :roles => :db do
     run_remote_rake "ts:stop"
