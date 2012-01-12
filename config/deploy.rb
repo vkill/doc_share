@@ -73,3 +73,16 @@ end
 # airbrake support
 require './config/boot'
 require 'airbrake/capistrano'
+
+
+# god
+desc "Hot-reload God configuration for the Resque worker"
+deploy.task :reload_god_config do
+  run "/home/railsapp/.rvm/bin/bootup_god stop resque"
+  run "/home/railsapp/.rvm/bin/bootup_god load #{File.join deploy_to, 'current', 'config', 'gods', 'resque_scheduler.god'}"
+  run "/home/railsapp/.rvm/bin/bootup_god load #{File.join deploy_to, 'current', 'config', 'gods', 'resque_web.god'}"
+  run "/home/railsapp/.rvm/bin/bootup_god load #{File.join deploy_to, 'current', 'config', 'gods', 'resque_workers.god'}"
+  run "/home/railsapp/.rvm/bin/bootup_god load #{File.join deploy_to, 'current', 'config', 'gods', 'sphinx_searchd.god'}"
+  run "/home/railsapp/.rvm/bin/bootup_god start resque"
+end
+after :deploy, 'deploy:reload_god_config'
