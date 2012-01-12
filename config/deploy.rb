@@ -79,9 +79,6 @@ require 'airbrake/capistrano'
 
 ############# resque workers and resque scheduler
 ############# http://balazs.kutilovi.cz/blog/2011/12/04/deploying-resque-scheduler-with-capistrano/
-after "deploy:symlink", "deploy:restart_workers"
-after "deploy:symlink", "deploy:restart_scheduler"
-
 after "deploy:stop", "deploy:stop_workers"
 after "deploy:start", "deploy:start_workers"
 after "deploy:restart", "deploy:restart_workers"
@@ -122,8 +119,6 @@ end
 
 
 ############# Thinking Sphinx
-after 'deploy:symlink', 'deploy:restart_thinking_sphinx'
-
 after 'deploy:restart', 'deploy:restart_thinking_sphinx'
 after 'deploy:stop', 'deploy:stop_thinking_sphinx'
 after 'deploy:start', 'deploy:start_thinking_sphinx'
