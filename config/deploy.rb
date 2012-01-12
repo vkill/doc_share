@@ -16,18 +16,18 @@ set :branch, "master"
 set :scm, :git
 # Or: `accurev`, `bzr`, `cvs`, `darcs`, `git`, `mercurial`, `perforce`, `subversion` or `none`
 
-set :deploy_to, "/home/vkill/rails_apps/#{application}"
+set :deploy_to, "/home/railsapp/rails_apps/#{application}"
 set :deploy_via, :remote_cache
 
 
-server "192.168.1.222", :app, :web, :db, :primary => true
-
+server "58.215.184.38", :app, :web, :db, :primary => true
+#or
 #role :web, "127.0.0.1"                          # Your HTTP server, Apache/etc
 #role :app, "127.0.0.1"                          # This may be the same as your `Web` server
 #role :db,  "127.0.0.1", :primary => true # This is where Rails migrations will run
 #role :db,  "127.0.0.1"
 
-set :user, "vkill"
+set :user, "railsapp"
 
 set :use_sudo, false
 
@@ -44,7 +44,7 @@ namespace :deploy do
 
   task :copy_config_files, :roles => [:app] do
     run "cp #{shared_path}/config/database.yml #{release_path}/config/database.yml"
-    run "cp #{shared_path}/config/resque.yml #{release_path}/config/resque.yml"
+    run "cp #{shared_path}/config/redis.yml #{release_path}/config/redis.yml"
     run "cp #{shared_path}/config/smtp_settings.yml #{release_path}/config/smtp_settings.yml"
   end
 end
@@ -54,5 +54,20 @@ before "deploy:assets:precompile", "deploy:migrate"
 after "deploy:update_code", "deploy:copy_config_files"
 
 
-        require './config/boot'
-        require 'airbrake/capistrano'
+
+# airbrake support
+require './config/boot'
+require 'airbrake/capistrano'
+
+
+# Thinking Sphinx
+require 'thinking_sphinx/deploy/capistrano'
+task :before_update_code, :roles => [:app] do
+  thinking_sphinx.stop
+end
+task :after_update_code, :roles => [:app] do
+  symlink_sphinx_indexes
+  thinking_sphinx.configure
+  thinking_sphinx.start
+end
+
