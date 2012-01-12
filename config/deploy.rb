@@ -75,14 +75,3 @@ require './config/boot'
 require 'airbrake/capistrano'
 
 
-# god
-desc "Hot-reload God configuration for the Resque worker"
-deploy.task :reload_god_config do
-  run ""
-  %w(resque_scheduler resque_web resque_workers sphinx_searchd).each do |name|
-    run "/home/railsapp/.rvm/bin/bootup_god stop #{name}"
-    run "/home/railsapp/.rvm/bin/bootup_god load #{File.join deploy_to, 'current', 'config', 'gods', '#{name}.god'}"
-    run "/home/railsapp/.rvm/bin/bootup_god start #{name}"
-  end
-end
-after :deploy, 'deploy:reload_god_config'
