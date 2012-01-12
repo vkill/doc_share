@@ -70,6 +70,15 @@ namespace :deploy do
 end
 
 
+# resque-web
+namespace :deploy do
+  namespace :resque_web do
+    run "#{try_sudo} resque-web --foreground --server thin --port 45678 #{current_path}/config/initializers/resque.rb"
+  end
+end
+
+
+
 # airbrake support
 require './config/boot'
 require 'airbrake/capistrano'
@@ -119,13 +128,15 @@ after 'deploy:stop', 'deploy:stop_thinking_sphinx'
 after 'deploy:restart', 'deploy:restart_thinking_sphinx'
 namespace :deploy do
   task :start_thinking_sphinx, :roles => :db do
+    run_remote_rake "ts:config"
     run_remote_rake "ts:index"
     run_remote_rake "ts:run"
   end
   task :stop_thinking_sphinx, :roles => :db do
-    run_remote_rake "thinking_sphinx:stop"
+    run_remote_rake "ts:stop"
   end
   task :restart_thinking_sphinx, :roles => :db do
+    run_remote_rake "ts:config"
     run_remote_rake "ts:reindex"
     run_remote_rake "ts:run"
   end
