@@ -20,7 +20,7 @@
 
 //= require best_in_place_
 
-//= require ckeditor/ckeditor
+//= require ckeditor-jquery
 
 //= require_tree .
 

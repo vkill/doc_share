@@ -49,6 +49,7 @@ gem "best_in_place", "~> 1.0.4"
 # ckeditor
 gem "mini_magick"
 gem "ckeditor", :git => "git://github.com/galetahub/ckeditor.git"
+gem 'ckeditor_rails', :require => 'ckeditor-rails'
 
 gem "attribute_enums", "~> 0.1.7"
 gem "carrierwave", "~> 0.5.8"
