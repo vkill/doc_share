@@ -48,8 +48,7 @@ namespace :deploy do
   end
 end
 
-after "deploy:update_code", "deploy:copy_config_files"
-before 'deploy:assets:precompile', 'deploy:copy_config_files'
+after "deploy:finalize_update", "deploy:copy_config_files"
 
 # airbrake support
 require './config/boot'
