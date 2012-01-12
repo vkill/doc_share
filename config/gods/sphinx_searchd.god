@@ -4,8 +4,8 @@ rails_root = ENV['RAILS_ROOT'] || "/home/railsapp/rails_apps/doc_share/current"
 
 God.watch do |w|
   w.dir = "#{rails_root}"
-  w.name = "resque-#{num}"
-  w.group = 'resque'
+  w.name = "sphinx_searchd"
+  w.group = 'sphinx_searchd'
   w.interval = 30.seconds
   w.env = {"RAILS_ENV"=>rails_env}
   w.start = "#{shared_root}/bundle/ruby/1.9.1/bin/rake -f #{rails_root}/Rakefile environment ts:rebuild"
