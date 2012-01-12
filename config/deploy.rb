@@ -132,7 +132,7 @@ namespace :deploy do
   task :start_thinking_sphinx, :roles => :db do
     run_remote_rake "ts:config"
     run_remote_rake "ts:index"
-    run_remote_rake "ts:start"
+    run_remote_rake "ts:run"
   end
   task :stop_thinking_sphinx, :roles => :db do
     run_remote_rake "ts:stop"
