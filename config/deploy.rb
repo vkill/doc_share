@@ -74,7 +74,7 @@ end
 namespace :deploy do
   task :start_resque_web, :roles => [:app] do
     cmd = "cd #{fetch(:latest_release)} && "
-    cmd += "bundle exec resque-web --port 45678 config/initializers/resque.rb"
+    cmd += "bundle exec resque-web --server thin --port 45678 config/initializers/resque.rb"
     run cmd
   end
 end

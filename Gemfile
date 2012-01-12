@@ -72,13 +72,14 @@ gem "backup", "~> 3.0.19"
 #message
 gem 'acts-as-messageable', "~> 0.4.4"
 
+gem "thin", "~> 1.3.1", :require => false
+
 group :development do
   gem 'sqlite3', "~> 1.3.4"
   gem "capistrano", "~> 2.9.0", :require => false
   gem "god", "~> 0.11.0", :require => false
   gem "annotate", "~> 2.4.1.beta1", :require => false
   gem "rails-erd", "~> 0.4.5"
-  gem "thin", "~> 1.3.1", :require => false
   gem "foreman", "~> 0.26.1", :require => false
   gem "pry", "~> 0.9.7.4"
   gem 'pry-rails'
