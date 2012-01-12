@@ -60,7 +60,7 @@ require 'airbrake/capistrano'
 
 # Thinking Sphinx
 require 'thinking_sphinx/deploy/capistrano'
-before "deploy:update_code", "thinking_sphinx:stop"
+after "deploy:update_code", "thinking_sphinx:stop"
 after "deploy:update_code", "thinking_sphinx:configure"
 after "deploy:update_code", "thinking_sphinx:index"
 after "deploy:update_code", "thinking_sphinx:start"
