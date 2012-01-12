@@ -20,7 +20,7 @@ gem "eventmachine", "~> 1.0.0.beta.4"
 gem "resque", "~> 1.19.0"
 gem "redis-store", "~> 1.0.0.1"
 gem "resque-status", "~> 0.2.4"
-gem "resque-scheduler", "~> 1.9.9"
+gem 'resque-scheduler', :git => "https://github.com/bvandenbos/resque-scheduler.git"
 gem "resque_mailer", "~> 2.0.2"
 gem "redis-objects", "~> 0.5.2"
 
