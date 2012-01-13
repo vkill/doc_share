@@ -1,13 +1,16 @@
+- link_full ||= false
+
+%p.pull-right
+  = repository_watchers_count_link(repository)
+  = repository_forks_count_link(repository)
+%p
+  %h4= link_full ? repository_link_full(repository) : repository_link(repository)
+%p
+  = repository.describtion
+%p
+  %em
+    = t(:updated_at) << ":" << l(repository.updated_at, :format => :long_only_date)
+%p
+  = render "repositories/tag_list", :repository => repository
+
 .page-header
-  %p.pull-right
-    = repository_watchers_count_link(repository)
-    = repository_forks_count_link(repository)
-  %p
-    %h4= action_name == 'index' ? repository_link_full(repository) : repository_link(repository)
-  %p
-    = repository.describtion
-  %p
-    %em
-      = t(:updated_at) << ":" << l(repository.updated_at, :format => :long_only_date)
-  %p
-    = render "tag_list", :repository => repository

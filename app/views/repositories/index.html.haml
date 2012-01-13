@@ -2,7 +2,7 @@
   .row
     .span12
       - if @repositories.present?
-        = render @repositories
+        = render @repositories, :link_full => true
       - else
         = collection_empty(:repositories)
       = render 'partials/pagination', :resources => @repositories
