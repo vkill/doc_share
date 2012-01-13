@@ -6,6 +6,7 @@
 #   cities = City.create([{ name: 'Chicago' }, { name: 'Copenhagen' }])
 #   Mayor.create(name: 'Emanuel', city: cities.first)
 
-load Rails.root.join("db", "init_seeds", "init_site_configs.rb")
-load Rails.root.join("db", "init_seeds", "create_users.rb")
-
+load Rails.root.join("db", "production_seeds", "init_site_configs.rb")
+load Rails.root.join("db", "production_seeds", "create_roles.rb")
+load Rails.root.join("db", "production_seeds", "create_users.rb")
+load Rails.root.join("db", "production_seeds", "create_categories.rb")
