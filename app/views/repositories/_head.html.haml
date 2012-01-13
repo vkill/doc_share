@@ -31,7 +31,16 @@
         = repository_watchers_count_link(repository)
         = repository_forks_count_link(repository)
 
-.page-header
+  .page-header
+  .row
+    .span12
+      %h6= ta(Repository, :describtion)
+      = @repository.describtion
+    .span4
+      %h6= ta(Repository, :tag_list)
+      - repository.tag_list.each do |tag|
+        = link_to tag, tagged_repositories_path(tag), :class => "btn primary small"
+  .page-header
 
 - content_for :modal do
   = render_cell "bootstrap_::_controls_modal", :sign_in

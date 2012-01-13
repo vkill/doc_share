@@ -35,7 +35,7 @@ zh-CN:
       
       repository:
         name: "6~30个字符,唯一"
-        describtion: "支持搜索哦～"
+        describtion: "请写详细点哦，内容支持全文搜索"
         tag_list: "多个标签用请 , 分割（英文逗号），最多可定义3个标签"
       
       message:

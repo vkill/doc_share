@@ -1,9 +1,6 @@
 = render "head", :repository => @repository
 
-%section
-  .page-header
-    = @repository.describtion
-  
+%section  
   = render "paths_link", :paths => @paths, :repository => @repository
 
   %table.zebra-striped
