@@ -18,8 +18,8 @@
     .row
       .span7.details
         %em
-          = [t(:"partials.user.count_link.followers"), user.followers_count].join(":")
+          = [t(:"users.count_link.followers"), user.followers_count].join(":")
           |
-          = [t(:"partials.user.count_link.public_repositories"), user.public_repositories_count].join(":")
+          = [t(:"users.count_link.public_repositories"), user.public_repositories_count].join(":")
           |
           = [ta(User, :location), user.location].join(":")

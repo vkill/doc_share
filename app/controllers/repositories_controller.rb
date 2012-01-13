@@ -121,7 +121,7 @@ class RepositoriesController < ApplicationController
     def find_repository
       @repository = @repositories.find(params[:repository_name])
       @git_repo = @repository.git_repo
-      @git_repo = Grit::Repo.new(Rails.root)
+      # @git_repo = Grit::Repo.new(Rails.root)
     end
 
     def set_git_tag
