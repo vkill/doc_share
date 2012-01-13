@@ -70,28 +70,17 @@ namespace :deploy do
 end
 
 
-# resque-web
-namespace :deploy do
-  task :start_resque_web, :roles => [:app] do
-    cmd = "cd #{fetch(:latest_release)} && "
-    cmd += "bundle exec resque-web --server thin --port 45678 config/initializers/resque.rb"
-    run cmd
-  end
-end
-
-
-
 # airbrake support
 require './config/boot'
 require 'airbrake/capistrano'
 
 ############# resque workers and resque scheduler
 ############# http://balazs.kutilovi.cz/blog/2011/12/04/deploying-resque-scheduler-with-capistrano/
-after "deploy:start", "deploy:start_workers"
+# after "deploy:start", "deploy:start_workers"
 after "deploy:stop", "deploy:stop_workers"
 after "deploy:restart", "deploy:restart_workers"
 
-after "deploy:start", "deploy:start_scheduler"
+# after "deploy:start", "deploy:start_scheduler"
 after "deploy:stop", "deploy:stop_scheduler"
 after "deploy:restart", "deploy:restart_scheduler"
 
@@ -125,7 +114,7 @@ namespace :deploy do
 end
 
 ############# Thinking Sphinx
-after 'deploy:start', 'deploy:start_thinking_sphinx'
+# after 'deploy:start', 'deploy:start_thinking_sphinx'
 after 'deploy:stop', 'deploy:stop_thinking_sphinx'
 after 'deploy:restart', 'deploy:restart_thinking_sphinx'
 namespace :deploy do
