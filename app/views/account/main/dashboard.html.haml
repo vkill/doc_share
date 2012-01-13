@@ -10,14 +10,18 @@
       %section
         .page-header
           %h1= t("account.shared.navigation.about_me_activities")
-        = render :partial => "activities/activity", :collection => @about_me_activities, :as => :activity
-        %p.pull-right
-          = link_to t(:more), [:about_me, :account, :activities]
+        - if @about_me_activities.present?
+          = render :partial => "activities/activity", :collection => @about_me_activities, :as => :activity
+          %p.pull-right
+            = link_to t(:more), [:about_me, :account, :activities]
+        - else
+          = collection_empty(:about_me_activities)
     
     .span7.offset1  
       %section
         .page-header
           %h1= t(".watching_repositories")
-        = render :partial => "repositories/repository_by_watch", :collection => @watching_repositories,
-                                                                  :as => :repository
-
+        - if @watching_repositories.present?
+          = render :partial => "repositories/repository_by_watch", :collection => @watching_repositories, :as => :repository
+        - else  
+          = collection_empty(:watching_repositories)

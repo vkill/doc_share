@@ -5,24 +5,10 @@
         = link_to t(".new"), [:new, :feedback], :class => "btn primary"
         
     .span12
-      - @feedbacks.each do |feedback|
-        .page-header
-          .row
-            .span12
-              %p
-                = feedback.body
-              - if feedback.result?
-                %p
-                  = nbsp(4) << ta(Feedback, :result) << ": " << feedback.result
-                %p
-                  = nbsp(4) << ta(Feedback, :handle_at) << ": " << l(feedback.handle_at, :format => :long)
-              %p
-                %em
-                  = [t(:created_at), l(feedback.created_at, :format => :long_only_date)].join(":")
-                  |
-                  = [ta(Feedback, :username), feedback.username].join(":")
-                  |
-                  = [ta(Feedback, :state), feedback.state_text].join(":")
+      - if @feedbacks.present?
+        = render @feedbacks
+      - else
+        = collection_empty(:feedbacks)
 
       = render 'partials/pagination', :resources => @feedbacks
     

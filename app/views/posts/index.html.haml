@@ -1,8 +1,11 @@
 %section#posts
   .row
     .span10
-      = render @posts
+      - if @posts.present?
+        = render @posts
+      - else
+        = collection_empty(:posts)
+      
       = render 'partials/pagination', :resources => @posts
     
     = render "right_bar"
-      

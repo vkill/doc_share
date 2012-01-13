@@ -1,6 +1,9 @@
 %section
   .row
     .span8
-      = render :partial => "activities/activity", :collection => @activities, :as => :activity
+      - if @activities.present?
+        = render :partial => "activities/activity", :collection => @activities, :as => :activity
+      - else
+        = collection_empty(:activities)
 
 = render 'partials/pagination', :resources => @activities

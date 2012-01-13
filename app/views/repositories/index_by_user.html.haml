@@ -20,7 +20,10 @@
             .span2
               = f.submit t(:to_search), :class => "btn primary"
       
-      = render @repositories
+      - if @repositories.present?
+        = render @repositories
+      - else
+        = collection_empty(:repositories)
 
       = render 'partials/pagination', :resources => @repositories
 

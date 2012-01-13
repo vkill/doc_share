@@ -28,5 +28,15 @@ module ApplicationHelper
     raw ("&nbsp" * n)
   end
 
+  def collection_empty(collection_name=nil)
+    collection_name = collection_name.to_s.pluralize
+    case collection_name
+    when ""
+      t(:collection_empty)
+    else
+      t(:collection_empty)
+    end
+  end
+
 end
 

@@ -1,7 +1,10 @@
 %section
   .row
     .span12
-      = render @repositories
+      - if @repositories.present?
+        = render @repositories
+      - else
+        = collection_empty(:repositories)
       = render 'partials/pagination', :resources => @repositories
     .span4.center
       %h1

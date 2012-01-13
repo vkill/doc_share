@@ -73,6 +73,7 @@ zh-CN:
   next: 下一个
   system: 系统
   history: 历史
+  collection_empty: 没有数据
   
   twipsy:
     sort_link: 点击可以排序哦
