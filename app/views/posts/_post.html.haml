@@ -3,7 +3,7 @@
     %h2= link_to post.is_top? ? t(:is_top) << post.title : post.title, [post]
     .row
       .span4
-        = link_to post.comments_count.to_s << " comments", post_path(post) << "#comments"
+        = link_to t(".comments_size", :size => post.comments_count), post_path(post) << "#comments"
       .span5.right
         = ta(Post, :issuer) << ":"
         = link_to post.username, user_page_path(post.user)

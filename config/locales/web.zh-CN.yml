@@ -168,6 +168,10 @@ zh-CN:
     right_bar:
       latest_posts: 近期文章
       follow_me: 关注我们
+    post:
+      comments_size: "%{size} 条回复"
+    show:
+      comments_size: "%{size} 条回复"
           
   account:
     repositories:
