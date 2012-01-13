@@ -37,6 +37,9 @@
           %li.dropdown
             = link_to t(".system_about"), "javascript:void(0)", :class => "dropdown-toggle"
             %ul.dropdown-menu
+              - if can? :manage, Resque
+                %li
+                  = link_to t(".resque_web"), [:admin, :resque_web]
               %li
                 = link_to t(".site_configs"), [:admin, :site_configs]
               %li

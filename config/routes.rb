@@ -67,10 +67,11 @@ DocShare::Application.routes.draw do
   end
   get "dashboard" => "account/main#dashboard", :as => :dashboard
 
-
-
   #admin namespace
   namespace :admin do
+    constraints CanAccessResque do
+      mount Resque::Server.new, :at => 'resque', :as => :resque_web
+    end
     root :to => "main#dashboard"
     get "dashboard" => "main#dashboard", :as => :dashboard
     resources :roles do

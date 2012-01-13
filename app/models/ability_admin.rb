@@ -5,8 +5,13 @@ class AbilityAdmin
 
     user ||= User.new
 
-    if user.has_role? :admin
+
+    if user.super_admin?
       can :access, :all
+      can :access, Resque
+    elsif user.has_role? :admin
+      can :access, :all
+      cannot :access, Resque
     end
     
   end
