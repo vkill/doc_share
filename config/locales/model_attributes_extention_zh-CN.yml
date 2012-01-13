@@ -43,7 +43,10 @@ zh-CN:
       
       post:
         issuer: 发布人
-        
+      
+      category:
+        parent_id: 父分类
+      
   activemodel:
     models:
       search: 搜索

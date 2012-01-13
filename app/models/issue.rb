@@ -1,6 +1,8 @@
 class Issue < ActiveRecord::Base
 
-  attr_accessible :user_id, :title, :content, :user, :repository
+  basic_attr_accessible = [:user_id, :title, :content, :user, :repository]
+  attr_accessible *(basic_attr_accessible)
+  attr_accessible *(basic_attr_accessible), :as => :admin
 
   belongs_to :user, :counter_cache => true
   belongs_to :repository, :counter_cache => true

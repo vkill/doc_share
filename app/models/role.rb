@@ -1,6 +1,8 @@
 class Role < ActiveRecord::Base
 
-  attr_accessible :name, :code, :describtion
+  basic_attr_accessible = [:name, :code, :describtion]
+  attr_accessible *(basic_attr_accessible)
+  attr_accessible *(basic_attr_accessible), :as => :admin
 
   has_and_belongs_to_many :users, :uniq => true
 

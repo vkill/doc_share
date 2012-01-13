@@ -9,6 +9,10 @@ class Post < ActiveRecord::Base
   belongs_to :user
   has_many :comments, :as => :commentable, :dependent => :destroy
 
+  basic_attr_accessible = [:user_id, :title, :content, :is_top, :category]
+  attr_accessible *(basic_attr_accessible)
+  attr_accessible *(basic_attr_accessible), :as => :admin
+
   attribute_enums :is_top, :booleans => true
   attribute_enums :category, :in => [:notification, :blog], :default => :blog
 

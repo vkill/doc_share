@@ -1,6 +1,8 @@
 class Comment < ActiveRecord::Base
 
-  attr_accessible :user_id, :content, :user, :commentable, :commentable_id, :commentable_type
+  basic_attr_accessible = [:user_id, :content, :user, :commentable, :commentable_id, :commentable_type]
+  attr_accessible *(basic_attr_accessible)
+  attr_accessible *(basic_attr_accessible), :as => :admin
 
   belongs_to :commentable, :polymorphic => true, :counter_cache => true
   belongs_to :user, :counter_cache => true

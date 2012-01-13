@@ -1,7 +1,9 @@
 
-= show_for resource do |role|
-  = role.attributes :id, :ancestry, :name, :code
-  = role.attribute :created_at do
+= show_for resource do |category|
+  = category.attributes :id, :name, :code
+  = category.attribute :parent_id do
+    = resource.parent.name
+  = category.attribute :created_at do
     = l resource.created_at
-  = role.attribute :updated_at do
+  = category.attribute :updated_at do
     = l resource.updated_at

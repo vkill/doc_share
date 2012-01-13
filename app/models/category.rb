@@ -9,10 +9,12 @@ class Category < ActiveRecord::Base
 
   validates :name, :code, :presence => true, :uniqueness => true
 
-  scope :ancestor_categories, where(:ancestry => nil)
+  basic_attr_accessible = [:parent, :name, :code]
+  attr_accessible *(basic_attr_accessible)
+  attr_accessible *(basic_attr_accessible), :as => :admin
 
-  def self.get_ancestor_categories_values
-    self.ancestor_categories.select([:id, :name]).map{|x| [x.name, x.id]}
+  def self.get_parent_categories_values
+    self.select([:id, :name]).map{|x| [x.name, x.id]}
   end
 
 end
