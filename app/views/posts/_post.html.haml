@@ -12,6 +12,9 @@
   
   .row
     .span10
-      = raw post.content
+      - if action_name == "index"
+        = raw truncate(post.content, :length => 200, :omission => (link_to t(:more_truncate), [post]))
+      - else
+        = raw post.content
   %br
   %br
