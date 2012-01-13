@@ -78,11 +78,11 @@ require 'airbrake/capistrano'
 ############# http://balazs.kutilovi.cz/blog/2011/12/04/deploying-resque-scheduler-with-capistrano/
 # after "deploy:start", "deploy:start_workers"
 after "deploy:stop", "deploy:stop_workers"
-after "deploy:restart", "deploy:restart_workers"
+# after "deploy:restart", "deploy:restart_workers"
 
 # after "deploy:start", "deploy:start_scheduler"
 after "deploy:stop", "deploy:stop_scheduler"
-after "deploy:restart", "deploy:restart_scheduler"
+# after "deploy:restart", "deploy:restart_scheduler"
 
 def run_remote_rake(rake_cmd)
   rake_args = ENV['RAKE_ARGS'].to_s.split(',')
@@ -116,7 +116,7 @@ end
 ############# Thinking Sphinx
 # after 'deploy:start', 'deploy:start_thinking_sphinx'
 after 'deploy:stop', 'deploy:stop_thinking_sphinx'
-after 'deploy:restart', 'deploy:restart_thinking_sphinx'
+# after 'deploy:restart', 'deploy:restart_thinking_sphinx'
 namespace :deploy do
   task :start_thinking_sphinx, :roles => :db do
     run_remote_rake "ts:config"
