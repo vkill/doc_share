@@ -20,9 +20,8 @@ describe Category do
   end
 
   context "define functions" do
-    it "should defined select collection, method name is self.get_ancestor_categories_values" do
-      category = Category.make!
-      Category.get_ancestor_categories_values.should include([category.name, category.id])
+    it "should defined select collection, method name is self.get_parent_categories_values" do
+      pending
     end
   end
 end

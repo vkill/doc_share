@@ -17,6 +17,10 @@ class Category < ActiveRecord::Base
     self.select([:id, :name]).map{|x| [x.name, x.id]}
   end
 
+  def self.get_descendants_categories_values
+    self.where{(ancestry != nil)}.select([:id, :name]).map{|x| [x.name, x.id]}
+  end
+
 end
 
 # == Schema Information
