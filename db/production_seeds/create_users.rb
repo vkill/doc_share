@@ -7,7 +7,7 @@ users = {
 }
 
 users.each do |name, attributes|
-  puts "create #{name}..."
+  puts "create #{name}... user"
   user = User.find_or_initialize_by_username(attributes[0].to_s, :email => attributes[1],
                                                             :password => '123456',
                                                             :password_confirmation => '123456'

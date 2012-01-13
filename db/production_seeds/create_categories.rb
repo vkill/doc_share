@@ -3,7 +3,7 @@
 categories = {
   "教育资源" => %w(考试资源 小学初中 高中教育 高等教育 外语学习 学术研究 其他教育资料),
   "经济管理" => %w(战略管理 市场营销 企业制度 行业分析 人力资源 生产运营 财会税务 项目管理 
-                经济金融 专利)
+                经济金融 专利),
   "娱乐生活" => %w(电子书籍  生活百科  爆笑  图片),
   "IT资料" => %w(常用软件 电子通讯 软件工程 解决方案 专题技术 手机软件 源代码 IT书籍 硬件技术 
                 电信技术 IT行业分析),
@@ -16,13 +16,13 @@ categories = {
 }
 
 categories.each do |parent_category_name, children_category_names|
-  puts "create #{parent_category} parent_category..."
+  puts "create #{parent_category_name} parent_category..."
   parent_category = Category.find_or_initialize_by_name(parent_category_name.to_s, :code => parent_category_name.to_url)
   parent_category.save!
   children_category_names.each do |child_category_name|
-    puts "create #{parent_category} parent_category..."
+    puts "create #{child_category_name} child_category..."
     child_category = Category.find_or_initialize_by_name(child_category_name.to_s, :code => child_category_name.to_url)
-    child_category.ancestry = parent_category
+    child_category.parent = parent_category
     child_category.save!
   end
 end
