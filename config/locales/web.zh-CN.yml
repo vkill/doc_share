@@ -245,6 +245,7 @@ zh-CN:
       form:
         remove_repo_file: 删除文件
         add_repo_file: 新增文件
+        select_options_category_id: 请先选择父分类
     
     backups:
       entries:

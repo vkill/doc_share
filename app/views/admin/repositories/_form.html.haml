@@ -10,9 +10,13 @@
         .span8
           = f.input :username, :input_html => { :class => "span4 disabled", :disabled => :disabled }
     .row
-      .span8
-        = f.input :category_id, :as => :select, :collection => Category.get_descendants_categories_values,
-                         :input_html => { :class => "span4" }
+      .span12
+        = f.input :category_id do
+          = f.input_field :category_ancestor_id, :collection => Category.ancestor_categories.map{|x| [x.name, x.id]},
+                                                  :class => "span4", :data => {:category_id_ancestor_select => true}
+          = f.input_field :category_id, :collection => @repository.get_category_values(),
+                                                  :class => "span4", :data => {:category_id_select => true},
+                                                  :prompt => t(".select_options_category_id")
     .row
       .span8
         = f.input :name, :input_html => { :class => "span4" }
