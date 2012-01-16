@@ -18,15 +18,11 @@
             = repository_reverse_watch_link(repository)
             = repository_fork_link(repository)
         - else
-          - [ t("repositories.helper.watch"),
-              t("repositories.helper.fork")].each do |text|
-            = link_to text,
-                      "javascript:void(0);",
-                      :class => "btn small",
-                      :rel => "twipsy",
-                      :data => { :backdrop => 'true', :controls_modal => "modal-sign-in", :keyboard => 'true',
-                                  :original_title => t(:require_sign_in), :placement => :below}
-
+          = modal_sign_in_link_with(t("repositories.helper.watch"))
+          = modal_sign_in_link_with(t("repositories.helper.fork"))
+          - content_for :modal do
+            = render_cell "bootstrap_::_controls_modal", :sign_in
+            
         = nbsp(4)
         = repository_watchers_count_link(repository)
         = repository_forks_count_link(repository)
@@ -41,6 +37,3 @@
       - repository.tag_list.each do |tag|
         = link_to tag, tagged_repositories_path(tag), :class => "btn primary small"
   .page-header
-
-- content_for :modal do
-  = render_cell "bootstrap_::_controls_modal", :sign_in

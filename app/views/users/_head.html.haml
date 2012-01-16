@@ -6,6 +6,9 @@
           - if logged_in? and me?(user)
             = link_to (image_tag user.gravatar_url(:size => 48), :class => "gravatar"),
                       user_page_path(user), :data => {:twipst_change_gravatar => true}
+            - content_for :popover do
+              = render_cell "bootstrap_::_twipsy_title", :change_gravatar
+              
           - else
             = link_to (image_tag user.gravatar_url(:size => 48), :class => "gravatar"),
                         user_page_path(user)
@@ -23,18 +26,13 @@
         = user_reverse_follow_link(user)
 
     - else
-      - [ t(".send_email"), t(".send_message"), t(".follow")].each do |text|
-        = link_to text,
-                  "javascript:void(0);",
-                  :class => "btn small",
-                  :rel => "twipsy",
-                  :data => { :backdrop => 'true', :controls_modal => "modal-sign-in", :keyboard => 'true',
-                              :original_title => t(:require_sign_in), :placement => :below}
+      = modal_sign_in_link_with(t(".send_message"))
+      = modal_sign_in_link_with(t("users.helper.follow"))
+      - content_for :modal do
+        = render_cell "bootstrap_::_controls_modal", :sign_in
 
-- content_for :popover do
-  = render_cell "bootstrap_::_twipsy_title", :change_gravatar
-- content_for :modal do
-  = render_cell "bootstrap_::_controls_modal", :sign_in
+
+
 
 .page-header
 

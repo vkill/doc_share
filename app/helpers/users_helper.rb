@@ -1,7 +1,7 @@
 module UsersHelper
 
   def user_link(user)
-    raw (link_to user.username, user_page_path(user.username))
+    raw link_to user.username, user_page_path(user.username)
   end
 
   def user_reverse_follow_link(user)

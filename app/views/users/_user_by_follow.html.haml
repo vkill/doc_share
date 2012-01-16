@@ -1,6 +1,11 @@
 .page-header
   %p.pull-right
-    = user_reverse_follow_link(user)
+    - if logged_in?
+      = user_reverse_follow_link(user)
+    - else
+      = modal_sign_in_link_with(t("users.helper.follow"))
+      - content_for :modal do
+        = render_cell "bootstrap_::_controls_modal", :sign_in
   %p
     = user_gravatar_link_by_follow(user)
     = user_link(user)

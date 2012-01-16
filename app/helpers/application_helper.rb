@@ -38,5 +38,14 @@ module ApplicationHelper
     end
   end
 
+  def modal_sign_in_link_with(text)
+    raw link_to text,
+                  "javascript:void(0);",
+                  :class => "btn small",
+                  :rel => "twipsy",
+                  :data => { :backdrop => 'true', :controls_modal => "modal-sign-in", :keyboard => 'true',
+                              :original_title => t(:require_sign_in), :placement => :below}
+  end
+
 end
 

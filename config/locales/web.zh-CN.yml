@@ -121,9 +121,8 @@ zh-CN:
       activity_users: 活跃会员
       recent_join_users: 最新加入会员
     head:
-      send_email: 发邮件
       send_message: 发消息
-      follow: 关注
+
     user_page:
       latest_repositories: 最新项目
       latest_activities: 最近事件

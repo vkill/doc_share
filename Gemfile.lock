@@ -360,6 +360,11 @@ GEM
       multi_json (~> 1.0.4)
       rubyzip
     sexp_processor (3.0.8)
+    shoulda (3.0.0.beta2)
+      shoulda-context (~> 1.0.0.beta1)
+      shoulda-matchers (~> 1.0.0.beta1)
+    shoulda-context (1.0.0)
+    shoulda-matchers (1.0.0)
     show_for (0.2.4)
     sinatra (1.3.1)
       rack (~> 1.3, >= 1.3.4)
@@ -485,6 +490,7 @@ DEPENDENCIES
   rr (~> 1.0.4)
   rspec-rails (~> 2.8)
   sass-rails (~> 3.1.4)
+  shoulda (~> 3.0.0.beta2)
   show_for (~> 0.2.4)
   simple_form!
   sorcery (~> 0.7.5)

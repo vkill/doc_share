@@ -116,6 +116,8 @@ group :test do
   gem "ffaker", "~> 1.10.1"
   gem "timecop", "~> 0.3.5"
   gem "valid_attribute", "~> 1.2.0"
+
+  gem "shoulda", "~> 3.0.0.beta2"
 end
 
 
