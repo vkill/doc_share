@@ -1,5 +1,7 @@
 module RepositoriesHelper
 
+  include ActsAsTaggableOn::TagsHelper
+
   def repository_link(repository)
     raw (link_to repository.name, user_repository_path(repository.username, repository.name))
   end

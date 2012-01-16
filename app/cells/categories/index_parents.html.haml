@@ -7,5 +7,5 @@
 .row
   - @categories.each do |category|
     .span3
-      %h4= link_to category.name, repositories_path("q[:category_name_eq]" => category.name)
+      %h4= link_to category.name, repositories_path("q[category_name_eq]" => category.name)
 

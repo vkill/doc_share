@@ -2,7 +2,7 @@
   .span10
     %h4= @category.name
   .span2.right
-    = link_to t(:more), [:categories]
+    = link_to t(:more), repositories_path("q[category_name_eq]" => @category.name)
 .page-header
 
 .row

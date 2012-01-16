@@ -40,6 +40,8 @@ class RepositoriesCell < Cell::Rails
   end
 
   def hot_tags
+    @tags = Repository.tag_counts_on(:tags).limit(30).order(["count desc"])
+    render
   end
 
   private
