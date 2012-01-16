@@ -1,5 +1,21 @@
 .row
   .span12
-    .row
-      .span
+    = render_cell :categories, :index_parents
+    %br
+    %br
+    = render_cell :repositories, :latest_with_category_jiao_yu_zi_yuan
+    %br
+    = render_cell :repositories, :latest_with_category_jing_ji_guan_li
+    %br
+    = render_cell :repositories, :latest_with_category_yu_le_sheng_huo
+    %br
+    = render_cell :repositories, :latest_with_category_itzi_liao
+    %br
+    = render_cell :repositories, :latest_with_category_zhuan_ye_zi_liao
+    %br
+    = render_cell :repositories, :latest_with_category_you_xi_zi_liao
+    %br
+    = render_cell :repositories, :latest_with_category_ban_gong_wen_shu
+
   .span4
+    = render_cell :posts, :latest_with_home_page

@@ -35,6 +35,11 @@ class Repository < ActiveRecord::Base
   end
   has_many :activities, :as => :activityable, :dependent => :destroy
   
+
+  scope :with_category, lambda{ |category|
+    ransack({:category_id_in=>category.child_ids}).result()
+  }
+
   def category_ancestor_id
     category.parent.try(:id) if category.present?
   end

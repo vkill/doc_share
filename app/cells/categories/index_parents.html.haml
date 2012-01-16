@@ -1,0 +1,11 @@
+.row
+  .span10
+    %h4= t("home.index.categories")
+  .span2.right
+    = link_to t(:more), [:categories]
+.page-header
+.row
+  - @categories.each do |category|
+    .span3
+      %h4= link_to category.name, repositories_path("q[:category_name_eq]" => category.name)
+

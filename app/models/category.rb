@@ -16,7 +16,7 @@ class Category < ActiveRecord::Base
   attr_accessible *(basic_attr_accessible)
   attr_accessible *(basic_attr_accessible), :as => :admin
 
-  scope :parents, where(:ancestry => nil)
+  scope :parents, where(:ancestry => nil).where{(name !~ "name_%")}
   scope :children, where{(ancestry != nil)}
 
 end

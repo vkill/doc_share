@@ -1,0 +1,11 @@
+.row
+  .span10
+    %h4= @category.name
+  .span2.right
+    = link_to t(:more), [:categories]
+.page-header
+
+.row
+  - @repositories.each do |repository|
+    .span2
+      %h4= link_to repository.name, user_repository_path(repository.username, repository.name)

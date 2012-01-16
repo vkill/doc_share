@@ -1,0 +1,11 @@
+.row
+  .span2
+    %h4= t("home.index.latest_posts")
+  .span2.right
+    = link_to t(:more), [:posts]
+.page-header
+
+%ul.unstyled
+  - @posts.each do |post|
+    %li
+      %h6= link_to post.title, [post]

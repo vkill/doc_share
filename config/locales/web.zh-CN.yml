@@ -111,6 +111,10 @@ zh-CN:
       about: 关于本站
       contact_us: 联系我们
     
+  home:
+    index:
+      categories: 文档分类
+      latest_posts: 最新文章
   
   users:
     helper:
