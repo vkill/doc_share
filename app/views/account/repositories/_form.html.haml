@@ -3,7 +3,14 @@
   = render "partials/simple_form_error_notification", :f => f
 
   = field_set_tag "" do
-    = f.association :category
+    /= f.association :category
+    = f.input :category_id do
+      = f.input_field :category_ancestor_id, :collection => Category.ancestor_categories.map{|x| [x.name, x.id]},
+                                              :class => "span4", :data => {:category_id_ancestor_select => true}
+      = f.input_field :category_id, :collection => @repository.get_category_values(),
+                                              :class => "span4", :data => {:category_id_select => true},
+                                              :prompt => t(".select_options_category_id")
+
     = f.input :name, :input_html => { :class => "span8" }
     = f.input :describtion, :input_html => { :class => "span8", :rows => 2 }
     = f.input :visibility, :as => :radio, :collection => Repository.get_visibility_values

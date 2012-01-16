@@ -7,7 +7,7 @@ zh-CN:
       repository:
         id: id
         user_id: 用户id
-        category_id: 分类id
+        category_id: 分类
         ancestry: 父类
         deleted: 已删除
         name: 名称

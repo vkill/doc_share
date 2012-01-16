@@ -13,13 +13,7 @@ class Category < ActiveRecord::Base
   attr_accessible *(basic_attr_accessible)
   attr_accessible *(basic_attr_accessible), :as => :admin
 
-  def self.get_parent_categories_values
-    self.select([:id, :name]).map{|x| [x.name, x.id]}
-  end
-
-  def self.get_descendants_categories_values
-    self.where{(ancestry != nil)}.select([:id, :name]).map{|x| [x.name, x.id]}
-  end
+  scope :ancestor_categories, where(:ancestry => nil)
 
 end
 

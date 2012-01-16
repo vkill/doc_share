@@ -39,6 +39,11 @@ DocShare::Application.routes.draw do
     resources :comments, :except => [:destroy]
   end
 
+  #
+  resources :categories, :only => [:index] do
+    get :index_children, :on => :collection
+  end
+
   #account namespace
   namespace :account do
     root :to => "main#dashboard"

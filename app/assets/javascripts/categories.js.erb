@@ -1,0 +1,18 @@
+$(document).ready(function() {
+  $("[data-category-id-ancestor-select]").each(function(){
+    $(this).bind("change", function() {
+      $.ajax({
+        type: "GET",
+        dataType: "json",
+        url: "<%= Rails.application.routes.url_helpers.index_children_categories_path() %>",
+        data: 'parent_category_id=' + $(this).val(),
+        success: function(data) {
+          $('[data-category-id-select]').empty();
+          $.each(data, function(i, n){
+            $('[data-category-id-select]').append("<option value=" + data[i][1] + ">" + data[i][0] + "</option>")
+          })
+        }
+      });
+    });
+  });
+});

@@ -177,6 +177,10 @@ zh-CN:
     repositories:
       new:
         create: 我要创建项目
+        
+      form:
+        select_options_category_id: 请先选择父分类
+        
     shared:
       navigation:
         dashboard: 控制面板

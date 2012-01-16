@@ -35,6 +35,21 @@ class Repository < ActiveRecord::Base
   end
   has_many :activities, :as => :activityable, :dependent => :destroy
   
+  def category_ancestor_id
+    category.parent.try(:id) if category.present?
+  end
+  def get_category_values
+    if category.present?
+      if category.parent.present?
+        category.parent.children.map{|x| [x.name, x.id]}
+      else
+        []
+      end
+    else
+      []
+    end
+  end
+
   validates :category_id, :presence => true
   validates :name, :presence => true,
                       :length => { :within => 6..30 }
