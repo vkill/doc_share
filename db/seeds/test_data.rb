@@ -21,8 +21,11 @@ vkill = User.find_by_email "vkill.net@gmail.com"
   Message.make!(:sent_messageable => hyp, :received_messageable => vkill)
 }
 
-10.times {
-  repository = Repository.make!(:user => vkill)
+# create categories
+load Rails.root.join("db", "production_seeds", "create_categories.rb")
+
+100.times {
+  repository = Repository.make!(:user => vkill, :category => Category.children.random(1).first)
   RepoFile.make!(:repository => repository)
   Repository.make!(:user => hyp, :parent => repository) if rand(2) == 0 #hyp fork vkill'repository
   target_follower = TargetFollower.make!(:follower => hyp, :target => repository) #hyp watch vkill'repository

@@ -5,7 +5,7 @@
   = field_set_tag "" do
     /= f.association :category
     = f.input :category_id do
-      = f.input_field :category_ancestor_id, :collection => Category.ancestor_categories.map{|x| [x.name, x.id]},
+      = f.input_field :category_ancestor_id, :collection => Category.parents.map{|x| [x.name, x.id]},
                                               :class => "span4", :data => {:category_id_ancestor_select => true}
       = f.input_field :category_id, :collection => @repository.get_category_values(),
                                               :class => "span4", :data => {:category_id_select => true},

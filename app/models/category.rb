@@ -3,6 +3,9 @@ class Category < ActiveRecord::Base
   #
   has_ancestry
 
+  #
+  include RandomScope
+
   attr_accessible :name, :code
 
   has_many :repositories, :dependent => :destroy
@@ -13,7 +16,8 @@ class Category < ActiveRecord::Base
   attr_accessible *(basic_attr_accessible)
   attr_accessible *(basic_attr_accessible), :as => :admin
 
-  scope :ancestor_categories, where(:ancestry => nil)
+  scope :parents, where(:ancestry => nil)
+  scope :children, where{(ancestry != nil)}
 
 end
 
