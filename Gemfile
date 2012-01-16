@@ -102,6 +102,8 @@ group :development do
   gem "chunky_png", "~> 1.2.5"
   gem "sprite-factory", "~> 1.4.1"
 
+  #
+  gem "request-log-analyzer", "~> 1.11.1"
 end
 
 group :test do

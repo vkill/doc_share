@@ -313,6 +313,7 @@ GEM
     redisk (0.2.2)
       redis (>= 0.1.1)
       redis-namespace (>= 0.1.0)
+    request-log-analyzer (1.11.1)
     responders (0.6.4)
     resque (1.19.0)
       multi_json (~> 1.0)
@@ -481,6 +482,7 @@ DEPENDENCIES
   rb-inotify (~> 0.8.8)
   redis-objects (~> 0.5.2)
   redis-store (~> 1.0.0.1)
+  request-log-analyzer (~> 1.11.1)
   responders (~> 0.6.4)
   resque (~> 1.19.0)
   resque-scheduler!
