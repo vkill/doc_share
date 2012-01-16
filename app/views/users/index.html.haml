@@ -1,6 +1,6 @@
 .row
   %p.pull-right
-    = t(".count_info", :count => (render_cell :users, :count)) 
+    = t(".count_info", :count => User.count) 
 
 %section#activity_users
   .page-header
