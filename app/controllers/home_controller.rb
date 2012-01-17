@@ -1,10 +1,12 @@
 class HomeController < ApplicationController
 
+  main_nav_highlight :root, :only => [:index]
   add_breadcrumb proc{|c| c.t("shared.topbar.main")}, :root_path
 
   def index
   end
 
+  # this not action
   def rescue_404
     if Rails.env.development?
       #env["vidibus-routing_error.request_uri"] form vidibus-routing_error

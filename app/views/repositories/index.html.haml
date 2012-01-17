@@ -2,17 +2,6 @@
   .row
     .span12
       - if @category.present?
-        %p
-          - if @category.parent?
-            = link_to t(".all"), categories_path
-            >>
-            = link_to @category.name, repositories_path(:category => @category.name)
-          - else
-            = link_to t(".all"), categories_path
-            >>
-            = link_to @category.parent.name, repositories_path(:category => @category.parent.name)
-            >>
-            = link_to @category.name, repositories_path(:category => @category.name)
         .col-class
           %h5
             %strong= @parent_category.name
@@ -23,8 +12,6 @@
               - else
                 %li= link_to child_category.name, repositories_path(:category => child_category.name)
       - else
-        %p
-          = link_to t(".all"), categories_path
         .col-class
           %h5
             %strong= t(".all")

@@ -11,9 +11,13 @@ class RepositoriesController < ApplicationController
   before_filter :find_repository, :except => [:tags, :tagged, :index, :index_by_user]
   before_filter :set_git_tag, :only => [:tree, :blob, :commits]
 
-  add_breadcrumb proc{|c| c.t("shared.topbar.main")}, :root_path
-  add_breadcrumb proc{|c| c.t("shared.topbar.repositories")}, "", :only => [:index]
+  main_nav_highlight :tags, :only => [:tags, :tagged]
+  main_nav_highlight :categories, :only => [:index]
 
+  add_breadcrumb proc{|c| c.t("shared.topbar.main")}, :root_path
+  add_breadcrumb proc{|c| c.t("shared.topbar.tags")}, :tags_repositories_path, :only => [:tags, :tagged]
+  add_breadcrumb proc{|c| c.t("shared.topbar.categories")}, :categories_path, :only => [:index]
+  
   # GET /repositories/tags.json
   def tags
     @tags = Repository.tag_counts_on(:tags).where("tags.name LIKE ?", "%#{params[:q]}%")
@@ -24,6 +28,7 @@ class RepositoriesController < ApplicationController
   # GET /repositories/tagged/tag1+tag2
   def tagged
     if params[:tags_name]
+      add_breadcrumb(params[:tags_name])
       @repositories = Repository.includes([:user, :category]).public_repo.tagged_with(params[:tags_name].split("+")).page(params[:page])
     else
       redirect_to [:repositories]
@@ -35,9 +40,12 @@ class RepositoriesController < ApplicationController
     if @category.present?
       if @category.parent?
         @parent_category = @category
+        add_breadcrumb(@parent_category.name, repositories_path(:category => @parent_category.name))
         @q = @repositories.ransack(:category_id_in=>@category.child_ids)
       else
         @parent_category = @category.parent
+        add_breadcrumb(@parent_category.name, repositories_path(:category => @parent_category.name))
+        add_breadcrumb(@category.name, repositories_path(:category => @category.name))
         @q = @repositories.ransack(:category_code_eq=>@category.code)
       end
     else
@@ -105,7 +113,7 @@ class RepositoriesController < ApplicationController
   private
     def set_layout
       case params[:action].to_sym
-      when :index
+      when :tags, :tagged, :index
         'application'
       else
         'users'

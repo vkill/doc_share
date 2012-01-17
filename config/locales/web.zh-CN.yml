@@ -75,6 +75,7 @@ zh-CN:
   system: 系统
   history: 历史
   collection_empty: 没有数据
+  read_post: 浏览
   
   twipsy:
     sort_link: 点击可以排序哦
@@ -89,7 +90,9 @@ zh-CN:
   shared:
     topbar:
       main: Home
-      repositories: 项目
+      root: 首页
+      categories: 项目分类
+      tags: 项目Tags
       users: 会员
       blog: Blog
       search: 搜索
@@ -113,8 +116,8 @@ zh-CN:
     
   home:
     index:
-      categories: 文档分类
-      latest_posts: 最新文章
+      categories: 项目分类
+      latest_posts: 最新Blog
       hot_tags: 热门标签
   
   users:
@@ -180,7 +183,8 @@ zh-CN:
       comments_size: "%{size} 条回复"
     show:
       comments_size: "%{size} 条回复"
-          
+  
+      
   account:
     repositories:
       new:

@@ -21,7 +21,7 @@ class UsersController < ApplicationController
   add_breadcrumb proc{|c| c.t("shared.topbar.profile_center")}, proc{|c| c.account_root_path}, :only => sorcery_actions
   add_breadcrumb proc{|c| c.t("shared.topbar.edit_profile")}, "", :only => sorcery_actions
 
-
+  main_nav_highlight :users, :only => [:index]
 
 
   #################################################################

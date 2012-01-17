@@ -111,6 +111,9 @@ class ApplicationController < ActionController::Base
         } ,options.extract_options!.slice(:only, :except)
       end
     end
+    def add_breadcrumb(name, href='')
+      @breadcrumbs << [name, href]
+    end
 
 
     def render_site_closed

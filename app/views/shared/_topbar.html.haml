@@ -6,12 +6,17 @@
         %h3
           = link_to SiteConfig.q(:site_name), root_path
         
-        %ul.nav
-          %li
-            = link_to t(".repositories"), repositories_path
-          %li
+        %ul.nav          
+          %li{:class => @main_nav == :categories ? :active : nil}
+            = link_to t(".categories"), categories_path
+          
+          %li{:class => @main_nav == :tags ? :active : nil}
+            = link_to t(".tags"), tags_repositories_path
+
+          %li{:class => @main_nav == :users ? :active : nil}
             = link_to t(".users"), users_path
-          %li
+
+          %li{:class => @main_nav == :blog ? :active : nil}
             = link_to t(".blog"), posts_path
 
         %ul.nav.secondary-nav

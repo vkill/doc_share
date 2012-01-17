@@ -2,10 +2,18 @@ class CommentsController < ApplicationController
 
   layout :set_layout
 
+  respond_to :html, :only => [:new, :create, :edit, :update]
+  respond_to :json, :only => [:index, :show]
+
   before_filter :require_login, :except => [:index, :new]
   before_filter :set_current_user, :only => [:create]
   before_filter :find_commentable
   before_filter :find_comment, :except => [:index, :new, :create]
+
+  add_breadcrumb proc{|c| c.t("shared.topbar.main")}, :root_path
+  add_breadcrumb proc{|c| "#{Comment.model_name.human}"}, "javascript:void(0)"
+  add_breadcrumb proc{|c| c.t("new")}, "", :only => [:new, :create]
+  add_breadcrumb proc{|c| c.t("edit")}, "", :only => [:edit, :update]
 
   def index
     @comments = @commentable.comments.order("created_at").page(params[:page])
@@ -35,7 +43,7 @@ class CommentsController < ApplicationController
   private
     def set_layout
       if params[:post_id]
-        'blog'
+        'application'
       else
         raise "don't found commentable"
       end
