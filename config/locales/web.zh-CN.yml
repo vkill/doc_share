@@ -76,6 +76,8 @@ zh-CN:
   history: 历史
   collection_empty: 没有数据
   read_post: 浏览
+  notice: Notice
+  
   
   twipsy:
     sort_link: 点击可以排序哦
@@ -170,6 +172,9 @@ zh-CN:
       watchers: 关注%{repository_name}的人
     paths_link:
       ROOT: ROOT
+      
+    tagged:
+      use_help: "如果想搜索多个tag，请使用下列方式：%{url}"
     
   feedbacks:
     index:

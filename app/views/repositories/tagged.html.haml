@@ -1,8 +1,11 @@
 %section
   .row
     .span12
-      
-      = render_cell :repositories, :hot_tags
+      .note
+        %span.label.notice= t(:notice)
+        = raw t(".use_help", :url => (link_to tagged_repositories_url("tag1+tag2"),tagged_repositories_url("tag1+tag2")))
+
+      %br
 
       - if @repositories.present?
         = render @repositories, :link_full => true

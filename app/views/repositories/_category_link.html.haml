@@ -1,0 +1,9 @@
+= ta(Repository, :category)
+- if repository.category.parent.present?
+  = link_to repository.category.parent.name, repositories_path(:category => repository.category.parent.name)
+  = "/"
+  = link_to repository.category.name, repositories_path(:category => repository.category.name)
+- else
+  = link_to "", repositories_path
+  = "/"
+  = link_to repository.category.name, repositories_path(:category => repository.parent.name)
