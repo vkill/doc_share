@@ -25,7 +25,6 @@ class RepositoriesController < ApplicationController
   def tagged
     if params[:tags_name]
       @repositories = Repository.includes([:user, :category]).public_repo.tagged_with(params[:tags_name].split("+")).page(params[:page])
-      render :index
     else
       redirect_to [:repositories]
     end
@@ -35,8 +34,10 @@ class RepositoriesController < ApplicationController
     @category = Category.find_by_name(params[:category])
     if @category.present?
       if @category.parent?
+        @parent_category = @category
         @q = @repositories.ransack(:category_id_in=>@category.child_ids)
       else
+        @parent_category = @category.parent
         @q = @repositories.ransack(:category_code_eq=>@category.code)
       end
     else

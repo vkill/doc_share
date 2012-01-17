@@ -1,0 +1,14 @@
+%section
+  .row
+    .span12
+      
+      = render_cell :repositories, :hot_tags
+
+      - if @repositories.present?
+        = render @repositories, :link_full => true
+      - else
+        = collection_empty(:repositories)
+      = render 'partials/pagination', :resources => @repositories
+    .span4.center
+      %h1
+        = render_cell :repositories, :new_link

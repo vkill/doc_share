@@ -1,11 +1,36 @@
 %section
   .row
     .span12
-      = t(".parent_category")
-      = link_to t(".all_parent_category"), "" 
-      - Category.parents.each do |parent_category|
-        = parent_category
-
+      - if @category.present?
+        %p
+          - if @category.parent?
+            = link_to t(".all"), categories_path
+            >>
+            = link_to @category.name, repositories_path(:category => @category.name)
+          - else
+            = link_to t(".all"), categories_path
+            >>
+            = link_to @category.parent.name, repositories_path(:category => @category.parent.name)
+            >>
+            = link_to @category.name, repositories_path(:category => @category.name)
+        .col-class
+          %h5
+            %strong= @parent_category.name
+          %ul.clear
+            - @parent_category.children.each do |child_category|
+              - if !@category.parent? and @category == child_category
+                %li.cur= child_category.name
+              - else
+                %li= link_to child_category.name, repositories_path(:category => child_category.name)
+      - else
+        %p
+          = link_to t(".all"), categories_path
+        .col-class
+          %h5
+            %strong= t(".all")
+          %ul.clear
+            - Category.parents.each do |parent_category|
+              %li= link_to parent_category.name, repositories_path(:category => parent_category.name)
 
       - if @repositories.present?
         = render @repositories, :link_full => true

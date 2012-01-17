@@ -155,6 +155,9 @@ zh-CN:
       forked: 已拷贝
       forked_info: 你已经拷贝过此项目，点击跳转到此项目
     
+    index:
+      all: 全部分类
+    
     index_by_user:
       repositories: "%{username}的项目"
     head:
