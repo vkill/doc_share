@@ -47,7 +47,7 @@ class RepositoriesCell < Cell::Rails
   private
     def find_category_and_repositories(category_code_name)
       @category = Category.find_by_code!(category_code_name)
-      @repositories = Repository.with_category(@category).limit(6)
+      @repositories = Repository.public_repo.with_category(@category).limit(6)
     end
 
 end
