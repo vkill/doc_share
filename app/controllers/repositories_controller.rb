@@ -16,10 +16,8 @@ class RepositoriesController < ApplicationController
 
   # GET /repositories/tags.json
   def tags
-    @tags = Repository.tag_counts_on(:tags).where("tags.name LIKE ?", "%#{params[:q]}%") 
-    respond_to do |format|
-      format.json { render :json => @tags.map(&:attributes) }
-    end
+    @tags = Repository.tag_counts_on(:tags).where("tags.name LIKE ?", "%#{params[:q]}%")
+    respond_with @tags
   end
 
   # GET /repositories/tagged/tag1
@@ -34,6 +32,17 @@ class RepositoriesController < ApplicationController
   end
 
   def index
+    @category = Category.find_by_name(params[:category])
+    if @category.present?
+      if @category.parent?
+        @q = @repositories.ransack(:category_id_in=>@category.child_ids)
+      else
+        @q = @repositories.ransack(:category_code_eq=>@category.code)
+      end
+    else
+      @q = @repositories.ransack()
+    end
+    @repositories = @q.result()
     @repositories = @repositories.order("created_at DESC").page(params[:page])
   end
 

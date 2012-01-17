@@ -19,6 +19,13 @@ class Category < ActiveRecord::Base
   scope :parents, where(:ancestry => nil).where{(name !~ "name_%")}
   scope :children, where{(ancestry != nil)}
 
+  def self.list
+    Hash[ Category.parents.map{|parent_category| [parent_category, parent_category.children]} ] 
+  end
+
+  def parent?
+    self.class.parents.exists?(self)
+  end
 end
 
 # == Schema Information

@@ -1,0 +1,10 @@
+.row
+  .span2
+    %h4= t("home.index.hot_tags")
+  .span2.right
+    = link_to t(:more), tags_repositories_path()
+.page-header
+
+.hot_tags
+  - @tags.each do |tag|
+    = link_to tag.name, tagged_repositories_path(tag.name), :class => "btn primary small"

@@ -10,6 +10,8 @@
 %p
   %em
     = t(:updated_at) << ":" << l(repository.updated_at, :format => :long_only_date)
+    |
+    = ta(Repository, :category) << ":" << (repository.category.try(:parent).try(:name) || "") << "/" << repository.category_name
 %p
   = render "repositories/tag_list", :repository => repository
 

@@ -4,5 +4,4 @@ class CategoriesCell < Cell::Rails
     @categories = Category.parents
     render
   end
-
 end

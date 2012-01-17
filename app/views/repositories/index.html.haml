@@ -1,6 +1,12 @@
 %section
   .row
     .span12
+      = t(".parent_category")
+      = link_to t(".all_parent_category"), "" 
+      - Category.parents.each do |parent_category|
+        = parent_category
+
+
       - if @repositories.present?
         = render @repositories, :link_full => true
       - else

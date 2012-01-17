@@ -1,0 +1,10 @@
+.row
+  .span12
+    .row
+      - @categories_list.each do |parent_category, children_categories|
+        .span6
+          %p= link_to parent_category.name, repositories_path(:category => parent_category.name)
+          %p
+            - children_categories.each do |child_category|
+              = link_to child_category.name, repositories_path(:category => child_category.name)
+  .span4

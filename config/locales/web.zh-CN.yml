@@ -115,6 +115,7 @@ zh-CN:
     index:
       categories: 文档分类
       latest_posts: 最新文章
+      hot_tags: 热门标签
   
   users:
     helper:
