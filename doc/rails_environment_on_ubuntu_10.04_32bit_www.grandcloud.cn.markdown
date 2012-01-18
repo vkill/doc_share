@@ -28,6 +28,7 @@ Create user 'doc_share', passowrd is 'doc_share'
     # /etc/init.d/postgresql-8.4 start
     # su postgres
     $ psql postgres
+    postgres=# create language plpgsql;
     postgres=# alter user postgres password 'xxxxxx';
     postgres=# create user doc_share password 'doc_share';
     postgres=# create database doc_share_production;
@@ -35,7 +36,11 @@ Create user 'doc_share', passowrd is 'doc_share'
     postgres=# \q
     $ psql -d doc_share_production -U doc_share -W
     $ exit
-    
+
+if database created, error ' language "plpgsql" does not exist '
+
+    $ createlang plpgsql doc_share_production
+
 if error ' psql: FATAL:  Ident authentication failed for user "doc_share" '
 
     # vi /etc/postgresql/8.4/main/pg_hba.conf
