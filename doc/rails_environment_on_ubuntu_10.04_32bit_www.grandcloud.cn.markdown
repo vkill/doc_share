@@ -276,7 +276,12 @@ if your install gitolite on localhost, you can copy rails_apps_deploy.pub to git
           listen 80;
           server_name docshare.vkill.net;
           root /var/rails_apps/doc_share/current/public;
-          passenger_enable on;
+          location ~* ^/(assets|system)/ {
+            expires max;
+            add_header Cache-Control public;
+            break;
+          }
+          passenger_enabled on;
           rails_env production;
         }
     # /etc/init.d/nginx restart
