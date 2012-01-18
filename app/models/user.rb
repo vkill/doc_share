@@ -6,7 +6,7 @@ class User < ActiveRecord::Base
 
   #
   include Gravtastic
-  gravtastic
+  gravtastic :default => "monsterid"
 
   #
   acts_as_paranoid
