@@ -7,6 +7,8 @@ Doc Discover and Share
 
 ##Supported versions
 
+if your use ubuntu, see doc/rails_environment_on_ubuntu_10.04_32bit_www.grandcloud.cn.markdown
+
 * Postgresql should be installed and running
 
 * Redis should be installed and running

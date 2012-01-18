@@ -5,30 +5,18 @@ en:
       error: "Error:"
       errors:
         unknow: "Unknow"
+        maxFileSize: File is too big
+        minFileSize: File is too small
+        acceptFileTypes: Filetype not allowed
+        maxNumberOfFiles: Max number of files exceeded
+        uploadedBytes: Uploaded bytes exceed file size
+        emptyResult: Empty file upload result
+          
       upload:
         untitled: Untitled
-        errors:
-          maxFileSize: File is too big
-          minFileSize: File is too small
-          acceptFileTypes: Filetype not allowed
-          maxNumberOfFiles: Max number of files exceeded
+
         start: Start
         cancel: Cancel
 
-      download:
-        errors:
-          "1": File exceeds upload_max_filesize (php.ini directive)
-          "2": File exceeds MAX_FILE_SIZE (HTML form directive)
-          "3": File was only partially uploaded
-          "4": No File was uploaded
-          "5": Missing a temporary folder
-          "6": Failed to write file to disk
-          "7": File upload stopped by extension
-          maxFileSize: File is too big
-          minFileSize: File is too small
-          acceptFileTypes: Filetype not allowed
-          maxNumberOfFiles: Max number of files exceeded
-          uploadedBytes: Uploaded bytes exceed file size
-          emptyResult: Empty file upload result
+      download:          
         delete: Delete
-
