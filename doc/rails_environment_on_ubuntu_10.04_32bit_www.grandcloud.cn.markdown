@@ -3,8 +3,9 @@
 Note: '#' is root exec, '$' is general user exec.
 
 links:
+  https://help.ubuntu.com/community/Git
 
-    https://help.ubuntu.com/community/Git
+
 
 
 ##Install
@@ -17,18 +18,30 @@ links:
 
 ###Install postgresql and configure
 
-Create user 'railsapp', passowrd is 'railsapp'
+Links:
+  http://www.54xue.com/man/PostgreSQL8.3/
+
+Create user 'doc_share', passowrd is 'doc_share'
 
     # apt-get install postgresql libpq-dev
     # update-rc.d postgresql-8.4 defaults
     # /etc/init.d/postgresql-8.4 start
     # su postgres
     $ psql postgres
-    postgres=# alter user postgres with password 'xxxxxx';
-    postgres=# create user railsapp with password 'railsapp';
+    postgres=# alter user postgres password 'xxxxxx';
+    postgres=# create user doc_share password 'doc_share';
     postgres=# create database doc_share_production;
-    postgres=# grant all privileges on database doc_share_production to railsapp;
+    postgres=# grant all privileges on database doc_share_production to doc_share;
     postgres=# \q
+    $ psql -d doc_share_production -U doc_share -W
+    $ exit
+    
+if error ' psql: FATAL:  Ident authentication failed for user "doc_share" '
+
+    # vi /etc/postgresql/8.4/main/pg_hba.conf
+        replace "ident" by either "md5"
+    # /etc/init.d/postgresql-8.4 restart
+    
     
 ###Install redis-server
 
@@ -102,13 +115,17 @@ Solve install nokogiri error "libxslt is missing"
     
 Config and use RVM
     
-    # echo [[ -s "/usr/local/rvm/scripts/rvm" ]] && source "/usr/local/rvm/scripts/rvm" >> ~/.bashrc
+    # echo '[[ -s "/usr/local/rvm/scripts/rvm" ]] && source "/usr/local/rvm/scripts/rvm"' >> ~/.bashrc
     # source ~/.bashrc
     # rvm --default use 1.9.3
     # gem sources --remove http://rubygems.org
     # gem sources -a http://ruby.taobao.org/
     # vi ~/.gemrc
       gem: --no-ri --no-rdoc
+
+###Install bundler
+  
+    # gem i bundler --pre
 
 ###Install passenger
 
@@ -119,7 +136,7 @@ Config and use RVM
     # chmod +x /etc/init.d/nginx
     # update-rc.d nginx defaults
 
-###Install gitolite(if you demand)
+###Install gitolite(if you need)
     
     # useradd -m gitolite
     # passwd gitolite
@@ -134,6 +151,9 @@ Config and use RVM
     $ touch repositories/testing.git/git-daemon-export-ok # test git-daemon
     $ exit
     # cd ~
+    
+Install git-daemon and start it.
+
     # apt-get install git-daemon-run
     
 service start
@@ -162,25 +182,35 @@ Create rails app with gitolite
     $ git clone gitolite@localhost:gitolite-admin
     $ cd gitolite-admin
     $ vi keydir/vkill.pub
-      your id_rsa.pub content
+      your id_rsa.pub content on __development machine__
     $ vi conf/gitolite.conf
-      repo doc_share
-           RW+ = vkill
+        repo    doc_share
+                RW+     = vkill
     $ git add keydir
     $ git commit -a -m "add repo doc_share and vkill key, change doc_share owner vkill"
     $ git push
     $ cd ~
     
-Now, your can test it.
+Now, your can test it on __development machine__.
+
+    # git clone gitolite@git.vkill.net:doc_share
+    
+If ok, your can modify your existed repository remote url and try git push it on __development machine__.
+    
+    # git remote set-url origin gitolite@git.vkill.net:doc_share
+    # git remote show origin
+    # git push origin master:master
     
 ###Clear tmp
 
     # mkdir /var/download
     # mv coreseek-4.1-beta.tar.gz redis-2.4.5.tar.gz /var/download
-    
+
+
+
 ##Configure
 
-###Create user railsapp
+###Create user railsapp, use it cap rails apps
   
 Create
 
@@ -194,16 +224,132 @@ Config and use RVM, see Install RVM
 Generate deploy ssh-key
 After copy ~/.ssh/id_rsa.pub to (your github repository=>admin=>deploy keys) or other gitolite/gitosis
     
-    $ ssh-keygen -C rails_apps_deploy_key
+    $ ssh-keygen -C rails_apps_deploy
+    $ exit
+    
+Add your id_rsa.pub content on __development machine__ to ~/.ssh/authorized_keys
+    
+    $ vi ~/.ssh/authorized_keys
+    $ chmod 644 .ssh/authorized_keys
+    
+if your install gitolite on localhost, you can copy rails_apps_deploy.pub to gitolite-admin/keydir
+
+    # cp /home/railsapp/.ssh/id_rsa.pub /home/gitolite/gitolite-admin/keydir/rails_apps_deploy.pub
+    # chown gitolite:gitolite /home/gitolite/gitolite-admin/keydir/rails_apps_deploy.pub 
+    # su - gitolite
+    $ cd gitolite-admin
+    $ vi conf/gitolite.conf
+        repo    doc_share
+                RW+     = vkill
+                R       = rails_apps_deploy
+    $ git add keydir
+    $ git commit -a -m "add rails_apps_deploy read doc_share"
+    $ git push
+    $ exit
+    # su - railsapp
+    $ git clone gitolite@git.vkill.net:doc_share
+    $ rm -rf doc_share
     $ exit
     
 ###Create rails apps directory
     
     # mkdir /var/rails_apps
+    # chown railsapp:railsapp /var/rails_apps
+  
+
+###Add rails app to nginx
+
+    # vi /opt/nginx/conf/nginx.conf
+        ...
+        http {
+          ...
+          include vhosts/*.conf;
+          ...
+    # mkdir /opt/nginx/conf/vhosts
+    # vi /opt/nginx/conf/vhosts/doc_share.conf
+        server {
+          listen 80;
+          server_name docshare.vkill.net;
+          root /var/rails_apps/doc_share/current/public;
+          passenger_enable on;
+          rails_env production;
+        }
+    # /etc/init.d/nginx restart
+
+##Development Machine cap rails app
+
+more information, see Rails Root config/deploy.rb
+
+###First, setup
+
+on __development machine__
+
+    # cap deploy:setup
     
+on __production machine__, `# ssh railsapp@58.215.176.191`
     
-    
-    
-    
-    
-1
+    $ ls /var/rails_apps/doc_share
+    $ cd /var/rails_apps/doc_share
+
+create rails app config files
+
+    $ mkdir shared/config
+    $ vi shared/config/database.yml
+        common: &common
+          adapter: postgresql
+          encoding: unicode
+          pool: 5
+          username: doc_share
+          password: doc_share
+        development:
+          <<: *common
+          database: doc_share_development
+        test:
+          <<: *common
+          database: doc_share_test
+        production:
+          <<: *common
+          database: doc_share_production
+    $ vi shared/config/redis.yml
+        development: localhost:6379
+        test: localhost:6379
+        production: localhost:6379
+    $ vi shared/config/smtp_settings.yml
+        common: &common
+          address: smtp.qq.com
+          port: 25
+          domain: qq.com
+          authentication: plain
+          user_name: 137518792
+          password: hyp123
+        development:
+          <<: *common
+        test:
+          <<: *common
+        production:
+          <<: *common
+
+###Then, update code; generate base db data; restart passenger; start resque_worker, resque_scheduler, thinking_sphinx
+
+on __development machine__
+
+    # cap deploy:cold
+    # cap deploy:db:seed
+    # cap deploy:restart
+    # cap deploy:start_workers
+    # cap deploy:start_scheduler
+    # cap deploy:start_thinking_sphinx
+
+###Other deploy
+
+    # cap deploy:stop_workers
+    # cap deploy:stop_scheduler
+    # cap deploy:stop_thinking_sphinx
+    # cap deploy:restart_workers
+    # cap deploy:restart_scheduler
+    # cap deploy:restart_thinking_sphinx
+
+
+
+
+.

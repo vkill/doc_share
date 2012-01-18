@@ -1,8 +1,6 @@
 # Load RVM's capistrano plugin.
 $:.unshift(File.expand_path('./lib', ENV['rvm_path'])) # Add RVM's lib directory to the load path.
 require "rvm/capistrano"                  # Load RVM's capistrano plugin.
-set :rvm_ruby_string, '1.9.3@doc_share'        # Or whatever env you want it to run in.
-set :rvm_type, :user
 
 
 # Load bundler's capistrano plugin.
@@ -12,17 +10,17 @@ require "bundler/capistrano"
 
 set :application, "doc_share"
 
-set :repository, "git@github.com:vkill/doc_share.git"
+set :repository, "gitolite@git.vkill.net:doc_share"
 set :branch, "master"
 
 set :scm, :git
 # Or: `accurev`, `bzr`, `cvs`, `darcs`, `git`, `mercurial`, `perforce`, `subversion` or `none`
 
-set :deploy_to, "/home/railsapp/rails_apps/#{application}"
+set :deploy_to, "/var/rails_apps/#{application}"
 set :deploy_via, :remote_cache
 
 
-server "58.215.184.38", :app, :web, :db, :primary => true
+server "58.215.176.191", :app, :web, :db, :primary => true
 #or
 #role :web, "127.0.0.1"                          # Your HTTP server, Apache/etc
 #role :app, "127.0.0.1"                          # This may be the same as your `Web` server
