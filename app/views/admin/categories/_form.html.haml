@@ -1,7 +1,7 @@
 = simple_form_for([:admin, resource], :wrapper => :inline) do |f|
 
   = field_set_tag "" do
-    = f.input :parent_id, :as => :select, :collection => Category.get_parent_categories_values(),
+    = f.input :parent_id, :as => :select, :collection => Category.parents.map{|x| [x.name, x.id]},
                           :input_html => { :class => "span4" }
     = f.input :name, :required => true, :autofocus => true, :input_html => { :class => "span4" }
     = f.input :code, :required => true, :input_html => { :class => "span4" }

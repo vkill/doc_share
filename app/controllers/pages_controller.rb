@@ -2,6 +2,9 @@ class PagesController < HighVoltage::PagesController
 
   layout :layout_for_page
 
+  add_breadcrumb proc{|c| c.t("shared.topbar.main")}, :root_path
+  
+
   private
 
     def layout_for_page
@@ -9,7 +12,7 @@ class PagesController < HighVoltage::PagesController
       when ""
         ''
       else
-        'blog'
+        'application'
       end
     end
 
