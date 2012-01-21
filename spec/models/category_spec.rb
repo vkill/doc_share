@@ -2,26 +2,45 @@ require 'spec_helper'
 
 describe Category do
 
-  context "valid_attribute" do
+  subject { Category.make!() }
+  let(:parent_category) { Category.make!(:name => "parent_#{object_id}", :code => "parent_#{object_id}") }
+  let(:child_category) { Category.make!(:name => "child_#{object_id}", :code => "child_#{object_id}",
+                                        :parent => parent_category) }
 
-    before { Category.create(:name => 'test', :code => 'test') }
+  context "shoulda" do
+    it { should have_many(:repositories) }
 
-    it { should have_valid(:repositories).when([ Repository.make! ]) }
+    it { should allow_mass_assignment_of(:parent) }
+    it { should allow_mass_assignment_of(:name) }
+    it { should allow_mass_assignment_of(:code) }
 
-    it { should have_valid(:name).when('test_123') }
-    it { should_not have_valid(:name).when(nil, 'test') }
-    it { should have_valid(:code).when('test_123') }
-    it { should_not have_valid(:code).when(nil, 'test') }
-
+    it { should validate_presence_of(:name) }
+    it { should validate_presence_of(:code) }
+    context "uniqueness" do
+      before(:each) { Category.create(:name => 'category_name', :code => 'category_code') }
+      it { should validate_uniqueness_of(:name) }
+      it { should validate_uniqueness_of(:code) }
+    end
   end
 
-  context "define scopes" do
-    pending
+  context "scopes" do
+    
+    it { Category.random(1).first.should be_kind_of(Category) }
+    it { Category.parents.should include(parent_category) }
+    it { Category.children.should include(child_category) }
   end
 
-  context "define functions" do
-    it "should defined select collection, method name is self.get_parent_categories_values" do
-      pending
+  context "methods" do
+    it "should has self.list" do
+      parent_category.reload
+      list = Category.list
+      list.keys.should include(parent_category)
+      list[parent_category].should include(child_category)
+    end
+
+    it "should has parent?" do
+      parent_category.parent?.should be_true
+      child_category.parent?.should be_false
     end
   end
 end

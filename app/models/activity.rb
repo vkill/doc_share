@@ -5,7 +5,7 @@ class Activity < ActiveRecord::Base
             :forked_repository,
             ]
 
-  #attribute_enums
+  #attribute_enums gem
   attribute_enums :action, :in => ACTIONS
 
   belongs_to :user

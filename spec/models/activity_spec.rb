@@ -41,7 +41,7 @@ describe Activity do
     end
   end
 
-  context "function" do
+  context "methods" do
     it "should has self.log!" do
       lambda { @activity_log = Activity.log!(:user => user, :action => :created_repository,
                     :activity_target => repository) }.should_not raise_error

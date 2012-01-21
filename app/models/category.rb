@@ -1,20 +1,18 @@
 class Category < ActiveRecord::Base
 
-  #
+  #ancestry gem
   has_ancestry
 
   #
   include RandomScope
 
-  attr_accessible :name, :code
-
   has_many :repositories, :dependent => :destroy
-
-  validates :name, :code, :presence => true, :uniqueness => true
 
   basic_attr_accessible = [:parent, :name, :code]
   attr_accessible *(basic_attr_accessible)
   attr_accessible *(basic_attr_accessible), :as => :admin
+
+  validates :name, :code, :presence => true, :uniqueness => true
 
   scope :parents, where(:ancestry => nil).where{(name !~ "name_%")}
   scope :children, where{(ancestry != nil)}
