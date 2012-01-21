@@ -9,6 +9,21 @@ describe Activity do
   context "shoulda" do
     it { should belong_to(:user) }
     it { should belong_to(:activityable) }
+
+    it { should allow_mass_assignment_of(:user_id) }
+    it { should allow_mass_assignment_of(:user) }
+    it { should allow_mass_assignment_of(:user_name) }
+    it { should allow_mass_assignment_of(:action) }
+    it { should allow_mass_assignment_of(:activityable) }
+    it { should allow_mass_assignment_of(:activityable_id) }
+    it { should allow_mass_assignment_of(:activityable_type) }
+    it { should allow_mass_assignment_of(:user_id).as(:admin) }
+    it { should allow_mass_assignment_of(:user).as(:admin) }
+    it { should allow_mass_assignment_of(:user_name).as(:admin) }
+    it { should allow_mass_assignment_of(:action).as(:admin) }
+    it { should allow_mass_assignment_of(:activityable).as(:admin) }
+    it { should allow_mass_assignment_of(:activityable_id).as(:admin) }
+    it { should allow_mass_assignment_of(:activityable_type).as(:admin) }
   end
 
   context "delegate" do

@@ -11,6 +11,11 @@ class Activity < ActiveRecord::Base
   belongs_to :user
   belongs_to :activityable, :polymorphic => true
 
+  basic_attr_accessible = [:user_id, :user, :user_name, :action,
+                           :activityable, :activityable_id, :activityable_type]
+  attr_accessible *(basic_attr_accessible)
+  attr_accessible *(basic_attr_accessible), :as => :admin
+
   delegate :email, :username, :gravatar_url , :to => :user
 
   scope :about_user, lambda { |user| where{(user_id >> user.following_user_ids) | \

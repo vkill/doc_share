@@ -9,7 +9,7 @@ class Category < ActiveRecord::Base
   has_many :repositories, :dependent => :destroy
 
   basic_attr_accessible = [:parent, :name, :code]
-  attr_accessible 
+  attr_accessible *(basic_attr_accessible)
   attr_accessible *(basic_attr_accessible), :as => :admin
 
   validates :name, :code, :presence => true, :uniqueness => true

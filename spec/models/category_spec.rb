@@ -21,6 +21,13 @@ describe Category do
       it { should validate_uniqueness_of(:name) }
       it { should validate_uniqueness_of(:code) }
     end
+
+    it { should allow_mass_assignment_of(:parent) }
+    it { should allow_mass_assignment_of(:name) }
+    it { should allow_mass_assignment_of(:code) }
+    it { should allow_mass_assignment_of(:parent).as(:admin) }
+    it { should allow_mass_assignment_of(:name).as(:admin) }
+    it { should allow_mass_assignment_of(:code).as(:admin) }
   end
 
   context "scopes" do
