@@ -4,11 +4,20 @@ describe Activity do
 
   let(:user) { User.make! }
   let(:repository) { Repository.make! }
-  
-  it { should belong_to(:user) }
-  it { should belong_to(:activityable) }
+  subject { Activity.make!(:user => user, :action => :created_repository,:activityable => repository) }
 
-  context "define scopes" do
+  context "shoulda" do
+    it { should belong_to(:user) }
+    it { should belong_to(:activityable) }
+  end
+
+  context "delegate" do
+    its(:email) {should eq(user.email)}
+    its(:username) {should eq(user.username)}
+    its(:gravatar_url) {should eq(user.gravatar_url)}
+  end
+
+  context "scopes" do
     it "should has actions scope" do
       Activity::ACTIONS.each do |action|
         Activity.send(action).new.action.to_s.should eq(action.to_s)
@@ -33,9 +42,6 @@ describe Activity do
   end
 
   context "function" do
-
-    subject { Activity.make!(:user => user, :action => :created_repository,:activityable => repository) }
-
     it "should has self.log!" do
       lambda { @activity_log = Activity.log!(:user => user, :action => :created_repository,
                     :activity_target => repository) }.should_not raise_error
