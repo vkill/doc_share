@@ -10,9 +10,9 @@ describe Category do
   context "shoulda" do
     it { should have_many(:repositories) }
 
-    it { should allow_mass_assignment_of(:parent) }
-    it { should allow_mass_assignment_of(:name) }
-    it { should allow_mass_assignment_of(:code) }
+    it { should allow_mass_assignment_of(:parent).as(:admin) }
+    it { should allow_mass_assignment_of(:name).as(:admin) }
+    it { should allow_mass_assignment_of(:code).as(:admin) }
 
     it { should validate_presence_of(:name) }
     it { should validate_presence_of(:code) }
@@ -24,7 +24,6 @@ describe Category do
   end
 
   context "scopes" do
-    
     it { Category.random(1).first.should be_kind_of(Category) }
     it { Category.parents.should include(parent_category) }
     it { Category.children.should include(child_category) }

@@ -2,20 +2,39 @@ require 'spec_helper'
 
 describe Comment do
 
-  context "valid_attribute" do
-    it { should have_valid(:user).when( User.make! ) }
+  let(:user) { User.make! }
+  subject { Comment.make!(:user => user) }
 
-    it { should have_valid(:content).when('test_123' ) }
-    it { should_not have_valid(:content).when('s'*5, 's'*2001, nil) }
+  context "shoulda" do
+    it { should belong_to(:commentable) }
+    it { should belong_to(:user) }
+
+    it { should allow_mass_assignment_of(:user_id) }
+    it { should allow_mass_assignment_of(:user) }
+    it { should allow_mass_assignment_of(:content) }
+    it { should allow_mass_assignment_of(:commentable) }
+    it { should allow_mass_assignment_of(:commentable_id) }
+    it { should allow_mass_assignment_of(:commentable_type) }
+    it { should allow_mass_assignment_of(:user_id).as(:admin) }
+    it { should allow_mass_assignment_of(:user).as(:admin) }
+    it { should allow_mass_assignment_of(:content).as(:admin) }
+    it { should allow_mass_assignment_of(:commentable).as(:admin) }
+    it { should allow_mass_assignment_of(:commentable_id).as(:admin) }
+    it { should allow_mass_assignment_of(:commentable_type).as(:admin) }
+
+    it { should validate_presence_of(:content) }
+    it { should ensure_length_of(:content).is_at_least(6).is_at_most(2000) }
   end
 
-  context "associations" do
-    it { subject.association(:commentable).should be_a(ActiveRecord::Associations::BelongsToPolymorphicAssociation) }
+  context "delegate" do
+    its(:email) {should eq(user.email)}
+    its(:username) {should eq(user.username)}
+    its(:gravatar_url) {should eq(user.gravatar_url)}
   end
 
   context "methods" do
-    it "has html_anchor method" do
-      pending
+    it "has html_anchor" do
+      subject.html_anchor.should == "comment-#{subject.id}"
     end
   end
 
