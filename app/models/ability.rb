@@ -6,6 +6,8 @@ class Ability
 
     if user
       can :access, :all
+    else
+      can :create, :users
     end
 
   end

@@ -1,12 +1,15 @@
 class Activity < ActiveRecord::Base
 
+  ACTIONS = [:created_repository, :destroyed_repository,
+            :followed_user, :unfollowed_user, :watched_repository, :unwatched_repository,
+            :forked_repository,
+            ]
+
+  #attribute_enums gem
+  attribute_enums :action, :in => ACTIONS
+
   belongs_to :user
   belongs_to :activityable, :polymorphic => true
-
-  attribute_enums :action, :in => [:created_repository, :destroyed_repository,
-                              :followed_user, :unfollowed_user, :watched_repository, :unwatched_repository,
-                              :forked_repository,
-                              ]
 
   delegate :email, :username, :gravatar_url , :to => :user
 

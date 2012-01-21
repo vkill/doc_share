@@ -2,28 +2,51 @@ require 'spec_helper'
 
 describe Activity do
 
+  let(:user) { User.make! }
+  let(:repository) { Repository.make! }
+  
+  it { should belong_to(:user) }
+  it { should belong_to(:activityable) }
+
   context "define scopes" do
-    it { Activity.created_repository.new.action.to_s.should eq('created_repository') }
-    it { Activity.destroyed_repository.new.action.to_s.should eq('destroyed_repository') }
-    it { Activity.followed_user.new.action.to_s.should eq('followed_user') }
-    it { Activity.unfollowed_user.new.action.to_s.should eq('unfollowed_user') }
-    it { Activity.watched_repository.new.action.to_s.should eq('watched_repository') }
-    it { Activity.unwatched_repository.new.action.to_s.should eq('unwatched_repository') }
-    it { Activity.forked_repository.new.action.to_s.should eq('forked_repository') }
+    it "should has actions scope" do
+      Activity::ACTIONS.each do |action|
+        Activity.send(action).new.action.to_s.should eq(action.to_s)
+      end
+    end
+
+    # (user_id in current_user.following_user_ids) and 
+    # (activityable==watching_repositories and user_id != current_user.id)
+    it "should has about_user" do
+      following_user = User.make!
+      user.follow_user(following_user)
+      Activity.make!(:user => following_user)
+
+      watching_repository = Repository.make!
+      user.watch_repository(watching_repository)
+      Activity.make!(:activityable => watching_repository)
+
+      Activity.make!(:activityable => watching_repository, :user => user)
+ 
+      Activity.about_user(user).count.should eq(3) #2 + watching_repository created
+    end
   end
 
   context "function" do
-    it "has target_link_body method" do
-      activity = Activity.make!(:created_repository)
-      activity.target_link_body.should == "#{activity.activityable_type}##{activity.activityable_id}"
+
+    subject { Activity.make!(:user => user, :action => :created_repository,:activityable => repository) }
+
+    it "should has self.log!" do
+      lambda { @activity_log = Activity.log!(:user => user, :action => :created_repository,
+                    :activity_target => repository) }.should_not raise_error
+      @activity_log.should be_kind_of(Activity)
+    end
+
+    it "should has target_link_body" do
+      subject.target_link_body.should == "#{subject.activityable_type}##{subject.activityable_id}"
     end
   end
 
-  context "scope" do
-    it "should has about_user" do
-      pending
-    end
-  end
 end
 # == Schema Information
 #

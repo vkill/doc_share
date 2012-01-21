@@ -80,8 +80,6 @@ group :development do
   gem "annotate", "~> 2.4.1.beta1", :require => false
   gem "rails-erd", "~> 0.4.5"
   gem "foreman", "~> 0.26.1", :require => false
-  gem "pry", "~> 0.9.7.4"
-  gem 'pry-rails'
   gem "mail_view", "~> 1.0.2"
   gem "active_reload", "~> 0.6.1"
   #gem "rails-footnotes", ">= 3.7.5.rc4"
@@ -104,6 +102,11 @@ group :development do
 
   #
   gem "request-log-analyzer", "~> 1.11.1"
+end
+
+group :development, :test do
+  gem "pry", "~> 0.9.7.4"
+  gem 'pry-rails'
 end
 
 group :test do

@@ -16,7 +16,7 @@ describe Category do
   end
 
   context "define scopes" do
-    it { Category.ancestor_categories.new.ancestry.should be_nil }
+    pending
   end
 
   context "define functions" do
