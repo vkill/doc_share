@@ -48,7 +48,7 @@ gem "show_for", "~> 0.2.4"
 gem "best_in_place", "~> 1.0.4"
 # ckeditor
 gem "mini_magick"
-gem "ckeditor", :git => "git://github.com/galetahub/ckeditor.git"
+gem "ckeditor", "~> 3.7.0.rc2"
 gem 'ckeditor_rails', :require => 'ckeditor-rails'
 
 gem "attribute_enums", "~> 0.1.7"
@@ -73,7 +73,6 @@ gem "backup", "~> 3.0.19"
 gem 'acts-as-messageable', "~> 0.4.4"
 
 group :development do
-  gem 'sqlite3', "~> 1.3.4"
   gem "thin", "~> 1.3.1", :require => false
   gem "capistrano", "~> 2.9.0", :require => false
   gem "god", "~> 0.11.0", :require => false
