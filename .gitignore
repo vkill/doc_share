@@ -48,4 +48,4 @@ public/ckeditor_assets/
 .bundle/
 vendor/bundle/
 
-
+.rvmrc
