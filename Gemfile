@@ -42,7 +42,7 @@ gem "cells", "~> 3.8.0"
 gem "haml-rails", "~> 0.3.4"
 gem "simple_form", :git => 'git://github.com/plataformatec/simple_form.git'
 gem "nested_form", :git => 'git://github.com/ryanb/nested_form.git'
-gem "kaminari", "~> 0.12.4"
+gem "kaminari", "~> 0.13.0"
 #gem "client_side_validations", "~> 3.1.3"
 gem "show_for", "~> 0.2.4"
 gem "best_in_place", "~> 1.0.4"
